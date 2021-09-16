@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.learndifferent.mtm.mapper.WebsiteMapper">
+    <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.WebsiteDO">
+        <id column="webId" jdbcType="INTEGER" property="webId"/>
+        <result column="userName" jdbcType="VARCHAR" property="userName"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="img" jdbcType="VARCHAR" property="img"/>
+        <result column="desc" jdbcType="VARCHAR" property="desc"/>
+        <result column="createTime" jdbcType="DATE" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        webId
+        , userName, title, url, img, `desc`, `createTime`
+    </sql>
+
+    <select id="findWebsitesDataByFilter" resultType="com.github.learndifferent.mtm.entity.WebsiteDO"
+            parameterType="com.github.learndifferent.mtm.query.WebFilter">
+        select *
+        from website
+        <where>
+            <if test="usernames != null and usernames.size() != 0">
+                <foreach collection="usernames" item="userName" open="(" close=")" separator="or">
+                    userName = #{userName}
+                </foreach>
+            </if>
+        </where>
+        <!-- fromDate 和 toDate 表示日期范围 -->
+        <if test="fromDate != null and toDate != null">
+            HAVING createTime <![CDATA[ >= ]]> #{fromDate,jdbcType=DATE}
+            AND createTime <![CDATA[ <= ]]> #{toDate,jdbcType=DATE}
+        </if>
+        <!-- 如果上面不是「大于等于 / 小于等于」，而是「大于 / 小于」的情况
+         ，上面的 if 标签需要加上「and !fromDate.equals(toDate)」
+         ，然后还要加上下面这个 if 判断-->
+        <!--        <if test="fromDate != null and toDate != null and fromDate.equals(toDate)">-->
+        <!--            HAVING createTime = #{fromDate,jdbcType=DATE}-->
+        <!--        </if>-->
+        <if test="order != null and order != ''">
+            <!-- 动态 SQL 中，如果有 order by 的情况下，不要使用 # 符号，而要使用 $ 符号 -->
+            order by ${order}
+        </if>
+        <if test="order != null and order != '' and desc != null and desc != false">
+            desc
+        </if>
+        <if test="load != null and load > 0">
+            limit 0, #{load}
+        </if>
+    </select>
+
+    <select id="showMostMarked" resultType="com.github.learndifferent.mtm.dto.WebsiteWithCountDTO">
+        select count(url) as count, url, title, `desc`, img
+        from website
+        group by url, title, `desc`, img
+        order by count desc limit #{from}, #{size};
+    </select>
+    <select id="countDistinctUrl" resultType="java.lang.Integer">
+        select count(distinct url)
+        from website;
+    </select>
+
+    <select id="showAllWebsiteDataDesc" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+        <!-- 因为 webId 也是根据时间顺序生成的，所以用 createTime 和 webId 排序是一样的效果 -->
+        select * from website order by `webId` desc
+        <if test="from!=null and size!=null">
+            limit #{from},#{size}
+        </if>
+    </select>
+
+    <select id="getWebsiteDataById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from website
+        where webId = #{webId,jdbcType=INTEGER}
+    </select>
+    <select id="showAllWebsitesData" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+        select *
+        from website;
+    </select>
+    <select id="findWebsitesDataByUrl" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+        select *
+        from website
+        where url = #{url};
+    </select>
+    <select id="countAll" resultType="java.lang.Integer">
+        select count(webId)
+        from website;
+    </select>
+
+    <select id="findWebsitesDataByUser" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+        select *
+        from website
+        where userName = #{userName}
+        order by webId desc
+        <if test="from!=null and size!=null">
+            limit #{from},#{size}
+        </if>
+
+    </select>
+    <select id="countUserPost" resultType="java.lang.Integer">
+        select count(userName)
+        from website
+        where userName = #{userName};
+    </select>
+    <select id="getAllWebsitesDataForSearch" resultType="com.github.learndifferent.mtm.dto.WebForSearchDTO">
+        select url, title, img, `desc`
+        from website
+        group by url, title, `desc`, img;
+    </select>
+    <select id="findWebsitesDataExcludeUser" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+        select *
+        from website
+        where userName != #{userName}
+        order by webId desc limit #{from}, #{size};
+    </select>
+    <select id="countExcludeUserPost" resultType="java.lang.Integer">
+        select count(webId)
+        from website
+        where userName != #{userName};
+    </select>
+
+    <delete id="deleteWebsiteDataById" parameterType="java.lang.Integer">
+        delete
+        from website
+        where webId = #{webId,jdbcType=INTEGER}
+    </delete>
+
+    <delete id="deleteWebsiteDataByUsername">
+        delete
+        from website
+        where userName = #{userName}
+    </delete>
+
+    <insert id="addWebsiteData" keyColumn="webId" keyProperty="webId"
+            parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
+            useGeneratedKeys="true">
+        insert into website(userName, title, url,
+                            img, `desc`, `createTime`)
+        values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime})
+    </insert>
+
+    <update id="updateWebsiteDataById" parameterType="com.github.learndifferent.mtm.entity.WebsiteDO">
+        update website
+        set userName     = #{userName,jdbcType=VARCHAR},
+            title        = #{title,jdbcType=VARCHAR},
+            url          = #{url,jdbcType=VARCHAR},
+            img          = #{img,jdbcType=VARCHAR},
+            `desc`       = #{desc,jdbcType=VARCHAR},
+            `createTime` = #{createTime,jdbcType=DATE}
+        where webId = #{webId,jdbcType=INTEGER}
+    </update>
+</mapper>

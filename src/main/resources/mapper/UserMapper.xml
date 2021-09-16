@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.learndifferent.mtm.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.UserDO">
+        <result column="userId" jdbcType="VARCHAR" property="userId"/>
+        <result column="userName" jdbcType="VARCHAR" property="userName"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="createTime" jdbcType="DATE" property="createTime"/>
+        <result column="role" jdbcType="VARCHAR" property="role"/>
+    </resultMap>
+
+    <select id="getNamesAndCountMarkedWebsDesc" resultType="com.github.learndifferent.mtm.dto.UserWithWebCountDTO">
+        select count(webId) webCount, u.userName
+        from website w
+        left join user u on w.userName = u.userName
+        <where>
+            <if test="list != null and list.size() != 0">
+                <foreach collection="list" separator="or" open="(" close=")" item="userName">
+                    u.userName = #{userName}
+                </foreach>
+            </if>
+        </where>
+        group by u.userName
+        order by webCount desc;
+    </select>
+
+    <insert id="addUser" parameterType="com.github.learndifferent.mtm.entity.UserDO">
+        insert into user (userId, userName, `password`,
+                          createTime, `role`)
+        values (#{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+                #{createTime,jdbcType=DATE}, #{role,jdbcType=VARCHAR})
+    </insert>
+    <delete id="deleteUserByName">
+        delete
+        from user
+        where userName = #{userName};
+    </delete>
+
+    <select id="getUserByNameAndPwd" resultType="com.github.learndifferent.mtm.entity.UserDO">
+        select *
+        from user
+        where userName = #{param1}
+          and password = #{param2};
+    </select>
+    <select id="getUserRoleById" resultType="java.lang.String">
+        select role
+        from user
+        where userId = #{userId};
+    </select>
+    <select id="getUserById" resultType="com.github.learndifferent.mtm.entity.UserDO">
+        select *
+        from user
+        where userId = #{userId};
+    </select>
+    <select id="getRoleByName" resultType="java.lang.String">
+        select role
+        from user
+        where userName = #{userName};
+    </select>
+    <select id="getUserByName" resultType="com.github.learndifferent.mtm.entity.UserDO">
+        select *
+        from user
+        where userName = #{userName};
+    </select>
+    <select id="getUsers" resultType="com.github.learndifferent.mtm.entity.UserDO">
+        select *
+        from user;
+    </select>
+
+    <update id="updateUser" parameterType="com.github.learndifferent.mtm.entity.UserDO">
+        update user
+        <set>
+            <if test="userName != null and userName !=''">
+                userName = #{userName},
+            </if>
+            <if test="password != null and password !=''">
+                `password` = #{password},
+            </if>
+            <if test="role != null and role !=''">
+                `role` = #{role},
+            </if>
+        </set>
+        where userId = #{userId};
+    </update>
+</mapper>
