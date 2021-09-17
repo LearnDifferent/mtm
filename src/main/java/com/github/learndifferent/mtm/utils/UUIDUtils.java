@@ -25,17 +25,12 @@ public class UUIDUtils {
      * @return 指定长度uuid
      */
     public static String getUuid(int length) {
-        if (length <= 0) {
-            return null;
+        if (length < 0) {
+            length = 0;
         }
 
         String uuid = getUuid();
-        StringBuilder str = new StringBuilder();
 
-        for (int i = 0; i < length; i++) {
-            str.append(uuid.charAt(i));
-        }
-
-        return str.toString();
+        return uuid.substring(0, length);
     }
 }
