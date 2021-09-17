@@ -43,4 +43,11 @@ public @interface RegisterCodeCheck {
      * @return 名称
      */
     String invitationCodeParamName();
+
+    /**
+     * 邀请码的 token 的参数的名称
+     *
+     * @return {@code String}
+     */
+    String invitationTokenParamName();
 }

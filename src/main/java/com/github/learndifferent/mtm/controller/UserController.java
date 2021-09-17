@@ -58,8 +58,9 @@ public class UserController {
     }
 
     /**
-     * 创建用户。
-     * <p>@RegisterCodeCheck 注解会判断验证码和邀请码是否正确，并抛出相应异常。</p>
+     * 创建用户。前端需要传入 code（验证码）、verifyToken（验证验证码的 token）、
+     * invitationCode（邀请码）和 invitationToken（用于验证邀请码的 token）。
+     * <p>@RegisterCodeCheck 注解会判断验证码和邀请码是否正确，并抛出相应异常</p>
      * <p>UserService 接口的 addUserByBasicInfo 也判断用户信息是否合适并抛出相应异常</p>
      *
      * @param basicInfo 基本信息
@@ -74,11 +75,12 @@ public class UserController {
      *                          ResultCode.PASSWORD_TOO_LONG 和
      *                          ResultCode.PASSWORD_EMPTY
      */
+    @PostMapping("/create")
     @RegisterCodeCheck(codeParamName = CodeConstant.CODE,
             verifyTokenParamName = CodeConstant.VERIFY_TOKEN,
             roleParamName = "role",
+            invitationTokenParamName = CodeConstant.INVITATION_CODE_TOKEN,
             invitationCodeParamName = CodeConstant.INVITATION_CODE)
-    @PostMapping("/create")
     public ResultVO<?> createUser(@RequestBody UserBasicInfoVO basicInfo) {
 
         boolean success = userService.addUserByBasicInfo(basicInfo);
