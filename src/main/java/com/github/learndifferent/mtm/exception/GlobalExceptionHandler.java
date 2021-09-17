@@ -30,7 +30,11 @@ public class GlobalExceptionHandler {
     public ResultVO<?> handleServiceException(final ServiceException e) {
 
         e.printStackTrace();
-        return ResultCreator.result(e.getResultCode());
+
+        ResultCode resultCode = e.getResultCode();
+        Object data = e.getData();
+
+        return ResultCreator.result(resultCode, data);
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
