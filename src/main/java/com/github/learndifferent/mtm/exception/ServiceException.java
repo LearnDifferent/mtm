@@ -10,27 +10,46 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
  */
 public class ServiceException extends BaseException {
 
-    private ResultCode resultCode;
+    private final ResultCode resultCode;
+    private final Object data;
 
     public ServiceException(final String message) {
         super(message);
+        this.resultCode = ResultCode.FAILED;
+        this.data = null;
     }
 
     public ServiceException(final String message, final Throwable cause) {
         super(message, cause);
+        this.resultCode = ResultCode.FAILED;
+        this.data = null;
+    }
+
+    public ServiceException(final ResultCode resultCode,
+                            final String message,
+                            final Object data) {
+        super(message);
+        this.resultCode = resultCode;
+        this.data = data;
     }
 
     public ServiceException(final ResultCode resultCode, final String message) {
         super(message);
         this.resultCode = resultCode;
+        this.data = null;
     }
 
     public ServiceException(final ResultCode resultCode) {
         super(resultCode.msg());
         this.resultCode = resultCode;
+        this.data = null;
     }
 
     public ResultCode getResultCode() {
         return this.resultCode;
+    }
+
+    public Object getData() {
+        return this.data;
     }
 }
