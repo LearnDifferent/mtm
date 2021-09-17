@@ -20,6 +20,10 @@ public class ReverseUtils {
     }
 
     public static boolean stringNotEqualsIgnoreCase(String baseString, String anotherString) {
+        if (baseString == null) {
+            // 如果传入的 String 为 null，直接返回 true 表示不相等
+            return true;
+        }
         return !baseString.equalsIgnoreCase(anotherString);
     }
 
