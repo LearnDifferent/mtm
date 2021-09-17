@@ -101,6 +101,10 @@ public enum ResultCode {
      */
     PASSWORD_EMPTY(3007, "Please Enter Password"),
     /**
+     * 电子邮件设置错误
+     */
+    EMAIL_SET_UP_ERROR(3008, "Email not set up properly"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
