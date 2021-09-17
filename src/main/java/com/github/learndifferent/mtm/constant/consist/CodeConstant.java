@@ -14,4 +14,5 @@ public class CodeConstant {
     public static final String CODE = "code";
     public static final String VERIFY_TOKEN = "verifyToken";
     public static final String INVITATION_CODE = "invitationCode";
+    public static final String INVITATION_CODE_TOKEN = "invitationToken";
 }
