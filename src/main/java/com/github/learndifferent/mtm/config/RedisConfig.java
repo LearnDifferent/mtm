@@ -22,7 +22,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  * @author zhou
  * @date 2021/09/05
  */
-
 @Configuration
 @EnableCaching
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1200)
@@ -33,16 +32,32 @@ public class RedisConfig {
 //        return ConfigureRedisAction.NO_OP;
 //    }
 
+    /**
+     * 连接工厂
+     *
+     * @return {@code LettuceConnectionFactory} 连接工厂
+     */
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration("mid", 6379));
     }
 
+    /**
+     * 默认序列化器
+     *
+     * @return {@code RedisSerializer<Object>} 默认序列化器
+     */
     @Bean(name = "springSessionDefaultRedisSerializer")
     public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
         return RedisSerializer.json();
     }
 
+    /**
+     * CacheManager
+     *
+     * @param factory RedisConnectionFactory
+     * @return {@code CacheManager}
+     */
     @Bean
     public CacheManager manager(RedisConnectionFactory factory) {
         RedisCacheConfiguration config = RedisCacheConfiguration

@@ -17,6 +17,7 @@ public class FilterConfig {
     @Bean
     public FilterRegistrationBean<RequestBodyCacheFilter> registerRequestBodyCacheFilter() {
 
+        // 配置自定义的 Request Body 的过滤器
         FilterRegistrationBean<RequestBodyCacheFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(new RequestBodyCacheFilter());
         bean.setOrder(1);
