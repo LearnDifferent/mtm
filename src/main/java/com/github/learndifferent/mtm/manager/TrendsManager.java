@@ -5,11 +5,10 @@ import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.E
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 /**
  * 操作排行（在 redis 中）

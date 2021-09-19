@@ -7,6 +7,8 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.VerificationCodeManager;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.JsonUtils;
+import java.util.HashMap;
+import java.util.Map;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +18,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.util.ContentCachingRequestWrapper;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 检查登陆信息是否正确。
@@ -130,8 +129,7 @@ public class LoginInfoCheckAspect {
         String json = new String(contentAsByteArray);
 
         // 获取 Map<String, String> 的 TypeReference，用于下一步的转换操作
-        TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {
-        };
+        TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {};
 
         // 将 json 字符串转换为 Map<String, String> 并返回
         return JsonUtils.toObject(json, typeRef);

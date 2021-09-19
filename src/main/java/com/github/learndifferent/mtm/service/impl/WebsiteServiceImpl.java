@@ -15,18 +15,17 @@ import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.query.WebFilter;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * WebsiteService 实现类
@@ -109,8 +108,8 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     @WebsiteDataClean
     @MarkCheck(usernameParamName = "userName",
-            paramClassContainsUrl = WebWithNoIdentityDTO.class,
-            urlFieldNameInParamClass = "url")
+               paramClassContainsUrl = WebWithNoIdentityDTO.class,
+               urlFieldNameInParamClass = "url")
     public boolean saveWebsiteData(WebWithNoIdentityDTO rawWebsite, String userName) {
         // 添加信息后，放入数据库
         WebsiteDO websiteDO = DozerUtils.convert(rawWebsite, WebsiteDO.class);

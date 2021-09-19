@@ -1,13 +1,12 @@
 package com.github.learndifferent.mtm.vo;
 
 import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.io.Serializable;
 
 /**
  * Home 页面需要展示的数据

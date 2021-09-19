@@ -1,12 +1,11 @@
 package com.github.learndifferent.mtm.dto;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.io.Serializable;
 
 /**
  * Elasticsearch 索引的数据结构（这里归为了 DTO，实际上也是 DO）

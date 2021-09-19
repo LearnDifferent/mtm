@@ -6,7 +6,6 @@ import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.vo.UserBasicInfoVO;
 import com.github.learndifferent.mtm.vo.UserChangePwdVO;
-
 import java.util.List;
 
 /**

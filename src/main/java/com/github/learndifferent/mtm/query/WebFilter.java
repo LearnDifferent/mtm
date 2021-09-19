@@ -2,12 +2,11 @@ package com.github.learndifferent.mtm.query;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * 筛选器（根据用户名和日期，筛选网页，并根据需要加载的数量显示网页）

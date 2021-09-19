@@ -1,9 +1,8 @@
 package com.github.learndifferent.mtm.vo;
 
+import java.io.Serializable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 /**
  * 用于接收 URL、用户名以及是否同步数据到 Elasticsearch

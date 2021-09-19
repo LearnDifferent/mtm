@@ -7,6 +7,7 @@ package com.github.learndifferent.mtm.utils;
  * @date 2021/09/05
  */
 public class CleanUrlUtil {
+
     public static String cleanup(String url) {
 
         // 存入的时候，只存入地址，不存入参数，所以要去掉「？」

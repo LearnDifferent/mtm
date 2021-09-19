@@ -2,11 +2,10 @@ package com.github.learndifferent.mtm.service.impl;
 
 import cn.dev33.satoken.stp.StpInterface;
 import com.github.learndifferent.mtm.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * sa-token 框架用于获取角色权限的实现

@@ -3,12 +3,11 @@ package com.github.learndifferent.mtm.manager;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.utils.UUIDUtils;
+import java.util.concurrent.TimeUnit;
+import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-
-import javax.mail.MessagingException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 生成、发送和接收邀请码

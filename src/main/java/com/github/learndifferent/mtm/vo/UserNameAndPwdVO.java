@@ -1,11 +1,10 @@
 package com.github.learndifferent.mtm.vo;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 
 /**
  * 用户名和密码的 vo

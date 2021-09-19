@@ -3,18 +3,21 @@ package com.github.learndifferent.mtm.manager;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.constant.enums.ShowPattern;
-import com.github.learndifferent.mtm.dto.*;
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
+import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
+import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.PageUtil;
 import com.github.learndifferent.mtm.vo.NewWebVO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 操作网页数据的一些特殊操作

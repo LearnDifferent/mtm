@@ -1,14 +1,13 @@
 package com.github.learndifferent.mtm.vo;
 
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import java.io.Serializable;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * 根据过滤器，查询出来的需要展示的网页数据及其个数

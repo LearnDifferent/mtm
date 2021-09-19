@@ -7,6 +7,7 @@ package com.github.learndifferent.mtm.response;
  * @date 2021/09/05
  */
 public class ResultVO<T> {
+
     /**
      * 状态码
      */

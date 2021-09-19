@@ -1,13 +1,12 @@
 package com.github.learndifferent.mtm.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.io.Serializable;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 网页数据（为了方便，将 DTO 和 DO 合并在一起了）

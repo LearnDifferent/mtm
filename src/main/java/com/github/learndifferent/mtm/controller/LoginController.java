@@ -9,7 +9,11 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.vo.UserNameAndPwdVO;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 用于登陆相关
@@ -30,9 +34,9 @@ public class LoginController {
      *                          和验证码错误：ResultCode.VERIFICATION_CODE_FAILED
      */
     @LoginInfoCheck(codeParamName = CodeConstant.CODE,
-            verifyTokenParamName = CodeConstant.VERIFY_TOKEN,
-            usernameParamName = "userName",
-            passwordParamName = "password")
+                    verifyTokenParamName = CodeConstant.VERIFY_TOKEN,
+                    usernameParamName = "userName",
+                    passwordParamName = "password")
     @PostMapping("/in")
     @SystemLog
     public ResultVO<SaTokenInfo> login(@RequestBody UserNameAndPwdVO nameAndPwd) {

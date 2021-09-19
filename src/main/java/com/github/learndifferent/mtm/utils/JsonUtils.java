@@ -9,12 +9,11 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import org.springframework.format.annotation.DateTimeFormat;
-
 import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * json 工具
@@ -23,6 +22,7 @@ import java.util.Date;
  * @date 2021/09/05
  */
 public class JsonUtils {
+
     private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final ObjectMapper MAPPER;
 
@@ -79,6 +79,7 @@ public class JsonUtils {
     }
 
     public static class JsonDateSerializer extends JsonSerializer<Date> {
+
         private final SimpleDateFormat dateFormat;
 
         public JsonDateSerializer(String format) {

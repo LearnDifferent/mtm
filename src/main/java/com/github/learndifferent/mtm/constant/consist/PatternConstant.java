@@ -7,6 +7,7 @@ package com.github.learndifferent.mtm.constant.consist;
  * @date 2021/09/05
  */
 public class PatternConstant {
+
     private PatternConstant() {
     }
 

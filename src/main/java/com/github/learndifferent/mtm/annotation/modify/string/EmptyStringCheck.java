@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.annotation.modify.string;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,6 +26,7 @@ public @interface EmptyStringCheck {
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @interface DefaultValueIfEmpty {
+
         /**
          * 如果为空字符串或 null 时，就转化为这个值
          *
@@ -44,6 +44,7 @@ public @interface EmptyStringCheck {
     @Target({ElementType.PARAMETER})
     @Retention(RetentionPolicy.RUNTIME)
     @interface ExceptionIfEmpty {
+
         /**
          * ServiceException 需要的 ResultCode
          *

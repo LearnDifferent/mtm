@@ -16,10 +16,15 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.vo.UserBasicInfoVO;
 import com.github.learndifferent.mtm.vo.UserChangePwdVO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 用于注册、更新和删除用户
@@ -77,10 +82,10 @@ public class UserController {
      */
     @PostMapping("/create")
     @RegisterCodeCheck(codeParamName = CodeConstant.CODE,
-            verifyTokenParamName = CodeConstant.VERIFY_TOKEN,
-            roleParamName = "role",
-            invitationTokenParamName = CodeConstant.INVITATION_CODE_TOKEN,
-            invitationCodeParamName = CodeConstant.INVITATION_CODE)
+                       verifyTokenParamName = CodeConstant.VERIFY_TOKEN,
+                       roleParamName = "role",
+                       invitationTokenParamName = CodeConstant.INVITATION_CODE_TOKEN,
+                       invitationCodeParamName = CodeConstant.INVITATION_CODE)
     public ResultVO<?> createUser(@RequestBody UserBasicInfoVO basicInfo) {
 
         boolean success = userService.addUserByBasicInfo(basicInfo);

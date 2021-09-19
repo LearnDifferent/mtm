@@ -1,12 +1,11 @@
 package com.github.learndifferent.mtm.manager;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * 操作通知（在 Redis 中）

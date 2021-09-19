@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserWithWebCountDTO extends UserDTO {
+
     /**
      * 新增：该用户收藏的网页的个数
      */

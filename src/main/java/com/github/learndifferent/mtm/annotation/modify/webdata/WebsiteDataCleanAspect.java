@@ -5,15 +5,14 @@ import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.utils.CleanUrlUtil;
 import com.github.learndifferent.mtm.utils.ShortenUtils;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * 清理 Website 数据中 title 和 desc 的长度，判断 url 格式是否正确，以及清理 url

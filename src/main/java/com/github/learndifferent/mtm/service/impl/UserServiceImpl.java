@@ -16,14 +16,13 @@ import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.UUIDUtils;
 import com.github.learndifferent.mtm.vo.UserBasicInfoVO;
 import com.github.learndifferent.mtm.vo.UserChangePwdVO;
+import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * UserService 实现类
@@ -77,8 +76,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @NewUserCheck(userClass = UserDTO.class,
-            usernameFieldName = "userName",
-            passwordFieldName = "password")
+                  usernameFieldName = "userName",
+                  passwordFieldName = "password")
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean addUser(UserDTO user) {
 

@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.annotation.general.page;
 
 import com.github.learndifferent.mtm.constant.enums.PageInfoMode;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

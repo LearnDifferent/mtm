@@ -21,7 +21,8 @@ public class HtmlFileConstant {
     /**
      * 在 img 之前
      */
-    public static final String BEFORE_IMG = "<dt style=\"border-radius: 25px;border: 2px solid grey;padding: 20px;\"><img src=\"";
+    public static final String BEFORE_IMG =
+            "<dt style=\"border-radius: 25px;border: 2px solid grey;padding: 20px;\"><img src=\"";
 
     /**
      * 在 url 之前

@@ -1,13 +1,12 @@
 package com.github.learndifferent.mtm.vo;
 
+import java.io.Serializable;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.io.Serializable;
-import java.util.Set;
 
 /**
  * Find页面初始化。
