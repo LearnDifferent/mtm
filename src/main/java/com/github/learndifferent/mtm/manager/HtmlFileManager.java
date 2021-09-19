@@ -45,6 +45,10 @@ public class HtmlFileManager {
         // [Success][Failure][Already Exists]
         int[] result = new int[3];
 
+        // 默认的回复
+        ResultVO<String> defaultFailResult =
+                ResultCreator.failResult("No Data Available. Please Upload the Correct HTML file.");
+
         try (InputStream in = htmlFile.getInputStream()) {
 
             Document document = Jsoup.parse(in, "UTF-8", "");
@@ -78,6 +82,9 @@ public class HtmlFileManager {
 
         } catch (IOException e) {
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
+        } catch (IllegalArgumentException e) {
+            // Jsoup 如果抛出了 IllegalArgumentException，说明传入的 HTML 文件有问题
+            return defaultFailResult;
         }
 
         boolean hasData =
@@ -90,7 +97,7 @@ public class HtmlFileManager {
             return ResultCreator.okResult(responseMsg);
         }
 
-        return ResultCreator.failResult("No Data Available. Please Upload the Correct HTML file.");
+        return defaultFailResult;
     }
 
     private WebWithNoIdentityDTO getWebFromElement(org.jsoup.nodes.Element dt) {
