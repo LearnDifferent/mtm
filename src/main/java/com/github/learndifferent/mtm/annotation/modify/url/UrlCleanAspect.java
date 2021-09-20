@@ -35,7 +35,7 @@ public class UrlCleanAspect {
         boolean cantFindUrl = true;
 
         for (int i = 0; i < parameterNames.length; i++) {
-            if (urlParamName.equalsIgnoreCase(parameterNames[i])
+            if (urlParamName.equals(parameterNames[i])
                     && ObjectUtils.isNotEmpty(args[i])
                     && String.class.isAssignableFrom(args[i].getClass())) {
 
