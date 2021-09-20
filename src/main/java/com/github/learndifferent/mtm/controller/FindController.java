@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SearchResultsDTO;
@@ -67,11 +68,16 @@ public class FindController {
     }
 
     /**
-     * 删除某个热搜词
+     * 删除某个热搜词。
+     * 非 Guest 账户才能删除热搜词，如果是 Guest 账户，
+     * {@link NotGuest} 注解会抛出 {@link com.github.learndifferent.mtm.exception.ServiceException} 异常，
+     * 异常的状态码为 {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *
      * @param word 被删除的热搜词
      * @return 是否删除成功
+     * @throws com.github.learndifferent.mtm.exception.ServiceException 异常的状态码为 {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
+    @NotGuest
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/trends/{word}")
     public boolean deleteTrendsByWord(@PathVariable("word") String word) {
@@ -79,10 +85,15 @@ public class FindController {
     }
 
     /**
-     * 删除所有热搜词
+     * 删除所有热搜词。
+     * 非 Guest 账户才能删除热搜词，如果是 Guest 账户，
+     * {@link NotGuest} 注解会抛出 {@link com.github.learndifferent.mtm.exception.ServiceException} 异常，
+     * 异常的状态码为 {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *
      * @return 是否成功
+     * @throws com.github.learndifferent.mtm.exception.ServiceException 异常的状态码为 {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
+    @NotGuest
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/trends")
     public boolean deleteAllTrends() {
