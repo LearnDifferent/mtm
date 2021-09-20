@@ -2,17 +2,19 @@ spring:
   application:
     name: web
   datasource:
-    #    driver-class-name: com.mysql.cj.jdbc.Driver # 版本 8
-    driver-class-name: com.mysql.jdbc.Driver # 版本 5
+    #  driver-class-name: com.mysql.cj.jdbc.Driver # MySQL Version 8
+    driver-class-name: com.mysql.jdbc.Driver # MySQL Version 5
     type: com.alibaba.druid.pool.DruidDataSource
+    # "db" is the host of MySQL. It can be replace by "localhost"
     url: jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
     username: root
     password: rootroot
   mail:
-    username: # 填入自己的 email
-    password: # 填入自己的 password
-    host: # 填入自己的 host，如 smtp.xxx.com
+    username: # Your Email. For Instance: abc@email.com
+    password: # Your Email Password.
+    host: # Your Email Host. For Instance: smtp.xxx.com
   sa-token:
+    # create separate tokens for each user when they login with the same account
     is-share: false
 server:
   port: 80
@@ -31,12 +33,12 @@ elasticsearch:
   host: es
   port: 9200
   isHttps: false
-# 筛选 Website 数据的 Filter 类的初始值
+# Initialize WebFilter.java
 website-filter:
   load: 10
   order: "userName"
   isDesc: false
-# 自定义的异步配置
+# Async Configuration
 custom-async:
   core-pool-size: 3
   alive-seconds: 30
