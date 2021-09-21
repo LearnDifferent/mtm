@@ -1,14 +1,20 @@
 package com.github.learndifferent.mtm.annotation.validation.website.delete;
 
+import com.github.learndifferent.mtm.annotation.common.Username;
+import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ReverseUtils;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,9 +40,44 @@ public class DeleteWebsitePermissionAspect {
         this.websiteService = websiteService;
     }
 
-    @Before("@annotation(annotation)")
-    public void check(DeleteWebsitePermission annotation) {
+    @Before("@annotation(websitePermission)")
+    public void check(JoinPoint joinPoint, DeleteWebsitePermission websitePermission) {
 
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        String[] parameterNames = signature.getParameterNames();
+
+        HttpServletRequest request = getRequest();
+        int webId = 0;
+        String username = "";
+
+        int count = 0;
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            for (Annotation annotation : parameterAnnotations[i]) {
+                if (annotation instanceof WebId) {
+                    webId = getParamValue(request, parameterNames[i], Integer.class);
+                    count++;
+                    break;
+                }
+                if (annotation instanceof Username) {
+                    username = getParamValue(request, parameterNames[i], String.class);
+                    count++;
+                    break;
+                }
+            }
+
+            if (count == 2) {
+                break;
+            }
+        }
+
+        checkDeletePermission(webId, username);
+    }
+
+    @NotNull
+    private HttpServletRequest getRequest() {
         ServletRequestAttributes attributes =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
@@ -44,14 +85,7 @@ public class DeleteWebsitePermissionAspect {
             throw new ServiceException("No attributes available.");
         }
 
-        HttpServletRequest request = attributes.getRequest();
-        String webIdParamName = annotation.webIdParamName();
-        String usernameParamName = annotation.usernameParamName();
-
-        int webId = getParamValue(request, webIdParamName, Integer.class);
-        String username = getParamValue(request, usernameParamName, String.class);
-
-        checkDeletePermission(webId, username);
+        return attributes.getRequest();
     }
 
     private <T> T getParamValue(@NotNull HttpServletRequest request,
@@ -78,7 +112,7 @@ public class DeleteWebsitePermissionAspect {
         try {
             return Integer.parseInt(num);
         } catch (NumberFormatException e) {
-            log.warn("传入的值 " + num + " 不是数字，自动转化为 0");
+            log.info("传入的值 " + num + " 不是数字，自动转化为 0");
             return 0;
         }
     }

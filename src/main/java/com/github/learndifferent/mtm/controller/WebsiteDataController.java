@@ -1,5 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
+import com.github.learndifferent.mtm.annotation.common.Username;
+import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.validation.website.delete.DeleteWebsitePermission;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 获取和存储网页相关
+ * Save and delete website data.
  *
  * @author zhou
  * @date 2021/09/05
@@ -41,15 +43,20 @@ public class WebsiteDataController {
     }
 
     /**
-     * 根据 ID 删除网页
+     * Delete website data by web id.
+     * {@link DeleteWebsitePermission} will verify whether the user own this website data.
+     * If not, it will an exception.
      *
-     * @param webId ID
-     * @return 返回是否成功的消息（如果不是收藏该网页的用户请求删除，则返回无权限的消息）
-     * @throws ServiceException 如果没有删除的权限，会抛出异常
+     * @param webId    Website ID
+     * @param userName Username
+     * @return {@code ResultVO<?>} Success or failure.
+     * @throws ServiceException If user does not have permission to delete
+     *                          , the result code will be {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
-    @DeleteWebsitePermission(webIdParamName = "webId", usernameParamName = "userName")
-    public ResultVO<?> deleteWebsiteData(@RequestParam("webId") int webId) {
+    @DeleteWebsitePermission
+    public ResultVO<?> deleteWebsiteData(@RequestParam("webId") @WebId int webId,
+                                         @Username String userName) {
 
         boolean success = websiteService.delWebsiteDataById(webId);
         return success ? ResultCreator.result(ResultCode.DELETE_SUCCESS)
@@ -57,11 +64,14 @@ public class WebsiteDataController {
     }
 
     /**
-     * 根据用户名和没有 ID、用户名和创建时间的网页数据来收藏网页
+     * Save Website Data that has no web id, username and creation time.
      *
-     * @param website  没有 ID、用户名和创建时间的网页数据
-     * @param userName 收藏该网页的用户名称
-     * @return 是否收藏成功？（如果已经收藏过了，就不能收藏第二次，会报错）
+     * @param website  Website Data that has no web id, username and creation time
+     * @param userName User who saves the website data
+     * @return {@code ResultVO<?>} Success or failure.
+     * @throws ServiceException {@link WebsiteService#saveWebsiteData(WebWithNoIdentityDTO, String)} will check throw
+     *                          exceptions. The Result Codes are: {@link ResultCode#ALREADY_MARKED}, {@link
+     *                          ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      */
     @PostMapping
     public ResultVO<?> saveWebsiteData(
@@ -73,11 +83,11 @@ public class WebsiteDataController {
     }
 
     /**
-     * 根据 URL 和用户名，收藏新的网页数据
+     * Save New Website Data with {@link NewWebVO}.
      *
-     * @param newWebVO URL、用户名，以及是否同步数据到 Elasticsearch
-     * @return {@code boolean[]} boolean 数组 index 为 0 的位置表示是否存放到数据库中，
-     * boolean 数组 index 为 1 的位置表示是否存放到 Elasticsearch 中。
+     * @param newWebVO URL, Username and the boolean that whether the data will be synchronized to Elasticsearch
+     * @return {@code boolean[]} index 0 stores the result of saving data to database and index 1 stores the result of
+     * saving data to Elasticsearch
      */
     @SystemLog(title = "Mark", optsType = OptsType.CREATE)
     @PostMapping("/add")

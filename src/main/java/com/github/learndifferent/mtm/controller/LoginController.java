@@ -2,9 +2,12 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.common.Password;
+import com.github.learndifferent.mtm.annotation.common.Username;
+import com.github.learndifferent.mtm.annotation.common.VerificationCode;
+import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
-import com.github.learndifferent.mtm.annotation.validation.login.LoginInfoCheck;
-import com.github.learndifferent.mtm.constant.consist.CodeConstant;
+import com.github.learndifferent.mtm.annotation.validation.login.LoginCheck;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -16,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 用于登陆相关
+ * Login and Logout
  *
  * @author zhou
  * @date 2021/09/05
@@ -26,28 +29,40 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
 
     /**
-     * 登陆（注解 @LoginCheck 会检查登陆信息，如果出错了，会抛出异常）
+     * Login.
+     * {@link LoginCheck} will check the login info and throw exceptions if failure.
      *
-     * @param nameAndPwd 用户名和密码
-     * @return token 信息
-     * @throws ServiceException 用户不存在：ResultCode.USER_NOT_EXIST
-     *                          和验证码错误：ResultCode.VERIFICATION_CODE_FAILED
+     * @param nameAndPwd  Username and Password
+     * @param code        Verification Code
+     * @param verifyToken Token for Verification Code
+     * @param userName    Username for Verification (Not Necessary)
+     * @param password    Password for Verification (Not Necessary)
+     * @return {@code ResultVO<SaTokenInfo>} Token Info
+     * @throws ServiceException Result Code:
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST}</p>
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED}</p>
      */
-    @LoginInfoCheck(codeParamName = CodeConstant.CODE,
-                    verifyTokenParamName = CodeConstant.VERIFY_TOKEN,
-                    usernameParamName = "userName",
-                    passwordParamName = "password")
+    @LoginCheck
     @PostMapping("/in")
     @SystemLog
-    public ResultVO<SaTokenInfo> login(@RequestBody UserNameAndPwdVO nameAndPwd) {
+    public ResultVO<SaTokenInfo> login(@RequestBody UserNameAndPwdVO nameAndPwd,
+                                       @VerificationCode String code,
+                                       @VerificationCodeToken String verifyToken,
+                                       @Username String userName,
+                                       @Password String password) {
 
-        // 存放登陆信息，以用户名为 ID 即可
+        // Set username as login id
         StpUtil.setLoginId(nameAndPwd.getUserName());
-        // 最后，获取 token 信息并返回给前端
+        // Get Token Info and return
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
         return ResultCreator.okResult(tokenInfo);
     }
 
+    /**
+     * Logout
+     *
+     * @return {@code ResultVO<?>} {@link ResultCreator#okResult()}
+     */
     @GetMapping("/out")
     public ResultVO<?> logout() {
         StpUtil.logout();

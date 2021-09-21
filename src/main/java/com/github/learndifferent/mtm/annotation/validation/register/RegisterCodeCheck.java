@@ -7,47 +7,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 注册验证码检查
+ * 注册验证码检查。搭配 {@link com.github.learndifferent.mtm.annotation.common.InvitationCodeToken}、
+ * {@link com.github.learndifferent.mtm.annotation.common.InvitationCode}、
+ * {@link com.github.learndifferent.mtm.annotation.common.UserRole}、
+ * {@link com.github.learndifferent.mtm.annotation.common.VerificationCodeToken} 和
+ * {@link com.github.learndifferent.mtm.annotation.common.VerificationCode} 使用
  *
  * @author zhou
  * @date 2021/09/05
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RegisterCodeCheck {
-
-    /**
-     * 验证码参数的名称
-     *
-     * @return 名称
-     */
-    String codeParamName();
-
-    /**
-     * 验证码参数相关的 token 的名称
-     *
-     * @return 名称
-     */
-    String verifyTokenParamName();
-
-    /**
-     * 角色参数的名称
-     *
-     * @return 名称
-     */
-    String roleParamName();
-
-    /**
-     * 邀请码参数的名称
-     *
-     * @return 名称
-     */
-    String invitationCodeParamName();
-
-    /**
-     * 邀请码的 token 的参数的名称
-     *
-     * @return {@code String}
-     */
-    String invitationTokenParamName();
-}
+public @interface RegisterCodeCheck {}

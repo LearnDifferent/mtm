@@ -1,5 +1,7 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.annotation.common.Url;
+import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.modify.marked.MarkCheckReturn;
 import com.github.learndifferent.mtm.annotation.modify.url.UrlClean;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
@@ -118,8 +120,8 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     /**
-     * 先经过 @UrlClean 来清理 URL 的格式，
-     * 然后经过 @IfMarkedThenReturn 来查找网页数据是否已经存在数据库中。
+     * 先经过 {@link UrlClean} 来清理 URL 的格式，
+     * 然后经过 {@link MarkCheckReturn} 来查找网页数据是否已经存在数据库中。
      * <p>如果已经存在数据库中，且用户已经收藏过，就抛出异常；
      * 如果已经存在，且用户没有收藏，就返回数据库内的数据。</p>
      * <p>如果没有在数据库中，就从网页中抓取并返回</p>
@@ -132,7 +134,8 @@ public class WebsiteServiceImpl implements WebsiteService {
     @UrlClean
     @MarkCheckReturn
     @Override
-    public WebWithNoIdentityDTO scrapeWebsiteDataFromUrl(String url, String userName) {
+    public WebWithNoIdentityDTO scrapeWebsiteDataFromUrl(@Url String url,
+                                                         @Username String userName) {
 
         try {
             Document document = Jsoup.parse(new URL(url), 3000);

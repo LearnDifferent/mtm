@@ -1,11 +1,15 @@
 package com.github.learndifferent.mtm.annotation.modify.marked;
 
+import com.github.learndifferent.mtm.annotation.common.Url;
+import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.List;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -39,40 +43,40 @@ public class MarkCheckReturnAspect {
     /**
      * 检查该 url 是否已经被收藏了，并作出相应判断。
      *
-     * @param pjp        ProceedingJoinPoint
-     * @param annotation IfMarkedThenReturn annotation
+     * @param pjp             ProceedingJoinPoint
+     * @param markCheckReturn IfMarkedThenReturn annotation
      * @return {@code Object}
      * @throws Throwable 如果该用户已经收藏过了，就抛出 ServiceException 异常
      */
-    @Around("@annotation(annotation)")
-    public Object around(ProceedingJoinPoint pjp, MarkCheckReturn annotation) throws Throwable {
+    @Around("@annotation(markCheckReturn)")
+    public Object around(ProceedingJoinPoint pjp, MarkCheckReturn markCheckReturn) throws Throwable {
 
         MethodSignature signature = (MethodSignature) pjp.getSignature();
-        String[] parameterNames = signature.getParameterNames();
+        Method method = signature.getMethod();
 
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Object[] args = pjp.getArgs();
-
-        String urlParamName = annotation.urlParamName();
-        String usernameParamName = annotation.usernameParamName();
 
         String url = "";
         String username = "";
         int count = 0;
 
-        for (int i = 0; i < parameterNames.length; i++) {
-
-            if (urlParamName.equals(parameterNames[i])
-                    && args[i] != null
-                    && String.class.isAssignableFrom(args[i].getClass())) {
-                url = (String) args[i];
-                count++;
-            }
-
-            if (usernameParamName.equals(parameterNames[i])
-                    && args[i] != null
-                    && String.class.isAssignableFrom(args[i].getClass())) {
-                username = (String) args[i];
-                count++;
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            for (Annotation annotation : parameterAnnotations[i]) {
+                if (annotation instanceof Url
+                        && args[i] != null
+                        && String.class.isAssignableFrom(args[i].getClass())) {
+                    url = (String) args[i];
+                    count++;
+                    break;
+                }
+                if (annotation instanceof Username
+                        && args[i] != null
+                        && String.class.isAssignableFrom(args[i].getClass())) {
+                    username = (String) args[i];
+                    count++;
+                    break;
+                }
             }
 
             if (count == 2) {

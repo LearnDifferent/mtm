@@ -1,15 +1,22 @@
 package com.github.learndifferent.mtm.annotation.validation.user.delete;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.common.Password;
+import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ReverseUtils;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -32,9 +39,45 @@ public class DeleteUserCheckAspect {
         this.userService = userService;
     }
 
-    @Before("@annotation(annotation)")
-    public void check(DeleteUserCheck annotation) {
+    @Before("@annotation(deleteUserCheck)")
+    public void check(JoinPoint jointPoint, DeleteUserCheck deleteUserCheck) {
 
+        HttpServletRequest request = getRequest();
+
+        MethodSignature signature = (MethodSignature) jointPoint.getSignature();
+        Method method = signature.getMethod();
+
+        String[] parameterNames = signature.getParameterNames();
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+
+        String username = "";
+        String password = "";
+
+        int counter = 0;
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            for (Annotation annotation : parameterAnnotations[i]) {
+                if (annotation instanceof Username) {
+                    username = getValueFromRequest(request, parameterNames[i]);
+                    counter++;
+                    break;
+                }
+                if (annotation instanceof Password) {
+                    password = getValueFromRequest(request, parameterNames[i]);
+                    counter++;
+                    break;
+                }
+            }
+            if (counter == 2) {
+                break;
+            }
+        }
+
+        checkUserExists(username, password);
+        checkDeletePermission(username);
+    }
+
+    @NotNull
+    private HttpServletRequest getRequest() {
         ServletRequestAttributes requestAttributes =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
@@ -42,18 +85,7 @@ public class DeleteUserCheckAspect {
             throw new ServiceException("No Request Attributes Available.");
         }
 
-        HttpServletRequest request = requestAttributes.getRequest();
-
-        // 获取参数名
-        String usernameParamName = annotation.usernameParamName();
-        String passwordParamName = annotation.passwordParamName();
-
-        // 从 request 中获取值
-        String username = getValueFromRequest(request, usernameParamName);
-        String password = getValueFromRequest(request, passwordParamName);
-
-        checkUserExists(username, password);
-        checkDeletePermission(username);
+        return requestAttributes.getRequest();
     }
 
     private String getValueFromRequest(HttpServletRequest request,

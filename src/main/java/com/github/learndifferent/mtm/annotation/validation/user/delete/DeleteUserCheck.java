@@ -6,26 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 删除用户前查看是否可以删除
+ * 删除用户前查看是否可以删除。配合注解 {@link com.github.learndifferent.mtm.annotation.common.Username}
+ * 和 {@link com.github.learndifferent.mtm.annotation.common.Password}
  *
  * @author zhou
  * @date 2021/09/05
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DeleteUserCheck {
-
-    /**
-     * 用户名参数的名称
-     *
-     * @return {@code String} 用户名参数的名称
-     */
-    String usernameParamName();
-
-    /**
-     * 密码参数的名称
-     *
-     * @return {@code String} 密码参数的名称
-     */
-    String passwordParamName();
-}
+public @interface DeleteUserCheck {}

@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.manager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
+import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
@@ -379,7 +380,7 @@ public class ElasticsearchManager {
      */
     @EmptyStringCheck
     public SearchResultsDTO getSearchResult(
-            @EmptyStringCheck.ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
+            @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
             PageInfoDTO pageInfo) {
 
         // 因为要调用内部类的代理方法，所以先获取代理类

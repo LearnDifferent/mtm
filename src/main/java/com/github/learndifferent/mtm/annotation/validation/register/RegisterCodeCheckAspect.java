@@ -1,16 +1,25 @@
 package com.github.learndifferent.mtm.annotation.validation.register;
 
+import com.github.learndifferent.mtm.annotation.common.InvitationCode;
+import com.github.learndifferent.mtm.annotation.common.InvitationCodeToken;
+import com.github.learndifferent.mtm.annotation.common.UserRole;
+import com.github.learndifferent.mtm.annotation.common.VerificationCode;
+import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.InvitationCodeManager;
 import com.github.learndifferent.mtm.manager.VerificationCodeManager;
 import com.github.learndifferent.mtm.utils.ReverseUtils;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,9 +49,71 @@ public class RegisterCodeCheckAspect {
         this.invitationCodeManager = invitationCodeManager;
     }
 
-    @Before("@annotation(annotation)")
-    public void check(RegisterCodeCheck annotation) {
+    @Before("@annotation(registerCodeCheck)")
+    public void check(JoinPoint joinPoint, RegisterCodeCheck registerCodeCheck) {
 
+        HttpServletRequest request = getRequest();
+
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+
+        // 获取方法中的参数的名称
+        String[] parameterNames = signature.getParameterNames();
+        // 获取方法的参数中的注解
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+
+        // 声明验证码
+        String code = "";
+        // 声明验证码的 token
+        String verifyToken = "";
+        // 声明邀请码
+        String invitationCode = "";
+        // 声明验证码的 token
+        String invitationToken = "";
+        // 声明用户默认角色
+        RoleType role = RoleType.USER;
+
+        int count = 0;
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            // 遍历该位置的参数的所有注解
+            for (Annotation annotation : parameterAnnotations[i]) {
+                if (annotation instanceof VerificationCode) {
+                    code = getParamStringValue(request, parameterNames[i]);
+                    count++;
+                    break;
+                }
+                if (annotation instanceof VerificationCodeToken) {
+                    verifyToken = getParamStringValue(request, parameterNames[i]);
+                    count++;
+                    break;
+                }
+                if (annotation instanceof InvitationCode) {
+                    invitationCode = getParamStringValue(request, parameterNames[i]);
+                    count++;
+                    break;
+                }
+                if (annotation instanceof InvitationCodeToken) {
+                    invitationToken = getParamStringValue(request, parameterNames[i]);
+                    count++;
+                    break;
+                }
+                if (annotation instanceof UserRole) {
+                    role = getParamRoleValue(request, parameterNames[i]);
+                    count++;
+                    break;
+                }
+            }
+
+            if (count == 5) {
+                break;
+            }
+        }
+
+        checkCodes(code, verifyToken, role, invitationCode, invitationToken);
+    }
+
+    @NotNull
+    private HttpServletRequest getRequest() {
         ServletRequestAttributes attributes =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
@@ -50,27 +121,7 @@ public class RegisterCodeCheckAspect {
             throw new ServiceException("No attributes available.");
         }
 
-        HttpServletRequest request = attributes.getRequest();
-
-        // 获取存储验证码的参数的名称
-        String codeParamName = annotation.codeParamName();
-        // 获取存储验证码的 token 的参数的名称
-        String verifyTokenParamName = annotation.verifyTokenParamName();
-        // 获取存储用户角色的参数的名称
-        String roleParamName = annotation.roleParamName();
-        // 获取存储邀请码的参数的名称
-        String invitationCodeParamName = annotation.invitationCodeParamName();
-        // 获取存储验证码的 token 的参数的名称
-        String invitationTokenParamName = annotation.invitationTokenParamName();
-
-        // 获取对应的参数的值
-        String code = getParamStringValue(request, codeParamName);
-        String verifyToken = getParamStringValue(request, verifyTokenParamName);
-        String invitationCode = getParamStringValue(request, invitationCodeParamName);
-        String invitationToken = getParamStringValue(request, invitationTokenParamName);
-        RoleType role = getParamRoleValue(request, roleParamName);
-
-        checkCodes(code, verifyToken, role, invitationCode, invitationToken);
+        return attributes.getRequest();
     }
 
     @NotNull

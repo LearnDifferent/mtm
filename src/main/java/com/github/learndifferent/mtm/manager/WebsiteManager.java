@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.manager;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
+import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
 import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
@@ -82,10 +83,9 @@ public class WebsiteManager {
      * @return 该 pattern 下，分页后需要的网页数据和总页数
      */
     @EmptyStringCheck
-    public WebsitePatternDTO getWebsiteByPattern(
-            @EmptyStringCheck.DefaultValueIfEmpty String pattern,
-            PageInfoDTO pageInfo,
-            @EmptyStringCheck.DefaultValueIfEmpty String username) {
+    public WebsitePatternDTO getWebsiteByPattern(@DefaultValueIfEmpty String pattern,
+                                                 PageInfoDTO pageInfo,
+                                                 @DefaultValueIfEmpty String username) {
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();

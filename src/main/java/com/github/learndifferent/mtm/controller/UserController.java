@@ -1,11 +1,17 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.common.InvitationCode;
+import com.github.learndifferent.mtm.annotation.common.InvitationCodeToken;
+import com.github.learndifferent.mtm.annotation.common.Password;
+import com.github.learndifferent.mtm.annotation.common.UserRole;
+import com.github.learndifferent.mtm.annotation.common.Username;
+import com.github.learndifferent.mtm.annotation.common.VerificationCode;
+import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.validation.register.RegisterCodeCheck;
 import com.github.learndifferent.mtm.annotation.validation.user.delete.DeleteUserCheck;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
-import com.github.learndifferent.mtm.constant.consist.CodeConstant;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.UserDTO;
@@ -27,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 用于注册、更新和删除用户
+ * Get, create, delete and update users.
  *
  * @author zhou
  * @date 2021/09/05
@@ -46,12 +52,23 @@ public class UserController {
         this.deleteUserManager = deleteUserManager;
     }
 
+    /**
+     * Get Users
+     *
+     * @return {@code ResultVO<List<UserDTO>>} Users
+     */
     @SystemLog(optsType = OptsType.READ)
     @GetMapping
     public ResultVO<List<UserDTO>> getUsers() {
         return ResultCreator.okResult(userService.getUsers());
     }
 
+    /**
+     * Change Password
+     *
+     * @param user User to change password
+     * @return {@code ResultVO<?>} Success or failure
+     */
     @NotGuest
     @PostMapping("/changePwd")
     public ResultVO<?> changePassword(@RequestBody UserChangePwdVO user) {
@@ -63,30 +80,35 @@ public class UserController {
     }
 
     /**
-     * 创建用户。前端需要传入 code（验证码）、verifyToken（验证验证码的 token）、
-     * invitationCode（邀请码）和 invitationToken（用于验证邀请码的 token）。
-     * <p>@RegisterCodeCheck 注解会判断验证码和邀请码是否正确，并抛出相应异常</p>
-     * <p>UserService 接口的 addUserByBasicInfo 也判断用户信息是否合适并抛出相应异常</p>
+     * Create User. {@link RegisterCodeCheck} will check the codes and
+     * {@link UserService#addUserByBasicInfo(UserBasicInfoVO)} will verify username and password
      *
-     * @param basicInfo 基本信息
-     * @return {@code ResultVO<?>} 相应的状态码及信息
-     * @throws ServiceException 验证码错误时的状态码为：ResultCode.VERIFICATION_CODE_FAILED，
-     *                          邀请码错误的状态码为：ResultCode.INVITATION_CODE_FAILED。
-     *                          用户信息出错时，错误代码分别为：
-     *                          ResultCode.USER_ALREADY_EXIST、
-     *                          ResultCode.USERNAME_ONLY_LETTERS_NUMBERS、
-     *                          ResultCode.USERNAME_TOO_LONG、
-     *                          ResultCode.USERNAME_EMPTY、
-     *                          ResultCode.PASSWORD_TOO_LONG 和
-     *                          ResultCode.PASSWORD_EMPTY
+     * @param basicInfo       Username, Password and Role
+     * @param code            Verification Code
+     * @param verifyToken     Token for Verification Code
+     * @param role            User Role
+     * @param invitationCode  Invitation Code
+     * @param invitationToken Token for Invitation Code
+     * @return {@code ResultVO<?>} If success, return {@link ResultCreator#okResult()}.
+     * <p>If failure, return {@link ResultCreator#defaultFailResult()}</p>
+     * @throws ServiceException Exceptions with the Result Code:
+     *                          <p>{@link ResultCode#VERIFICATION_CODE_FAILED}</p>
+     *                          <p>{@link ResultCode#INVITATION_CODE_FAILED}</p>
+     *                          <p>{@link ResultCode#USER_ALREADY_EXIST}</p>
+     *                          <p>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
+     *                          <p>{@link ResultCode#USERNAME_TOO_LONG}</p>
+     *                          <p>{@link ResultCode#USERNAME_EMPTY}</p>
+     *                          <p>{@link ResultCode#PASSWORD_TOO_LONG}</p>
+     *                          <p>{@link ResultCode#PASSWORD_EMPTY}</p>
      */
     @PostMapping("/create")
-    @RegisterCodeCheck(codeParamName = CodeConstant.CODE,
-                       verifyTokenParamName = CodeConstant.VERIFY_TOKEN,
-                       roleParamName = "role",
-                       invitationTokenParamName = CodeConstant.INVITATION_CODE_TOKEN,
-                       invitationCodeParamName = CodeConstant.INVITATION_CODE)
-    public ResultVO<?> createUser(@RequestBody UserBasicInfoVO basicInfo) {
+    @RegisterCodeCheck
+    public ResultVO<?> createUser(@RequestBody UserBasicInfoVO basicInfo,
+                                  @VerificationCode String code,
+                                  @VerificationCodeToken String verifyToken,
+                                  @UserRole String role,
+                                  @InvitationCode String invitationCode,
+                                  @InvitationCodeToken String invitationToken) {
 
         boolean success = userService.addUserByBasicInfo(basicInfo);
 
@@ -95,21 +117,25 @@ public class UserController {
     }
 
     /**
-     * 删除用户及其收藏的网页数据。其中 @DeleteUserCheck 注解会检查用户是否存在，
-     * 及是否是当前用户在删除当前用户，然后视情况抛出相应异常。
+     * Delete user and his website data. {@link DeleteUserCheck} will verify user's name,
+     * password and permission to delete. If there is any mismatch, it will throw exceptions.
      *
-     * @param userName 用户名
-     * @return {@code ResultVO<?>} 响应状态码
-     * @throws ServiceException ResultCode.USER_NOT_EXIST 和 ResultCode.PERMISSION_DENIED
+     * @param userName Username
+     * @param password Password
+     * @return {@code ResultVO<?>} Success or failure
+     * @throws ServiceException Result Codes:
+     *                          <p>{@link ResultCode#USER_NOT_EXIST}</p>
+     *                          <p>{@link ResultCode#PERMISSION_DENIED}</p>
      */
     @DeleteMapping
-    @DeleteUserCheck(usernameParamName = "userName", passwordParamName = "password")
-    public ResultVO<?> deleteUser(@RequestParam("userName") String userName) {
+    @DeleteUserCheck
+    public ResultVO<?> deleteUser(@RequestParam("userName") @Username String userName,
+                                  @Password String password) {
 
-        // 删除用户及其收藏的网页
+        // Delete user and his website data
         boolean success = deleteUserManager.deleteUserAndHisWebsiteData(userName);
 
-        // 退出登陆
+        // Logout
         StpUtil.logout();
 
         return success ? ResultCreator.okResult() :

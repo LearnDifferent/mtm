@@ -6,19 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * url 清理相关
+ * url 清理相关。需要配合 {@link com.github.learndifferent.mtm.annotation.common.Url} 注解使用
  *
  * @author zhou
  * @date 2021/09/05
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UrlClean {
-
-    /**
-     * 含有 url 的参数的名称
-     *
-     * @return {@code String}
-     */
-    String urlParamName() default "url";
-}
+public @interface UrlClean {}

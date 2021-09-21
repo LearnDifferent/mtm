@@ -1,6 +1,9 @@
 package com.github.learndifferent.mtm.annotation.modify.url;
 
+import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.utils.CleanUrlUtil;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -22,26 +25,29 @@ import org.springframework.stereotype.Component;
 @Order(1)
 public class UrlCleanAspect {
 
-    @Around("@annotation(annotation)")
-    public Object around(ProceedingJoinPoint pjp, UrlClean annotation) throws Throwable {
+    @Around("@annotation(urlClean)")
+    public Object around(ProceedingJoinPoint pjp, UrlClean urlClean) throws Throwable {
 
         MethodSignature signature = (MethodSignature) pjp.getSignature();
+        Method method = signature.getMethod();
 
-        String[] parameterNames = signature.getParameterNames();
+        Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Object[] args = pjp.getArgs();
-        String urlParamName = annotation.urlParamName();
 
         // 没有找到 URL
         boolean cantFindUrl = true;
 
-        for (int i = 0; i < parameterNames.length; i++) {
-            if (urlParamName.equals(parameterNames[i])
-                    && ObjectUtils.isNotEmpty(args[i])
-                    && String.class.isAssignableFrom(args[i].getClass())) {
+        outer:
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            for (Annotation annotation : parameterAnnotations[i]) {
+                if (annotation instanceof Url
+                        && ObjectUtils.isNotEmpty(args[i])
+                        && String.class.isAssignableFrom(args[i].getClass())) {
 
-                args[i] = CleanUrlUtil.cleanup((String) args[i]);
-                cantFindUrl = false;
-                break;
+                    args[i] = CleanUrlUtil.cleanup((String) args[i]);
+                    cantFindUrl = false;
+                    break outer;
+                }
             }
         }
 
