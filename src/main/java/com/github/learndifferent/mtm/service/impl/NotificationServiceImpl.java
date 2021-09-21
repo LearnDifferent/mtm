@@ -1,25 +1,26 @@
-package com.github.learndifferent.mtm.manager;
+package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.service.NotificationService;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * 操作通知（在 Redis 中）
  *
  * @author zhou
- * @date 2021/09/05
+ * @date 2021/09/21
  */
-@Component
-public class NotificationManager {
+@Service
+public class NotificationServiceImpl implements NotificationService {
 
     private final StringRedisTemplate template;
 
     @Autowired
-    public NotificationManager(StringRedisTemplate template) {
+    public NotificationServiceImpl(StringRedisTemplate template) {
         this.template = template;
     }
 
@@ -28,6 +29,7 @@ public class NotificationManager {
      *
      * @return true 表示刚刚删除成功，false 之前已经删除了
      */
+    @Override
     public Boolean trueMeansDeleteFalseMeansAlreadyDeleted() {
         return template.delete(KeyConstant.NOTICE);
     }
@@ -37,6 +39,7 @@ public class NotificationManager {
      *
      * @return 转化为 HTML 的形式的前 20 条通知
      */
+    @Override
     public String getNotificationsHtml() {
 
         // 获取 notice 为 key 的所有值
@@ -82,6 +85,7 @@ public class NotificationManager {
      *
      * @param content 通知
      */
+    @Override
     public void sendNotification(String content) {
         // 将消息存入 key 中
         template.opsForList().leftPush(KeyConstant.NOTICE, content);

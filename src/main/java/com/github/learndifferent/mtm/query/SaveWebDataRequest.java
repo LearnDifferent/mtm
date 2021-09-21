@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.query;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
@@ -8,18 +8,17 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Website data that has no web id, username and creation time
- * , which only contains title, url, image and description.
+ * Request body of existing website data that contains title, url, image and description.
  *
  * @author zhou
- * @date 2021/09/05
+ * @date 2021/9/21
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class WebWithNoIdentityDTO implements Serializable {
+public class SaveWebDataRequest implements Serializable {
 
     private String title;
     private String url;

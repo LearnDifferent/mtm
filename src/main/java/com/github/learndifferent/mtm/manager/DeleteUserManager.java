@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.manager;
 
-import com.github.learndifferent.mtm.service.UserService;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.mapper.UserMapper;
+import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,20 +16,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class DeleteUserManager {
 
-    private final WebsiteService websiteService;
-    private final UserService userService;
+    private final WebsiteMapper websiteMapper;
+    private final UserMapper userMapper;
 
     @Autowired
-    public DeleteUserManager(WebsiteService websiteService, UserService userService) {
-        this.websiteService = websiteService;
-        this.userService = userService;
+    public DeleteUserManager(WebsiteMapper websiteMapper, UserMapper userMapper) {
+        this.websiteMapper = websiteMapper;
+        this.userMapper = userMapper;
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean deleteUserAndHisWebsiteData(String username) {
         // 删除该用户收藏的所有网页数据
-        websiteService.deleteWebsiteDataByUsername(username);
+        websiteMapper.deleteWebsiteDataByUsername(username);
         // 删除该用户
-        return userService.deleteUserByName(username);
+        return userMapper.deleteUserByName(username);
     }
 }

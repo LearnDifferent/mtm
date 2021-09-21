@@ -1,12 +1,13 @@
-package com.github.learndifferent.mtm.vo;
+package com.github.learndifferent.mtm.query;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 修改密码的 vo
+ * 用户名和密码的 Request Body
  *
  * @author zhou
  * @date 2021/09/05
@@ -14,11 +15,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserChangePwdVO implements Serializable {
+@Builder
+public class LoginRequest implements Serializable {
 
-    String userName;
-    String oldPassword;
-    String newPassword;
+    private String userName;
+    private String password;
 
     private static final long serialVersionUID = 1L;
 }

@@ -16,7 +16,7 @@
     </sql>
 
     <select id="findWebsitesDataByFilter" resultType="com.github.learndifferent.mtm.entity.WebsiteDO"
-            parameterType="com.github.learndifferent.mtm.query.WebFilter">
+            parameterType="com.github.learndifferent.mtm.query.WebFilterRequest">
         select *
         from website
         <where>

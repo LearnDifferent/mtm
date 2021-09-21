@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class HomeVO implements Serializable {
+public class HomePageVO implements Serializable {
 
     /**
      * 当前用户

@@ -1,13 +1,16 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.dto.WebForSearchDTO;
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
+import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.query.WebFilter;
+import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
+import com.github.learndifferent.mtm.query.WebFilterRequest;
+import com.github.learndifferent.mtm.response.ResultVO;
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * WebsiteService
@@ -18,7 +21,7 @@ import org.apache.ibatis.annotations.Param;
 public interface WebsiteService {
 
     /**
-     * 根据 WebFilter 筛选器来筛选网页数据
+     * 根据 WebFilterRequest 筛选器来筛选网页数据
      *
      * @param filter 筛选器，筛选器包含：
      *               需要加载多少条数据，
@@ -26,40 +29,7 @@ public interface WebsiteService {
      *               日期（可以是一个或两个，没有的时候表示查找所有）
      * @return 筛选出来的网页
      */
-    List<WebsiteDTO> findWebsitesDataByFilter(WebFilter filter);
-
-    /**
-     * 获取最多用户收藏的 URL 及其网页信息
-     *
-     * @param from 分页起始
-     * @param size 页面大小
-     * @return 最多用户收藏的网页及其信息
-     */
-    List<WebsiteWithCountDTO> showMostMarked(@Param("from") int from,
-                                             @Param("size") int size);
-
-    /**
-     * 计算所有数据
-     *
-     * @return 一共有多少条数据
-     */
-    int countAll();
-
-    /**
-     * 计算 URL 出现的次数，并剔除重复
-     *
-     * @return 一共有多少条数据
-     */
-    int countDistinctUrl();
-
-    /**
-     * 倒序查询所有网页（分页）
-     *
-     * @param from 起始
-     * @param size 页面大小
-     * @return 查询到的网页
-     */
-    List<WebsiteDTO> showAllWebsiteDataDesc(int from, int size);
+    List<WebsiteDTO> findWebsitesDataByFilter(WebFilterRequest filter);
 
     /**
      * 计算某个用户收藏的网页的总数
@@ -70,26 +40,6 @@ public interface WebsiteService {
     int countUserPost(String userName);
 
     /**
-     * 计算除去某个用户收藏的网页的总数
-     *
-     * @param userName 除去某个用户
-     * @return 一共有多少条数据
-     */
-    int countExcludeUserPost(String userName);
-
-    /**
-     * 查找除去某个用户的所有网页
-     *
-     * @param userName 不查找该用户 / 某个用户
-     * @param from     from
-     * @param size     size
-     * @return 除去某个用户的所有网页
-     */
-    List<WebsiteDTO> findWebsitesDataExcludeUser(@Param("userName") String userName,
-                                                 @Param("from") int from,
-                                                 @Param("size") int size);
-
-    /**
      * 查找某个用户的收藏
      *
      * @param userName 某个用户
@@ -97,17 +47,7 @@ public interface WebsiteService {
      * @param size     size
      * @return 某个用户的所有收藏
      */
-    List<WebsiteDTO> findWebsitesDataByUser(@Param("userName") String userName,
-                                            @Param("from") Integer from,
-                                            @Param("size") Integer size);
-
-    /**
-     * 根据用户获取该用户的所有网页数据
-     *
-     * @param userName 用户名
-     * @return {@code List<WebsiteDO>}
-     */
-    List<WebsiteDTO> findWebsitesDataByUser(String userName);
+    List<WebsiteDTO> findWebsitesDataByUser(String userName, Integer from, Integer size);
 
     /**
      * 通过id找到网页数据
@@ -137,30 +77,23 @@ public interface WebsiteService {
     boolean saveWebsiteData(WebWithNoIdentityDTO rawWebsite, String userName);
 
     /**
-     * 根据链接，获取网页的 title、url、img 和简介数据。
-     * 如果该用户已经收藏过该链接，@IfMarkedThenReturn 注解就抛出异常。
+     * 根据 URL 和用户名，收藏新的网页数据
      *
-     * @param url      网页链接
-     * @param userName 收藏该网页的用户
-     * @return 网页信息
-     * @throws ServiceException 已经收藏过的异常
+     * @param newWebsiteData URL、用户名，以及是否同步数据到 Elasticsearch
+     * @return {@code boolean[]} boolean 数组 index 为 0 的位置表示是否存放到数据库中，
+     * boolean 数组 index 为 1 的位置表示是否存放到 Elasticsearch 中。
      */
-    WebWithNoIdentityDTO scrapeWebsiteDataFromUrl(String url, String userName);
+    boolean[] saveNewWebsiteData(SaveNewWebDataRequest newWebsiteData);
 
     /**
-     * 获取所有用于 Elasticsearch 的数据
+     * 获取该 pattern 下，分页后需要的网页数据和总页数
      *
-     * @return 用于 Elasticsearch 的数据
+     * @param pattern  默认模式为查询所有，如果有指定的模式，就按照指定模式获取
+     * @param username 如果需要用户名，就传入用户名；如果不需要，就传入空字符串；
+     * @param pageInfo 分页相关信息
+     * @return 该 pattern 下，分页后需要的网页数据和总页数
      */
-    List<WebForSearchDTO> getAllWebsitesDataForSearch();
-
-    /**
-     * 通过 ID 更新网页
-     *
-     * @param websiteDO 新的网页数据
-     * @return 是否成功
-     */
-    boolean updateWebsiteDataById(WebsiteDTO websiteDO);
+    WebsitePatternDTO getWebsitesByPattern(String pattern, String username, PageInfoDTO pageInfo);
 
     /**
      * 通过url找到网页数据
@@ -179,9 +112,20 @@ public interface WebsiteService {
     boolean delWebsiteDataById(int webId);
 
     /**
-     * 删除该用户名的用户所收藏的所有网站数据
+     * 以 HTML 格式，导出该用户的所有网页数据。如果该用户没有数据，直接输出无数据的提示。
      *
-     * @param userName 用户名
+     * @param username 用户名
+     * @param response response
+     * @throws ServiceException ResultCode.CONNECTION_ERROR
      */
-    void deleteWebsiteDataByUsername(String userName);
+    void exportWebsDataByUserToHtmlFile(String username, HttpServletResponse response);
+
+    /**
+     * Import website data from html file and return ResultVO as result.
+     *
+     * @param htmlFile html file
+     * @param username username
+     * @return {@link ResultVO}<{@link String}> ResultVO
+     */
+    ResultVO<String> importWebsDataFromHtmlFile(MultipartFile htmlFile, String username);
 }

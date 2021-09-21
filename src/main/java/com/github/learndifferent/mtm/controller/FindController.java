@@ -6,12 +6,11 @@ import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGu
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SearchResultsDTO;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
-import com.github.learndifferent.mtm.manager.TrendsManager;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
+import com.github.learndifferent.mtm.service.SearchService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.vo.FindPageInitVO;
+import com.github.learndifferent.mtm.vo.FindPageVO;
 import com.github.learndifferent.mtm.vo.SearchResultsVO;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 查找页面的 Controller
+ * Search Page
  *
  * @author zhou
  * @date 2021/09/05
@@ -32,33 +31,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/find")
 public class FindController {
 
-    private final ElasticsearchManager elasticsearchManager;
-    private final TrendsManager trendsManager;
+    private final SearchService searchService;
 
     @Autowired
-    public FindController(ElasticsearchManager elasticsearchManager,
-                          TrendsManager trendsManager) {
-        this.elasticsearchManager = elasticsearchManager;
-        this.trendsManager = trendsManager;
+    public FindController(SearchService searchService) {
+        this.searchService = searchService;
     }
 
     /**
-     * 载入的时候，获取热搜数据和是否存在可供搜索的数据
+     * Get trending searches, existent of data for search and update information.
      *
-     * @return 热搜数据和数据库是否存在
+     * @return {@link ResultVO}<{@link FindPageVO}> trending searches, existent of data for search and update information
      */
     @SystemLog(optsType = OptsType.READ)
     @GetMapping
-    public ResultVO<FindPageInitVO> load() {
+    public ResultVO<FindPageVO> load() {
 
-        // 热搜数据
-        Set<String> trendingList = trendsManager.getTrends();
-        // 是否存在可供搜索的数据
-        boolean exist = elasticsearchManager.existsIndex();
-        // 是否有新的更新
-        boolean hasNewUpdate = elasticsearchManager.differentFromDatabase(exist);
+        // trending searches
+        Set<String> trendingList = searchService.getTrends();
+        // existent of data for search
+        boolean exist = searchService.existsIndex();
+        // update information
+        boolean hasNewUpdate = searchService.differentFromDatabase(exist);
 
-        FindPageInitVO data = FindPageInitVO.builder()
+        FindPageVO data = FindPageVO.builder()
                 .trendingList(trendingList)
                 .dataStatus(exist)
                 .hasNewUpdate(hasNewUpdate)
@@ -68,82 +64,91 @@ public class FindController {
     }
 
     /**
-     * 删除某个热搜词。
-     * 非 Guest 账户才能删除热搜词，如果是 Guest 账户，
-     * {@link NotGuest} 注解会抛出 {@link com.github.learndifferent.mtm.exception.ServiceException} 异常，
-     * 异常的状态码为 {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     * Delete specific trending keyword. (The user should not be role of Guest)
      *
-     * @param word 被删除的热搜词
-     * @return 是否删除成功
-     * @throws com.github.learndifferent.mtm.exception.ServiceException 异常的状态码为 {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     * @param word keyword to delete
+     * @return success or failure
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
+     *                                                                  user is a guest with the result code of {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
     @NotGuest
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/trends/{word}")
     public boolean deleteTrendsByWord(@PathVariable("word") String word) {
-        return trendsManager.deleteTrendsByWord(word);
+        return searchService.deleteTrendsByWord(word);
     }
 
     /**
-     * 删除所有热搜词。
-     * 非 Guest 账户才能删除热搜词，如果是 Guest 账户，
-     * {@link NotGuest} 注解会抛出 {@link com.github.learndifferent.mtm.exception.ServiceException} 异常，
-     * 异常的状态码为 {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     * Delete all trending keyword. (The user should not be role of Guest)
      *
-     * @return 是否成功
-     * @throws com.github.learndifferent.mtm.exception.ServiceException 异常的状态码为 {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     * @return success or failure
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
+     *                                                                  user is a guest with the result code of {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
     @NotGuest
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/trends")
     public boolean deleteAllTrends() {
-        return trendsManager.deleteAllTrends();
+        return searchService.deleteAllTrends();
     }
 
     /**
-     * 搜索并返回查询到的网页数据
+     * Search
      *
-     * @param pageInfo 分页数据
-     * @param keyword  关键词（可以为空字符串或 null）
-     * @return 查询到的网页结果
+     * @param pageInfo pagination info
+     * @param keyword  keyword (accept empty string and null)
+     * @return {@link ResultVO}<{@link SearchResultsVO}> Search results
      */
     @SystemLog(optsType = OptsType.READ)
     @GetMapping("/search")
     public ResultVO<SearchResultsVO> search(@PageInfo PageInfoDTO pageInfo,
                                             @RequestParam("keyword") String keyword) {
 
-        SearchResultsDTO searchResultsDTO = elasticsearchManager.getSearchResult(keyword, pageInfo);
+        SearchResultsDTO searchResultsDTO = searchService.getSearchResult(keyword, pageInfo);
         SearchResultsVO results = DozerUtils.convert(searchResultsDTO, SearchResultsVO.class);
 
         return ResultCreator.okResult(results);
     }
 
     /**
-     * 根据数据库中的数据重新生成 Elasticsearch 的数据库
+     * Generate Elasticsearch based on database
      *
-     * @return 是否成功
+     * @return success or failure
      */
     @SystemLog(optsType = OptsType.UPDATE)
     @GetMapping("/build")
     public boolean generateSearchDataBasedOnDatabase() {
-        return elasticsearchManager.generateSearchData();
+        return searchService.generateSearchData();
     }
 
     /**
-     * 删除 Elasticsearch 中所有的数据
+     * Check and delete all data in Elasticsearch
      *
-     * @return 是否删除成功
+     * @return success or failure.
      */
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/build")
     public boolean deleteSearch() {
-        return elasticsearchManager.checkAndDeleteIndex();
+        return searchService.checkAndDeleteIndex();
     }
 
+    /**
+     * Initialize Elasticsearch.
+     * Check whether the index exists. If not, create the index.
+     *
+     * @return success or failure.
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link SearchService#hasIndexOrCreate()}
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#CONNECTION_ERROR}
+     *                                                                  if there is an error occurred while creating
+     *                                                                  the
+     *                                                                  index.
+     */
     @SystemLog(optsType = OptsType.CREATE)
     @GetMapping("/createIndex")
     public boolean hasIndexOrCreate() {
-        // 初始化操作，生成用于搜索的 index（网络问题会抛出自定义的网络异常）
-        return elasticsearchManager.hasIndexOrCreate();
+        return searchService.hasIndexOrCreate();
     }
 }

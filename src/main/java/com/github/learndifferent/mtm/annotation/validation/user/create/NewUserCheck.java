@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.annotation.validation.user.create;
 
-import java.io.Serializable;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,7 +20,7 @@ public @interface NewUserCheck {
      *
      * @return {@code Class<? extends Serializable>} 包含用户名和密码的属性的类
      */
-    Class<? extends Serializable> userClass();
+    Class<?> userClass();
 
     /**
      * 该类中，包含用户名的属性的名称

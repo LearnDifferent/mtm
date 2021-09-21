@@ -8,11 +8,12 @@ import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.WebsiteManager;
+import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
+import com.github.learndifferent.mtm.query.SaveWebDataRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
-import com.github.learndifferent.mtm.vo.NewWebVO;
+import com.github.learndifferent.mtm.utils.DozerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,25 +34,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class WebsiteDataController {
 
     private final WebsiteService websiteService;
-    private final WebsiteManager websiteManager;
 
     @Autowired
-    public WebsiteDataController(WebsiteService websiteService,
-                                 WebsiteManager websiteManager) {
+    public WebsiteDataController(WebsiteService websiteService) {
         this.websiteService = websiteService;
-        this.websiteManager = websiteManager;
     }
 
     /**
      * Delete website data by web id.
-     * {@link DeleteWebsitePermission} will verify whether the user own this website data.
-     * If not, it will an exception.
      *
      * @param webId    Website ID
      * @param userName Username
      * @return {@code ResultVO<?>} Success or failure.
-     * @throws ServiceException If user does not have permission to delete
-     *                          , the result code will be {@link ResultCode#PERMISSION_DENIED}
+     * @throws ServiceException {@link DeleteWebsitePermission} will verify whether the user own this website data.
+     *                          It will throw an exception if the user does not have permission to delete, the result
+     *                          code will be {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
     @DeleteWebsitePermission
@@ -66,32 +63,36 @@ public class WebsiteDataController {
     /**
      * Save Website Data that has no web id, username and creation time.
      *
-     * @param website  Website Data that has no web id, username and creation time
-     * @param userName User who saves the website data
+     * @param websiteData Request body of existing website data that has no web id, username and creation time,
+     *                    which only contains title, url, image and description.
+     * @param userName    User who saves the website data
      * @return {@code ResultVO<?>} Success or failure.
-     * @throws ServiceException {@link WebsiteService#saveWebsiteData(WebWithNoIdentityDTO, String)} will check throw
-     *                          exceptions. The Result Codes are: {@link ResultCode#ALREADY_MARKED}, {@link
+     * @throws ServiceException {@link WebsiteService#saveWebsiteData(WebWithNoIdentityDTO, String)}
+     *                          will verify and throw exceptions if something goes wrong.
+     *                          The Result Codes are: {@link ResultCode#ALREADY_MARKED}, {@link
      *                          ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      */
     @PostMapping
-    public ResultVO<?> saveWebsiteData(
-            @RequestBody WebWithNoIdentityDTO website
-            , @RequestParam("userName") String userName) {
+    public ResultVO<?> saveWebsiteData(@RequestBody SaveWebDataRequest websiteData,
+                                       @RequestParam("userName") String userName) {
 
+        WebWithNoIdentityDTO website = DozerUtils.convert(websiteData, WebWithNoIdentityDTO.class);
         boolean success = websiteService.saveWebsiteData(website, userName);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
     /**
-     * Save New Website Data with {@link NewWebVO}.
+     * Save New Website Data with the data from {@link SaveNewWebDataRequest}.
      *
-     * @param newWebVO URL, Username and the boolean that whether the data will be synchronized to Elasticsearch
-     * @return {@code boolean[]} index 0 stores the result of saving data to database and index 1 stores the result of
-     * saving data to Elasticsearch
+     * @param newWebsiteData URL, username and a boolean value related to
+     *                       whether the data will be synchronized to Elasticsearch or not
+     * @return {@code boolean[]} The boolean array that the first element stores true or false
+     * depending on whether or not the data was successfully saved to Database and
+     * the second element stores true if Elasticsearch saved the data and false otherwise
      */
     @SystemLog(title = "Mark", optsType = OptsType.CREATE)
     @PostMapping("/add")
-    public boolean[] saveWebsiteData(@RequestBody NewWebVO newWebVO) {
-        return websiteManager.saveNewWebsiteData(newWebVO);
+    public boolean[] saveWebsiteData(@RequestBody SaveNewWebDataRequest newWebsiteData) {
+        return websiteService.saveNewWebsiteData(newWebsiteData);
     }
 }

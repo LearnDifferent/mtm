@@ -8,8 +8,8 @@ import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.VerificationCodeManager;
 import com.github.learndifferent.mtm.service.UserService;
+import com.github.learndifferent.mtm.service.VerificationCodeService;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -41,13 +41,12 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 @Order(1)
 public class LoginCheckAspect {
 
-    private final VerificationCodeManager codeManager;
-
+    private final VerificationCodeService verificationCodeService;
     private final UserService userService;
 
     @Autowired
-    public LoginCheckAspect(VerificationCodeManager codeManager, UserService userService) {
-        this.codeManager = codeManager;
+    public LoginCheckAspect(VerificationCodeService verificationCodeService, UserService userService) {
+        this.verificationCodeService = verificationCodeService;
         this.userService = userService;
     }
 
@@ -259,7 +258,7 @@ public class LoginCheckAspect {
                                   String password) {
 
         // 如果验证码错误，会抛出错误异常
-        codeManager.checkCode(verifyToken, code);
+        verificationCodeService.checkCode(verifyToken, code);
 
         // 验证码正确，就查找用户
         UserDTO user = userService.getUserByNameAndPwd(username, password);

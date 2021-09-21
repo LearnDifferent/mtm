@@ -120,13 +120,12 @@ public class ElasticsearchManager {
         }
     }
 
-
     /**
      * 统计数据条数
      *
      * @return int 数据条数
      */
-    public long countDocs() {
+    private long countDocs() {
         CountRequest request = new CountRequest(EsConstant.INDEX);
         try {
             CountResponse countResponse = client.count(request, RequestOptions.DEFAULT);
@@ -148,7 +147,7 @@ public class ElasticsearchManager {
      *
      * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
      */
-    public boolean differentFromDatabase() {
+    private boolean differentFromDatabase() {
         // 数据库中的 distinct url 的数量
         long databaseUrlCount = websiteMapper.countDistinctUrl();
         // Elasticsearch 中的文档的数量
@@ -425,7 +424,8 @@ public class ElasticsearchManager {
         int totalPage = PageUtil.getAllPages((int) totalCount, size);
 
         // 获取需要的网页数据
-        List<WebForSearchDTO> webs = getWebsitesDataForSearchByHits(hits);
+        List<WebForSearchDTO> webs = elasticsearchManager
+                .getWebsitesDataForSearchByHits(hits);
 
         return SearchResultsDTO.builder()
                 .totalCount(totalCount)

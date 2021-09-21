@@ -4,7 +4,6 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -39,7 +38,7 @@ public class NewUserCheckAspect {
 
         Object[] args = pjp.getArgs();
 
-        Class<? extends Serializable> cls = annotation.userClass();
+        Class<?> cls = annotation.userClass();
         String usernameFieldName = annotation.usernameFieldName();
         String passwordFieldName = annotation.passwordFieldName();
 

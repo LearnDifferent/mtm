@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.vo;
+package com.github.learndifferent.mtm.query;
 
 import java.io.Serializable;
 import lombok.Data;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class NewWebVO implements Serializable {
+public class SaveNewWebDataRequest implements Serializable {
 
     /**
      * url

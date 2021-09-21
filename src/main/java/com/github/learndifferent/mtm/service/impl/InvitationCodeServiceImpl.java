@@ -1,29 +1,29 @@
-package com.github.learndifferent.mtm.manager;
+package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.manager.SendEmailManager;
+import com.github.learndifferent.mtm.service.InvitationCodeService;
 import com.github.learndifferent.mtm.utils.UUIDUtils;
 import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
- * 生成、发送和接收邀请码
- *
  * @author zhou
- * @date 2021/09/17
+ * @date 2021/9/21
  */
-@Component
-public class InvitationCodeManager {
+@Service
+public class InvitationCodeServiceImpl implements InvitationCodeService {
 
     private final SendEmailManager sendEmailManager;
     private final StringRedisTemplate redisTemplate;
 
     @Autowired
-    public InvitationCodeManager(SendEmailManager sendEmailManager,
-                                 StringRedisTemplate redisTemplate) {
+    public InvitationCodeServiceImpl(SendEmailManager sendEmailManager,
+                                     StringRedisTemplate redisTemplate) {
         this.sendEmailManager = sendEmailManager;
         this.redisTemplate = redisTemplate;
     }
@@ -35,6 +35,7 @@ public class InvitationCodeManager {
      * @throws ServiceException 出现 MessagingException 的时候，也就是邮件设置错误，
      *                          会以 data 的方式返回设置好的验证码
      */
+    @Override
     public void send(String invitationToken, String email) {
 
         // 生成邀请码
@@ -65,6 +66,7 @@ public class InvitationCodeManager {
      *
      * @return {@code String}
      */
+    @Override
     public String getInvitationCode(String invitationToken) {
         return redisTemplate.opsForValue().get(invitationToken);
     }

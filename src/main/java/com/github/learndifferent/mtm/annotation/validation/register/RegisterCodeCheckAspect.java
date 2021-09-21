@@ -8,8 +8,8 @@ import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.InvitationCodeManager;
-import com.github.learndifferent.mtm.manager.VerificationCodeManager;
+import com.github.learndifferent.mtm.service.InvitationCodeService;
+import com.github.learndifferent.mtm.service.VerificationCodeService;
 import com.github.learndifferent.mtm.utils.ReverseUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -39,14 +39,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Slf4j
 public class RegisterCodeCheckAspect {
 
-    private final VerificationCodeManager codeManager;
-    private final InvitationCodeManager invitationCodeManager;
+    private final VerificationCodeService verificationCodeService;
+    private final InvitationCodeService invitationCodeService;
 
     @Autowired
-    public RegisterCodeCheckAspect(VerificationCodeManager codeManager,
-                                   InvitationCodeManager invitationCodeManager) {
-        this.codeManager = codeManager;
-        this.invitationCodeManager = invitationCodeManager;
+    public RegisterCodeCheckAspect(VerificationCodeService verificationCodeService,
+                                   InvitationCodeService invitationCodeService) {
+        this.verificationCodeService = verificationCodeService;
+        this.invitationCodeService = invitationCodeService;
     }
 
     @Before("@annotation(registerCodeCheck)")
@@ -175,7 +175,7 @@ public class RegisterCodeCheckAspect {
                             String invitationToken) {
 
         // 如果验证码错误，抛出自定义异常
-        codeManager.checkCode(verifyToken, code);
+        verificationCodeService.checkCode(verifyToken, code);
 
         if (RoleType.ADMIN == role) {
             // 如果角色是 Admin，需要确认邀请码，如果邀请码出错，会抛出异常
@@ -194,7 +194,7 @@ public class RegisterCodeCheckAspect {
                                      String invitationToken) {
 
         // 获取 token 中的邀请码
-        String correctCode = invitationCodeManager.getInvitationCode(invitationToken);
+        String correctCode = invitationCodeService.getInvitationCode(invitationToken);
 
         if (ReverseUtils.stringNotEqualsIgnoreCase(userTypeInCode, correctCode)) {
             // 如果 token 中的邀请码和用户输入的不符，就抛出自定义的异常

@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.InvitationCodeManager;
+import com.github.learndifferent.mtm.service.InvitationCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * 发送邀请码邮件
+ * Send Invitation Code
  *
  * @author zhou
  * @date 2021/09/05
@@ -18,24 +18,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/invitation")
 public class InvitationCodeController {
 
-    private final InvitationCodeManager invitationCodeManager;
+    private final InvitationCodeService invitationCodeService;
 
     @Autowired
-    public InvitationCodeController(InvitationCodeManager invitationCodeManager) {
-        this.invitationCodeManager = invitationCodeManager;
+    public InvitationCodeController(InvitationCodeService invitationCodeService) {
+        this.invitationCodeService = invitationCodeService;
     }
 
     /**
-     * 发送邀请码
+     * Send Invitation Code
      *
-     * @param invitationToken 邀请令牌
-     * @param email           电子邮件
-     * @throws ServiceException 邮件设置错误时，会以 data 的方式返回设置好的验证码
+     * @param invitationToken Token of Invitation Code
+     * @param email           Email
+     * @throws ServiceException If there is an email setting error, {@link InvitationCodeService#send(String, String)}
+     *                          will throw an exception that indicates the invitation code
      */
     @GetMapping
     public void send(@RequestParam("invitationToken") String invitationToken,
                      @RequestParam("email") String email) {
 
-        invitationCodeManager.send(invitationToken, email);
+        invitationCodeService.send(invitationToken, email);
     }
 }

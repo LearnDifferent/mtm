@@ -16,12 +16,11 @@ import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.DeleteUserManager;
+import com.github.learndifferent.mtm.query.ChangePwdRequest;
+import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
-import com.github.learndifferent.mtm.vo.UserBasicInfoVO;
-import com.github.learndifferent.mtm.vo.UserChangePwdVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,13 +42,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    private final DeleteUserManager deleteUserManager;
 
     @Autowired
-    public UserController(UserService userService,
-                          DeleteUserManager deleteUserManager) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.deleteUserManager = deleteUserManager;
     }
 
     /**
@@ -66,24 +62,23 @@ public class UserController {
     /**
      * Change Password
      *
-     * @param user User to change password
+     * @param passwordInfo username, old password and new password
      * @return {@code ResultVO<?>} Success or failure
      */
     @NotGuest
     @PostMapping("/changePwd")
-    public ResultVO<?> changePassword(@RequestBody UserChangePwdVO user) {
+    public ResultVO<?> changePassword(@RequestBody ChangePwdRequest passwordInfo) {
 
-        boolean success = userService.changePassword(user);
+        boolean success = userService.changePassword(passwordInfo);
 
         return success ? ResultCreator.result(ResultCode.PASSWORD_CHANGED)
                 : ResultCreator.result(ResultCode.UPDATE_FAILED);
     }
 
     /**
-     * Create User. {@link RegisterCodeCheck} will check the codes and
-     * {@link UserService#addUserByBasicInfo(UserBasicInfoVO)} will verify username and password
+     * Create User.
      *
-     * @param basicInfo       Username, Password and Role
+     * @param basicInfo       Username, Password and User Role
      * @param code            Verification Code
      * @param verifyToken     Token for Verification Code
      * @param role            User Role
@@ -91,7 +86,10 @@ public class UserController {
      * @param invitationToken Token for Invitation Code
      * @return {@code ResultVO<?>} If success, return {@link ResultCreator#okResult()}.
      * <p>If failure, return {@link ResultCreator#defaultFailResult()}</p>
-     * @throws ServiceException Exceptions with the Result Code:
+     * @throws ServiceException {@link RegisterCodeCheck} will check the codes and
+     *                          {@link UserService#addUser(CreateUserRequest)} will verify username and
+     *                          password.
+     *                          They will throw an exception if failed verification. The Result Codes are:
      *                          <p>{@link ResultCode#VERIFICATION_CODE_FAILED}</p>
      *                          <p>{@link ResultCode#INVITATION_CODE_FAILED}</p>
      *                          <p>{@link ResultCode#USER_ALREADY_EXIST}</p>
@@ -103,29 +101,29 @@ public class UserController {
      */
     @PostMapping("/create")
     @RegisterCodeCheck
-    public ResultVO<?> createUser(@RequestBody UserBasicInfoVO basicInfo,
+    public ResultVO<?> createUser(@RequestBody CreateUserRequest basicInfo,
                                   @VerificationCode String code,
                                   @VerificationCodeToken String verifyToken,
                                   @UserRole String role,
                                   @InvitationCode String invitationCode,
                                   @InvitationCodeToken String invitationToken) {
 
-        boolean success = userService.addUserByBasicInfo(basicInfo);
+        boolean success = userService.addUser(basicInfo);
 
         return success ? ResultCreator.okResult()
                 : ResultCreator.defaultFailResult();
     }
 
     /**
-     * Delete user and his website data. {@link DeleteUserCheck} will verify user's name,
-     * password and permission to delete. If there is any mismatch, it will throw exceptions.
+     * Delete user and his website data.
      *
      * @param userName Username
      * @param password Password
      * @return {@code ResultVO<?>} Success or failure
-     * @throws ServiceException Result Codes:
-     *                          <p>{@link ResultCode#USER_NOT_EXIST}</p>
-     *                          <p>{@link ResultCode#PERMISSION_DENIED}</p>
+     * @throws ServiceException {@link DeleteUserCheck} will verify user's name,
+     *                          password and permission to delete. If there is any mismatch, it will throw exceptions.
+     *                          The Result Codes are {@link ResultCode#USER_NOT_EXIST} and {@link
+     *                          ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
     @DeleteUserCheck
@@ -133,7 +131,7 @@ public class UserController {
                                   @Password String password) {
 
         // Delete user and his website data
-        boolean success = deleteUserManager.deleteUserAndHisWebsiteData(userName);
+        boolean success = userService.deleteUserAndHisWebsiteData(userName);
 
         // Logout
         StpUtil.logout();

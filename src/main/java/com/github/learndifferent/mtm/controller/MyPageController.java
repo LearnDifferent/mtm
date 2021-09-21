@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 我的页面的 Controller
+ * My Page Controller
  *
  * @author zhou
  * @date 2021/09/05
@@ -32,19 +32,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class MyPageController {
 
     private final WebsiteService websiteService;
-
     private final UserService userService;
 
     @Autowired
-    public MyPageController(WebsiteService websiteService,
-                            UserService userService) {
+    public MyPageController(WebsiteService websiteService, UserService userService) {
         this.websiteService = websiteService;
         this.userService = userService;
     }
 
+    /**
+     * Load data
+     *
+     * @param pageInfo pagination info
+     * @param request  request
+     * @return {@link ResultVO}<{@link MyPageVO}> data for my page
+     */
     @GetMapping
-    public ResultVO<MyPageVO> load(@PageInfo PageInfoDTO pageInfo,
-                                   HttpServletRequest request) {
+    public ResultVO<MyPageVO> load(@PageInfo PageInfoDTO pageInfo, HttpServletRequest request) {
 
         String userName = (String) StpUtil.getLoginId();
         UserDTO user = getUser(userName);

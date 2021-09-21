@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
  * @author zhou
  * @date 2021/09/05
  */
-public class WebFilter implements Serializable {
+public class WebFilterRequest implements Serializable {
 
     /**
      * 需要加载多少条数据
@@ -60,7 +60,7 @@ public class WebFilter implements Serializable {
     /**
      * 将前端传入的数据转化为实体类只需要无参构造器即可
      */
-    public WebFilter() {
+    public WebFilterRequest() {
     }
 
     /**
@@ -133,7 +133,7 @@ public class WebFilter implements Serializable {
 
     @Override
     public String toString() {
-        return "WebFilter{" +
+        return "WebFilterRequest{" +
                 "load=" + load +
                 ", usernames=" + usernames +
                 ", fromDate=" + fromDate +

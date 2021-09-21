@@ -8,14 +8,15 @@ import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.manager.DeleteUserManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
+import com.github.learndifferent.mtm.query.ChangePwdRequest;
+import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.UUIDUtils;
-import com.github.learndifferent.mtm.vo.UserBasicInfoVO;
-import com.github.learndifferent.mtm.vo.UserChangePwdVO;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
+    private final DeleteUserManager deleteUserManager;
 
     @Autowired
-    public UserServiceImpl(UserMapper userMapper) {
+    public UserServiceImpl(UserMapper userMapper,
+                           DeleteUserManager deleteUserManager) {
         this.userMapper = userMapper;
+        this.deleteUserManager = deleteUserManager;
     }
 
     @Override
@@ -52,15 +56,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changePassword(UserChangePwdVO info) {
+    public boolean changePassword(ChangePwdRequest info) {
         return changePassword(info.getUserName(),
                 info.getOldPassword(), info.getNewPassword());
     }
 
-    @Override
-    public boolean changePassword(String userName,
-                                  String oldPassword,
-                                  String newPassword) {
+    /**
+     * 修改密码
+     *
+     * @param userName    用户名
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @return 修改是否成功的信息
+     */
+    private boolean changePassword(String userName,
+                                   String oldPassword,
+                                   String newPassword) {
 
         UserDTO user = getUserByNameAndPwd(userName, oldPassword);
 
@@ -68,18 +79,46 @@ public class UserServiceImpl implements UserService {
             throw new ServiceException(ResultCode.PASSWORD_INCORRECT);
         }
 
+        UserDO userDO = DozerUtils.convert(user, UserDO.class);
+        UserDO userWhoChangedPwd = userDO.setPassword(newPassword);
         // 调用当前类的事务方法，需要使用代理类
-        UserService userService = ApplicationContextUtils.getBean(UserService.class);
-        return userService.updateUser(user.setPassword(newPassword));
+        UserServiceImpl userService = ApplicationContextUtils.getBean(UserServiceImpl.class);
+        return userService.updateUser(userWhoChangedPwd);
     }
 
+    /**
+     * 更新用户信息（密码需要加密）
+     *
+     * @param user 需要更新的用户（密码无加密）
+     * @return 是否更新成功
+     */
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean updateUser(UserDO user) {
+        String pwdNew = Md5Util.getMd5(user.getPassword());
+        user.setPassword(pwdNew);
+        return userMapper.updateUser(user);
+    }
 
-    @Override
-    @NewUserCheck(userClass = UserDTO.class,
+    /**
+     * 添加用户，并给用户增加 ID 和 CreateTime，将密码加密。
+     * <p>{@link NewUserCheck} 注解会检查该用户名除了数字和英文字母外，是否还包含其他字符，如果有就抛出异常。</p>
+     * <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
+     * <p>如果用户名大于 30 个字符，也会抛出异常。</p>
+     * <p>如果密码大于 50 个字符，也会抛出异常</p>
+     * <p>如果用户名或密码为空，抛出异常</p>
+     *
+     * @param user 被添加的用户
+     * @return 成功与否
+     * @throws ServiceException 错误代码为：ResultCode.USER_ALREADY_EXIST、
+     *                          ResultCode.USERNAME_ONLY_LETTERS_NUMBERS、
+     *                          ResultCode.USERNAME_TOO_LONG 和 ResultCode.USERNAME_EMPTY、
+     *                          ResultCode.PASSWORD_TOO_LONG 和 ResultCode.PASSWORD_EMPTY
+     */
+    @NewUserCheck(userClass = UserDO.class,
                   usernameFieldName = "userName",
                   passwordFieldName = "password")
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean addUser(UserDTO user) {
+    public boolean addUser(UserDO user) {
 
         // 添加 ID 和创建时间，将密码进行加密处理
         String uuid = UUIDUtils.getUuid();
@@ -90,8 +129,7 @@ public class UserServiceImpl implements UserService {
                 .setPassword(password);
 
         try {
-            UserDO userDO = DozerUtils.convert(user, UserDO.class);
-            return userMapper.addUser(userDO);
+            return userMapper.addUser(user);
         } catch (DuplicateKeyException e) {
             // 因为主键设置为了 userName，所以这里的 DuplicateKeyException 就是重复用户名的意思
             // 相当于捕获：com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
@@ -101,14 +139,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean addUserByBasicInfo(UserBasicInfoVO userBasicInfo) {
+    public boolean addUser(CreateUserRequest userBasicInfo) {
 
-        UserDTO userDTO = DozerUtils.convert(userBasicInfo, UserDTO.class);
+        UserDO user = DozerUtils.convert(userBasicInfo, UserDO.class);
 
-        // 启用事务的时候，调用内部类的方法需要通过代理类
-        UserService userService = ApplicationContextUtils.getBean(UserService.class);
-
-        return userService.addUser(userDTO);
+        UserServiceImpl userServiceImpl = ApplicationContextUtils.getBean(UserServiceImpl.class);
+        return userServiceImpl.addUser(user);
     }
 
     /**
@@ -131,39 +167,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String getUserRoleById(String userId) {
-        return userMapper.getUserRoleById(userId);
-    }
-
-    @Override
-    public UserDO getUserById(String userId) {
-        return userMapper.getUserById(userId);
-    }
-
-    @Override
     public UserDO getUserByName(String userName) {
         return userMapper.getUserByName(userName);
     }
 
+    @Override
     @EmptyStringCheck
-    @Override
-    public boolean deleteUserByName(@ExceptionIfEmpty String userName) {
-        return userMapper.deleteUserByName(userName);
-    }
-
-    /**
-     * 更新用户信息（密码需要加密）
-     *
-     * @param user 需要更新的用户（密码无加密）
-     * @return 是否更新成功
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean updateUser(UserDTO user) {
-        String pwdNew = Md5Util.getMd5(user.getPassword());
-        user.setPassword(pwdNew);
-        UserDO u = DozerUtils.convert(user, UserDO.class);
-        return userMapper.updateUser(u);
+    public boolean deleteUserAndHisWebsiteData(@ExceptionIfEmpty String userName) {
+        return deleteUserManager.deleteUserAndHisWebsiteData(userName);
     }
 
     @Override

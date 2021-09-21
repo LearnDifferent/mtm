@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.service.UserService;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * sa-token 框架用于获取角色权限的实现
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author zhou
  * @date 2021/09/05
  */
-@Component
+@Service
 public class RoleServiceImpl implements StpInterface {
 
     private final UserService userService;

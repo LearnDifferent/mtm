@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.annotation.general.log;
 
 import com.github.learndifferent.mtm.constant.enums.LogStatus;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
-import com.github.learndifferent.mtm.manager.AsyncLogManager;
+import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.vo.SysLog;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -26,11 +26,11 @@ import org.springframework.util.StringUtils;
 @Component
 public class SystemLogAspect {
 
-    private final AsyncLogManager asyncLogManager;
+    private final SystemLogService logService;
 
     @Autowired
-    public SystemLogAspect(AsyncLogManager asyncLogManager) {
-        this.asyncLogManager = asyncLogManager;
+    public SystemLogAspect(SystemLogService logService) {
+        this.logService = logService;
     }
 
     @Around("@annotation(annotation)")
@@ -58,13 +58,13 @@ public class SystemLogAspect {
 
         try {
             Object result = pjp.proceed();
-            asyncLogManager.saveSysLogAsync(sysLog.build());
+            logService.saveSysLogAsync(sysLog.build());
             return result;
         } catch (Throwable throwable) {
             throwable.printStackTrace();
             sysLog.status(LogStatus.ERROR.status())
                     .msg(throwable.getMessage());
-            asyncLogManager.saveSysLogAsync(sysLog.build());
+            logService.saveSysLogAsync(sysLog.build());
             // 包装为 RuntimeException 并抛出
             throw new RuntimeException(throwable);
         }

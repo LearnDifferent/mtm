@@ -33,7 +33,7 @@ elasticsearch:
   host: es
   port: 9200
   isHttps: false
-# Initialize WebFilter.java
+# Initialize WebFilterRequest.java
 website-filter:
   load: 10
   order: "userName"

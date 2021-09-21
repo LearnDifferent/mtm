@@ -20,7 +20,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class FindPageInitVO implements Serializable {
+public class FindPageVO implements Serializable {
 
     /**
      * 热搜数据

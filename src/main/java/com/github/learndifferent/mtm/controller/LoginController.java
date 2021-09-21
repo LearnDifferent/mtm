@@ -9,9 +9,9 @@ import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.validation.login.LoginCheck;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.query.LoginRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
-import com.github.learndifferent.mtm.vo.UserNameAndPwdVO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,22 +30,22 @@ public class LoginController {
 
     /**
      * Login.
-     * {@link LoginCheck} will check the login info and throw exceptions if failure.
      *
-     * @param nameAndPwd  Username and Password
+     * @param nameAndPwd  Request Body that contains Username and Password
      * @param code        Verification Code
      * @param verifyToken Token for Verification Code
      * @param userName    Username for Verification (Not Necessary)
      * @param password    Password for Verification (Not Necessary)
      * @return {@code ResultVO<SaTokenInfo>} Token Info
-     * @throws ServiceException Result Code:
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED}</p>
+     * @throws ServiceException {@link LoginCheck} will check the login info and throw exceptions if failure.
+     *                          The Result Codes are
+     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST} and
+     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED}
      */
     @LoginCheck
     @PostMapping("/in")
     @SystemLog
-    public ResultVO<SaTokenInfo> login(@RequestBody UserNameAndPwdVO nameAndPwd,
+    public ResultVO<SaTokenInfo> login(@RequestBody LoginRequest nameAndPwd,
                                        @VerificationCode String code,
                                        @VerificationCodeToken String verifyToken,
                                        @Username String userName,

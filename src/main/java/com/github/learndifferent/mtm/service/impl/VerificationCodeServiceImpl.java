@@ -1,32 +1,33 @@
-package com.github.learndifferent.mtm.manager;
+package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.service.VerificationCodeService;
 import com.github.learndifferent.mtm.utils.VerifyCodeUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 
 /**
  * 操作验证码
  *
  * @author zhou
- * @date 2021/09/05
+ * @date 2021/09/21
  */
-@Component
-public class VerificationCodeManager {
+@Service
+public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     private final StringRedisTemplate redisTemplate;
 
     @Autowired
-    public VerificationCodeManager(StringRedisTemplate redisTemplate) {
+    public VerificationCodeServiceImpl(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -37,6 +38,7 @@ public class VerificationCodeManager {
      * @return 返回验证码图片（Base 64）
      * @throws ServiceException 出错的时候抛出异常
      */
+    @Override
     @EmptyStringCheck
     public String getVerificationCodeImg(
             @ExceptionIfEmpty(errorMessage = "没有传入 verifyToken 参数") String verifyToken) {
@@ -68,6 +70,7 @@ public class VerificationCodeManager {
      * @param userTypeInCode 用户输入的验证码
      * @throws ServiceException 验证码错误异常
      */
+    @Override
     @EmptyStringCheck
     public void checkCode(@DefaultValueIfEmpty String verifyToken,
                           @DefaultValueIfEmpty String userTypeInCode) {
