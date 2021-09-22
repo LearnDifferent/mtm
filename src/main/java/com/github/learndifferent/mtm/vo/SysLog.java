@@ -22,27 +22,38 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SysLog implements Serializable {
 
+    /**
+     * Title
+     */
     private String title;
 
     /**
-     * 0 CREATE,
-     * 1 READ,
-     * 2 UPDATE,
-     * 3 DELETE,
-     * 4 OTHERS
+     * CREATE,
+     * READ,
+     * UPDATE,
+     * DELETE,
+     * OTHERS
      */
     private String optType;
 
+    /**
+     * Method
+     */
     private String method;
 
+    /**
+     * Message
+     */
     private String msg;
 
     /**
-     * Normal,
-     * Error
+     * Normal or Error
      */
     private String status;
 
+    /**
+     * Creation time
+     */
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date optTime;
 

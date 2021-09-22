@@ -24,24 +24,24 @@ import lombok.experimental.Accessors;
 public class MyPageVO implements Serializable {
 
     /**
-     * 我的用户数据
+     * Personal info
      */
     private UserDTO user;
     /**
-     * 我的用户名首个字符
+     * First character of my username
      */
     private Character firstCharOfName;
     /**
-     * 我收藏的网页
+     * My website data
      */
     private List<WebsiteDTO> myWebs;
     /**
-     * 我收藏网页的总页数
+     * Total pages of my website data
      */
     private Integer totalPage;
 
     /**
-     * IP 地址
+     * IP Address
      */
     private String ip;
 

@@ -16,8 +16,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChangePwdRequest implements Serializable {
 
+    /**
+     * Username
+     */
     String userName;
+    /**
+     * Old password
+     */
     String oldPassword;
+    /**
+     * New password
+     */
     String newPassword;
 
     private static final long serialVersionUID = 1L;

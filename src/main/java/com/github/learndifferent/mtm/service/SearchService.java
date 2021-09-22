@@ -32,6 +32,7 @@ public interface SearchService {
      * 在执行 differentFromDatabase() 方法之前，判断一下 Elasticsearch 中是否存在该 index。
      * <p>如果存在了，再执行。</p>
      * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
+     * <p>也就是说，比较的是数据库中的 distinct url 的数量是否等于 Elasticsearch 中的数据数量</p>
      *
      * @param existIndex Elasticsearch 中是否存在该 index
      * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同

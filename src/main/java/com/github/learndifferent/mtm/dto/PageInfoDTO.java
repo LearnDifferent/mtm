@@ -23,8 +23,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PageInfoDTO implements Serializable {
 
+    /**
+     * From
+     */
     private Integer from;
 
+    /**
+     * Size
+     */
     private Integer size;
 
     private static final long serialVersionUID = 1L;

@@ -20,11 +20,20 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class WebForSearchDTO implements Serializable {
 
+    /**
+     * Title
+     */
     private String title;
+    /**
+     * Url
+     */
     private String url;
+    /**
+     * Image
+     */
     private String img;
     /**
-     * 网页简介
+     * Description
      */
     private String desc;
 

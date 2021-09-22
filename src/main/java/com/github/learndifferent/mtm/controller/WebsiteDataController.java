@@ -41,7 +41,7 @@ public class WebsiteDataController {
     }
 
     /**
-     * Delete website data by web id.
+     * Delete website data by Web ID.
      *
      * @param webId    Website ID
      * @param userName Username
@@ -61,7 +61,7 @@ public class WebsiteDataController {
     }
 
     /**
-     * Save Website Data that has no web id, username and creation time.
+     * Save Website Data that has no Web ID, Username and Creation Time
      *
      * @param websiteData Request body of existing website data that has no web id, username and creation time,
      *                    which only contains title, url, image and description.
@@ -82,7 +82,7 @@ public class WebsiteDataController {
     }
 
     /**
-     * Save New Website Data with the data from {@link SaveNewWebDataRequest}.
+     * Save New Website Data with the existing data
      *
      * @param newWebsiteData URL, username and a boolean value related to
      *                       whether the data will be synchronized to Elasticsearch or not

@@ -20,11 +20,30 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class UserDTO implements Serializable {
 
+    /**
+     * User ID
+     */
     private String userId;
+
+    /**
+     * Username
+     */
     private String userName;
+
+    /**
+     * Password
+     */
     private String password;
+
+    /**
+     * Creation date
+     */
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
+
+    /**
+     * User Role
+     */
     private String role;
 
     private static final long serialVersionUID = 1L;

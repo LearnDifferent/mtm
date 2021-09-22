@@ -23,15 +23,15 @@ import lombok.experimental.Accessors;
 public class AdminPageVO implements Serializable {
 
     /**
-     * 是否为管理员
+     * True if the role is Admin
      */
     private Boolean admin;
     /**
-     * 如果是管理员，需要展示日志
+     * System Logs (Only Admin)
      */
     private List<SysLog> logs;
     /**
-     * 如果是管理员，需要展示所有用户
+     * All Users (Only Admin)
      */
     private List<UserDTO> users;
 

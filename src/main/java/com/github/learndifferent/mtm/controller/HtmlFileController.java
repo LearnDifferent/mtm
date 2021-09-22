@@ -33,8 +33,7 @@ public class HtmlFileController {
     }
 
     /**
-     * Export user's website data to a HTML file.
-     * (The file will contains a hint if the user has no data)
+     * Export user's website data to a HTML file
      *
      * @param username username
      * @param response response
@@ -53,7 +52,7 @@ public class HtmlFileController {
     }
 
     /**
-     * Import a HTML file that contains website data.
+     * Import a HTML file that contains website data
      *
      * @param htmlFile HTML File
      * @return {@link ResultVO}<{@link String}> Result message

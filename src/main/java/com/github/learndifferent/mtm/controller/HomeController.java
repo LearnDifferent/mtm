@@ -74,7 +74,7 @@ public class HomeController {
     }
 
     /**
-     * Get data
+     * Load data
      *
      * @param pattern  search pattern
      * @param userName username

@@ -22,15 +22,15 @@ import lombok.experimental.Accessors;
 public class HomePageVO implements Serializable {
 
     /**
-     * 当前用户
+     * Current user
      */
     private String currentUser;
     /**
-     * 需要展示的网页数据和总页数
+     * Paginated website data and total pages
      */
     private WebsitePatternDTO websInfo;
     /**
-     * 需要进行操作的用户的名称
+     * Username for further operation
      */
     private String optUsername;
 

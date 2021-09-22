@@ -9,15 +9,15 @@ package com.github.learndifferent.mtm.response;
 public class ResultVO<T> {
 
     /**
-     * 状态码
+     * Result Code
      */
     private Integer code;
     /**
-     * 信息
+     * Message
      */
     private String msg;
     /**
-     * 数据
+     * Data
      */
     private T data;
 

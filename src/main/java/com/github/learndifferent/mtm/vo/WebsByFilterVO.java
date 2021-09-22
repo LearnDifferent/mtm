@@ -23,11 +23,12 @@ import lombok.experimental.Accessors;
 public class WebsByFilterVO implements Serializable {
 
     /**
-     * 筛选出来的网页（筛选条件包括了分页）
+     * Filtered Paginated Website Data
      */
     List<WebsiteDTO> webs;
     /**
-     * 筛选出来的结果的条数（前端用来和之前的结果做对比）
+     * Total number of filtered data
+     * (frontend will compare it with the previous result)
      */
     Integer count;
 

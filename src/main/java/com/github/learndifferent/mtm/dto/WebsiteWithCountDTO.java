@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class WebsiteWithCountDTO extends WebsiteDTO {
 
     /**
-     * 新增：有多少人收藏了这个 URL
+     * New field: the number of users who mark the URL
      */
     private Integer count;
 }

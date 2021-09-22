@@ -23,18 +23,17 @@ import lombok.experimental.Accessors;
 public class FindPageVO implements Serializable {
 
     /**
-     * 热搜数据
+     * Trending searches
      */
     private Set<String> trendingList;
 
     /**
-     * 是否存在可供搜索的数据
+     * True if search data is available
      */
     private Boolean dataStatus;
 
     /**
-     * 是否存在新的更新，
-     * 也就是数据库中的 distinct url 的数量是否等于 Elasticsearch 中的数据数量
+     * True if the data in database is different from the data in Elasticsearch
      */
     private Boolean hasNewUpdate;
 

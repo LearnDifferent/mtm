@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Get Info of Admin Page
+ * Admin Page Controller
  *
  * @author zhou
  * @date 2021/09/05
@@ -35,7 +35,7 @@ public class AdminController {
     }
 
     /**
-     * Get logs, users' information and whether the current user is admin for admin page.
+     * Get logs, users' information and whether the current user is admin for admin page
      *
      * @return {@link ResultVO}<{@link AdminPageVO}> information
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation}

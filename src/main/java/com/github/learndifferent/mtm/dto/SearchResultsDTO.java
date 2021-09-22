@@ -22,15 +22,15 @@ import lombok.experimental.Accessors;
 public class SearchResultsDTO implements Serializable {
 
     /**
-     * 查询到的所有结果的总数
+     * Total number of results
      */
     private Long totalCount;
     /**
-     * 搜索结果的总页数
+     * Total pages of results
      */
     private Integer totalPage;
     /**
-     * 搜索结果在分页后得到的网页数据
+     * Paginated search results
      */
     private List<WebForSearchDTO> webs;
 

@@ -18,12 +18,34 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WebsiteDTO implements Serializable {
 
+    /**
+     * Web ID
+     */
     private Integer webId;
+    /**
+     * Username
+     */
     private String userName;
+    /**
+     * Title
+     */
     private String title;
+    /**
+     * Url
+     */
     private String url;
+    /**
+     * Image
+     */
     private String img;
+
+    /**
+     * Description
+     */
     private String desc;
+    /**
+     * Creation date
+     */
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
 

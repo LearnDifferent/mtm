@@ -22,10 +22,18 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SearchResultsVO implements Serializable {
 
-    private Long totalCount;
-    private Integer totalPage;
     /**
-     * 需要展示的搜索出来的网页数据（经过了分页）
+     * Total number of results
+     */
+    private Long totalCount;
+
+    /**
+     * Total pages of results
+     */
+    private Integer totalPage;
+
+    /**
+     * Paginated search results
      */
     private List<WebForSearchDTO> webs;
 

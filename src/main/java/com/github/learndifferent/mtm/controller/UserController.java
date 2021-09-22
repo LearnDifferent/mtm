@@ -76,7 +76,7 @@ public class UserController {
     }
 
     /**
-     * Create User.
+     * Create User
      *
      * @param basicInfo       Username, Password and User Role
      * @param code            Verification Code
@@ -115,7 +115,7 @@ public class UserController {
     }
 
     /**
-     * Delete user and his website data.
+     * Delete user and his website data
      *
      * @param userName Username
      * @param password Password

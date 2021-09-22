@@ -22,11 +22,11 @@ import lombok.experimental.Accessors;
 public class WebsitePatternDTO implements Serializable {
 
     /**
-     * 分页后展示出来的网页数据
+     * Paginated website data
      */
     private List<? extends WebsiteDTO> webs;
     /**
-     * 分页后的总页数
+     * Total pages
      */
     Integer totalPage;
 

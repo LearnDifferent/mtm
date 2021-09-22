@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginController {
 
     /**
-     * Login.
+     * Login
      *
      * @param nameAndPwd  Request Body that contains Username and Password
      * @param code        Verification Code

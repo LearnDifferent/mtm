@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 /**
  * 筛选器（根据用户名和日期，筛选网页，并根据需要加载的数量显示网页）
+ * <p>注意在 MyBatis 中，日期要指定：jdbcType=DATE</p>
  *
  * @author zhou
  * @date 2021/09/05
@@ -17,38 +18,36 @@ import org.springframework.beans.factory.annotation.Value;
 public class WebFilterRequest implements Serializable {
 
     /**
-     * 需要加载多少条数据
+     * Amount of data to load
      */
     @Value("${website-filter.load}")
     private int load;
 
     /**
-     * 需要筛选的用户名，为空或 null 时表示筛选全部
+     * Filter by username. Null or empty means selecting all users.
      */
     private List<String> usernames;
 
     /**
-     * 表示筛选范围从这一天开始（包括这一天），如果为 null，表示不筛选
-     * 注意 MyBatis 中要指定：jdbcType=DATE
+     * Filter by date: Start from this date (including this date). Null means not selecting date.
      */
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date fromDate;
 
     /**
-     * 表示筛选范围到这一天结束（包括这一天），如果为 null，表示不筛选
-     * 注意 MyBatis 中要指定：jdbcType=DATE
+     * Filter by date: The date to end (including this date). Null means not selecting date.
      */
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date toDate;
 
     /**
-     * 按照什么字段排序
+     * Order by what field
      */
     @Value("${website-filter.order}")
     private String order;
 
     /**
-     * 是否按照 desc 排序
+     * True if ascending order, false if descending order
      */
     @Value("${website-filter.isDesc}")
     private Boolean desc;

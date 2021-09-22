@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class UserWithWebCountDTO extends UserDTO {
 
     /**
-     * 新增：该用户收藏的网页的个数
+     * New field: the number of websites that user owns
      */
     private Integer webCount;
 }

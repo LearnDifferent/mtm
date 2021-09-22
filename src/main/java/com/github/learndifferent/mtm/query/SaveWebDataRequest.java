@@ -20,9 +20,21 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SaveWebDataRequest implements Serializable {
 
+    /**
+     * Title
+     */
     private String title;
+    /**
+     * Url
+     */
     private String url;
+    /**
+     * Image
+     */
     private String img;
+    /**
+     * Description
+     */
     private String desc;
 
     private static final long serialVersionUID = 1L;

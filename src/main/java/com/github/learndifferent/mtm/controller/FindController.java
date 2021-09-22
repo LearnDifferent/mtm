@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Search Page
+ * Search Page Controller
  *
  * @author zhou
  * @date 2021/09/05
@@ -39,7 +39,7 @@ public class FindController {
     }
 
     /**
-     * Get trending searches, existent of data for search and update information.
+     * Get trending searches, existent of data for search and the update information.
      *
      * @return {@link ResultVO}<{@link FindPageVO}> trending searches, existent of data for search and update information
      */
@@ -64,7 +64,7 @@ public class FindController {
     }
 
     /**
-     * Delete specific trending keyword. (The user should not be role of Guest)
+     * Delete specific trending keyword (Guest does not have the permission)
      *
      * @param word keyword to delete
      * @return success or failure
@@ -80,7 +80,7 @@ public class FindController {
     }
 
     /**
-     * Delete all trending keyword. (The user should not be role of Guest)
+     * Delete all trending keyword (Guest does not have the permission)
      *
      * @return success or failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
@@ -113,7 +113,7 @@ public class FindController {
     }
 
     /**
-     * Generate Elasticsearch based on database
+     * Generate Elasticsearch data based on database
      *
      * @return success or failure
      */
@@ -135,8 +135,7 @@ public class FindController {
     }
 
     /**
-     * Initialize Elasticsearch.
-     * Check whether the index exists. If not, create the index.
+     * Initialize Elasticsearch: Check whether the index exists. If not, create the index.
      *
      * @return success or failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link SearchService#hasIndexOrCreate()}

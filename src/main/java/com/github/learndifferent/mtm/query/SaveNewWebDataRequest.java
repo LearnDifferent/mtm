@@ -15,17 +15,17 @@ import lombok.NoArgsConstructor;
 public class SaveNewWebDataRequest implements Serializable {
 
     /**
-     * url
+     * Url
      */
     private String url;
 
     /**
-     * 用户名
+     * Username
      */
     private String username;
 
     /**
-     * 是否同步数据到 Elasticsearch
+     * True if the data should be synchronized to Elasticsearch
      */
     private Boolean syncToElasticsearch;
 

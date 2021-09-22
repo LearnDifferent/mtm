@@ -16,8 +16,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateUserRequest implements Serializable {
 
+    /**
+     * Username
+     */
     private String userName;
+    /**
+     * Password
+     */
     private String password;
+    /**
+     * User Role
+     */
     private String role;
 
     private static final long serialVersionUID = 1L;

@@ -1,0 +1,14 @@
+{
+  "outPath": ".",
+  "allInOne": true,
+  "allInOneDocFileName": "api-document.md",
+  "language": "ENGLISH",
+  "serverUrl": "http://127.0.0.1",
+  "coverOld": true,
+  "createDebugPage": false,
+  "projectName": "mtm",
+  "showAuthor": true,
+  "inlineEnum": true,
+  "requestExample": "false",
+  "responseExample": "false"
+}
