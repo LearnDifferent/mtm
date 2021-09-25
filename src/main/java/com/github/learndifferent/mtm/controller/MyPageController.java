@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -55,10 +55,10 @@ public class MyPageController {
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        int totalCount = websiteService.countUserPost(userName);
+        int totalCount = websiteService.countUserPost(userName, true);
 
-        List<WebsiteDTO> myWebs = websiteService.findWebsitesDataByUser(
-                userName, from, size);
+        List<WebsiteWithPrivacyDTO> myWebs = websiteService.findWebsitesDataByUser(
+                userName, from, size, true);
 
         int totalPage = PageUtil.getAllPages(totalCount, size);
 

@@ -21,7 +21,7 @@ public interface UserService {
      *
      * @return 包装为只含有 userName 和 webCount 的 User 类列表
      */
-    List<UserWithWebCountDTO> getNamesAndCountMarkedWebsDesc();
+    List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs();
 
     /**
      * 获取某些用户的名称及其收藏的网页的个数，并按照网页个数排序
@@ -29,7 +29,7 @@ public interface UserService {
      * @param usernames 需要获取的用户名
      * @return 包装为只含有 userName 和 webCount 的 User 类列表
      */
-    List<UserWithWebCountDTO> getNamesAndCountMarkedWebsDesc(List<String> usernames);
+    List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs(List<String> usernames);
 
     /**
      * 修改密码

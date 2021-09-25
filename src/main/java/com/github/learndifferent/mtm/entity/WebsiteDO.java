@@ -51,5 +51,10 @@ public class WebsiteDO implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
 
+    /**
+     * True if this is a public post
+     */
+    private Boolean isPublic;
+
     private static final long serialVersionUID = 1L;
 }

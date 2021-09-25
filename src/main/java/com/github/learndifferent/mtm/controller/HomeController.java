@@ -44,14 +44,14 @@ public class HomeController {
     }
 
     /**
-     * Get users' name and the amount of their websites
+     * Get users' name and the number of their marked public websites
      *
      * @return {@link List}<{@link UserWithWebCountDTO}> Users' name and the amount of their websites
      */
     @SystemLog(title = "Filter", optsType = OptsType.READ)
     @GetMapping("/filter")
-    public List<UserWithWebCountDTO> getUsernamesAndCountTheirMarkedWebs() {
-        return userService.getNamesAndCountMarkedWebsDesc();
+    public List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs() {
+        return userService.getNamesAndCountTheirPublicWebs();
     }
 
     /**
@@ -64,7 +64,7 @@ public class HomeController {
     @PostMapping("/filter")
     public ResultVO<WebsByFilterVO> filter(@RequestBody WebFilterRequest filter) {
 
-        List<WebsiteDTO> webs = websiteService.findWebsitesDataByFilter(filter);
+        List<WebsiteDTO> webs = websiteService.findPublicWebDataByFilter(filter);
         int count = webs.size();
 
         WebsByFilterVO result = WebsByFilterVO.builder()

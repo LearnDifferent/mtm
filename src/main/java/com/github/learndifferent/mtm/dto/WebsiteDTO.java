@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 网页数据 dto
+ * Website data without privacy settings
  *
  * @author zhou
  * @date 2021/09/05

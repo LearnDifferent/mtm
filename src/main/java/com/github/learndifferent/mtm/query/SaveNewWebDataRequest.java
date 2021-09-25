@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 用于接收 URL、用户名以及是否同步数据到 Elasticsearch
+ * 用于接收 URL、用户名、隐私设置以及是否同步数据到 Elasticsearch
  *
  * @author zhou
  * @date 2021/09/13
@@ -23,6 +23,11 @@ public class SaveNewWebDataRequest implements Serializable {
      * Username
      */
     private String username;
+
+    /**
+     * True if this is a public post
+     */
+    private Boolean isPublic;
 
     /**
      * True if the data should be synchronized to Elasticsearch

@@ -17,9 +17,9 @@ public enum ResultCode {
      */
     FAILED(500, "Fail"),
     /**
-     * Fail to save
+     * Website data does not exists
      */
-    SAVE_FAILED(2001, "Fail to save"),
+    WEBSITE_DATA_NOT_EXISTS(2001, "The website data does not exists"),
     /**
      * Fail to update
      */
@@ -39,7 +39,7 @@ public enum ResultCode {
     /**
      * The username or password is incorrect
      */
-    USER_NOT_EXIST(2006, "The username or password is incorrect"),
+    USER_NOT_EXIST(2006, "Invalid username or password"),
     /**
      * The verification code you entered is incorrect.
      */
@@ -109,20 +109,15 @@ public enum ResultCode {
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
     /**
-     * Fail to validate
-     */
-    VALIDATE_FAILED(501, "Fail to validate"),
-    /**
      * Unknown Error
      */
     ERROR(502, "Unknown Error");
-
 
     private final Integer value;
 
     private final String msg;
 
-    private ResultCode(final Integer value, final String msg) {
+    ResultCode(final Integer value, final String msg) {
         this.value = value;
         this.msg = msg;
     }

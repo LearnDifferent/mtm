@@ -9,19 +9,17 @@
         <result column="img" jdbcType="VARCHAR" property="img"/>
         <result column="desc" jdbcType="VARCHAR" property="desc"/>
         <result column="createTime" jdbcType="DATE" property="createTime"/>
+        <result column="public" jdbcType="BOOLEAN" property="isPublic"/>
     </resultMap>
-    <sql id="Base_Column_List">
-        webId
-        , userName, title, url, img, `desc`, `createTime`
-    </sql>
 
-    <select id="findWebsitesDataByFilter" resultType="com.github.learndifferent.mtm.entity.WebsiteDO"
+    <select id="findPublicWebDataByFilter" resultMap="BaseResultMap"
             parameterType="com.github.learndifferent.mtm.query.WebFilterRequest">
         select *
         from website
         <where>
+            `public` is true
             <if test="usernames != null and usernames.size() != 0">
-                <foreach collection="usernames" item="userName" open="(" close=")" separator="or">
+                <foreach collection="usernames" item="userName" open="and (" close=")" separator="or">
                     userName = #{userName}
                 </foreach>
             </if>
@@ -49,75 +47,111 @@
         </if>
     </select>
 
-    <select id="showMostMarked" resultType="com.github.learndifferent.mtm.dto.WebsiteWithCountDTO">
+    <select id="mostPublicMarkedWebs" resultType="com.github.learndifferent.mtm.dto.WebsiteWithCountDTO">
         select count(url) as count, url, title, `desc`, img
         from website
+        where `public` is true
         group by url, title, `desc`, img
         order by count desc limit #{from}, #{size};
     </select>
-    <select id="countDistinctUrl" resultType="java.lang.Integer">
+
+    <select id="countDistinctPublicUrl" resultType="java.lang.Integer">
         select count(distinct url)
-        from website;
+        from website
+        where `public` is true;
     </select>
 
-    <select id="showAllWebsiteDataDesc" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+    <select id="getAllPubAndSpecUserPriWebs" resultMap="BaseResultMap">
         <!-- 因为 webId 也是根据时间顺序生成的，所以用 createTime 和 webId 排序是一样的效果 -->
-        select * from website order by `webId` desc
+        select * from website
+        <where>
+            `public` is true
+            <if test="specUsername != null and specUsername != ''">
+                or userName = #{specUsername}
+            </if>
+        </where>
+        order by `webId` desc
         <if test="from!=null and size!=null">
             limit #{from},#{size}
         </if>
     </select>
 
     <select id="getWebsiteDataById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+        select *
         from website
         where webId = #{webId,jdbcType=INTEGER}
     </select>
-    <select id="showAllWebsitesData" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
-        select *
-        from website;
-    </select>
-    <select id="findWebsitesDataByUrl" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+
+    <select id="findWebsitesDataByUrl" resultMap="BaseResultMap">
         select *
         from website
         where url = #{url};
     </select>
-    <select id="countAll" resultType="java.lang.Integer">
+
+    <select id="countAllPubAndSpecUserPriWebs" resultType="java.lang.Integer">
         select count(webId)
-        from website;
+        from website
+        <where>
+            `public` is true
+            <if test="specUsername != null and specUsername != ''">
+                or userName = #{specUsername}
+            </if>
+        </where>
+        ;
     </select>
 
-    <select id="findWebsitesDataByUser" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+    <select id="findWebsitesDataByUser" resultMap="BaseResultMap">
         select *
         from website
         where userName = #{userName}
+        <!-- 如果 includePrivate 为 false，就只查找数据库中 public 属性为 true 的 -->
+        <if test="!includePrivate ">
+            and `public` is true
+        </if>
         order by webId desc
         <if test="from!=null and size!=null">
             limit #{from},#{size}
         </if>
 
     </select>
+
     <select id="countUserPost" resultType="java.lang.Integer">
         select count(userName)
         from website
-        where userName = #{userName};
+        where userName = #{userName}
+        <if test="!includePrivate ">
+            and `public` is true
+        </if>
+        ;
     </select>
-    <select id="getAllWebsitesDataForSearch" resultType="com.github.learndifferent.mtm.dto.WebForSearchDTO">
+
+    <select id="getAllPublicWebDataForSearch" resultType="com.github.learndifferent.mtm.dto.WebForSearchDTO">
         select url, title, img, `desc`
         from website
+        where `public` is true
         group by url, title, `desc`, img;
     </select>
-    <select id="findWebsitesDataExcludeUser" resultType="com.github.learndifferent.mtm.entity.WebsiteDO">
+
+    <select id="findWebsitesDataExcludeUser" resultMap="BaseResultMap">
         select *
         from website
-        where userName != #{userName}
-        order by webId desc limit #{from}, #{size};
+        where userName != #{excludeUsername}
+        and ( `public` is true
+        <if test="userNameToShowAll != null and userNameToShowAll != '' and !userNameToShowAll.equalsIgnoreCase(excludeUsername)">
+            or userName = #{userNameToShowAll}
+        </if>
+        ) order by webId desc limit #{from}, #{size};
     </select>
+
     <select id="countExcludeUserPost" resultType="java.lang.Integer">
         select count(webId)
         from website
-        where userName != #{userName};
+        where userName != #{excludeUsername}
+        and ( `public` is true
+        <if test="userNameToShowAll != null and userNameToShowAll != '' and !userNameToShowAll.equalsIgnoreCase(excludeUsername)">
+            or userName = #{userNameToShowAll}
+        </if>
+        );
     </select>
 
     <delete id="deleteWebsiteDataById" parameterType="java.lang.Integer">
@@ -135,9 +169,8 @@
     <insert id="addWebsiteData" keyColumn="webId" keyProperty="webId"
             parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
             useGeneratedKeys="true">
-        insert into website(userName, title, url,
-                            img, `desc`, `createTime`)
-        values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime})
+        insert into website(userName, title, url, img, `desc`, `createTime`, `public`)
+        values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
     <update id="updateWebsiteDataById" parameterType="com.github.learndifferent.mtm.entity.WebsiteDO">
@@ -147,7 +180,8 @@
             url          = #{url,jdbcType=VARCHAR},
             img          = #{img,jdbcType=VARCHAR},
             `desc`       = #{desc,jdbcType=VARCHAR},
-            `createTime` = #{createTime,jdbcType=DATE}
+            `createTime` = #{createTime,jdbcType=DATE},
+            `public`     = #{isPublic,jdbcType=BOOLEAN}
         where webId = #{webId,jdbcType=INTEGER}
     </update>
 </mapper>

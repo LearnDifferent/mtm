@@ -34,7 +34,7 @@ public class MyPageVO implements Serializable {
     /**
      * My website data
      */
-    private List<WebsiteDTO> myWebs;
+    private List<? extends WebsiteDTO> myWebs;
     /**
      * Total pages of my website data
      */

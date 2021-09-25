@@ -7,21 +7,20 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * 用户信息 + 该用户收藏的网页的个数
+ * Website data with privacy settings
  *
  * @author zhou
- * @date 2021/09/05
+ * @date 2021/9/23
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserWithWebCountDTO extends UserDTO {
+public class WebsiteWithPrivacyDTO extends WebsiteDTO {
 
     /**
-     * New field: the number of websites that user owns
+     * New field: True if this is a public post
      */
-    private Integer webCount;
+    private Boolean isPublic;
 }
-

@@ -15,13 +15,13 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper {
 
     /**
-     * 获取某些用户的名称及其收藏的网页的个数，并按照网页个数排序
+     * 获取某些用户的名称及其收藏的公开的网页的个数，并按照网页个数排序
      * <p>如果传入的 usernames 列表为空，表示：获取所有用户的名称及其收藏的网页的个数，并按照网页个数排序。</p>
      *
      * @param usernames 需要获取的用户名
      * @return 包装为只含有 userName 和 webCount 的 User 类列表
      */
-    List<UserWithWebCountDTO> getNamesAndCountMarkedWebsDesc(List<String> usernames);
+    List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs(List<String> usernames);
 
     /**
      * 获取全部用户

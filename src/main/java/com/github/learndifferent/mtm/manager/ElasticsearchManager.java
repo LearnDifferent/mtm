@@ -149,7 +149,7 @@ public class ElasticsearchManager {
      */
     private boolean differentFromDatabase() {
         // 数据库中的 distinct url 的数量
-        long databaseUrlCount = websiteMapper.countDistinctUrl();
+        long databaseUrlCount = websiteMapper.countDistinctPublicUrl();
         // Elasticsearch 中的文档的数量
         long elasticsearchDocCount = countDocs();
         // 两者数量是否相同
@@ -277,7 +277,7 @@ public class ElasticsearchManager {
      * @return 获取到的网页数据
      */
     private List<WebForSearchDTO> getAllWebsitesDataForSearch() {
-        return websiteMapper.getAllWebsitesDataForSearch();
+        return websiteMapper.getAllPublicWebDataForSearch();
     }
 
     private boolean bulkAdd(List<WebForSearchDTO> webs) {
