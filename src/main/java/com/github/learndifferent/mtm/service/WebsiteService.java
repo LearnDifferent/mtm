@@ -147,12 +147,16 @@ public interface WebsiteService {
 
     /**
      * 以 HTML 格式，导出该用户的所有网页数据。如果该用户没有数据，直接输出无数据的提示。
+     * 如果该用户是当前用户，就导出所有网页数据；如果不是当前用户，只导出公开的网页数据。
      *
-     * @param username 用户名
-     * @param response response
+     * @param username        需要导出数据的用户的用户名
+     * @param currentUsername 当前用户的用户名
+     * @param response        response
      * @throws ServiceException ResultCode.CONNECTION_ERROR
      */
-    void exportWebsDataByUserToHtmlFile(String username, HttpServletResponse response);
+    void exportWebsDataByUserToHtmlFile(String username,
+                                        String currentUsername,
+                                        HttpServletResponse response);
 
     /**
      * Import website data from html file and return ResultVO as result.

@@ -45,10 +45,13 @@ public class HtmlFileController {
     public void export(@RequestParam(value = "username", required = false) String username,
                        HttpServletResponse response) {
 
+        String currentUsername = getCurrentUser();
+
         if (StringUtils.isEmpty(username)) {
-            username = getCurrentUser();
+            username = currentUsername;
         }
-        websiteService.exportWebsDataByUserToHtmlFile(username, response);
+
+        websiteService.exportWebsDataByUserToHtmlFile(username, currentUsername, response);
     }
 
     /**

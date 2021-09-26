@@ -381,18 +381,22 @@ public class WebsiteServiceImpl implements WebsiteService {
     /**
      * 以 HTML 格式，导出该用户的所有网页数据。如果该用户没有数据，直接输出无数据的提示。
      *
-     * @param username 用户名
-     * @param response response
+     * @param username        需要导出数据的用户的用户名
+     * @param currentUsername 当前用户的用户名
+     * @param response        response
      * @throws ServiceException ResultCode.CONNECTION_ERROR
      */
     @Override
-    public void exportWebsDataByUserToHtmlFile(String username, HttpServletResponse response) {
+    public void exportWebsDataByUserToHtmlFile(String username,
+                                               String currentUsername,
+                                               HttpServletResponse response) {
 
         Date date = Calendar.getInstance().getTime();
         String time = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(date);
         String filename = username + "_" + time + ".html";
 
-        String html = getWebsDataByUserInHtml(username);
+        boolean includePrivate = username.equalsIgnoreCase(currentUsername);
+        String html = getWebsDataByUserInHtml(username, includePrivate);
 
         try {
             response.setCharacterEncoding("UTF-8");
@@ -406,12 +410,13 @@ public class WebsiteServiceImpl implements WebsiteService {
     /**
      * 根据用户名，生成该用户保存的所有网页数据，并返回 html 格式的字符串。
      *
-     * @param username 用户名
+     * @param username       用户名
+     * @param includePrivate 是否包含隐私数据
      * @return {@code String}
      */
-    private String getWebsDataByUserInHtml(String username) {
+    private String getWebsDataByUserInHtml(String username, boolean includePrivate) {
 
-        List<WebsiteDTO> webs = findAllWebDataByUser(username);
+        List<WebsiteDTO> webs = findAllWebDataByUser(username, includePrivate);
 
         StringBuilder sb = new StringBuilder();
 
@@ -445,13 +450,14 @@ public class WebsiteServiceImpl implements WebsiteService {
     /**
      * 根据用户获取该用户的所有网页数据（包括私有数据）
      *
-     * @param userName 用户名
+     * @param userName       用户名
+     * @param includePrivate 是否包含隐私数据
      * @return {@code List<WebsiteDO>}
      */
-    private List<WebsiteDTO> findAllWebDataByUser(String userName) {
+    private List<WebsiteDTO> findAllWebDataByUser(String userName, boolean includePrivate) {
         // from 和 size 为 null 的时候，表示不分页，直接获取全部
         List<WebsiteDO> webs = websiteMapper.findWebsitesDataByUser(userName,
-                null, null, true);
+                null, null, includePrivate);
         return DozerUtils.convertList(webs, WebsiteDTO.class);
     }
 
