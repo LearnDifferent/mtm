@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Get, create, delete and update users.
+ * Get, create, delete and update users
  *
  * @author zhou
  * @date 2021/09/05
