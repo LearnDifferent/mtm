@@ -1,8 +1,10 @@
 package com.github.learndifferent.mtm.controller;
 
+import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.CommentService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +27,22 @@ public class CommentController {
     public CommentController(CommentService commentService) {this.commentService = commentService;}
 
     /**
+     * Get comments of the website
+     *
+     * @param webId Website ID
+     * @param load  Amount of data to load
+     * @return {@link ResultVO}<{@link List}<{@link CommentOfWebsiteDTO}>> It will return a list of comments. If the
+     * website does not exist or there is no comment of the website then it will return an empty list. The result code
+     * will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#SUCCESS}
+     */
+    @GetMapping
+    public ResultVO<List<CommentOfWebsiteDTO>> getCommentsByWebId(@RequestParam("webId") Integer webId,
+                                                                  @RequestParam("load") Integer load) {
+        List<CommentOfWebsiteDTO> comments = commentService.getCommentsByWebId(webId, load);
+        return ResultCreator.okResult(comments);
+    }
+
+    /**
      * Create a comment
      *
      * @param comment  Comment
@@ -44,7 +62,7 @@ public class CommentController {
      *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EMPTY}
      *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}
      */
-    @GetMapping
+    @GetMapping("/create")
     public ResultVO<Boolean> createComment(@RequestParam("comment") String comment,
                                            @RequestParam("webId") int webId,
                                            @RequestParam("username") String username) {

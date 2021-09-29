@@ -36,10 +36,11 @@ public interface CommentMapper {
     /**
      * Get comments by web id
      *
-     * @param webId web id
+     * @param webId Web ID
+     * @param load  Amount of data to load
      * @return the comments
      */
-    List<CommentDO> getCommentsByWebId(int webId);
+    List<CommentDO> getCommentsByWebId(@Param("webId") Integer webId, @Param("load") Integer load);
 
     /**
      * Gets comments by username

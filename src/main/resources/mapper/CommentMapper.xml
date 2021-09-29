@@ -18,7 +18,15 @@
     <select id="getCommentsByWebId" resultType="com.github.learndifferent.mtm.entity.CommentDO">
         select *
         from comment
-        where webId = #{webId,jdbcType=INTEGER};
+        <where>
+            <if test="webId != null">
+                webId = #{webId,jdbcType=INTEGER}
+            </if>
+        </where>
+        order by `creationTime` desc
+        <if test="load != null and load > 0">
+            limit 0, #{load}
+        </if>;
     </select>
 
     <select id="getCommentsByUsername" resultType="com.github.learndifferent.mtm.entity.CommentDO">

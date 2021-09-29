@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.annotation.validation.comment.AddCommentCheck;
+import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import java.util.List;
 
@@ -33,10 +34,11 @@ public interface CommentService {
     /**
      * Get comments by web id
      *
-     * @param webId web id
-     * @return the comments
+     * @param webId Web ID
+     * @param load  Amount of data to load
+     * @return the comments of the website
      */
-    List<CommentDO> getCommentsByWebId(int webId);
+    List<CommentOfWebsiteDTO> getCommentsByWebId(Integer webId, Integer load);
 
     /**
      * Gets comments by username
