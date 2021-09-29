@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
 import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import java.util.List;
@@ -59,9 +58,18 @@ public interface CommentService {
      * Delete a comment by id
      *
      * @param commentId comment id
+     * @param username  username
      * @return success or failure
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.delete.DeleteCommentCheck}
+     *                                                                  annotation will throw exceptions with the
+     *                                                                  result
+     *                                                                  codes of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
+     *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the comment does not exist or the user has
+     *                                                                  no
+     *                                                                  permissions to delete the comment
      */
-    boolean deleteCommentById(int commentId);
+    boolean deleteCommentById(int commentId, String username);
 
     /**
      * Add a comment
@@ -70,7 +78,7 @@ public interface CommentService {
      * @param webId    web id
      * @param username username
      * @return success or failure
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AddCommentCheck}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck}
      *                                                                  annotation will throw an exception
      *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the username is not the current user's name

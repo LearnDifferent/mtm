@@ -1,9 +1,11 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.annotation.common.Comment;
+import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
+import com.github.learndifferent.mtm.annotation.validation.comment.delete.DeleteCommentCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
 import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
@@ -53,7 +55,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public boolean deleteCommentById(int commentId) {
+    @DeleteCommentCheck
+    public boolean deleteCommentById(@CommentId int commentId, @Username String username) {
         return commentMapper.deleteCommentById(commentId);
     }
 

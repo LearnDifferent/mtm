@@ -6,6 +6,7 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.CommentService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,6 +78,27 @@ public class CommentController {
                                            @RequestParam("webId") int webId,
                                            @RequestParam("username") String username) {
         boolean success = commentService.addComment(comment, webId, username);
+        return success ? ResultCreator.okResult() : ResultCreator.failResult();
+    }
+
+    /**
+     * Delete a comment
+     *
+     * @param commentId comment id
+     * @param username  username
+     * @return success or failure
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#deleteCommentById(int,
+     *                                                                  String)}
+     *                                                                  annotation will throw exceptions with the
+     *                                                                  result codes of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
+     *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the comment does not exist or the user has
+     *                                                                  no permissions to delete the comment
+     */
+    @DeleteMapping
+    public ResultVO<Boolean> deleteComment(@RequestParam("commentId") int commentId,
+                                           @RequestParam("username") String username) {
+        boolean success = commentService.deleteCommentById(commentId, username);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 }

@@ -117,6 +117,10 @@ public enum ResultCode {
      */
     COMMENT_TOO_LONG(3011, "Comment should not be longer than 140 characters."),
     /**
+     * 评论不存在
+     */
+    COMMENT_NOT_EXISTS(3012, "The comment does not exists."),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
