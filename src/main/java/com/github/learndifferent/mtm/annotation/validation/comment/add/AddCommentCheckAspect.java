@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.annotation.validation.comment;
+package com.github.learndifferent.mtm.annotation.validation.comment.add;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.Comment;

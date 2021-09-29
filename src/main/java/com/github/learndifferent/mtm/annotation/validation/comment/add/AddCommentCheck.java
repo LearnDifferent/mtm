@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.annotation.validation.comment;
+package com.github.learndifferent.mtm.annotation.validation.comment.add;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
