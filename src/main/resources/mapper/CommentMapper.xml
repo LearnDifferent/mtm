@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.learndifferent.mtm.mapper.CommentMapper">
+    <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.CommentDO">
+        <id column="commentId" jdbcType="INTEGER" property="commentId"/>
+        <result column="comment" jdbcType="VARCHAR" property="comment"/>
+        <result column="webId" jdbcType="INTEGER" property="webId"/>
+        <result column="userName" jdbcType="VARCHAR" property="username"/>
+        <result column="creationTime" jdbcType="TIMESTAMP" property="creationTime"/>
+    </resultMap>
+
+    <select id="getCommentById" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+        select *
+        from comment
+        where commentId = #{commentId,jdbcType=INTEGER};
+    </select>
+
+    <select id="getCommentsByWebId" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+        select *
+        from comment
+        where webId = #{webId,jdbcType=INTEGER};
+    </select>
+
+    <select id="getCommentsByUsername" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+        select *
+        from comment
+        where username = #{username,jdbcType=VARCHAR};
+    </select>
+
+    <select id="getCommentByWebIdAndUsernameAndComment" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+        select *
+        from comment
+        where comment = #{comment}
+          and username = #{username}
+          and webId = #{webId};
+    </select>
+
+    <delete id="deleteCommentById" parameterType="java.lang.Integer">
+        delete
+        from comment
+        where commentId = #{commentId,jdbcType=INTEGER}
+    </delete>
+
+    <insert id="addComment" keyColumn="commentId" keyProperty="commentId"
+            parameterType="com.github.learndifferent.mtm.dto.CommentDTO" useGeneratedKeys="true">
+        insert into comment (`comment`, `webId`, `username`, `creationTime`)
+        values (#{comment,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
+                #{creationTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <update id="updateComment" parameterType="com.github.learndifferent.mtm.entity.CommentDO">
+        update comment
+        <set>
+            <if test="comment != null and comment !=''">
+                `comment` = #{comment,jdbcType=VARCHAR},
+            </if>
+            <if test="webId != null">
+                webId = #{webId,jdbcType=INTEGER},
+            </if>
+            <if test="username != null and username != ''">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="creationTime != null">
+                creationTime = #{creationTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where commentId = #{commentId,jdbcType=INTEGER}
+    </update>
+</mapper>
