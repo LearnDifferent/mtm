@@ -105,6 +105,18 @@ public enum ResultCode {
      */
     EMAIL_SET_UP_ERROR(3008, "Email not set up properly"),
     /**
+     * 评论已经存在
+     */
+    COMMENT_EXISTS(3009, "Duplicate comment detected: The comment has already been sent by you."),
+    /**
+     * 评论为空
+     */
+    COMMENT_EMPTY(3010, "Please enter a comment."),
+    /**
+     * 评论太长
+     */
+    COMMENT_TOO_LONG(3011, "Comment should not be longer than 140 characters."),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
