@@ -3,7 +3,8 @@ package com.github.learndifferent.mtm.service.impl;
 import com.github.learndifferent.mtm.annotation.common.Comment;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
-import com.github.learndifferent.mtm.annotation.validation.comment.AddCommentCheck;
+import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
+import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
 import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
+ * Comment service
+ *
  * @author zhou
  * @date 2021/9/28
  */
@@ -38,7 +41,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentOfWebsiteDTO> getCommentsByWebId(Integer webId, Integer load) {
+    @GetCommentsCheck
+    public List<CommentOfWebsiteDTO> getCommentsByWebId(@WebId Integer webId, Integer load, @Username String username) {
         List<CommentDO> comments = commentMapper.getCommentsByWebId(webId, load);
         return DozerUtils.convertList(comments, CommentOfWebsiteDTO.class);
     }

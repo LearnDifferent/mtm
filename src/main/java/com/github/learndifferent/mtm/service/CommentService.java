@@ -1,12 +1,12 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.annotation.validation.comment.AddCommentCheck;
+import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
 import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import java.util.List;
 
 /**
- * Comment Service
+ * Comment Service Interface
  *
  * @author zhou
  * @date 2021/9/28
@@ -34,11 +34,18 @@ public interface CommentService {
     /**
      * Get comments by web id
      *
-     * @param webId Web ID
-     * @param load  Amount of data to load
+     * @param webId    Web ID
+     * @param load     Amount of data to load
+     * @param username User's name who trying to get comments
      * @return the comments of the website
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If the website does not exist or the user
+     *                                                                  does not have permissions to get the website's
+     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck}
+     *                                                                  annotation will throw an exception with the
+     *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
+     *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
-    List<CommentOfWebsiteDTO> getCommentsByWebId(Integer webId, Integer load);
+    List<CommentOfWebsiteDTO> getCommentsByWebId(Integer webId, Integer load, String username);
 
     /**
      * Gets comments by username
