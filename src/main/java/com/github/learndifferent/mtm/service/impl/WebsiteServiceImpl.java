@@ -102,6 +102,12 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
+    public WebsiteWithPrivacyDTO findWebsiteDataWithPrivacyById(int webId) {
+        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
+        return DozerUtils.convert(web, WebsiteWithPrivacyDTO.class);
+    }
+
+    @Override
     @WebsiteDataClean
     @MarkCheck(usernameParamName = "userName",
                paramClassContainsUrl = WebWithNoIdentityDTO.class,

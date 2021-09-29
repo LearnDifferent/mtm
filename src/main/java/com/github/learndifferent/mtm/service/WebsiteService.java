@@ -57,13 +57,21 @@ public interface WebsiteService {
                                                        boolean includePrivate);
 
     /**
-     * 通过id找到网页数据。用于 {@link ModifyWebsitePermissionCheck}
+     * 通过 id 找到网页数据。用于 {@link ModifyWebsitePermissionCheck}
      * 注解查看该用户是否有删除网页的权限，所以不需要 privacy settings 信息
      *
      * @param webId id
-     * @return {@code WebsiteDTO}
+     * @return {@code WebsiteDTO} 网页数据（不包括 privacy settings 信息）
      */
     WebsiteDTO findWebsiteDataById(int webId);
+
+    /**
+     * 通过 id 找到网页数据（包括 privacy settings 信息）
+     *
+     * @param webId id
+     * @return {@link WebsiteWithPrivacyDTO} 网页数据（包括 privacy settings 信息）
+     */
+    WebsiteWithPrivacyDTO findWebsiteDataWithPrivacyById(int webId);
 
     /**
      * 保存没有 ID、用户名和创建时间的网页数据，并添加用户信息，生成时间（ID 会在数据库中生成）以及隐私设置。

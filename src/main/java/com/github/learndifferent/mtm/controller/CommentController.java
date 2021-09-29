@@ -51,11 +51,13 @@ public class CommentController {
      * @return {@link ResultVO}<{@link Boolean}> success of failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addComment(String,
      *                                                                  int, String)}
-     *                                                                  will throw an exception if the username is not
-     *                                                                  the current user's name with the result code of
+     *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
-     *                                                                  and throw an exception if the comment existed
-     *                                                                  with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EXISTS}.
+     *                                                                  if the username is not the current user's name
+     *                                                                  or the user has no permissions to comment on
+     *                                                                  this website.
+     *                                                                  It will throw an exception if the comment
+     *                                                                  existed with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EXISTS}.
      *                                                                  If the website does not exist, then the result
      *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}.
      *                                                                  If the comment is empty or too long, the result

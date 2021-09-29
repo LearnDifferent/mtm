@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.annotation.common.Comment;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.CommentService;
@@ -13,6 +13,7 @@ import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ReverseUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import org.apache.commons.lang3.BooleanUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -27,6 +28,7 @@ import org.springframework.util.StringUtils;
  * 2. 该 Web ID 的网页是否存在
  * 3. 评论是否小于等于 140 字符且不为空
  * 4. 检查该用户是否已经对该网页进行了相同内容的评论
+ * 5. 检查的评论权限：只有公开的网页能被评论；如果是私有的网页，那么评论者必须为该网页的所有者
  *
  * @author zhou
  * @date 2021/9/28
@@ -93,10 +95,11 @@ public class AddCommentCheckAspect {
 
         // 评论是否小于等于 140 字符且不为空
         checkComment(comment);
-        // 该 Web ID 的网页是否存在
-        checkWebsiteExists(webId);
-        // 用户名是否为当前用户的用户名
+        // 用户名是否为当前用户的用户名（并判断是否空）
         checkUsername(username);
+        // 该 Web ID 的网页是否存在，以及该用户是否有权限评论该网页
+        // 公开的网页，及该用户所有的网页才有权限评论
+        checkWebsiteExistsAndPermission(webId, username);
         // 检查该用户是否已经对该网页进行了相同内容的评论
         checkCommentExists(comment, webId, username);
     }
@@ -111,18 +114,26 @@ public class AddCommentCheckAspect {
         }
     }
 
-    private void checkWebsiteExists(int webId) {
-        WebsiteDTO web = websiteService.findWebsiteDataById(webId);
-        if (web == null) {
-            throw new ServiceException(ResultCode.WEBSITE_DATA_NOT_EXISTS);
-        }
-    }
-
     private void checkUsername(String username) {
         String currentUsername = (String) StpUtil.getLoginId();
 
         if (StringUtils.isEmpty(username)
                 || ReverseUtils.stringNotEqualsIgnoreCase(username, currentUsername)) {
+            throw new ServiceException(ResultCode.PERMISSION_DENIED);
+        }
+    }
+
+    private void checkWebsiteExistsAndPermission(int webId, String username) {
+        WebsiteWithPrivacyDTO web = websiteService.findWebsiteDataWithPrivacyById(webId);
+        if (web == null) {
+            throw new ServiceException(ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        }
+
+        Boolean isPublic = web.getIsPublic();
+        boolean isPrivate = BooleanUtils.isFalse(isPublic);
+        String user = web.getUserName();
+
+        if (isPrivate && ReverseUtils.stringNotEqualsIgnoreCase(username, user)) {
             throw new ServiceException(ResultCode.PERMISSION_DENIED);
         }
     }
