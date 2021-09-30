@@ -14,7 +14,6 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.vo.HomePageVO;
-import com.github.learndifferent.mtm.vo.WebsByFilterVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,20 +56,15 @@ public class HomeController {
     /**
      * Filter website data
      *
-     * @param filter request
-     * @return {@link ResultVO}<{@link WebsByFilterVO}> Results
+     * @param filter filter request
+     * @return {@link ResultVO}<{@link List}<{@link WebsiteDTO}>> Filtered Paginated Website Data
      */
     @SystemLog(title = "Filter", optsType = OptsType.READ)
     @PostMapping("/filter")
-    public ResultVO<WebsByFilterVO> filter(@RequestBody WebFilterRequest filter) {
+    public ResultVO<List<WebsiteDTO>> filter(@RequestBody WebFilterRequest filter) {
 
         List<WebsiteDTO> webs = websiteService.findPublicWebDataByFilter(filter);
-        int count = webs.size();
-
-        WebsByFilterVO result = WebsByFilterVO.builder()
-                .webs(webs).count(count).build();
-
-        return ResultCreator.okResult(result);
+        return ResultCreator.okResult(webs);
     }
 
     /**
@@ -85,7 +79,7 @@ public class HomeController {
     public ResultVO<HomePageVO> load(
             @RequestParam(value = "pattern", defaultValue = "recent") String pattern,
             @RequestParam(value = "userName", required = false) String userName,
-            @PageInfo(size = 20) PageInfoDTO pageInfo) {
+            @PageInfo(size = 12) PageInfoDTO pageInfo) {
 
         WebsitePatternDTO info = websiteService.getWebsitesByPattern(pattern,
                 userName, pageInfo);
