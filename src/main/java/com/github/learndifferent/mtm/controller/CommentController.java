@@ -36,21 +36,25 @@ public class CommentController {
      * @param webId    Website ID
      * @param load     Amount of data to load
      * @param username User's name who trying to get comments
+     * @param isDesc   True if descending order
      * @return {@link ResultVO}<{@link List}<{@link CommentOfWebsiteDTO}>> It will return a list of comments.
      * If there is no comment of the website then it will return an empty list. The result code
      * will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#SUCCESS}
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the website does not exist or the user
      *                                                                  does not have permissions to get the website's
      *                                                                  comments, {@link  CommentService#getCommentsByWebId(Integer,
-     *                                                                  Integer, String)} will throw an exception with
+     *                                                                  Integer, String, Boolean)}
+     *                                                                  will throw an exception with
      *                                                                  the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
     @GetMapping
     public ResultVO<List<CommentOfWebsiteDTO>> getCommentsByWebId(@RequestParam("webId") Integer webId,
                                                                   @RequestParam("load") Integer load,
-                                                                  @RequestParam("username") String username) {
-        List<CommentOfWebsiteDTO> comments = commentService.getCommentsByWebId(webId, load, username);
+                                                                  @RequestParam("username") String username,
+                                                                  @RequestParam(value = "isDesc", required = false, defaultValue = "true")
+                                                                          Boolean isDesc) {
+        List<CommentOfWebsiteDTO> comments = commentService.getCommentsByWebId(webId, load, username, isDesc);
         return ResultCreator.okResult(comments);
     }
 

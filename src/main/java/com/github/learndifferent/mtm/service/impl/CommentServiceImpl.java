@@ -46,8 +46,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @GetCommentsCheck
-    public List<CommentOfWebsiteDTO> getCommentsByWebId(@WebId Integer webId, Integer load, @Username String username) {
-        List<CommentDO> comments = commentMapper.getCommentsByWebId(webId, load);
+    public List<CommentOfWebsiteDTO> getCommentsByWebId(@WebId Integer webId,
+                                                        Integer load,
+                                                        @Username String username,
+                                                        Boolean isDesc) {
+        List<CommentDO> comments = commentMapper.getCommentsByWebId(webId, load, isDesc);
         return DozerUtils.convertList(comments, CommentOfWebsiteDTO.class);
     }
 

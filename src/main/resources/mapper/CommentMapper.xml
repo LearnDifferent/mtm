@@ -23,7 +23,10 @@
                 webId = #{webId,jdbcType=INTEGER}
             </if>
         </where>
-        order by `creationTime` desc
+        order by `creationTime`
+        <if test="isDesc != null and isDesc != false">
+            desc
+        </if>
         <if test="load != null and load > 0">
             limit 0, #{load}
         </if>;

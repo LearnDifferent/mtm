@@ -37,11 +37,14 @@ public interface CommentMapper {
     /**
      * Get comments by web id
      *
-     * @param webId Web ID
-     * @param load  Amount of data to load
+     * @param webId  Web ID
+     * @param load   Amount of data to load
+     * @param isDesc True if descending order
      * @return the comments
      */
-    List<CommentDO> getCommentsByWebId(@Param("webId") Integer webId, @Param("load") Integer load);
+    List<CommentDO> getCommentsByWebId(@Param("webId") Integer webId,
+                                       @Param("load") Integer load,
+                                       @Param("isDesc") Boolean isDesc);
 
     /**
      * Gets comments by username

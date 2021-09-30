@@ -37,6 +37,7 @@ public interface CommentService {
      * @param webId    Web ID
      * @param load     Amount of data to load
      * @param username User's name who trying to get comments
+     * @param isDesc   True if descending order
      * @return the comments of the website
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the website does not exist or the user
      *                                                                  does not have permissions to get the website's
@@ -45,7 +46,7 @@ public interface CommentService {
      *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
-    List<CommentOfWebsiteDTO> getCommentsByWebId(Integer webId, Integer load, String username);
+    List<CommentOfWebsiteDTO> getCommentsByWebId(Integer webId, Integer load, String username, Boolean isDesc);
 
     /**
      * Gets comments by username
