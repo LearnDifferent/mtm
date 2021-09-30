@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.annotation.validation.comment.delete;
+package com.github.learndifferent.mtm.annotation.validation.comment.modify;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.CommentId;
@@ -15,27 +15,29 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Check before comment deletion
+ * Check before comment modification
  *
  * @author zhou
  * @date 2021/9/29
  * @see com.github.learndifferent.mtm.annotation.common.CommentId
  * @see com.github.learndifferent.mtm.annotation.common.Username
  */
+@Order(1)
 @Aspect
 @Component
-public class DeleteCommentCheckAspect {
+public class ModifyCommentCheckAspect {
 
     private final CommentService commentService;
 
     @Autowired
-    public DeleteCommentCheckAspect(CommentService commentService) {this.commentService = commentService;}
+    public ModifyCommentCheckAspect(CommentService commentService) {this.commentService = commentService;}
 
-    @Before("@annotation(deleteCommentCheck)")
-    public void checkBeforeDeleting(JoinPoint jp, DeleteCommentCheck deleteCommentCheck) {
+    @Before("@annotation(modifyCommentCheck)")
+    public void checkBeforeModification(JoinPoint jp, ModifyCommentCheck modifyCommentCheck) {
         MethodSignature signature = (MethodSignature) jp.getSignature();
         Method method = signature.getMethod();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();

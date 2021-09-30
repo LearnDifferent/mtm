@@ -19,6 +19,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -34,6 +35,7 @@ import org.springframework.util.StringUtils;
  * @date 2021/9/28
  */
 @Aspect
+@Order(2)
 @Component
 public class AddCommentCheckAspect {
 
@@ -101,7 +103,7 @@ public class AddCommentCheckAspect {
         // 公开的网页，及该用户所有的网页才有权限评论
         checkWebsiteExistsAndPermission(webId, username);
         // 检查该用户是否已经对该网页进行了相同内容的评论
-        checkCommentExists(comment, webId, username);
+        checkCommentContentExists(comment, webId, username);
     }
 
     private void checkComment(String comment) {
@@ -138,7 +140,7 @@ public class AddCommentCheckAspect {
         }
     }
 
-    private void checkCommentExists(String comment, int webId, String username) {
+    private void checkCommentContentExists(String comment, int webId, String username) {
         CommentDO exist = commentService.getCommentByWebIdAndUsernameAndComment(
                 comment, webId, username);
         if (exist != null) {
