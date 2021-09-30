@@ -56,11 +56,11 @@
                 #{creationTime,jdbcType=TIMESTAMP})
     </insert>
 
-    <update id="updateComment" parameterType="com.github.learndifferent.mtm.entity.CommentDO">
+    <update id="updateComment">
         update comment
         <set>
             <if test="comment != null and comment !=''">
-                `comment` = #{comment,jdbcType=VARCHAR},
+                comment = #{comment,jdbcType=VARCHAR},
             </if>
             <if test="webId != null">
                 webId = #{webId,jdbcType=INTEGER},

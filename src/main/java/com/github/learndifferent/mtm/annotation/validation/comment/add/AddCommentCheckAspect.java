@@ -107,7 +107,7 @@ public class AddCommentCheckAspect {
     }
 
     private void checkComment(String comment) {
-        if (StringUtils.isEmpty(comment)) {
+        if (comment == null || "".equals(comment.trim())) {
             throw new ServiceException(ResultCode.COMMENT_EMPTY);
         }
         int maxLength = 140;

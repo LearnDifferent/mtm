@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
+import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.CommentService;
@@ -8,6 +9,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,6 +85,31 @@ public class CommentController {
     }
 
     /**
+     * Update a comment
+     *
+     * @param commentInfo Comment ID, Comment, Username, Creation time and Website ID
+     * @return {@link ResultVO}<{@link Boolean}> success or failure
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#updateComment(UpdateCommentRequest)}
+     *                                                                  will throw exceptions with the
+     *                                                                  result codes of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
+     *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the comment does not exist or the user has
+     *                                                                  no permissions to update the comment.
+     *                                                                  It will also throw an exception if the
+     *                                                                  comment existed with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EXISTS}.
+     *                                                                  If the website does not exist, then the result
+     *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}.
+     *                                                                  If the comment is empty or too long, the result
+     *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EMPTY}
+     *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}
+     */
+    @PostMapping
+    public ResultVO<Boolean> updateComment(@RequestBody UpdateCommentRequest commentInfo) {
+        boolean success = commentService.updateComment(commentInfo);
+        return success ? ResultCreator.okResult() : ResultCreator.failResult();
+    }
+
+    /**
      * Delete a comment
      *
      * @param commentId comment id
@@ -89,7 +117,7 @@ public class CommentController {
      * @return success or failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#deleteCommentById(int,
      *                                                                  String)}
-     *                                                                  annotation will throw exceptions with the
+     *                                                                  will throw exceptions with the
      *                                                                  result codes of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the comment does not exist or the user has

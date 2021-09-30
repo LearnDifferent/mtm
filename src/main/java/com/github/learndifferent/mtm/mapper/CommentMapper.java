@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.mapper;
 
 import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
+import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -69,8 +70,16 @@ public interface CommentMapper {
     /**
      * Update a comment
      *
-     * @param comment comment
+     * @param commentId    comment id
+     * @param comment      comment
+     * @param username     username
+     * @param webId        web id
+     * @param creationTime creation time
      * @return success or failure
      */
-    boolean updateComment(CommentDO comment);
+    boolean updateComment(@Param("commentId") int commentId,
+                          @Param("comment") String comment,
+                          @Param("username") String username,
+                          @Param("webId") int webId,
+                          @Param("creationTime") Date creationTime);
 }
