@@ -178,7 +178,7 @@ public class WebsiteServiceImpl implements WebsiteService {
      */
     @UrlClean
     @MarkCheckReturn
-    private WebWithNoIdentityDTO scrapeWebDataFromUrl(@Url String url, @Username String userName) {
+    public WebWithNoIdentityDTO scrapeWebDataFromUrl(@Url String url, @Username String userName) {
 
         try {
             Document document = Jsoup.parse(new URL(url), 3000);
