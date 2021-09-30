@@ -82,4 +82,12 @@ public interface CommentMapper {
                           @Param("username") String username,
                           @Param("webId") int webId,
                           @Param("creationTime") Date creationTime);
+
+    /**
+     * Get count of website comments
+     *
+     * @param webId web id
+     * @return count of website comments
+     */
+    Integer countCommentByWebId(Integer webId);
 }

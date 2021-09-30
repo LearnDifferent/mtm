@@ -17,12 +17,14 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
+import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.manager.CountCommentManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
@@ -66,11 +68,15 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     private final WebsiteMapper websiteMapper;
     private final ElasticsearchManager elasticsearchManager;
+    private final CountCommentManager countCommentManager;
 
     @Autowired
-    public WebsiteServiceImpl(WebsiteMapper websiteMapper, ElasticsearchManager elasticsearchManager) {
+    public WebsiteServiceImpl(WebsiteMapper websiteMapper,
+                              ElasticsearchManager elasticsearchManager,
+                              CountCommentManager countCommentManager) {
         this.websiteMapper = websiteMapper;
         this.elasticsearchManager = elasticsearchManager;
+        this.countCommentManager = countCommentManager;
     }
 
     @Override
@@ -82,17 +88,6 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     public int countUserPost(String userName, boolean includePrivate) {
         return websiteMapper.countUserPost(userName, includePrivate);
-    }
-
-    @Override
-    public List<WebsiteWithPrivacyDTO> findWebsitesDataByUser(String userName,
-                                                              Integer from,
-                                                              Integer size,
-                                                              boolean includePrivate) {
-
-        List<WebsiteDO> webs = websiteMapper.findWebsitesDataByUser(
-                userName, from, size, includePrivate);
-        return DozerUtils.convertList(webs, WebsiteWithPrivacyDTO.class);
     }
 
     @Override
@@ -239,9 +234,9 @@ public class WebsiteServiceImpl implements WebsiteService {
                 break;
             case USER_PAGE:
                 // 查看某个用户所有收藏的情况
-                // 注意，这里是包含了 Privacy Settings 的 WebsiteWithPrivacyDTO
-                List<WebsiteWithPrivacyDTO> userPageWebs = findWebsitesDataByUser(
-                        username, from, size, isCurrentUser);
+                // 注意，这里是包含了公开和私有数据，及评论数的 WebWithPrivacyCommentCountDTO
+                List<WebWithPrivacyCommentCountDTO> userPageWebs =
+                        getWebsDataAndCommentCountByUser(username, from, size, isCurrentUser);
                 // 如果是当前用户，就需要包括私有数据
                 int userPageTotalCount = countUserPost(username, isCurrentUser);
                 int userPageTotalPage = PageUtil.getAllPages(userPageTotalCount, size);
@@ -249,10 +244,10 @@ public class WebsiteServiceImpl implements WebsiteService {
                 break;
             case WITHOUT_USER_PAGE:
                 // 查看除去某个用户的所有收藏的情况
-                // 注意，这里是包含了 Privacy Settings 数据的 WebsiteWithPrivacyDTO
+                // 注意，这里是包含了公开和私有数据，及评论数的 WebWithPrivacyCommentCountDTO
                 // 如果是排除的用户不是当前用户，就需要包括私有数据
-                List<WebsiteWithPrivacyDTO> withoutUserPageWebs = findWebsitesDataExcludeUser(
-                        username, from, size, currentUsername);
+                List<WebWithPrivacyCommentCountDTO> withoutUserPageWebs =
+                        getAllPubSpecUserPriWebsAndCommentCountExcUser(username, from, size, currentUsername);
                 int withoutUserPageTotalCount = countExcludeUserPost(username, currentUsername);
                 int withoutUserPageTotalPage = PageUtil.getAllPages(withoutUserPageTotalCount, size);
                 builder.webs(withoutUserPageWebs).totalPage(withoutUserPageTotalPage);
@@ -260,10 +255,11 @@ public class WebsiteServiceImpl implements WebsiteService {
             case DEFAULT:
             default:
                 // 默认查看全部的情况（如果 pattern 不是以上的情况，也是按照默认情况处理）
-                // 注意，这里是包含了公开和私有数据的 WebsiteWithPrivacyDTO
                 // 如果不是当前用户，就需要显示所有数据
-                List<WebsiteWithPrivacyDTO> webs = getAllPubAndSpecUserPriWeb(
-                        from, size, currentUsername);
+                // 注意，这里是包含了公开和私有数据，及评论数的 WebWithPrivacyCommentCountDTO
+                List<WebWithPrivacyCommentCountDTO> webs =
+                        getAllPubSpecUserPriWebsAndCommentCount(from, size, currentUsername);
+
                 int totalCount = countAllPubAndSpecUserPriWebs(currentUsername);
                 int totalPage = PageUtil.getAllPages(totalCount, size);
                 builder.webs(webs).totalPage(totalPage);
@@ -292,6 +288,28 @@ public class WebsiteServiceImpl implements WebsiteService {
         return websiteMapper.countDistinctPublicUrl();
     }
 
+
+    @Override
+    public List<WebWithPrivacyCommentCountDTO> getWebsDataAndCommentCountByUser(String username,
+                                                                                Integer from,
+                                                                                Integer size,
+                                                                                boolean includePrivate) {
+
+        List<WebsiteDO> websites =
+                websiteMapper.findWebsitesDataByUser(username, from, size, includePrivate);
+
+        List<WebWithPrivacyCommentCountDTO> webs =
+                DozerUtils.convertList(websites, WebWithPrivacyCommentCountDTO.class);
+
+        // Get count of website post comments
+        webs.forEach(w -> {
+            Integer webId = w.getWebId();
+            int commentCount = countCommentManager.countCommentByWebId(webId);
+            w.setCommentCount(commentCount);
+        });
+        return webs;
+    }
+
     /**
      * 计算所有公开网页数据的条数。指定的用户需要把私有的网页数据个数也计入其中
      *
@@ -316,9 +334,9 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     /**
-     * 查找除去用户名为 {@code excludeUsername} 的所有公开网页。
-     * 其中如果有用户名为 {@code userNameToShowAll} 的网页数据，
-     * 那么该用户的公开和私有数据都要展示出来
+     * Get user with the name of {@code userNameToShowAll}'s private and all user's public website data,
+     * excluding the user with the name of with {@code excludeUsername}'s website data
+     * and get count of website post comments
      *
      * @param excludeUsername   不查找该用户 / 某个用户
      * @param from              from
@@ -326,22 +344,48 @@ public class WebsiteServiceImpl implements WebsiteService {
      * @param userNameToShowAll 该用户名的用户的所有数据都要展示
      * @return {@link List}<{@link WebsiteWithPrivacyDTO}> 除去某个用户的所有网页
      */
-    private List<WebsiteWithPrivacyDTO> findWebsitesDataExcludeUser(String excludeUsername,
-                                                                    int from,
-                                                                    int size,
-                                                                    String userNameToShowAll) {
+    private List<WebWithPrivacyCommentCountDTO> getAllPubSpecUserPriWebsAndCommentCountExcUser(
+            String excludeUsername, int from, int size, String userNameToShowAll) {
 
-        List<WebsiteDO> webs = websiteMapper.findWebsitesDataExcludeUser(
+        List<WebsiteDO> websites = websiteMapper.findWebsitesDataExcludeUser(
                 excludeUsername, from, size, userNameToShowAll);
-        return DozerUtils.convertList(webs, WebsiteWithPrivacyDTO.class);
+
+        List<WebWithPrivacyCommentCountDTO> webs =
+                DozerUtils.convertList(websites, WebWithPrivacyCommentCountDTO.class);
+
+        // Get count of website post comments
+        webs.forEach(w -> {
+            Integer webId = w.getWebId();
+            int commentCount = countCommentManager.countCommentByWebId(webId);
+            w.setCommentCount(commentCount);
+        });
+        return webs;
     }
 
-    private List<WebsiteWithPrivacyDTO> getAllPubAndSpecUserPriWeb(Integer from,
-                                                                   Integer size,
-                                                                   String specUsername) {
-        List<WebsiteDO> webs = websiteMapper.getAllPubAndSpecUserPriWebs(from,
-                size, specUsername);
-        return DozerUtils.convertList(webs, WebsiteWithPrivacyDTO.class);
+    /**
+     * Get all public and specific user's private website data and count of their comments
+     *
+     * @param from         from
+     * @param size         size
+     * @param specUsername specific user's name
+     * @return {@link List}<{@link WebWithPrivacyCommentCountDTO}>
+     */
+    private List<WebWithPrivacyCommentCountDTO> getAllPubSpecUserPriWebsAndCommentCount(Integer from,
+                                                                                        Integer size,
+                                                                                        String specUsername) {
+        List<WebsiteDO> websites =
+                websiteMapper.getAllPubAndSpecUserPriWebs(from, size, specUsername);
+
+        List<WebWithPrivacyCommentCountDTO> webs =
+                DozerUtils.convertList(websites, WebWithPrivacyCommentCountDTO.class);
+
+        // Get count of website post comments
+        webs.forEach(w -> {
+            Integer webId = w.getWebId();
+            int commentCount = countCommentManager.countCommentByWebId(webId);
+            w.setCommentCount(commentCount);
+        });
+        return webs;
     }
 
     private ShowPattern castPatternStringToPatternEnum(String pattern) {

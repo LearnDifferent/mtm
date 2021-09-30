@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.service;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
+import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
@@ -41,20 +42,6 @@ public interface WebsiteService {
      * @return 一共有多少条数据
      */
     int countUserPost(String userName, boolean includePrivate);
-
-    /**
-     * 查找某个用户的收藏（可以选择是否包括私有的）
-     *
-     * @param userName       某个用户
-     * @param from           from
-     * @param size           size
-     * @param includePrivate 是否包含私有数据
-     * @return 某个用户的所有收藏
-     */
-    List<WebsiteWithPrivacyDTO> findWebsitesDataByUser(String userName,
-                                                       Integer from,
-                                                       Integer size,
-                                                       boolean includePrivate);
 
     /**
      * 通过 id 找到网页数据。用于 {@link ModifyWebsitePermissionCheck}
@@ -114,6 +101,21 @@ public interface WebsiteService {
      * @return 该 pattern 下，分页后需要的网页数据和总页数
      */
     WebsitePatternDTO getWebsitesByPattern(String pattern, String username, PageInfoDTO pageInfo);
+
+    /**
+     * Get all public website data and the count of their comments, of user the with name of {@code username}.
+     * If {@code includePrivate} is true, then include all private website data too.
+     *
+     * @param username       username
+     * @param from           from
+     * @param size           size
+     * @param includePrivate true if include private website data
+     * @return 某个用户的所有收藏
+     */
+    List<WebWithPrivacyCommentCountDTO> getWebsDataAndCommentCountByUser(String username,
+                                                                         Integer from,
+                                                                         Integer size,
+                                                                         boolean includePrivate);
 
     /**
      * 通过 url 找到所有网页的数据，包括私有的。

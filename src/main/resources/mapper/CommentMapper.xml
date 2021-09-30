@@ -74,4 +74,15 @@
         </set>
         where commentId = #{commentId,jdbcType=INTEGER}
     </update>
+
+    <select id="countCommentByWebId" resultType="java.lang.Integer">
+        select count(webId)
+        from comment
+        <where>
+            <if test="webId != null">
+                webId = #{webId}
+            </if>
+        </where>
+        ;
+    </select>
 </mapper>
