@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.io.Serializable;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class UserDO {
+public class UserDO implements Serializable {
 
     private String userId;
     /**

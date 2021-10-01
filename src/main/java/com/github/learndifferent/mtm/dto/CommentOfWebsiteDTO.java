@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.io.Serializable;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class CommentOfWebsiteDTO {
+public class CommentOfWebsiteDTO implements Serializable {
 
     /**
      * Comment id
