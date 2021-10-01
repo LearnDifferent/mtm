@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
@@ -19,7 +20,7 @@ public interface CommentService {
      * @param commentId comment id
      * @return the comment
      */
-    CommentDO getCommentById(int commentId);
+    CommentDTO getCommentById(int commentId);
 
     /**
      * Gets comment by web id, username and comment
@@ -74,9 +75,10 @@ public interface CommentService {
     /**
      * Add a comment
      *
-     * @param comment  comment
-     * @param webId    web id
-     * @param username username
+     * @param comment          comment
+     * @param webId            web id
+     * @param username         username
+     * @param replyToCommentId reply to the comment (null if it's not a reply)
      * @return success or failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck}
      *                                                                  annotation will throw an exception
@@ -89,14 +91,18 @@ public interface CommentService {
      *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}.
      *                                                                  If the comment is empty or too long, the result
      *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EMPTY}
-     *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}
+     *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}.
+     *                                                                  If the comment is a reply to another comment,
+     *                                                                  and the "another comment" does not exist, then
+     *                                                                  the
+     *                                                                  reult code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
      */
-    boolean addComment(String comment, int webId, String username);
+    boolean addComment(String comment, int webId, String username, Integer replyToCommentId);
 
     /**
      * Update a comment
      *
-     * @param commentInfo Comment ID, Comment, Username, Creation Time and Website ID
+     * @param commentInfo Comment ID, Comment, Username and Website ID
      * @return success or failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method will call an annotated method and
      *                                                                  its {@link com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck}

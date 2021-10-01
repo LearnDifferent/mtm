@@ -2,9 +2,11 @@ package com.github.learndifferent.mtm.annotation.validation.comment.add;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.Comment;
+import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -30,6 +32,7 @@ import org.springframework.util.StringUtils;
  * 3. 评论是否小于等于 140 字符且不为空
  * 4. 检查该用户是否已经对该网页进行了相同内容的评论
  * 5. 检查的评论权限：只有公开的网页能被评论；如果是私有的网页，那么评论者必须为该网页的所有者
+ * 6. 如果是回复评论，需要检查回复的评论的 Comment ID 是否存在
  *
  * @author zhou
  * @date 2021/9/28
@@ -62,6 +65,7 @@ public class AddCommentCheckAspect {
         String comment = "";
         int webId = -1;
         String username = "";
+        Integer replyToCommentId = null;
 
         int counter = 0;
         for (int i = 0; i < parameterAnnotations.length; i++) {
@@ -87,10 +91,16 @@ public class AddCommentCheckAspect {
                     counter++;
                     break;
                 }
-
+                if (annotation instanceof ReplyToCommentId
+                        && args[i] != null
+                        && Integer.class.isAssignableFrom(args[i].getClass())) {
+                    replyToCommentId = (Integer) args[i];
+                    counter++;
+                    break;
+                }
             }
 
-            if (counter == 3) {
+            if (counter == 4) {
                 break;
             }
         }
@@ -104,6 +114,8 @@ public class AddCommentCheckAspect {
         checkWebsiteExistsAndPermission(webId, username);
         // 检查该用户是否已经对该网页进行了相同内容的评论
         checkCommentContentExists(comment, webId, username);
+        // 如果是回复评论，需要检查回复的评论的 Comment ID 是否存在
+        checkReplyToCommentId(replyToCommentId);
     }
 
     private void checkComment(String comment) {
@@ -145,6 +157,17 @@ public class AddCommentCheckAspect {
                 comment, webId, username);
         if (exist != null) {
             throw new ServiceException(ResultCode.COMMENT_EXISTS);
+        }
+    }
+
+    private void checkReplyToCommentId(Integer replyToCommentId) {
+        if (replyToCommentId == null) {
+            // 为 null 时，说明是普通的评论，不是一条回复
+            return;
+        }
+        CommentDTO comment = commentService.getCommentById(replyToCommentId);
+        if (comment == null) {
+            throw new ServiceException(ResultCode.COMMENT_NOT_EXISTS);
         }
     }
 }

@@ -61,12 +61,13 @@ public class CommentController {
     /**
      * Create a comment
      *
-     * @param comment  Comment
-     * @param webId    Website ID
-     * @param username Username
+     * @param comment          Comment
+     * @param webId            Website ID
+     * @param username         Username
+     * @param replyToCommentId Reply to the comment (null if it's not a reply)
      * @return {@link ResultVO}<{@link Boolean}> success of failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addComment(String,
-     *                                                                  int, String)}
+     *                                                                  int, String, Integer)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the username is not the current user's name
@@ -83,15 +84,17 @@ public class CommentController {
     @GetMapping("/create")
     public ResultVO<Boolean> createComment(@RequestParam("comment") String comment,
                                            @RequestParam("webId") int webId,
-                                           @RequestParam("username") String username) {
-        boolean success = commentService.addComment(comment, webId, username);
+                                           @RequestParam("username") String username,
+                                           @RequestParam(value = "replyToCommentId",
+                                                         required = false) Integer replyToCommentId) {
+        boolean success = commentService.addComment(comment, webId, username, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
     /**
      * Update a comment
      *
-     * @param commentInfo Comment ID, Comment, Username, Creation time and Website ID
+     * @param commentInfo Comment ID, Comment, Username and Website ID
      * @return {@link ResultVO}<{@link Boolean}> success or failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#updateComment(UpdateCommentRequest)}
      *                                                                  will throw exceptions with the

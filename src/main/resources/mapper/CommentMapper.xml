@@ -5,8 +5,9 @@
         <id column="commentId" jdbcType="INTEGER" property="commentId"/>
         <result column="comment" jdbcType="VARCHAR" property="comment"/>
         <result column="webId" jdbcType="INTEGER" property="webId"/>
-        <result column="userName" jdbcType="VARCHAR" property="username"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="creationTime" jdbcType="TIMESTAMP" property="creationTime"/>
+        <result column="replyToCommentId" jdbcType="INTEGER" property="replyToCommentId"/>
     </resultMap>
 
     <select id="getCommentById" resultType="com.github.learndifferent.mtm.entity.CommentDO">
@@ -53,28 +54,15 @@
     </delete>
 
     <insert id="addComment" keyColumn="commentId" keyProperty="commentId"
-            parameterType="com.github.learndifferent.mtm.dto.CommentDTO" useGeneratedKeys="true">
-        insert into comment (`comment`, `webId`, `username`, `creationTime`)
+            parameterType="com.github.learndifferent.mtm.entity.CommentDO" useGeneratedKeys="true">
+        insert into comment (`comment`, `webId`, `username`, `creationTime`, `replyToCommentId`)
         values (#{comment,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
-                #{creationTime,jdbcType=TIMESTAMP})
+                #{creationTime,jdbcType=TIMESTAMP}, #{replyToCommentId,jdbcType=INTEGER})
     </insert>
 
     <update id="updateComment">
         update comment
-        <set>
-            <if test="comment != null and comment !=''">
-                comment = #{comment,jdbcType=VARCHAR},
-            </if>
-            <if test="webId != null">
-                webId = #{webId,jdbcType=INTEGER},
-            </if>
-            <if test="username != null and username != ''">
-                username = #{username,jdbcType=VARCHAR},
-            </if>
-            <if test="creationTime != null">
-                creationTime = #{creationTime,jdbcType=TIMESTAMP},
-            </if>
-        </set>
+        set comment = #{comment,jdbcType=VARCHAR}
         where commentId = #{commentId,jdbcType=INTEGER}
     </update>
 

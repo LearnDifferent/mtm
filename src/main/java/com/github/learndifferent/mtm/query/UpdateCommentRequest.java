@@ -1,8 +1,6 @@
 package com.github.learndifferent.mtm.query;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,12 +39,6 @@ public class UpdateCommentRequest implements Serializable {
      * Username
      */
     private String username;
-
-    /**
-     * Creation time
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date creationTime;
 
     private static final long serialVersionUID = 1L;
 }

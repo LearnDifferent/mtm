@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.utils.ReverseUtils;
@@ -75,7 +75,7 @@ public class ModifyCommentCheckAspect {
     }
 
     private void check(String username, int commentId) {
-        CommentDO comment = commentService.getCommentById(commentId);
+        CommentDTO comment = commentService.getCommentById(commentId);
         if (comment == null) {
             // 评论不存在的情况
             throw new ServiceException(ResultCode.COMMENT_NOT_EXISTS);
