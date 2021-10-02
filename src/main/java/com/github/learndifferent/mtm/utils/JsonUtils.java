@@ -5,9 +5,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
@@ -57,6 +59,8 @@ public class JsonUtils {
     public static String toJson(Object obj) {
         try {
             return MAPPER.writeValueAsString(obj);
+        } catch (MismatchedInputException e) {
+            throw new ServiceException(ResultCode.JSON_ERROR);
         } catch (Exception e) {
             throw new ServiceException("Fail to change to Json");
         }
@@ -65,6 +69,8 @@ public class JsonUtils {
     public static <T> T toObject(String json, Class<T> clazz) {
         try {
             return MAPPER.readValue(json, clazz);
+        } catch (MismatchedInputException e) {
+            throw new ServiceException(ResultCode.JSON_ERROR);
         } catch (IOException e) {
             throw new ServiceException("Fail to change to Object");
         }
@@ -73,6 +79,8 @@ public class JsonUtils {
     public static <T> T toObject(String json, TypeReference<T> valueTypeRef) {
         try {
             return MAPPER.readValue(json, valueTypeRef);
+        } catch (MismatchedInputException e) {
+            throw new ServiceException(ResultCode.JSON_ERROR);
         } catch (IOException e) {
             throw new ServiceException("Fail to change to Object");
         }

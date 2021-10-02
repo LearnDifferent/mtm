@@ -121,6 +121,10 @@ public enum ResultCode {
      */
     COMMENT_NOT_EXISTS(3012, "The comment does not exists."),
     /**
+     * Error related to Json
+     */
+    JSON_ERROR(3013, "Error related to Json"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),

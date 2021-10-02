@@ -13,13 +13,14 @@ import com.github.learndifferent.mtm.service.VerificationCodeService;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 /**
  * 检查登陆信息是否正确。
  * 登陆信息从 request 中获取，如果从 param 中没有获取到，就从 body 中获取相应的信息。
+ * 检查过后，给需要的参数赋值。
  *
  * @author zhou
  * @date 2021/09/05
@@ -39,27 +41,29 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 @Aspect
 @Component
 @Order(1)
-public class LoginCheckAspect {
+public class VerifyLoginInfoAndGetUsernameAspect {
 
     private final VerificationCodeService verificationCodeService;
     private final UserService userService;
 
     @Autowired
-    public LoginCheckAspect(VerificationCodeService verificationCodeService, UserService userService) {
+    public VerifyLoginInfoAndGetUsernameAspect(VerificationCodeService verificationCodeService,
+                                               UserService userService) {
         this.verificationCodeService = verificationCodeService;
         this.userService = userService;
     }
 
     /**
-     * 验证登陆相关数据，如果出错，就抛出异常
+     * 验证登陆相关数据，如果出错，就抛出异常，然后赋值
      *
-     * @param loginCheck 注解
+     * @param verifyLoginInfoAndGetParamValue 注解
      * @throws ServiceException 验证出错，就抛出异常
      */
-    @Before("@annotation(loginCheck)")
-    public void check(JoinPoint joinPoint, LoginCheck loginCheck) {
+    @Around("@annotation(verifyLoginInfoAndGetParamValue)")
+    public Object around(ProceedingJoinPoint pjp, VerifyLoginInfoAndGetParamValue verifyLoginInfoAndGetParamValue)
+            throws Throwable {
 
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
 
         // 获取方法中的参数的名称
@@ -72,6 +76,9 @@ public class LoginCheckAspect {
         String verifyTokenParamName = "";
         String usernameParamName = "";
         String passwordParamName = "";
+
+        // the parameters' names that the values may be not present
+        List<String> paramsValueMayBeNotPresent = new ArrayList<>();
 
         int count = 0;
         // 遍历所有参数所添加的注解
@@ -90,11 +97,26 @@ public class LoginCheckAspect {
                 }
                 if (annotation instanceof Username) {
                     usernameParamName = parameterNames[i];
+                    // if the parameter is not required, then add to the list
+                    boolean required = ((Username) annotation).required();
+                    boolean mayBeNotPresent = !required;
+                    if (mayBeNotPresent) {
+                        paramsValueMayBeNotPresent.add(usernameParamName);
+                    }
+
                     count++;
                     break;
                 }
                 if (annotation instanceof Password) {
                     passwordParamName = parameterNames[i];
+
+                    // if the parameter is not required, then add to the list
+                    boolean required = ((Password) annotation).required();
+                    boolean mayBeNotPresent = !required;
+                    if (mayBeNotPresent) {
+                        paramsValueMayBeNotPresent.add(passwordParamName);
+                    }
+
                     count++;
                     break;
                 }
@@ -114,14 +136,27 @@ public class LoginCheckAspect {
 
         checkBeforeLogin(contents, codeParamName, verifyTokenParamName,
                 usernameParamName, passwordParamName);
+
+        // Get the values
+        Object[] args = pjp.getArgs();
+        for (String paramName : paramsValueMayBeNotPresent) {
+            for (int i = 0; i < parameterNames.length; i++) {
+                if (parameterNames[i].equals(paramName)) {
+                    args[i] = contents.get(paramName);
+                    break;
+                }
+            }
+        }
+
+        return pjp.proceed(args);
     }
+
 
     /**
      * 获取可以重复使用的 Request Wrapper
      *
      * @return {@code ContentCachingRequestWrapper}
      */
-    @NotNull
     private ContentCachingRequestWrapper getRequestWrapper() {
         // 获取 Request Attributes
         ServletRequestAttributes attributes =
@@ -147,7 +182,6 @@ public class LoginCheckAspect {
      * @param request              request
      * @return {@code Map<String, String>} key 是参数名称，value 是参数值
      */
-    @NotNull
     private Map<String, String> getParameterNamesAndValues(String codeParamName,
                                                            String verifyTokenParamName,
                                                            String usernameParamName,
@@ -226,8 +260,18 @@ public class LoginCheckAspect {
         // 获取 Map<String, String> 的 TypeReference，用于下一步的转换操作
         TypeReference<Map<String, String>> typeRef = new TypeReference<Map<String, String>>() {};
 
-        // 将 json 字符串转换为 Map<String, String> 并返回
-        return JsonUtils.toObject(json, typeRef);
+        try {
+            // 将 json 字符串转换为 Map<String, String> 并返回
+            return JsonUtils.toObject(json, typeRef);
+        } catch (ServiceException e) {
+            if (ResultCode.JSON_ERROR.equals(e.getResultCode())) {
+                // 如果是 JSON_ERROR，表示无法将 Json 字符串转化为 Request Body
+                // 说明没有传入 Request Body，也就没办法获取用户名和密码，所以抛出用户不存在的异常
+                throw new ServiceException(ResultCode.USER_NOT_EXIST);
+            } else {
+                throw new ServiceException(e.getResultCode(), e.getMessage(), e.getData());
+            }
+        }
     }
 
     private void checkBeforeLogin(Map<String, String> contents,

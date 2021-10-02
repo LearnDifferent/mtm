@@ -7,7 +7,7 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.VerificationCode;
 import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
-import com.github.learndifferent.mtm.annotation.validation.login.LoginCheck;
+import com.github.learndifferent.mtm.annotation.validation.login.VerifyLoginInfoAndGetParamValue;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.LoginRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -31,28 +31,40 @@ public class LoginController {
     /**
      * Login
      *
-     * @param nameAndPwd  Request Body that contains Username and Password
-     * @param code        Verification Code
-     * @param verifyToken Token for Verification Code
-     * @param userName    Username for Verification (Not Necessary)
-     * @param password    Password for Verification (Not Necessary)
-     * @return {@code ResultVO<SaTokenInfo>} Token Info
-     * @throws ServiceException {@link LoginCheck} will check the login info and throw exceptions if failure.
-     *                          The Result Codes are
-     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST} and
-     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED}
+     * @param requestBody Request body that contains username and password.
+     *                    The body content is not required if the {@code userName} and {@code password} parameters
+     *                    are both present in the request. But if any of them is not present, or any value
+     *                    of them is empty, then {@link VerifyLoginInfoAndGetParamValue} annotation will get the values
+     *                    from this request body for verification. An exception will be thrown in case both
+     *                    {@code userName} parameters, {@code password} parameters and the request body are not present.
+     * @param code        Verification Code: {@link VerifyLoginInfoAndGetParamValue} annotation
+     *                    will get the value from request and verify the value
+     * @param verifyToken Token for Verification Code: {@link VerifyLoginInfoAndGetParamValue}
+     *                    annotation will get the value from request and verify the value
+     * @param userName    Username for Verification: {@link VerifyLoginInfoAndGetParamValue}
+     *                    annotation will get the value from request.
+     *                    If the parameter {@code userName} is not present in the request,
+     *                    then {@link VerifyLoginInfoAndGetParamValue} annotation will get the value from request body
+     *                    and an exception will be thrown in case {@code userName} is not present in the body content.
+     * @param password    Password for Verification: {@link VerifyLoginInfoAndGetParamValue} annotation will get the
+     *                    value from request. If the parameter {@code password} is not present in the request,
+     *                    then {@link VerifyLoginInfoAndGetParamValue} annotation will get the value from request body
+     *                    and an exception will be thrown in case {@code password} is not present in the body content.
+     * @return {@code ResultVO<SaTokenInfo>} Token Information
+     * @throws ServiceException {@link VerifyLoginInfoAndGetParamValue} annotation will check the login info and throw
+     *                          exceptions if failure. The result codes are {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST}
+     *                          and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED}
      */
-    @LoginCheck
+    @VerifyLoginInfoAndGetParamValue
     @PostMapping("/in")
     @SystemLog
-    public ResultVO<SaTokenInfo> login(@RequestBody LoginRequest nameAndPwd,
+    public ResultVO<SaTokenInfo> login(@RequestBody(required = false) LoginRequest requestBody,
                                        @VerificationCode String code,
                                        @VerificationCodeToken String verifyToken,
-                                       @Username String userName,
-                                       @Password String password) {
-
+                                       @Username(required = false) String userName,
+                                       @Password(required = false) String password) {
         // Set username as login id
-        StpUtil.setLoginId(nameAndPwd.getUserName());
+        StpUtil.setLoginId(userName);
         // Get Token Info and return
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
         return ResultCreator.okResult(tokenInfo);

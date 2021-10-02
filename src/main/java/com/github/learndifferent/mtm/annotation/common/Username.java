@@ -13,4 +13,12 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Username {}
+public @interface Username {
+
+    /**
+     * Whether username is required
+     *
+     * @return whether username is required
+     */
+    boolean required() default true;
+}

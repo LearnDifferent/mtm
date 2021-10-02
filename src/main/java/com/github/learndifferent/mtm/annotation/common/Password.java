@@ -13,4 +13,12 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Password {}
+public @interface Password {
+
+    /**
+     * Whether password is required
+     *
+     * @return whether password is required
+     */
+    boolean required() default true;
+}
