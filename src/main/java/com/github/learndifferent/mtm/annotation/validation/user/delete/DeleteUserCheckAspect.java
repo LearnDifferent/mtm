@@ -11,16 +11,12 @@ import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ReverseUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import javax.servlet.http.HttpServletRequest;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * 删除用户前查看是否可以删除
@@ -42,13 +38,11 @@ public class DeleteUserCheckAspect {
     @Before("@annotation(deleteUserCheck)")
     public void check(JoinPoint jointPoint, DeleteUserCheck deleteUserCheck) {
 
-        HttpServletRequest request = getRequest();
-
         MethodSignature signature = (MethodSignature) jointPoint.getSignature();
         Method method = signature.getMethod();
 
-        String[] parameterNames = signature.getParameterNames();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+        Object[] args = jointPoint.getArgs();
 
         String username = "";
         String password = "";
@@ -56,13 +50,17 @@ public class DeleteUserCheckAspect {
         int counter = 0;
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (annotation instanceof Username) {
-                    username = getValueFromRequest(request, parameterNames[i]);
+                if (annotation instanceof Username
+                        && args[i] != null
+                        && String.class.isAssignableFrom(args[i].getClass())) {
+                    username = (String) args[i];
                     counter++;
                     break;
                 }
-                if (annotation instanceof Password) {
-                    password = getValueFromRequest(request, parameterNames[i]);
+                if (annotation instanceof Password
+                        && args[i] != null
+                        && String.class.isAssignableFrom(args[i].getClass())) {
+                    password = (String) args[i];
                     counter++;
                     break;
                 }
@@ -74,23 +72,6 @@ public class DeleteUserCheckAspect {
 
         checkUserExists(username, password);
         checkDeletePermission(username);
-    }
-
-    @NotNull
-    private HttpServletRequest getRequest() {
-        ServletRequestAttributes requestAttributes =
-                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
-        if (requestAttributes == null) {
-            throw new ServiceException("No Request Attributes Available.");
-        }
-
-        return requestAttributes.getRequest();
-    }
-
-    private String getValueFromRequest(HttpServletRequest request,
-                                       String parameterName) {
-        return request.getParameter(parameterName);
     }
 
     /**

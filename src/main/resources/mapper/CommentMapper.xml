@@ -65,6 +65,12 @@
         where commentId = #{commentId,jdbcType=INTEGER}
     </delete>
 
+    <delete id="deleteCommentsByUsername">
+        delete
+        from comment
+        where username = #{username};
+    </delete>
+
     <insert id="addComment" keyColumn="commentId" keyProperty="commentId"
             parameterType="com.github.learndifferent.mtm.entity.CommentDO" useGeneratedKeys="true">
         insert into comment (`comment`, `webId`, `username`, `creationTime`, `replyToCommentId`)

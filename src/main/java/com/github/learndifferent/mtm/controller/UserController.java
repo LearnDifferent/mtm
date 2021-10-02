@@ -3,9 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.InvitationCode;
 import com.github.learndifferent.mtm.annotation.common.InvitationCodeToken;
-import com.github.learndifferent.mtm.annotation.common.Password;
 import com.github.learndifferent.mtm.annotation.common.UserRole;
-import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.VerificationCode;
 import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
@@ -115,23 +113,22 @@ public class UserController {
     }
 
     /**
-     * Delete user and his website data
+     * Delete user as well as his comments and website data
      *
      * @param userName Username
      * @param password Password
      * @return {@code ResultVO<?>} Success or failure
-     * @throws ServiceException {@link DeleteUserCheck} will verify user's name,
-     *                          password and permission to delete. If there is any mismatch, it will throw exceptions.
-     *                          The Result Codes are {@link ResultCode#USER_NOT_EXIST} and {@link
+     * @throws ServiceException {@link UserService#deleteUserAndWebAndCommentData(String, String)} will verify user's
+     *                          name, password and permission to delete. If there is any mismatch, it will throw
+     *                          exceptions. The Result Codes are {@link ResultCode#USER_NOT_EXIST} and {@link
      *                          ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
     @DeleteUserCheck
-    public ResultVO<?> deleteUser(@RequestParam("userName") @Username String userName,
-                                  @Password String password) {
+    public ResultVO<?> deleteUser(@RequestParam("userName") String userName,
+                                  @RequestParam("password") String password) {
 
-        // Delete user and his website data
-        boolean success = userService.deleteUserAndHisWebsiteData(userName);
+        boolean success = userService.deleteUserAndWebAndCommentData(userName, password);
 
         // Logout
         StpUtil.logout();

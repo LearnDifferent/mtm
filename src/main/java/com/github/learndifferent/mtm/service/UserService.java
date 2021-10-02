@@ -3,7 +3,6 @@ package com.github.learndifferent.mtm.service;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import java.util.List;
@@ -49,10 +48,10 @@ public interface UserService {
      *
      * @param userBasicInfo 用户名、未加密的密码和角色信息
      * @return 成功与否
-     * @throws ServiceException 错误代码为：ResultCode.USER_ALREADY_EXIST、
-     *                          ResultCode.USERNAME_ONLY_LETTERS_NUMBERS、
-     *                          ResultCode.USERNAME_TOO_LONG 和 ResultCode.USERNAME_EMPTY、
-     *                          ResultCode.PASSWORD_TOO_LONG 和 ResultCode.PASSWORD_EMPTY
+     * @throws com.github.learndifferent.mtm.exception.ServiceException 错误代码为：ResultCode.USER_ALREADY_EXIST、
+     *                                                                  ResultCode.USERNAME_ONLY_LETTERS_NUMBERS、
+     *                                                                  ResultCode.USERNAME_TOO_LONG 和 ResultCode.USERNAME_EMPTY、
+     *                                                                  ResultCode.PASSWORD_TOO_LONG 和 ResultCode.PASSWORD_EMPTY
      */
     boolean addUser(CreateUserRequest userBasicInfo);
 
@@ -82,15 +81,19 @@ public interface UserService {
     UserDO getUserByName(String userName);
 
     /**
-     * Delete user and the websites belongs to the user.
+     * Delete user as well as the comments and websites data belongs to the user.
      *
      * @param userName username
+     * @param password password
      * @return boolean success to delete or not
-     * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty}
-     *                          annotation
-     *                          will throw exception if the username is empty.
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.user.delete.DeleteUserCheck}
+     *                                                                  will verify user's name, password and
+     *                                                                  permission to delete. If there is any mismatch,
+     *                                                                  it will throw exceptions. The Result Codes are
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST}
+     *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
-    boolean deleteUserAndHisWebsiteData(String userName);
+    boolean deleteUserAndWebAndCommentData(String userName, String password);
 
     /**
      * 获取全部用户

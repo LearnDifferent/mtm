@@ -72,6 +72,13 @@ public interface CommentMapper {
     boolean deleteCommentById(int commentId);
 
     /**
+     * Delete user's comments
+     *
+     * @param username username
+     */
+    void deleteCommentsByUsername(String username);
+
+    /**
      * Add a comment
      *
      * @param comment comment

@@ -1,8 +1,9 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
-import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
+import com.github.learndifferent.mtm.annotation.common.Password;
+import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.user.create.NewUserCheck;
+import com.github.learndifferent.mtm.annotation.validation.user.delete.DeleteUserCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
@@ -172,9 +173,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @EmptyStringCheck
-    public boolean deleteUserAndHisWebsiteData(@ExceptionIfEmpty String userName) {
-        return deleteUserManager.deleteUserAndHisWebsiteData(userName);
+    @DeleteUserCheck
+    public boolean deleteUserAndWebAndCommentData(@Username String userName, @Password String password) {
+        return deleteUserManager.deleteUserAndWebAndCommentData(userName);
     }
 
     @Override
