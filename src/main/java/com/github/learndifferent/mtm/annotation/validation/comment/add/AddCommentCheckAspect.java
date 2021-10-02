@@ -8,7 +8,6 @@ import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
-import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.service.WebsiteService;
@@ -153,7 +152,7 @@ public class AddCommentCheckAspect {
     }
 
     private void checkCommentContentExists(String comment, int webId, String username) {
-        CommentDO exist = commentService.getCommentByWebIdAndUsernameAndComment(
+        CommentDTO exist = commentService.getCommentByWebIdAndUsernameAndComment(
                 comment, webId, username);
         if (exist != null) {
             throw new ServiceException(ResultCode.COMMENT_EXISTS);
