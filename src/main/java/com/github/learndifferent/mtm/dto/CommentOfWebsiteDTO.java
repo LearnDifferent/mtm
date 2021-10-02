@@ -43,5 +43,15 @@ public class CommentOfWebsiteDTO implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date creationTime;
 
+    /**
+     * Reply to another comment (null if it's not a reply)
+     */
+    private Integer replyToCommentId;
+
+    /**
+     * Count of the replies from this comment
+     */
+    private Integer repliesCount;
+
     private static final long serialVersionUID = 1L;
 }

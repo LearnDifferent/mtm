@@ -18,9 +18,9 @@ public interface CommentService {
      * Get a comment by id
      *
      * @param commentId comment id
-     * @return the comment
+     * @return the comment (null if comment does not exist)
      */
-    CommentDTO getCommentById(int commentId);
+    CommentDTO getCommentById(Integer commentId);
 
     /**
      * Gets comment by web id, username and comment
@@ -30,15 +30,16 @@ public interface CommentService {
      * @param username username
      * @return {@link CommentDO} comment data object
      */
-    CommentDO getCommentByWebIdAndUsernameAndComment(String comment, int webId, String username);
+    CommentDTO getCommentByWebIdAndUsernameAndComment(String comment, int webId, String username);
 
     /**
-     * Get comments by web id
+     * Get comments by {@code webId} and {@code replyToCommentId}, and count the replies
      *
-     * @param webId    Web ID
-     * @param load     Amount of data to load
-     * @param username User's name who trying to get comments
-     * @param isDesc   True if descending order
+     * @param webId            Web ID
+     * @param replyToCommentId Reply to another comment (null if it's not a reply)
+     * @param load             Amount of data to load
+     * @param username         User's name who trying to get comments
+     * @param isDesc           True if descending order
      * @return the comments of the website
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the website does not exist or the user
      *                                                                  does not have permissions to get the website's
@@ -47,7 +48,11 @@ public interface CommentService {
      *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
-    List<CommentOfWebsiteDTO> getCommentsByWebId(Integer webId, Integer load, String username, Boolean isDesc);
+    List<CommentOfWebsiteDTO> getCommentsByWebReplyIdAndCountReplies(Integer webId,
+                                                                     Integer replyToCommentId,
+                                                                     Integer load,
+                                                                     String username,
+                                                                     Boolean isDesc);
 
     /**
      * Gets comments by username
@@ -55,7 +60,7 @@ public interface CommentService {
      * @param username username
      * @return the comments
      */
-    List<CommentDO> getCommentsByUsername(String username);
+    List<CommentDTO> getCommentsByUsername(String username);
 
     /**
      * Delete a comment by id
@@ -78,7 +83,7 @@ public interface CommentService {
      * @param comment          comment
      * @param webId            web id
      * @param username         username
-     * @param replyToCommentId reply to the comment (null if it's not a reply)
+     * @param replyToCommentId reply to another comment (null if it's not a reply)
      * @return success or failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck}
      *                                                                  annotation will throw an exception
@@ -94,8 +99,8 @@ public interface CommentService {
      *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}.
      *                                                                  If the comment is a reply to another comment,
      *                                                                  and the "another comment" does not exist, then
-     *                                                                  the
-     *                                                                  reult code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
+     *                                                                  the  reult code will be {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
      */
     boolean addComment(String comment, int webId, String username, Integer replyToCommentId);
 

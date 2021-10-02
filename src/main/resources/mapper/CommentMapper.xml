@@ -16,12 +16,18 @@
         where commentId = #{commentId,jdbcType=INTEGER};
     </select>
 
-    <select id="getCommentsByWebId" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+    <select id="getCommentsByWebAndReplyCommentId" resultType="com.github.learndifferent.mtm.entity.CommentDO">
         select *
         from comment
         <where>
             <if test="webId != null">
                 webId = #{webId,jdbcType=INTEGER}
+            </if>
+            <if test="replyToCommentId == null">
+                and replyToCommentId is null
+            </if>
+            <if test="replyToCommentId != null">
+                and replyToCommentId = #{replyToCommentId}
             </if>
         </where>
         order by `creationTime`
@@ -45,6 +51,12 @@
         where comment = #{comment}
           and username = #{username}
           and webId = #{webId};
+    </select>
+
+    <select id="countRepliesFromComment" resultType="java.lang.Integer">
+        select count(*)
+        from comment
+        where replyToCommentId = #{countRepliesFromCommentId};
     </select>
 
     <delete id="deleteCommentById" parameterType="java.lang.Integer">

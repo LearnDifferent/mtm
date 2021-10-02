@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.controller;
 
+import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -31,31 +32,49 @@ public class CommentController {
     public CommentController(CommentService commentService) {this.commentService = commentService;}
 
     /**
-     * Get comments of the website
+     * Get comments
      *
-     * @param webId    Website ID
-     * @param load     Amount of data to load
-     * @param username User's name who trying to get comments
-     * @param isDesc   True if descending order
+     * @param webId            Website ID
+     * @param replyToCommentId Reply to another comment (null if it's not a reply)
+     * @param load             Amount of data to load
+     * @param username         User's name who trying to get comments
+     * @param isDesc           True if descending order
      * @return {@link ResultVO}<{@link List}<{@link CommentOfWebsiteDTO}>> It will return a list of comments.
      * If there is no comment of the website then it will return an empty list. The result code
      * will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#SUCCESS}
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the website does not exist or the user
      *                                                                  does not have permissions to get the website's
-     *                                                                  comments, {@link  CommentService#getCommentsByWebId(Integer,
-     *                                                                  Integer, String, Boolean)}
-     *                                                                  will throw an exception with
-     *                                                                  the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
+     *                                                                  comments, {@link CommentService#getCommentsByWebReplyIdAndCountReplies(Integer,
+     *                                                                  Integer, Integer, String, Boolean)}
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
     @GetMapping
-    public ResultVO<List<CommentOfWebsiteDTO>> getCommentsByWebId(@RequestParam("webId") Integer webId,
-                                                                  @RequestParam("load") Integer load,
-                                                                  @RequestParam("username") String username,
-                                                                  @RequestParam(value = "isDesc", required = false, defaultValue = "true")
-                                                                          Boolean isDesc) {
-        List<CommentOfWebsiteDTO> comments = commentService.getCommentsByWebId(webId, load, username, isDesc);
+    public ResultVO<List<CommentOfWebsiteDTO>> getComments(@RequestParam("webId") Integer webId,
+                                                           @RequestParam(value = "replyToCommentId", required = false)
+                                                                   Integer replyToCommentId,
+                                                           @RequestParam("load") Integer load,
+                                                           @RequestParam("username") String username,
+                                                           @RequestParam(value = "isDesc", required = false, defaultValue = "true")
+                                                                   Boolean isDesc) {
+        List<CommentOfWebsiteDTO> comments = commentService.getCommentsByWebReplyIdAndCountReplies(
+                webId, replyToCommentId, load, username, isDesc);
         return ResultCreator.okResult(comments);
+    }
+
+    /**
+     * Get a comment by Comment ID
+     *
+     * @param commentId Comment ID
+     * @return {@link ResultVO}<{@link CommentDTO}> Returns result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#SUCCESS}
+     * with the comment as data if the comment exists. If the comment does not exist, returns the result code of {@link
+     * com.github.learndifferent.mtm.constant.enums.ResultCode#FAILED
+     */
+    @GetMapping("/get")
+    public ResultVO<CommentDTO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId) {
+        CommentDTO comment = commentService.getCommentById(commentId);
+        return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
     }
 
     /**
@@ -64,7 +83,7 @@ public class CommentController {
      * @param comment          Comment
      * @param webId            Website ID
      * @param username         Username
-     * @param replyToCommentId Reply to the comment (null if it's not a reply)
+     * @param replyToCommentId Reply to another comment (null if it's not a reply)
      * @return {@link ResultVO}<{@link Boolean}> success of failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addComment(String,
      *                                                                  int, String, Integer)}
@@ -80,6 +99,10 @@ public class CommentController {
      *                                                                  If the comment is empty or too long, the result
      *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EMPTY}
      *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}
+     *                                                                  If the comment is a reply to another comment,
+     *                                                                  and the "another comment" does not exist, then
+     *                                                                  the  reult code will be {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
      */
     @GetMapping("/create")
     public ResultVO<Boolean> createComment(@RequestParam("comment") String comment,

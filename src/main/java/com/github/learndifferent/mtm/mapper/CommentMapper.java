@@ -33,16 +33,27 @@ public interface CommentMapper {
                                                      @Param("username") String username);
 
     /**
-     * Get comments by web id
+     * Get comments by {@code webId} and {@code replyToCommentId}
      *
-     * @param webId  Web ID
-     * @param load   Amount of data to load
-     * @param isDesc True if descending order
+     * @param webId            Web ID (null if all website data)
+     * @param replyToCommentId Reply to the comment (null if it's not a reply)
+     * @param load             Amount of data to load
+     * @param isDesc           True if descending order
      * @return the comments
      */
-    List<CommentDO> getCommentsByWebId(@Param("webId") Integer webId,
-                                       @Param("load") Integer load,
-                                       @Param("isDesc") Boolean isDesc);
+    List<CommentDO> getCommentsByWebAndReplyCommentId(@Param("webId") Integer webId,
+                                                      @Param("replyToCommentId") Integer replyToCommentId,
+                                                      @Param("load") Integer load,
+                                                      @Param("isDesc") Boolean isDesc);
+
+    /**
+     * Get a count of the replies from this comment
+     * <p>How many replies are pointed at this {@code countRepliesFromCommentId}</p>
+     *
+     * @param countRepliesFromCommentId Count the replies from this comment
+     * @return a count of the replies from a comment
+     */
+    int countRepliesFromComment(int countRepliesFromCommentId);
 
     /**
      * Gets comments by username

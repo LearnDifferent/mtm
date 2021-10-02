@@ -36,29 +36,45 @@ public class CommentServiceImpl implements CommentService {
     public CommentServiceImpl(CommentMapper commentMapper) {this.commentMapper = commentMapper;}
 
     @Override
-    public CommentDTO getCommentById(int commentId) {
+    public CommentDTO getCommentById(Integer commentId) {
+        if (commentId == null) {
+            return null;
+        }
         CommentDO comment = commentMapper.getCommentById(commentId);
         return DozerUtils.convert(comment, CommentDTO.class);
     }
 
     @Override
-    public CommentDO getCommentByWebIdAndUsernameAndComment(String comment, int webId, String username) {
-        return commentMapper.getCommentByWebIdAndUsernameAndComment(comment, webId, username);
+    public CommentDTO getCommentByWebIdAndUsernameAndComment(String comment, int webId, String username) {
+        CommentDO commentDO = commentMapper.getCommentByWebIdAndUsernameAndComment(comment, webId, username);
+        return DozerUtils.convert(commentDO, CommentDTO.class);
     }
 
     @Override
     @GetCommentsCheck
-    public List<CommentOfWebsiteDTO> getCommentsByWebId(@WebId Integer webId,
-                                                        Integer load,
-                                                        @Username String username,
-                                                        Boolean isDesc) {
-        List<CommentDO> comments = commentMapper.getCommentsByWebId(webId, load, isDesc);
-        return DozerUtils.convertList(comments, CommentOfWebsiteDTO.class);
+    public List<CommentOfWebsiteDTO> getCommentsByWebReplyIdAndCountReplies(@WebId Integer webId,
+                                                                            Integer replyToCommentId,
+                                                                            Integer load,
+                                                                            @Username String username,
+                                                                            Boolean isDesc) {
+        List<CommentDO> commentList = commentMapper.getCommentsByWebAndReplyCommentId(
+                webId, replyToCommentId, load, isDesc);
+        List<CommentOfWebsiteDTO> comments = DozerUtils.convertList(commentList, CommentOfWebsiteDTO.class);
+
+        comments.forEach(comment -> {
+            // Get a count of the replies from this comment (comment id won't be null)
+            int countRepliesFromCommentId = comment.getCommentId();
+            int repliesCount = commentMapper.countRepliesFromComment(countRepliesFromCommentId);
+            comment.setRepliesCount(repliesCount);
+        });
+
+        return comments;
     }
 
     @Override
-    public List<CommentDO> getCommentsByUsername(String username) {
-        return commentMapper.getCommentsByUsername(username);
+    public List<CommentDTO> getCommentsByUsername(String username) {
+        List<CommentDO> comments = commentMapper.getCommentsByUsername(username);
+        return DozerUtils.convertList(comments, CommentDTO.class);
     }
 
     @Override
