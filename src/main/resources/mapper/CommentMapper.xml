@@ -82,8 +82,9 @@
         select count(webId)
         from comment
         <where>
+            replyToCommentId is null
             <if test="webId != null">
-                webId = #{webId}
+                and webId = #{webId}
             </if>
         </where>
         ;

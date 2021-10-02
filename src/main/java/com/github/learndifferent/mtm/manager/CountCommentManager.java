@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 统计该网页的评论数
+ * 统计该网页的评论数（不包括回复）
  *
  * @author zhou
  * @date 2021/9/30
@@ -19,13 +19,12 @@ public class CountCommentManager {
     public CountCommentManager(CommentMapper commentMapper) {this.commentMapper = commentMapper;}
 
     /**
-     * Get count of website comments
+     * Get count of website comments (exclude replies)
      *
      * @param webId web id
      * @return count of website comments
      */
     public int countCommentByWebId(Integer webId) {
-        Integer count = commentMapper.countCommentByWebId(webId);
-        return count == null ? 0 : count;
+        return commentMapper.countCommentByWebId(webId);
     }
 }

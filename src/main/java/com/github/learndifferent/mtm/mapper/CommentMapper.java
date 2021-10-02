@@ -89,10 +89,10 @@ public interface CommentMapper {
     boolean updateComment(@Param("commentId") int commentId, @Param("comment") String comment);
 
     /**
-     * Get count of website comments
+     * Get count of website comments (exclude replies)
      *
      * @param webId web id
      * @return count of website comments
      */
-    Integer countCommentByWebId(Integer webId);
+    int countCommentByWebId(Integer webId);
 }
