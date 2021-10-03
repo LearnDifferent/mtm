@@ -13,4 +13,12 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface InvitationCodeToken {}
+public @interface InvitationCodeToken {
+
+    /**
+     * Whether token for invitation code is required.
+     *
+     * @return whether token for invitation code is required.
+     */
+    boolean required() default true;
+}

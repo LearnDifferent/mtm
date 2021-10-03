@@ -12,8 +12,8 @@ import com.github.learndifferent.mtm.annotation.validation.user.delete.DeleteUse
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -76,37 +76,50 @@ public class UserController {
     /**
      * Create User
      *
-     * @param basicInfo       Username, Password and User Role
-     * @param code            Verification Code
-     * @param verifyToken     Token for Verification Code
-     * @param role            User Role
-     * @param invitationCode  Invitation Code
-     * @param invitationToken Token for Invitation Code
+     * @param userInfo        Username and Password
+     * @param role            User Role: The value will be {@link UserRole#defaultRole()} when the request parameter is
+     *                        not provided or the role value does not match any value of {@link RoleType}, setting by
+     *                        {@link RegisterCodeCheck} annotation.
+     *                        If the user role is {@code admin}, {@link RegisterCodeCheck} annotation will
+     *                        verify the invitation code and the token for invitation code.
+     * @param code            Verification Code: {@link RegisterCodeCheck} annotation will use the value of it for
+     *                        verification
+     * @param verifyToken     Token for Verification Code: {@link RegisterCodeCheck} annotation will use the value of it
+     *                        for verification
+     * @param invitationCode  Invitation Code: If the user role is not {@code admin}, then the value will be ignored.
+     *                        <p>{@link RegisterCodeCheck} annotation will use the value of it for verification if
+     *                        necessary.</p>
+     * @param invitationToken Token for Invitation Code: If the user role is not {@code admin}, then the value will be
+     *                        ignored.
+     *                        <p>{@link RegisterCodeCheck} annotation will use the value of it for verification if
+     *                        necessary.</p>
      * @return {@code ResultVO<?>} If success, return {@link ResultCreator#okResult()}.
      * <p>If failure, return {@link ResultCreator#defaultFailResult()}</p>
-     * @throws ServiceException {@link RegisterCodeCheck} will check the codes and
-     *                          {@link UserService#addUser(CreateUserRequest)} will verify username and
-     *                          password.
-     *                          They will throw an exception if failed verification. The Result Codes are:
-     *                          <p>{@link ResultCode#VERIFICATION_CODE_FAILED}</p>
-     *                          <p>{@link ResultCode#INVITATION_CODE_FAILED}</p>
-     *                          <p>{@link ResultCode#USER_ALREADY_EXIST}</p>
-     *                          <p>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
-     *                          <p>{@link ResultCode#USERNAME_TOO_LONG}</p>
-     *                          <p>{@link ResultCode#USERNAME_EMPTY}</p>
-     *                          <p>{@link ResultCode#PASSWORD_TOO_LONG}</p>
-     *                          <p>{@link ResultCode#PASSWORD_EMPTY}</p>
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link RegisterCodeCheck} annotation will check
+     *                                                                  the codes and {@link UserService#addUser(CreateUserRequest,
+     *                                                                  String)} method will verify username, password
+     *                                                                  and user role. If failed verification, they
+     *                                                                  will throw exception and the result codes are:
+     *                                                                  <p>{@link ResultCode#VERIFICATION_CODE_FAILED}</p>
+     *                                                                  <p>{@link ResultCode#INVITATION_CODE_FAILED}</p>
+     *                                                                  <p>{@link ResultCode#USER_ALREADY_EXIST}</p>
+     *                                                                  <p>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
+     *                                                                  <p>{@link ResultCode#USERNAME_TOO_LONG}</p>
+     *                                                                  <p>{@link ResultCode#USERNAME_EMPTY}</p>
+     *                                                                  <p>{@link ResultCode#PASSWORD_TOO_LONG}</p>
+     *                                                                  <p>{@link ResultCode#PASSWORD_EMPTY}</p>
+     *                                                                  <p>{@link ResultCode#USER_ROLE_NOT_FOUND}</p>
      */
     @PostMapping("/create")
     @RegisterCodeCheck
-    public ResultVO<?> createUser(@RequestBody CreateUserRequest basicInfo,
+    public ResultVO<?> createUser(@RequestBody CreateUserRequest userInfo,
+                                  @UserRole(defaultRole = RoleType.USER) String role,
                                   @VerificationCode String code,
                                   @VerificationCodeToken String verifyToken,
-                                  @UserRole String role,
-                                  @InvitationCode String invitationCode,
-                                  @InvitationCodeToken String invitationToken) {
+                                  @InvitationCode(required = false) String invitationCode,
+                                  @InvitationCodeToken(required = false) String invitationToken) {
 
-        boolean success = userService.addUser(basicInfo);
+        boolean success = userService.addUser(userInfo, role);
 
         return success ? ResultCreator.okResult()
                 : ResultCreator.defaultFailResult();
@@ -118,10 +131,12 @@ public class UserController {
      * @param userName Username
      * @param password Password
      * @return {@code ResultVO<?>} Success or failure
-     * @throws ServiceException {@link UserService#deleteUserAndWebAndCommentData(String, String)} will verify user's
-     *                          name, password and permission to delete. If there is any mismatch, it will throw
-     *                          exceptions. The Result Codes are {@link ResultCode#USER_NOT_EXIST} and {@link
-     *                          ResultCode#PERMISSION_DENIED}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link UserService#deleteUserAndWebAndCommentData(String,
+     *                                                                  String)} will verify user's name, password and
+     *                                                                  permission to delete. If there is any mismatch,
+     *                                                                  it will throw exceptions.
+     *                                                                  The result code will be {@link ResultCode#USER_NOT_EXIST}
+     *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
     @DeleteUserCheck

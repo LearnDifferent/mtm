@@ -40,20 +40,27 @@ public interface UserService {
 
     /**
      * 传入用户名、未加密的密码和角色，生成用户，并调用添加用户的方法将用户添加到数据库。
-     * <p>如果该用户名除了数字和英文字母外，还包含其他字符，就抛出异常。</p>
-     * <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
-     * <p>如果用户名大于 30 个字符，也会抛出异常。</p>
-     * <p>如果密码大于 50 个字符，也会抛出异常</p>
-     * <p>如果用户名或密码为空，抛出异常</p>
      *
-     * @param userBasicInfo 用户名、未加密的密码和角色信息
+     * @param usernameAndPassword 用户名和未加密的密码
+     * @param role                角色信息
      * @return 成功与否
-     * @throws com.github.learndifferent.mtm.exception.ServiceException 错误代码为：ResultCode.USER_ALREADY_EXIST、
-     *                                                                  ResultCode.USERNAME_ONLY_LETTERS_NUMBERS、
-     *                                                                  ResultCode.USERNAME_TOO_LONG 和 ResultCode.USERNAME_EMPTY、
-     *                                                                  ResultCode.PASSWORD_TOO_LONG 和 ResultCode.PASSWORD_EMPTY
+     * @throws com.github.learndifferent.mtm.exception.ServiceException 在以下情况会抛出异常：
+     *                                                                  <p>如果该用户名除了数字和英文字母外，还包含其他字符，就抛出异常。</p>
+     *                                                                  <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
+     *                                                                  <p>如果用户名大于 30 个字符，也会抛出异常。</p>
+     *                                                                  <p>如果密码大于 50 个字符，也会抛出异常</p>
+     *                                                                  <p>如果用户名或密码为空，抛出异常</p>
+     *                                                                  <p>如果没有传入正确的用户角色，抛出异常</p>
+     *                                                                  <p>Result Code 为：</p>
+     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
+     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
+     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}</p>
+     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
+     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
+     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
+     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
      */
-    boolean addUser(CreateUserRequest userBasicInfo);
+    boolean addUser(CreateUserRequest usernameAndPassword, String role);
 
     /**
      * 根据用户名和密码查找用户

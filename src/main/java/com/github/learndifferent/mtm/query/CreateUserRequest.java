@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 创建用户的 Request Body，包含创建用户的基本信息
+ * Username and Password
  *
  * @author zhou
  * @date 2021/09/05
@@ -20,14 +20,11 @@ public class CreateUserRequest implements Serializable {
      * Username
      */
     private String userName;
+
     /**
      * Password
      */
     private String password;
-    /**
-     * User Role
-     */
-    private String role;
 
     private static final long serialVersionUID = 1L;
 }

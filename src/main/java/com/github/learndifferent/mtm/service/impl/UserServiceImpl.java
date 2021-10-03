@@ -100,24 +100,41 @@ public class UserServiceImpl implements UserService {
         return userMapper.updateUser(user);
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean addUser(CreateUserRequest usernameAndPassword, String role) {
+
+        UserDO user = DozerUtils.convert(usernameAndPassword, UserDO.class);
+        user.setRole(role);
+
+        UserServiceImpl userServiceImpl = ApplicationContextUtils.getBean(UserServiceImpl.class);
+        return userServiceImpl.addUser(user);
+    }
+
     /**
      * 添加用户，并给用户增加 ID 和 CreateTime，将密码加密。
-     * <p>{@link NewUserCheck} 注解会检查该用户名除了数字和英文字母外，是否还包含其他字符，如果有就抛出异常。</p>
-     * <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
-     * <p>如果用户名大于 30 个字符，也会抛出异常。</p>
-     * <p>如果密码大于 50 个字符，也会抛出异常</p>
-     * <p>如果用户名或密码为空，抛出异常</p>
      *
      * @param user 被添加的用户
      * @return 成功与否
-     * @throws ServiceException 错误代码为：ResultCode.USER_ALREADY_EXIST、
-     *                          ResultCode.USERNAME_ONLY_LETTERS_NUMBERS、
-     *                          ResultCode.USERNAME_TOO_LONG 和 ResultCode.USERNAME_EMPTY、
-     *                          ResultCode.PASSWORD_TOO_LONG 和 ResultCode.PASSWORD_EMPTY
+     * @throws ServiceException <p>{@link NewUserCheck} 注解会检查该用户名除了数字和英文字母外，是否还包含其他字符，如果有就抛出异常。</p>
+     *                          <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
+     *                          <p>如果用户名大于 30 个字符，也会抛出异常。</p>
+     *                          <p>如果密码大于 50 个字符，也会抛出异常</p>
+     *                          <p>如果用户名或密码为空，抛出异常</p>
+     *                          <p>如果没有传入正确的用户角色，抛出异常</p>
+     *                          <p>Result Code 为：</p>
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}</p>
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
+     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
      */
     @NewUserCheck(userClass = UserDO.class,
                   usernameFieldName = "userName",
-                  passwordFieldName = "password")
+                  passwordFieldName = "password",
+                  roleFieldName = "role")
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean addUser(UserDO user) {
 
@@ -136,16 +153,6 @@ public class UserServiceImpl implements UserService {
             // 相当于捕获：com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
             throw new ServiceException(ResultCode.USER_ALREADY_EXIST);
         }
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean addUser(CreateUserRequest userBasicInfo) {
-
-        UserDO user = DozerUtils.convert(userBasicInfo, UserDO.class);
-
-        UserServiceImpl userServiceImpl = ApplicationContextUtils.getBean(UserServiceImpl.class);
-        return userServiceImpl.addUser(user);
     }
 
     /**

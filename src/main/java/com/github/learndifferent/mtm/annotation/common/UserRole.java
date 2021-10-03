@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.annotation.common;
 
+import com.github.learndifferent.mtm.constant.enums.RoleType;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,4 +14,13 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UserRole {}
+public @interface UserRole {
+
+    /**
+     * The default role to use as a fallback when the request parameter is
+     * not provided or the role value does not match any value of {@link RoleType}
+     *
+     * @return {@link RoleType} default role
+     */
+    RoleType defaultRole();
+}

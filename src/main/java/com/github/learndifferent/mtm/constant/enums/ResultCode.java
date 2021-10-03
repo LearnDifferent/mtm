@@ -125,6 +125,10 @@ public enum ResultCode {
      */
     JSON_ERROR(3013, "Error related to Json"),
     /**
+     * Can't find the user role
+     */
+    USER_ROLE_NOT_FOUND(3014, "Can't find the user role"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
