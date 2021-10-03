@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * WebsiteWithCount 的 dto
+ * WebsiteWithCount 的 dto。
+ * 实际上只有 count, url, title, desc 和 img 属性，这里为了方便就直接继承了 {@link WebsiteDTO}
  *
  * @author zhou
  * @date 2021/09/05

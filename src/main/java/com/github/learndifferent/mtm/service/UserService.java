@@ -85,7 +85,7 @@ public interface UserService {
      * @param userName 用户名
      * @return 用户
      */
-    UserDO getUserByName(String userName);
+    UserDTO getUserByName(String userName);
 
     /**
      * Delete user as well as the comments and websites data belongs to the user.

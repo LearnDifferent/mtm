@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.annotation.validation.user.create;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
+import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
@@ -146,7 +147,7 @@ public class NewUserCheckAspect {
      * @throws ServiceException ResultCode.USER_ALREADY_EXIST
      */
     private void checkIfUsernameExist(String username) {
-        UserDO userHasThatName = userService.getUserByName(username);
+        UserDTO userHasThatName = userService.getUserByName(username);
         if (userHasThatName != null) {
             // 如果用户名已经在 Database 中存在，就抛出异常
             throw new ServiceException(ResultCode.USER_ALREADY_EXIST);

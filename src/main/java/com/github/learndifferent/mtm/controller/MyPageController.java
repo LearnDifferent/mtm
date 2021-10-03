@@ -51,7 +51,7 @@ public class MyPageController {
     public ResultVO<MyPageVO> load(@PageInfo PageInfoDTO pageInfo, HttpServletRequest request) {
 
         String userName = (String) StpUtil.getLoginId();
-        UserDTO user = getUser(userName);
+        UserDTO user = userService.getUserByName(userName);
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
@@ -73,11 +73,5 @@ public class MyPageController {
                 .build();
 
         return ResultCreator.okResult(myPageVO);
-    }
-
-    private UserDTO getUser(String userName) {
-        UserDO userDO = userService.getUserByName(userName);
-
-        return DozerUtils.convert(userDO, UserDTO.class);
     }
 }

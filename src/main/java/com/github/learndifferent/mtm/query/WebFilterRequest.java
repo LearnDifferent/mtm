@@ -9,8 +9,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- * 筛选器（根据用户名和日期，筛选网页，并根据需要加载的数量显示网页）
- * <p>注意在 MyBatis 中，日期要指定：jdbcType=DATE</p>
+ * 筛选器：根据用户名和日期，筛选网页，并根据需要加载的数量显示网页
  *
  * @author zhou
  * @date 2021/09/05
@@ -41,7 +40,7 @@ public class WebFilterRequest implements Serializable {
     private Date toDate;
 
     /**
-     * Order by what field
+     * Order by which field
      */
     @Value("${website-filter.order}")
     private String order;
@@ -52,13 +51,10 @@ public class WebFilterRequest implements Serializable {
     @Value("${website-filter.isDesc}")
     private Boolean desc;
 
-    private static final String CREATE_TIME = "createTime";
+    private static final String CREATION_TIME = "creation_time";
 
-    private static final String USER_NAME = "userName";
+    private static final String USER_NAME = "user_name";
 
-    /**
-     * 将前端传入的数据转化为实体类只需要无参构造器即可
-     */
     public WebFilterRequest() {
     }
 
@@ -108,7 +104,7 @@ public class WebFilterRequest implements Serializable {
      */
     public void setIfOrderByTime(Boolean ifOrderByTime) {
         if (BooleanUtils.isTrue(ifOrderByTime)) {
-            this.order = CREATE_TIME;
+            this.order = CREATION_TIME;
         } else {
             // 这种情况包括了 null
             this.order = USER_NAME;

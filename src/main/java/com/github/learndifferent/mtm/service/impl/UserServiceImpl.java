@@ -175,8 +175,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDO getUserByName(String userName) {
-        return userMapper.getUserByName(userName);
+    public UserDTO getUserByName(String userName) {
+        UserDO userDO = userMapper.getUserByName(userName);
+        return DozerUtils.convert(userDO, UserDTO.class);
     }
 
     @Override

@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.WebsiteMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.WebsiteDO">
-        <id column="webId" jdbcType="INTEGER" property="webId"/>
-        <result column="userName" jdbcType="VARCHAR" property="userName"/>
+        <id column="web_id" jdbcType="INTEGER" property="webId"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="img" jdbcType="VARCHAR" property="img"/>
         <result column="desc" jdbcType="VARCHAR" property="desc"/>
-        <result column="createTime" jdbcType="DATE" property="createTime"/>
+        <result column="creation_time" jdbcType="DATE" property="createTime"/>
         <result column="public" jdbcType="BOOLEAN" property="isPublic"/>
     </resultMap>
 
@@ -20,20 +20,20 @@
             `public` is true
             <if test="usernames != null and usernames.size() != 0">
                 <foreach collection="usernames" item="userName" open="and (" close=")" separator="or">
-                    userName = #{userName}
+                    user_name = #{userName}
                 </foreach>
             </if>
         </where>
         <!-- fromDate 和 toDate 表示日期范围 -->
         <if test="fromDate != null and toDate != null">
-            HAVING createTime <![CDATA[ >= ]]> #{fromDate,jdbcType=DATE}
-            AND createTime <![CDATA[ <= ]]> #{toDate,jdbcType=DATE}
+            HAVING creation_time <![CDATA[ >= ]]> #{fromDate,jdbcType=DATE}
+            AND creation_time <![CDATA[ <= ]]> #{toDate,jdbcType=DATE}
         </if>
         <!-- 如果上面不是「大于等于 / 小于等于」，而是「大于 / 小于」的情况
          ，上面的 if 标签需要加上「and !fromDate.equals(toDate)」
          ，然后还要加上下面这个 if 判断-->
         <!--        <if test="fromDate != null and toDate != null and fromDate.equals(toDate)">-->
-        <!--            HAVING createTime = #{fromDate,jdbcType=DATE}-->
+        <!--            HAVING creation_time = #{fromDate,jdbcType=DATE}-->
         <!--        </if>-->
         <if test="order != null and order != ''">
             <!-- 动态 SQL 中，如果有 order by 的情况下，不要使用 # 符号，而要使用 $ 符号 -->
@@ -62,15 +62,15 @@
     </select>
 
     <select id="getAllPubAndSpecUserPriWebs" resultMap="BaseResultMap">
-        <!-- 因为 webId 也是根据时间顺序生成的，所以用 createTime 和 webId 排序是一样的效果 -->
+        <!-- 因为 web_id 也是根据时间顺序生成的，所以用 creation_time 和 web_id 排序是一样的效果 -->
         select * from website
         <where>
             `public` is true
             <if test="specUsername != null and specUsername != ''">
-                or userName = #{specUsername}
+                or user_name = #{specUsername}
             </if>
         </where>
-        order by `webId` desc
+        order by `web_id` desc
         <if test="from!=null and size!=null">
             limit #{from},#{size}
         </if>
@@ -79,7 +79,7 @@
     <select id="getWebsiteDataById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select *
         from website
-        where webId = #{webId,jdbcType=INTEGER}
+        where web_id = #{webId,jdbcType=INTEGER}
     </select>
 
     <select id="findWebsitesDataByUrl" resultMap="BaseResultMap">
@@ -89,12 +89,12 @@
     </select>
 
     <select id="countAllPubAndSpecUserPriWebs" resultType="java.lang.Integer">
-        select count(webId)
+        select count(web_id)
         from website
         <where>
             `public` is true
             <if test="specUsername != null and specUsername != ''">
-                or userName = #{specUsername}
+                or user_name = #{specUsername}
             </if>
         </where>
         ;
@@ -103,12 +103,12 @@
     <select id="findWebsitesDataByUser" resultMap="BaseResultMap">
         select *
         from website
-        where userName = #{userName}
+        where user_name = #{userName}
         <!-- 如果 includePrivate 为 false，就只查找数据库中 public 属性为 true 的 -->
         <if test="!includePrivate ">
             and `public` is true
         </if>
-        order by webId desc
+        order by web_id desc
         <if test="from!=null and size!=null">
             limit #{from},#{size}
         </if>
@@ -116,9 +116,9 @@
     </select>
 
     <select id="countUserPost" resultType="java.lang.Integer">
-        select count(userName)
+        select count(user_name)
         from website
-        where userName = #{userName}
+        where user_name = #{userName}
         <if test="!includePrivate ">
             and `public` is true
         </if>
@@ -135,21 +135,21 @@
     <select id="findWebsitesDataExcludeUser" resultMap="BaseResultMap">
         select *
         from website
-        where userName != #{excludeUsername}
+        where user_name != #{excludeUsername}
         and ( `public` is true
         <if test="userNameToShowAll != null and userNameToShowAll != '' and !userNameToShowAll.equalsIgnoreCase(excludeUsername)">
-            or userName = #{userNameToShowAll}
+            or user_name = #{userNameToShowAll}
         </if>
-        ) order by webId desc limit #{from}, #{size};
+        ) order by web_id desc limit #{from}, #{size};
     </select>
 
     <select id="countExcludeUserPost" resultType="java.lang.Integer">
-        select count(webId)
+        select count(web_id)
         from website
-        where userName != #{excludeUsername}
+        where user_name != #{excludeUsername}
         and ( `public` is true
         <if test="userNameToShowAll != null and userNameToShowAll != '' and !userNameToShowAll.equalsIgnoreCase(excludeUsername)">
-            or userName = #{userNameToShowAll}
+            or user_name = #{userNameToShowAll}
         </if>
         );
     </select>
@@ -157,31 +157,31 @@
     <delete id="deleteWebsiteDataById" parameterType="java.lang.Integer">
         delete
         from website
-        where webId = #{webId,jdbcType=INTEGER}
+        where web_id = #{webId,jdbcType=INTEGER}
     </delete>
 
     <delete id="deleteWebsiteDataByUsername">
         delete
         from website
-        where userName = #{userName}
+        where user_name = #{userName}
     </delete>
 
-    <insert id="addWebsiteData" keyColumn="webId" keyProperty="webId"
+    <insert id="addWebsiteData" keyColumn="web_id" keyProperty="webId"
             parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
             useGeneratedKeys="true">
-        insert into website(userName, title, url, img, `desc`, `createTime`, `public`)
+        insert into website(user_name, title, url, img, `desc`, `creation_time`, `public`)
         values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
     <update id="updateWebsiteDataById" parameterType="com.github.learndifferent.mtm.entity.WebsiteDO">
         update website
-        set userName     = #{userName,jdbcType=VARCHAR},
-            title        = #{title,jdbcType=VARCHAR},
-            url          = #{url,jdbcType=VARCHAR},
-            img          = #{img,jdbcType=VARCHAR},
-            `desc`       = #{desc,jdbcType=VARCHAR},
-            `createTime` = #{createTime,jdbcType=DATE},
-            `public`     = #{isPublic,jdbcType=BOOLEAN}
-        where webId = #{webId,jdbcType=INTEGER}
+        set user_name       = #{userName,jdbcType=VARCHAR},
+            title           = #{title,jdbcType=VARCHAR},
+            url             = #{url,jdbcType=VARCHAR},
+            img             = #{img,jdbcType=VARCHAR},
+            `desc`          = #{desc,jdbcType=VARCHAR},
+            `creation_time` = #{createTime,jdbcType=DATE},
+            `public`        = #{isPublic,jdbcType=BOOLEAN}
+        where web_id = #{webId,jdbcType=INTEGER}
     </update>
 </mapper>

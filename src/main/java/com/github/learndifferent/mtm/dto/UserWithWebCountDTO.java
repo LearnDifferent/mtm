@@ -1,10 +1,9 @@
 package com.github.learndifferent.mtm.dto;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 /**
  * 用户信息 + 该用户收藏的网页的个数
@@ -12,16 +11,21 @@ import lombok.ToString;
  * @author zhou
  * @date 2021/09/05
  */
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserWithWebCountDTO extends UserDTO {
+public class UserWithWebCountDTO implements Serializable {
 
     /**
-     * New field: the number of websites that user owns
+     * Username
+     */
+    private String userName;
+
+    /**
+     * The number of websites that user owns
      */
     private Integer webCount;
+
+    private static final long serialVersionUID = 1L;
 }
 

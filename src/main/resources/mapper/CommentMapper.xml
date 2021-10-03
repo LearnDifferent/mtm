@@ -2,35 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.CommentMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.CommentDO">
-        <id column="commentId" jdbcType="INTEGER" property="commentId"/>
+        <id column="comment_id" jdbcType="INTEGER" property="commentId"/>
         <result column="comment" jdbcType="VARCHAR" property="comment"/>
-        <result column="webId" jdbcType="INTEGER" property="webId"/>
+        <result column="web_id" jdbcType="INTEGER" property="webId"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
-        <result column="creationTime" jdbcType="TIMESTAMP" property="creationTime"/>
-        <result column="replyToCommentId" jdbcType="INTEGER" property="replyToCommentId"/>
+        <result column="creation_time" jdbcType="TIMESTAMP" property="creationTime"/>
+        <result column="reply_to_comment_id" jdbcType="INTEGER" property="replyToCommentId"/>
     </resultMap>
 
-    <select id="getCommentById" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+    <select id="getCommentById" resultMap="BaseResultMap">
         select *
         from comment
-        where commentId = #{commentId,jdbcType=INTEGER};
+        where comment_id = #{commentId,jdbcType=INTEGER};
     </select>
 
-    <select id="getCommentsByWebAndReplyCommentId" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+    <select id="getCommentsByWebAndReplyCommentId" resultMap="BaseResultMap">
         select *
         from comment
         <where>
             <if test="webId != null">
-                webId = #{webId,jdbcType=INTEGER}
+                web_id = #{webId,jdbcType=INTEGER}
             </if>
             <if test="replyToCommentId == null">
-                and replyToCommentId is null
+                and reply_to_comment_id is null
             </if>
             <if test="replyToCommentId != null">
-                and replyToCommentId = #{replyToCommentId}
+                and reply_to_comment_id = #{replyToCommentId}
             </if>
         </where>
-        order by `creationTime`
+        order by `creation_time`
         <if test="isDesc != null and isDesc != false">
             desc
         </if>
@@ -39,30 +39,30 @@
         </if>;
     </select>
 
-    <select id="getCommentsByUsername" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+    <select id="getCommentsByUsername" resultMap="BaseResultMap">
         select *
         from comment
         where username = #{username,jdbcType=VARCHAR};
     </select>
 
-    <select id="getCommentByWebIdAndUsernameAndComment" resultType="com.github.learndifferent.mtm.entity.CommentDO">
+    <select id="getCommentByWebIdAndUsernameAndComment" resultMap="BaseResultMap">
         select *
         from comment
         where comment = #{comment}
           and username = #{username}
-          and webId = #{webId};
+          and web_id = #{webId};
     </select>
 
     <select id="countRepliesFromComment" resultType="java.lang.Integer">
         select count(*)
         from comment
-        where replyToCommentId = #{countRepliesFromCommentId};
+        where reply_to_comment_id = #{countRepliesFromCommentId};
     </select>
 
     <delete id="deleteCommentById" parameterType="java.lang.Integer">
         delete
         from comment
-        where commentId = #{commentId,jdbcType=INTEGER}
+        where comment_id = #{commentId,jdbcType=INTEGER}
     </delete>
 
     <delete id="deleteCommentsByUsername">
@@ -71,9 +71,9 @@
         where username = #{username};
     </delete>
 
-    <insert id="addComment" keyColumn="commentId" keyProperty="commentId"
+    <insert id="addComment" keyColumn="comment_id" keyProperty="commentId"
             parameterType="com.github.learndifferent.mtm.entity.CommentDO" useGeneratedKeys="true">
-        insert into comment (`comment`, `webId`, `username`, `creationTime`, `replyToCommentId`)
+        insert into comment (`comment`, web_id, `username`, creation_time, `reply_to_comment_id`)
         values (#{comment,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
                 #{creationTime,jdbcType=TIMESTAMP}, #{replyToCommentId,jdbcType=INTEGER})
     </insert>
@@ -81,16 +81,16 @@
     <update id="updateComment">
         update comment
         set comment = #{comment,jdbcType=VARCHAR}
-        where commentId = #{commentId,jdbcType=INTEGER}
+        where comment_id = #{commentId,jdbcType=INTEGER}
     </update>
 
     <select id="countCommentByWebId" resultType="java.lang.Integer">
-        select count(webId)
+        select count(web_id)
         from comment
         <where>
-            replyToCommentId is null
+            reply_to_comment_id is null
             <if test="webId != null">
-                and webId = #{webId}
+                and web_id = #{webId}
             </if>
         </where>
         ;
