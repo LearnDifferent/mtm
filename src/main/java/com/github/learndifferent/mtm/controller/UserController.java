@@ -8,7 +8,6 @@ import com.github.learndifferent.mtm.annotation.common.VerificationCode;
 import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.validation.register.RegisterCodeCheck;
-import com.github.learndifferent.mtm.annotation.validation.user.delete.DeleteUserCheck;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -139,7 +138,6 @@ public class UserController {
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
-    @DeleteUserCheck
     public ResultVO<?> deleteUser(@RequestParam("userName") String userName,
                                   @RequestParam("password") String password) {
 
