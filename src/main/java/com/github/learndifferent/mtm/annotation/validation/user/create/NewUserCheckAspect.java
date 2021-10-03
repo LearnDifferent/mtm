@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation.user.create;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
@@ -13,11 +14,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 用户名和密码检查。会抛出 ServiceException 相应的异常。
- * 错误代码有：ResultCode.USER_ALREADY_EXIST、
- * ResultCode.USERNAME_ONLY_LETTERS_NUMBERS、
- * ResultCode.USERNAME_TOO_LONG 和 ResultCode.USERNAME_EMPTY、
- * ResultCode.PASSWORD_TOO_LONG 和 ResultCode.PASSWORD_EMPTY
+ * 检查用户名和密码，以及角色信息是否存在。会抛出 ServiceException 相应的异常。Result code 列表：
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
  *
  * @author zhou
  * @date 2021/09/13
@@ -41,18 +45,22 @@ public class NewUserCheckAspect {
         Class<?> cls = annotation.userClass();
         String usernameFieldName = annotation.usernameFieldName();
         String passwordFieldName = annotation.passwordFieldName();
+        String roleFieldName = annotation.roleFieldName();
 
         String username = "";
         String password = "";
+        String role = "";
         for (Object arg : args) {
             if (arg != null && cls.isAssignableFrom(arg.getClass())) {
                 username = getFieldValue(cls, usernameFieldName, arg);
                 password = getFieldValue(cls, passwordFieldName, arg);
+                role = getFieldValue(cls, roleFieldName, arg);
                 break;
             }
         }
 
-        check(username, password);
+        checkUserRoleExists(role);
+        checkUsernameAndPassword(username, password);
         return pjp.proceed();
     }
 
@@ -69,7 +77,19 @@ public class NewUserCheckAspect {
         }
     }
 
-    private void check(String username, String password) {
+    private void checkUserRoleExists(String role) {
+        checkIfEmpty(role, ResultCode.USER_ROLE_NOT_FOUND);
+        try {
+            // 通过 valueOf 方法直接从大写的字符串中获取相应的 Enum
+            RoleType.valueOf(role.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            e.printStackTrace();
+            // 如果无法转换，说明没有传入正确的 role
+            throw new ServiceException(ResultCode.USER_ROLE_NOT_FOUND);
+        }
+    }
+
+    private void checkUsernameAndPassword(String username, String password) {
         checkIfEmpty(username, ResultCode.USERNAME_EMPTY);
         checkIfEmpty(password, ResultCode.PASSWORD_EMPTY);
         checkIfTooLong(password, 50, ResultCode.PASSWORD_TOO_LONG);

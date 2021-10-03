@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 用户名和密码检查
+ * 检查用户名和密码，以及角色信息是否存在着
  *
  * @author zhou
  * @date 2021/09/13
@@ -35,4 +35,11 @@ public @interface NewUserCheck {
      * @return {@code String} 该类中，包含密码的属性的名称
      */
     String passwordFieldName();
+
+    /**
+     * 该类中，包含角色的属性的名称
+     *
+     * @return {@code String} 该类中，包含角色的属性的名称
+     */
+    String roleFieldName();
 }
