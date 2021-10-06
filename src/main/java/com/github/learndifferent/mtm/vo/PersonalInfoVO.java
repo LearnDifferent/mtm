@@ -1,9 +1,7 @@
 package com.github.learndifferent.mtm.vo;
 
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import java.io.Serializable;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,24 +19,17 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class MyPageVO implements Serializable {
+public class PersonalInfoVO implements Serializable {
 
     /**
      * Personal info
      */
     private UserDTO user;
+
     /**
      * First character of my username
      */
     private Character firstCharOfName;
-    /**
-     * My website data
-     */
-    private List<? extends WebsiteDTO> myWebs;
-    /**
-     * Total pages of my website data
-     */
-    private Integer totalPage;
 
     /**
      * IP Address
