@@ -1,8 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.service.NotificationService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,11 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     public NotificationServiceImpl(NotificationManager notificationManager) {
         this.notificationManager = notificationManager;
+    }
+
+    @Override
+    public List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int size) {
+        return notificationManager.getReplyNotifications(receiveUsername, 0, size);
     }
 
     @Override

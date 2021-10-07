@@ -14,4 +14,9 @@ public final class KeyConstant {
     public static final String SYSTEM_NOTIFICATION = "systemNotification";
 
     public static final String SYSTEM_LOG = "syslog";
+
+    /**
+     * The key of reply notification is "notification:" + lowercase username
+     */
+    public static final String REPLY_NOTIFICATION_PREFIX = "notification:";
 }

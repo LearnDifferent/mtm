@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.annotation.validation.comment.modify.Modify
 import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.service.CommentService;
@@ -31,9 +32,13 @@ import org.springframework.stereotype.Service;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
+    private final NotificationManager notificationManager;
 
     @Autowired
-    public CommentServiceImpl(CommentMapper commentMapper) {this.commentMapper = commentMapper;}
+    public CommentServiceImpl(CommentMapper commentMapper, NotificationManager notificationManager) {
+        this.commentMapper = commentMapper;
+        this.notificationManager = notificationManager;
+    }
 
     @Override
     public CommentDTO getCommentById(Integer commentId) {
@@ -85,8 +90,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @AddCommentCheck
-    public boolean addComment(@Comment String comment, @WebId int webId, @Username String username,
-                              @ReplyToCommentId Integer replyToCommentId) {
+    public boolean addCommentAndSendNotification(@Comment String comment, @WebId int webId, @Username String username,
+                                                 @ReplyToCommentId Integer replyToCommentId) {
 
         CommentDO commentDO = CommentDO.builder()
                 .comment(comment).webId(webId).username(username)
@@ -94,7 +99,14 @@ public class CommentServiceImpl implements CommentService {
                 .creationTime(new Date())
                 .build();
 
-        return commentMapper.addComment(commentDO);
+        // this method will set the ID to the CommentDO automatically
+        boolean success = commentMapper.addCommentAndGetId(commentDO);
+        if (success) {
+            // send notification
+            notificationManager.sendReplyNotification(commentDO);
+        }
+
+        return success;
     }
 
     @Override

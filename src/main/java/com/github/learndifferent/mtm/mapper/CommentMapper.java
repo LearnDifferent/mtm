@@ -21,7 +21,15 @@ public interface CommentMapper {
     CommentDO getCommentById(int commentId);
 
     /**
-     * Gets comment by web id, username and comment
+     * Get the user's name, who sent the comment
+     *
+     * @param commentId comment id
+     * @return {@link String}
+     */
+    String getUsernameByCommentId(int commentId);
+
+    /**
+     * Get comment by web id, username and comment
      *
      * @param comment  comment
      * @param webId    web id
@@ -79,12 +87,12 @@ public interface CommentMapper {
     void deleteCommentsByUsername(String username);
 
     /**
-     * Add a comment
+     * Add a comment and get new {@link CommentDO} with the ID
      *
      * @param comment comment
-     * @return success or failure
+     * @return success or failure (the id will set to {@link CommentDO} automatically)
      */
-    boolean addComment(CommentDO comment);
+    boolean addCommentAndGetId(CommentDO comment);
 
     /**
      * Update a comment

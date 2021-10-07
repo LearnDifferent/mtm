@@ -176,4 +176,12 @@ public interface WebsiteMapper {
      * @return 是否成功
      */
     boolean updateWebsiteDataById(WebsiteDO websiteDO);
+
+    /**
+     * Get user's name, who owns the website data
+     *
+     * @param webId website id
+     * @return {@link String}
+     */
+    String getUsernameByWebId(int webId);
 }

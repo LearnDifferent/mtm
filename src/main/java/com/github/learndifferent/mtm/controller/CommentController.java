@@ -78,14 +78,14 @@ public class CommentController {
     }
 
     /**
-     * Create a comment
+     * Create a comment and send a notification to the user who is about to receive it
      *
      * @param comment          Comment
      * @param webId            Website ID
      * @param username         Username
      * @param replyToCommentId Reply to another comment (null if it's not a reply)
      * @return {@link ResultVO}<{@link Boolean}> success of failure
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addComment(String,
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addCommentAndSendNotification(String,
      *                                                                  int, String, Integer)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
@@ -110,7 +110,7 @@ public class CommentController {
                                            @RequestParam("username") String username,
                                            @RequestParam(value = "replyToCommentId",
                                                          required = false) Integer replyToCommentId) {
-        boolean success = commentService.addComment(comment, webId, username, replyToCommentId);
+        boolean success = commentService.addCommentAndSendNotification(comment, webId, username, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 

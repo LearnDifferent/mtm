@@ -1,5 +1,8 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import java.util.List;
+
 /**
  * 操作通知（在 Redis 中）
  *
@@ -7,6 +10,17 @@ package com.github.learndifferent.mtm.service;
  * @date 2021/09/21
  */
 public interface NotificationService {
+
+    /**
+     * 获取回复的通知
+     *
+     * @param receiveUsername 接收通知的用户的用户名
+     * @param size            接收通知的数量
+     * @return {@link List}<{@link ReplyNotificationDTO}>
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, it will throw an exception
+     *                                                                  with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
+     */
+    List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int size);
 
     /**
      * 删除系统通知

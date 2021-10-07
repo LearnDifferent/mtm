@@ -1,10 +1,20 @@
 package com.github.learndifferent.mtm.manager;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.mapper.CommentMapper;
+import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.utils.JsonUtils;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 /**
  * About notification
@@ -15,10 +25,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationManager {
 
-    private final StringRedisTemplate template;
+    private final StringRedisTemplate redisTemplate;
+    private final CommentMapper commentMapper;
+    private final WebsiteMapper websiteMapper;
 
     @Autowired
-    public NotificationManager(StringRedisTemplate template) {this.template = template;}
+    public NotificationManager(StringRedisTemplate redisTemplate,
+                               CommentMapper commentMapper,
+                               WebsiteMapper websiteMapper) {
+        this.redisTemplate = redisTemplate;
+        this.commentMapper = commentMapper;
+        this.websiteMapper = websiteMapper;
+    }
 
     /**
      * Delete notification
@@ -26,7 +44,58 @@ public class NotificationManager {
      * @param notificationRedisKey redis key
      */
     public void deleteNotificationByKey(String notificationRedisKey) {
-        template.delete(notificationRedisKey);
+        redisTemplate.delete(notificationRedisKey);
+    }
+
+    public List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int from, int to) {
+        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
+        List<String> notifications = redisTemplate.opsForList().range(key, from, to);
+        if (CollectionUtils.isEmpty(notifications)) {
+            throw new ServiceException(ResultCode.NO_RESULTS_FOUND);
+        }
+        return notifications.stream()
+                .map(n -> JsonUtils.toObject(n, ReplyNotificationDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public void sendReplyNotification(CommentDO comment) {
+
+        ReplyNotificationDTO notification = getReplyNotificationDTO(comment);
+
+        String receiveUsername = notification.getReceiveUsername();
+        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
+
+        String value = JsonUtils.toJson(notification);
+        redisTemplate.opsForList().leftPush(key, value);
+    }
+
+    private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
+
+        int commentId = comment.getCommentId();
+        int webId = comment.getWebId();
+        Integer replyToCommentId = comment.getReplyToCommentId();
+
+        // 如果 replyToCommentId 为空，就提醒 webId 的所有者，否则，提醒 replyToCommentId 的所有者
+        boolean notifyWebsiteOwner = replyToCommentId == null;
+        String receiveUsername;
+
+        if (notifyWebsiteOwner) {
+            receiveUsername = websiteMapper.getUsernameByWebId(webId);
+        } else {
+            receiveUsername = commentMapper.getUsernameByCommentId(replyToCommentId);
+        }
+
+        String sendUsername = comment.getUsername();
+        Date creationTime = comment.getCreationTime();
+
+        return ReplyNotificationDTO.builder()
+                .creationTime(creationTime)
+                .receiveUsername(receiveUsername)
+                .sendUsername(sendUsername)
+                .commentId(commentId)
+                .webId(webId)
+                .replyToCommentId(replyToCommentId)
+                .build();
     }
 
     /**
@@ -36,9 +105,9 @@ public class NotificationManager {
      */
     public void sendSystemNotification(String content) {
         // 将消息存入 key 中
-        template.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, content);
+        redisTemplate.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, content);
         // 确保该 key 只有 20 个 value
-        template.opsForList().trim(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
+        redisTemplate.opsForList().trim(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
     }
 
     /**
@@ -69,7 +138,7 @@ public class NotificationManager {
      * @return Redis 该通知相关 key 内的所有值
      */
     private List<String> getSystemNotifications() {
-        return template.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, -1);
+        return redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, -1);
     }
 
     private StringBuilder getHtmlMsg(List<String> msg, int size) {

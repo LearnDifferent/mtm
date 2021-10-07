@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.manager;
 
+import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
@@ -20,11 +21,14 @@ public class DeleteUserManager {
     private final WebsiteMapper websiteMapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
+    private final NotificationManager notificationManager;
 
     @Autowired
-    public DeleteUserManager(WebsiteMapper websiteMapper,
+    public DeleteUserManager(NotificationManager notificationManager,
+                             WebsiteMapper websiteMapper,
                              UserMapper userMapper,
                              CommentMapper commentMapper) {
+        this.notificationManager = notificationManager;
         this.websiteMapper = websiteMapper;
         this.userMapper = userMapper;
         this.commentMapper = commentMapper;
@@ -42,6 +46,11 @@ public class DeleteUserManager {
         websiteMapper.deleteWebsiteDataByUsername(username);
         // 删除用户的评论数据
         commentMapper.deleteCommentsByUsername(username);
+
+        // 删除该用户的评论的通知
+        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + username.toLowerCase();
+        notificationManager.deleteNotificationByKey(key);
+
         // 删除该用户（false 表示没有该用户）
         return userMapper.deleteUserByName(username);
     }

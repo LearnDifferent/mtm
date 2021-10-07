@@ -78,7 +78,7 @@ public interface CommentService {
     boolean deleteCommentById(int commentId, String username);
 
     /**
-     * Add a comment
+     * Add a comment and send a notification to the user who is about to receive it
      *
      * @param comment          comment
      * @param webId            web id
@@ -102,7 +102,7 @@ public interface CommentService {
      *                                                                  the  reult code will be {@link
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
      */
-    boolean addComment(String comment, int webId, String username, Integer replyToCommentId);
+    boolean addCommentAndSendNotification(String comment, int webId, String username, Integer replyToCommentId);
 
     /**
      * Update a comment

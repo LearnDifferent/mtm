@@ -16,6 +16,12 @@
         where comment_id = #{commentId,jdbcType=INTEGER};
     </select>
 
+    <select id="getUsernameByCommentId" resultType="java.lang.String">
+        select username
+        from comment
+        where comment_id = #{commentId,jdbcType=INTEGER};
+    </select>
+
     <select id="getCommentsByWebAndReplyCommentId" resultMap="BaseResultMap">
         select *
         from comment
@@ -71,8 +77,8 @@
         where username = #{username};
     </delete>
 
-    <insert id="addComment" keyColumn="comment_id" keyProperty="commentId"
-            parameterType="com.github.learndifferent.mtm.entity.CommentDO" useGeneratedKeys="true">
+    <insert id="addCommentAndGetId" keyColumn="comment_id" keyProperty="commentId" useGeneratedKeys="true"
+            parameterType="com.github.learndifferent.mtm.entity.CommentDO">
         insert into comment (`comment`, web_id, `username`, creation_time, `reply_to_comment_id`)
         values (#{comment,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
                 #{creationTime,jdbcType=TIMESTAMP}, #{replyToCommentId,jdbcType=INTEGER})
