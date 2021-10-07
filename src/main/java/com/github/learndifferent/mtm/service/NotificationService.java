@@ -9,23 +9,21 @@ package com.github.learndifferent.mtm.service;
 public interface NotificationService {
 
     /**
-     * 删除通知
-     *
-     * @return true 表示刚刚删除成功，false 之前已经删除了
+     * 删除系统通知
      */
-    Boolean trueMeansDeleteFalseMeansAlreadyDeleted();
+    void deleteSystemNotification();
 
     /**
      * 获取前 20 条通知，并转化为 HTML 的形式
      *
      * @return 转化为 HTML 的形式的前 20 条通知
      */
-    String getNotificationsHtml();
+    String getSystemNotificationsHtml();
 
     /**
      * 发送通知
      *
      * @param content 通知
      */
-    void sendNotification(String content);
+    void sendSystemNotification(String content);
 }

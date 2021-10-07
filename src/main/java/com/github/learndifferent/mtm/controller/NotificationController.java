@@ -37,20 +37,19 @@ public class NotificationController {
     @SystemLog(title = "Notification", optsType = OptsType.READ)
     @GetMapping
     public ResultVO<String> getNotifications() {
-        return ResultCreator.okResult(notificationService.getNotificationsHtml());
+        return ResultCreator.okResult(notificationService.getSystemNotificationsHtml());
     }
 
     /**
      * Delete notifications
      *
-     * @return {@link ResultVO}<{@link Boolean}> Success or failure
+     * @return {@link ResultVO}<{@link ?}> {@link ResultCreator#okResult()}
      */
     @SystemLog(title = "Notification", optsType = OptsType.DELETE)
     @DeleteMapping
-    public ResultVO<Boolean> delNotifications() {
-        Boolean deleteOrAlreadyDeleted = notificationService
-                .trueMeansDeleteFalseMeansAlreadyDeleted();
-        return ResultCreator.okResult(deleteOrAlreadyDeleted);
+    public ResultVO<?> delNotifications() {
+        notificationService.deleteSystemNotification();
+        return ResultCreator.okResult();
     }
 
     /**
@@ -62,7 +61,7 @@ public class NotificationController {
     @SystemLog(title = "Notification", optsType = OptsType.CREATE)
     @GetMapping("/{content}")
     public ResultVO<?> sendNotification(@PathVariable String content) {
-        notificationService.sendNotification(content);
+        notificationService.sendSystemNotification(content);
         return ResultCreator.okResult();
     }
 }

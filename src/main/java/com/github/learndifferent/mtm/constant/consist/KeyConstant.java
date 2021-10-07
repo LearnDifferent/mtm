@@ -11,7 +11,7 @@ public final class KeyConstant {
     private KeyConstant() {
     }
 
-    public static final String NOTICE = "notice";
+    public static final String SYSTEM_NOTIFICATION = "systemNotification";
 
     public static final String SYSTEM_LOG = "syslog";
 }
