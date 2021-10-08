@@ -4,6 +4,7 @@ import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
+import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
 import com.github.learndifferent.mtm.query.SaveWebDataRequest;
@@ -114,5 +115,20 @@ public class WebsiteDataController {
                                                 @RequestParam("userName") String userName) {
         boolean success = websiteService.changeWebPrivacySettings(webId, userName);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.UPDATE_FAILED);
+    }
+
+    /**
+     * Get website data by {@code webId}
+     *
+     * @param webId    web id
+     * @param userName username
+     * @return {@link ResultVO}<{@link WebsiteDTO}> If the user has no permission to get the website data,
+     * or the website doesn't exists, then it will return {@code null}
+     */
+    @GetMapping("/get")
+    public ResultVO<WebsiteDTO> getWebsiteDataById(@RequestParam("webId") Integer webId,
+                                                   @RequestParam("userName") String userName) {
+        WebsiteDTO web = websiteService.getWebsiteDataByIdAndCheckUsername(webId, userName);
+        return web == null ? ResultCreator.failResult() : ResultCreator.okResult(web);
     }
 }

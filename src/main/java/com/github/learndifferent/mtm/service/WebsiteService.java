@@ -156,6 +156,17 @@ public interface WebsiteService {
     boolean changeWebPrivacySettings(int webId, String userName);
 
     /**
+     * Get website data by {@code webId}.
+     * If the user has no permission to get the website data,
+     * or the website doesn't exists, then it will return {@code null}
+     *
+     * @param webId    网络账号
+     * @param userName 用户名
+     * @return {@link WebsiteDTO} website data or null if the user has no permission
+     */
+    WebsiteDTO getWebsiteDataByIdAndCheckUsername(int webId, String userName);
+
+    /**
      * 以 HTML 格式，导出该用户的所有网页数据。如果该用户没有数据，直接输出无数据的提示。
      * 如果该用户是当前用户，就导出所有网页数据；如果不是当前用户，只导出公开的网页数据。
      *
