@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import java.util.List;
 
@@ -25,11 +25,11 @@ public interface NotificationService {
      *
      * @param receiveUsername user's name who is about to receive notifications
      * @param to              index of the last element of the reply notification list
-     * @return {@link List}<{@link ReplyNotificationDTO}>
+     * @return {@link List}<{@link ReplyNotificationWithMsgDTO}>
      * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, it will throw an exception
      *                                                                  with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
      */
-    List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int to);
+    List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int to);
 
 
     /**

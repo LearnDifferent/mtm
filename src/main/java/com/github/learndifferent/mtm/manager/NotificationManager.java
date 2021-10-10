@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.manager;
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
@@ -53,14 +54,21 @@ public class NotificationManager {
         return size == null ? 0 : size;
     }
 
-    public List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int from, int to) {
+    public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int from, int to) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         List<String> notifications = redisTemplate.opsForList().range(key, from, to);
         if (CollectionUtils.isEmpty(notifications)) {
             throw new ServiceException(ResultCode.NO_RESULTS_FOUND);
         }
         return notifications.stream()
-                .map(n -> JsonUtils.toObject(n, ReplyNotificationDTO.class))
+                .map(n -> {
+                    ReplyNotificationWithMsgDTO no = JsonUtils.toObject(n, ReplyNotificationWithMsgDTO.class);
+                    int commentId = no.getCommentId();
+                    // the text is null if the comment does not exist
+                    String text = commentMapper.getCommentTextById(commentId);
+                    no.setMessage(text);
+                    return no;
+                })
                 .collect(Collectors.toList());
     }
 

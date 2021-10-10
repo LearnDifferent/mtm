@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import com.github.learndifferent.mtm.service.NotificationService;
@@ -32,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int to) {
+    public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int to) {
         return notificationManager.getReplyNotifications(receiveUsername, 0, to);
     }
 

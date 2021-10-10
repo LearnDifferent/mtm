@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -51,21 +51,21 @@ public class NotificationController {
     }
 
     /**
-     * Get reply notifications
+     * Get reply / comment notifications
      *
      * @param username user's name who is about to receive notifications
-     * @param to       index of the last element of the reply notification list
-     * @return {@link ResultVO}<{@link List}<{@link ReplyNotificationDTO}>> If the user is current user,
-     * returns reply notification list with the result code of {@link ResultCode#SUCCESS}.
+     * @param to       index of the last element of the reply / comment notification list
+     * @return {@link ResultVO}<{@link List}<{@link ReplyNotificationWithMsgDTO}>> If the user is current user,
+     * returns reply / comment notification list with the result code of {@link ResultCode#SUCCESS}.
      * If the user is not current user, returns {@link ResultCode#PERMISSION_DENIED}
      * @throws ServiceException {@link NotificationService#getReplyNotifications(String, int)}
      *                          will throw an exception with {@link ResultCode#NO_RESULTS_FOUND}
      *                          if there is no notifications found
      */
     @GetMapping("/reply")
-    public ResultVO<List<ReplyNotificationDTO>> getReplyNotifications(@RequestParam("username") String username,
-                                                                      @RequestParam(value = "to", defaultValue = "10")
-                                                                              int to) {
+    public ResultVO<List<ReplyNotificationWithMsgDTO>> getReplyNotifications(@RequestParam("username") String username,
+                                                                             @RequestParam(value = "to", defaultValue = "10")
+                                                                                     int to) {
         boolean notCurrentUser = checkIfNotCurrentUser(username);
         return notCurrentUser ? ResultCreator.result(ResultCode.PERMISSION_DENIED)
                 : ResultCreator.okResult(notificationService.getReplyNotifications(username, to));
@@ -107,7 +107,7 @@ public class NotificationController {
      */
     @SystemLog(title = "Notification", optsType = OptsType.DELETE)
     @DeleteMapping
-    public ResultVO<?> delSystemNotifications() {
+    public ResultVO<?> deleteSystemNotifications() {
         notificationService.deleteSystemNotification();
         return ResultCreator.okResult();
     }
