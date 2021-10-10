@@ -39,7 +39,7 @@ public class NotificationManager {
     }
 
     /**
-     * Delete notification
+     * Delete all notifications
      *
      * @param notificationRedisKey redis key
      */
@@ -102,6 +102,13 @@ public class NotificationManager {
                 .webId(webId)
                 .replyToCommentId(replyToCommentId)
                 .build();
+    }
+
+    public void deleteReplyNotification(ReplyNotificationDTO data) {
+        String receiveUsername = data.getReceiveUsername();
+        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
+        String value = JsonUtils.toJson(data);
+        redisTemplate.opsForList().remove(key, 1, value);
     }
 
     /**

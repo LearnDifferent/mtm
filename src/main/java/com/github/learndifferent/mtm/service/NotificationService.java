@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import java.util.List;
 
 /**
@@ -29,6 +30,14 @@ public interface NotificationService {
      *                                                                  with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
      */
     List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int to);
+
+
+    /**
+     * 删除回复通知
+     *
+     * @param data 需要删除的通知数据
+     */
+    void deleteReplyNotification(DelReNotificationRequest data);
 
     /**
      * 删除系统通知
