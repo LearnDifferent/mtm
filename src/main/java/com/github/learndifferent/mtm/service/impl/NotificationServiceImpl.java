@@ -30,8 +30,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int size) {
-        return notificationManager.getReplyNotifications(receiveUsername, 0, size);
+    public List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int to) {
+        return notificationManager.getReplyNotifications(receiveUsername, 0, to);
     }
 
     @Override

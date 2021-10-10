@@ -50,9 +50,9 @@ public class NotificationController {
      * Get reply notifications
      *
      * @param username user's name who is about to receive notifications
-     * @param size     size
+     * @param to       index of the last element of the reply notification list
      * @return {@link ResultVO}<{@link List}<{@link ReplyNotificationDTO}>> If the user is current user,
-     * returns notifications with {@link ResultCode#SUCCESS}.
+     * returns reply notification list with the result code of {@link ResultCode#SUCCESS}.
      * If the user is not current user, returns {@link ResultCode#PERMISSION_DENIED}
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotificationService#getReplyNotifications(String,
      *                                                                  int)}
@@ -61,12 +61,13 @@ public class NotificationController {
      *                                                                  is no notifications found
      */
     @GetMapping("/reply")
-    public ResultVO<List<ReplyNotificationDTO>> getReplyNotifications(@RequestParam String username,
-                                                                      @RequestParam(defaultValue = "10") int size) {
+    public ResultVO<List<ReplyNotificationDTO>> getReplyNotifications(@RequestParam("username") String username,
+                                                                      @RequestParam(value = "to", defaultValue = "10")
+                                                                              int to) {
         String currentUsername = (String) StpUtil.getLoginId();
         boolean notCurrentUser = ReverseUtils.stringNotEqualsIgnoreCase(currentUsername, username);
         return notCurrentUser ? ResultCreator.result(ResultCode.PERMISSION_DENIED)
-                : ResultCreator.okResult(notificationService.getReplyNotifications(username, size));
+                : ResultCreator.okResult(notificationService.getReplyNotifications(username, to));
     }
 
     /**

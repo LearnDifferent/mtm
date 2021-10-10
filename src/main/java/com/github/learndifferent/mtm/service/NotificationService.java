@@ -22,13 +22,13 @@ public interface NotificationService {
     /**
      * 获取回复的通知
      *
-     * @param receiveUsername 接收通知的用户的用户名
-     * @param size            接收通知的数量
+     * @param receiveUsername user's name who is about to receive notifications
+     * @param to              index of the last element of the reply notification list
      * @return {@link List}<{@link ReplyNotificationDTO}>
      * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, it will throw an exception
      *                                                                  with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
      */
-    List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int size);
+    List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int to);
 
     /**
      * 删除系统通知
