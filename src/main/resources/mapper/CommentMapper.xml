@@ -22,6 +22,12 @@
         where comment_id = #{commentId,jdbcType=INTEGER};
     </select>
 
+    <select id="getCommentTextById" resultType="java.lang.String">
+        select `comment`
+        from comment
+        where comment_id = #{commentId,jdbcType=INTEGER};
+    </select>
+
     <select id="getCommentsByWebAndReplyCommentId" resultMap="BaseResultMap">
         select *
         from comment

@@ -41,6 +41,14 @@ public interface CommentMapper {
                                                      @Param("username") String username);
 
     /**
+     * Get the text of the comment
+     *
+     * @param commentId comment id
+     * @return the text of the comment
+     */
+    String getCommentTextById(int commentId);
+
+    /**
      * Get comments by {@code webId} and {@code replyToCommentId}
      *
      * @param webId            Web ID (null if all website data)
