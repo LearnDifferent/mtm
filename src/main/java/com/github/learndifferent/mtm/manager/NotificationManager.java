@@ -47,6 +47,12 @@ public class NotificationManager {
         redisTemplate.delete(notificationRedisKey);
     }
 
+    public long countReplyNotifications(String receiveUsername) {
+        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
+        Long size = redisTemplate.opsForList().size(key);
+        return size == null ? 0 : size;
+    }
+
     public List<ReplyNotificationDTO> getReplyNotifications(String receiveUsername, int from, int to) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         List<String> notifications = redisTemplate.opsForList().range(key, from, to);

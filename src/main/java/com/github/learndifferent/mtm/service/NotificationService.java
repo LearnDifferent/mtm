@@ -12,6 +12,14 @@ import java.util.List;
 public interface NotificationService {
 
     /**
+     * Count the total number of reply notifications
+     *
+     * @param receiveUsername 获得用户名
+     * @return total number of reply notifications
+     */
+    long countReplyNotifications(String receiveUsername);
+
+    /**
      * 获取回复的通知
      *
      * @param receiveUsername 接收通知的用户的用户名

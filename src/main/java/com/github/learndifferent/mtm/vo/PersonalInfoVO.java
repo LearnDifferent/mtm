@@ -36,5 +36,10 @@ public class PersonalInfoVO implements Serializable {
      */
     private String ip;
 
+    /**
+     * Count the total number of reply notifications
+     */
+    private Long totalReplyNotifications;
+
     private static final long serialVersionUID = 1L;
 }
