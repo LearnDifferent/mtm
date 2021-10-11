@@ -37,7 +37,8 @@ public class HtmlFileController {
      *
      * @param username username
      * @param response response
-     * @throws ServiceException {@link WebsiteService#exportWebsDataByUserToHtmlFile(String, HttpServletResponse)}
+     * @throws ServiceException {@link WebsiteService#exportWebsDataByUserToHtmlFile(String, String,
+     *                          HttpServletResponse)}
      *                          will throw an exception if an IO Exception occurs. The Result Code is {@link
      *                          com.github.learndifferent.mtm.constant.enums.ResultCode#CONNECTION_ERROR}
      */
