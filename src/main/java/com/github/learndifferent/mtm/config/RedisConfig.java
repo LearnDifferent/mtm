@@ -1,13 +1,11 @@
 package com.github.learndifferent.mtm.config;
 
 import java.time.Duration;
-import org.springframework.cache.CacheManager;
+import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -52,16 +50,9 @@ public class RedisConfig {
         return RedisSerializer.json();
     }
 
-    /**
-     * CacheManager
-     *
-     * @param factory RedisConnectionFactory
-     * @return {@code CacheManager}
-     */
     @Bean
-    public CacheManager manager(RedisConnectionFactory factory) {
-        RedisCacheConfiguration config = RedisCacheConfiguration
-                .defaultCacheConfig()
+    public RedisCacheConfiguration defaultCacheConfiguration() {
+        return RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext
                         .SerializationPair
                         .fromSerializer(new StringRedisSerializer()))
@@ -69,8 +60,16 @@ public class RedisConfig {
                         .SerializationPair
                         .fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .entryTtl(Duration.ofMinutes(1));
-
-        return RedisCacheManager.builder(factory).cacheDefaults(config).build();
     }
 
+    @Bean
+    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
+        return builder -> builder
+                .withCacheConfiguration("getUserByName",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10)))
+                .withCacheConfiguration("allUsers",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(20)))
+                .withCacheConfiguration("usernameAndPassword",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(20)));
+    }
 }

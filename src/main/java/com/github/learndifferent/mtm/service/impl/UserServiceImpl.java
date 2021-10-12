@@ -21,6 +21,9 @@ import com.github.learndifferent.mtm.utils.UUIDUtils;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -46,6 +49,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "usernamesAndTheirWebs")
     public List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs() {
         // 传入的参数为 null，表示获取所有用户
         return userMapper.getNamesAndCountTheirPublicWebs(null);
@@ -88,12 +92,13 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 更新用户信息（密码需要加密）
+     * 更新用户信息（密码需要加密）。
+     * 因为主要是修改密码，所以要使用 {@link CacheEvict} 来删除修改密码的缓存
      *
      * @param user 需要更新的用户（密码无加密）
      * @return 是否更新成功
      */
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @CacheEvict(value = "usernameAndPassword", key = "#user.userName")
     public boolean updateUser(UserDO user) {
         String pwdNew = Md5Util.getMd5(user.getPassword());
         user.setPassword(pwdNew);
@@ -163,6 +168,7 @@ public class UserServiceImpl implements UserService {
      * @return 用户
      */
     @Override
+    @Cacheable(value = "usernameAndPassword", key = "#userName")
     public UserDTO getUserByNameAndPwd(String userName, String password) {
         String pwd = Md5Util.getMd5(password);
         UserDO userDO = userMapper.getUserByNameAndPwd(userName, pwd);
@@ -170,11 +176,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "getRoleByName", key = "#userName")
     public String getRoleByName(String userName) {
         return userMapper.getRoleByName(userName);
     }
 
     @Override
+    @Cacheable(value = "getUserByName", key = "#userName")
     public UserDTO getUserByName(String userName) {
         UserDO userDO = userMapper.getUserByName(userName);
         return DozerUtils.convert(userDO, UserDTO.class);
@@ -182,11 +190,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @DeleteUserCheck
+    @Caching(evict = {
+            @CacheEvict({"allUsers", "usernamesAndTheirWebs"}),
+            @CacheEvict(value = {"getUserByName", "usernameAndPassword", "getRoleByName"},
+                        key = "#userName")
+    })
     public boolean deleteUserAndWebAndCommentData(@Username String userName, @Password String password) {
         return deleteUserManager.deleteUserAndWebAndCommentData(userName);
     }
 
     @Override
+    @Cacheable(value = "allUsers")
     public List<UserDTO> getUsers() {
         List<UserDO> users = userMapper.getUsers();
         return DozerUtils.convertList(users, UserDTO.class);
