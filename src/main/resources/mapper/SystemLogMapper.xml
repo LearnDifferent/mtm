@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.learndifferent.mtm.mapper.SystemLogMapper">
+    <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.SysLog">
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="opt_type" jdbcType="VARCHAR" property="optType"/>
+        <result column="method" jdbcType="VARCHAR" property="method"/>
+        <result column="msg" jdbcType="VARCHAR" property="msg"/>
+        <result column="status" jdbcType="VARCHAR" property="status"/>
+        <result column="opt_time" jdbcType="TIMESTAMP" property="optTime"/>
+    </resultMap>
+    <insert id="saveSystemLog" parameterType="com.github.learndifferent.mtm.entity.SysLog">
+        insert into system_log (title, opt_type, `method`,
+                                msg, `status`, opt_time)
+        values (#{title,jdbcType=VARCHAR}, #{optType,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR},
+                #{msg,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{optTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <select id="getSystemLogs" resultType="com.github.learndifferent.mtm.entity.SysLog">
+        select *
+        from system_log
+        order by opt_time desc;
+    </select>
+</mapper>

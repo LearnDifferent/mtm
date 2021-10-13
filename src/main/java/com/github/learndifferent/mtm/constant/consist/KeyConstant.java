@@ -13,8 +13,6 @@ public final class KeyConstant {
 
     public static final String SYSTEM_NOTIFICATION = "systemNotification";
 
-    public static final String SYSTEM_LOG = "syslog";
-
     /**
      * The key of reply notification is "notification:" + lowercase username
      */

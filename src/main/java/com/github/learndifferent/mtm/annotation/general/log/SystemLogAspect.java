@@ -2,8 +2,8 @@ package com.github.learndifferent.mtm.annotation.general.log;
 
 import com.github.learndifferent.mtm.constant.enums.LogStatus;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
+import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.service.SystemLogService;
-import com.github.learndifferent.mtm.vo.SysLog;
 import java.lang.reflect.Method;
 import java.util.Date;
 import lombok.extern.slf4j.Slf4j;
@@ -58,13 +58,13 @@ public class SystemLogAspect {
 
         try {
             Object result = pjp.proceed();
-            logService.saveSysLogAsync(sysLog.build());
+            logService.saveSystemLogAsync(sysLog.build());
             return result;
         } catch (Throwable throwable) {
             throwable.printStackTrace();
             sysLog.status(LogStatus.ERROR.status())
                     .msg(throwable.getMessage());
-            logService.saveSysLogAsync(sysLog.build());
+            logService.saveSystemLogAsync(sysLog.build());
             // 包装为 RuntimeException 并抛出
             throw new RuntimeException(throwable);
         }

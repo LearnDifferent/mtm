@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.vo.SysLog;
+import com.github.learndifferent.mtm.entity.SysLog;
 import java.util.List;
 
 /**
@@ -12,16 +12,18 @@ import java.util.List;
 public interface SystemLogService {
 
     /**
-     * Get System Logs
+     * Get System Logs.
+     * The logs will be cached for 30 seconds.
      *
-     * @return {@link List}<{@link SysLog}>
+     * @return {@link List}<{@link SysLog}> system logs
+     * @see com.github.learndifferent.mtm.config.RedisConfig
      */
-    List<SysLog> getLogs();
+    List<SysLog> getSystemLogs();
 
     /**
      * Save System Log Asynchronously
      *
-     * @param log log
+     * @param log system log
      */
-    void saveSysLogAsync(SysLog log);
+    void saveSystemLogAsync(SysLog log);
 }

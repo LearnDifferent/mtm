@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.vo;
 
 import com.github.learndifferent.mtm.dto.UserDTO;
+import com.github.learndifferent.mtm.entity.SysLog;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;

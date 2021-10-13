@@ -2,12 +2,12 @@ package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.dto.UserDTO;
+import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.vo.AdminPageVO;
-import com.github.learndifferent.mtm.vo.SysLog;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,7 +45,7 @@ public class AdminController {
     @GetMapping
     public ResultVO<AdminPageVO> getAdminPageInfo() {
 
-        List<SysLog> logs = logService.getLogs();
+        List<SysLog> logs = logService.getSystemLogs();
         List<UserDTO> users = userService.getUsers();
         AdminPageVO data = AdminPageVO.builder().admin(true).logs(logs).users(users).build();
 
