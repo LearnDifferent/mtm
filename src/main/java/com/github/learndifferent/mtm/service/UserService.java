@@ -103,9 +103,17 @@ public interface UserService {
     boolean deleteUserAndWebAndCommentData(String userName, String password);
 
     /**
-     * 获取全部用户
+     * Get all users. The content will be cached for 1 hour.
      *
-     * @return 全部用户列表
+     * @return {@link List}<{@link UserDTO}> users
+     * @see com.github.learndifferent.mtm.config.RedisConfig
      */
-    List<UserDTO> getUsers();
+    List<UserDTO> getAllUsersCaching();
+
+    /**
+     * Get all users and refresh the cache
+     *
+     * @return {@link List}<{@link UserDTO}> users
+     */
+    List<UserDTO> getAllUsersRefreshing();
 }

@@ -35,10 +35,10 @@ public class AdminController {
     }
 
     /**
-     * Get logs, users' information and whether the current user is admin for admin page
+     * Get logs, all users' information and whether the current user is admin for admin page
      *
      * @return {@link ResultVO}<{@link AdminPageVO}> information
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
      *                                                                  will throw exception if the user is not admin.
      */
     @AdminValidation
@@ -46,7 +46,7 @@ public class AdminController {
     public ResultVO<AdminPageVO> getAdminPageInfo() {
 
         List<SysLog> logs = logService.getSystemLogs();
-        List<UserDTO> users = userService.getUsers();
+        List<UserDTO> users = userService.getAllUsersCaching();
         AdminPageVO data = AdminPageVO.builder().admin(true).logs(logs).users(users).build();
 
         return ResultCreator.okResult(data);

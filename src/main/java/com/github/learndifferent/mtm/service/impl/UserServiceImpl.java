@@ -74,11 +74,10 @@ public class UserServiceImpl implements UserService {
      * @param newPassword 新密码
      * @return 修改是否成功的信息
      */
-    private boolean changePassword(String userName,
-                                   String oldPassword,
-                                   String newPassword) {
+    private boolean changePassword(String userName, String oldPassword, String newPassword) {
+        UserServiceImpl userService = ApplicationContextUtils.getBean(UserServiceImpl.class);
 
-        UserDTO user = getUserByNameAndPwd(userName, oldPassword);
+        UserDTO user = userService.getUserByNameAndPwd(userName, oldPassword);
 
         if (user == null) {
             throw new ServiceException(ResultCode.PASSWORD_INCORRECT);
@@ -86,8 +85,7 @@ public class UserServiceImpl implements UserService {
 
         UserDO userDO = DozerUtils.convert(user, UserDO.class);
         UserDO userWhoChangedPwd = userDO.setPassword(newPassword);
-        // 调用当前类的事务方法，需要使用代理类
-        UserServiceImpl userService = ApplicationContextUtils.getBean(UserServiceImpl.class);
+
         return userService.updateUser(userWhoChangedPwd);
     }
 
@@ -200,9 +198,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "allUsers")
-    public List<UserDTO> getUsers() {
+    @Cacheable("allUsers")
+    public List<UserDTO> getAllUsersCaching() {
         List<UserDO> users = userMapper.getUsers();
         return DozerUtils.convertList(users, UserDTO.class);
+    }
+
+    @Override
+    @CacheEvict(value = "allUsers", beforeInvocation = true)
+    public List<UserDTO> getAllUsersRefreshing() {
+        UserService userService = ApplicationContextUtils.getBean(UserService.class);
+        return userService.getAllUsersCaching();
     }
 }

@@ -6,10 +6,8 @@ import com.github.learndifferent.mtm.annotation.common.InvitationCodeToken;
 import com.github.learndifferent.mtm.annotation.common.UserRole;
 import com.github.learndifferent.mtm.annotation.common.VerificationCode;
 import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
-import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.validation.register.RegisterCodeCheck;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
-import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.UserDTO;
@@ -46,14 +44,13 @@ public class UserController {
     }
 
     /**
-     * Get Users
+     * Get users and refresh the cache
      *
      * @return {@code ResultVO<List<UserDTO>>} Users
      */
-    @SystemLog(optsType = OptsType.READ)
     @GetMapping
     public ResultVO<List<UserDTO>> getUsers() {
-        return ResultCreator.okResult(userService.getUsers());
+        return ResultCreator.okResult(userService.getAllUsersRefreshing());
     }
 
     /**
