@@ -25,6 +25,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -209,5 +210,12 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAllUsersRefreshing() {
         UserService userService = ApplicationContextUtils.getBean(UserService.class);
         return userService.getAllUsersCaching();
+    }
+
+    @Override
+    @Scheduled(cron = "0 0 * * * ?")
+    public void getAllUserRefreshingScheduledTask() {
+        UserService userService = ApplicationContextUtils.getBean(UserService.class);
+        userService.getAllUsersRefreshing();
     }
 }

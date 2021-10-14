@@ -2,7 +2,6 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
-import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import java.util.List;
@@ -116,4 +115,9 @@ public interface UserService {
      * @return {@link List}<{@link UserDTO}> users
      */
     List<UserDTO> getAllUsersRefreshing();
+
+    /**
+     * A scheduled task to run {@link #getAllUsersRefreshing()} every hour on the hour automatically
+     */
+    void getAllUserRefreshingScheduledTask();
 }
