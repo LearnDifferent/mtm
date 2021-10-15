@@ -47,7 +47,7 @@ public class DeleteUserManager {
         // 删除用户的评论数据
         commentMapper.deleteCommentsByUsername(username);
 
-        // 删除该用户的评论的通知
+        // 删除该用户的评论的通知（注意，没有设置 redis 的事务，不过按照执行情况也不需要 redis 的事务）
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + username.toLowerCase();
         notificationManager.deleteNotificationByKey(key);
 
