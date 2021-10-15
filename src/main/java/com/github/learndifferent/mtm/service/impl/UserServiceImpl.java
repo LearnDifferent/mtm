@@ -22,13 +22,12 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * UserService 实现类
@@ -63,64 +62,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean changePassword(ChangePwdRequest info) {
-        return changePassword(info.getUserName(),
-                info.getOldPassword(), info.getNewPassword());
-    }
+        String userName = info.getUserName();
+        String oldPassword = info.getOldPassword();
+        String newPassword = info.getNewPassword();
 
-    /**
-     * 修改密码
-     *
-     * @param userName    用户名
-     * @param oldPassword 旧密码
-     * @param newPassword 新密码
-     * @return 修改是否成功的信息
-     */
-    private boolean changePassword(String userName, String oldPassword, String newPassword) {
         UserServiceImpl userService = ApplicationContextUtils.getBean(UserServiceImpl.class);
-
         UserDTO user = userService.getUserByNameAndPwd(userName, oldPassword);
 
         if (user == null) {
+            // 此时"用户不存在"，视为密码错误
             throw new ServiceException(ResultCode.PASSWORD_INCORRECT);
         }
 
+        // 加密新密码
+        newPassword = Md5Util.getMd5(newPassword);
+        // 设置新密码
         UserDO userDO = DozerUtils.convert(user, UserDO.class);
-        UserDO userWhoChangedPwd = userDO.setPassword(newPassword);
-
-        return userService.updateUser(userWhoChangedPwd);
-    }
-
-    /**
-     * 更新用户信息（密码需要加密）。
-     * 因为主要是修改密码，所以要使用 {@link CacheEvict} 来删除修改密码的缓存
-     *
-     * @param user 需要更新的用户（密码无加密）
-     * @return 是否更新成功
-     */
-    @CacheEvict(value = "usernameAndPassword", key = "#user.userName")
-    public boolean updateUser(UserDO user) {
-        String pwdNew = Md5Util.getMd5(user.getPassword());
-        user.setPassword(pwdNew);
-        return userMapper.updateUser(user);
+        userDO.setPassword(newPassword);
+        // 更新用户
+        return userMapper.updateUser(userDO);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean addUser(CreateUserRequest usernameAndPassword, String role) {
 
         UserDO user = DozerUtils.convert(usernameAndPassword, UserDO.class);
         user.setRole(role);
-
         UserServiceImpl userServiceImpl = ApplicationContextUtils.getBean(UserServiceImpl.class);
-        return userServiceImpl.addUser(user);
+        return userServiceImpl.addUserWithNoEncryptedPwdNoIdNoTime(user);
     }
 
     /**
-     * 添加用户，并给用户增加 ID 和 CreateTime，将密码加密。
+     * Add a user: encrypt the password, set an ID and creation time
      *
      * @param user 被添加的用户
      * @return 成功与否
-     * @throws ServiceException <p>{@link NewUserCheck} 注解会检查该用户名除了数字和英文字母外，是否还包含其他字符，如果有就抛出异常。</p>
+     * @throws ServiceException {@link NewUserCheck} 注解会检查该用户名除了数字和英文字母外，是否还包含其他字符，如果有就抛出异常。
      *                          <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
      *                          <p>如果用户名大于 30 个字符，也会抛出异常。</p>
      *                          <p>如果密码大于 50 个字符，也会抛出异常</p>
@@ -134,13 +111,15 @@ public class UserServiceImpl implements UserService {
      *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
      *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
      *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
+     *                          <br>
+     *                          <p>因为主键设置为了 userName，所以这里捕获的 {@link DuplicateKeyException} 异常就是重复用户名的意思，
+     *                          相当于捕获了 {@link com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException}。</p>
      */
     @NewUserCheck(userClass = UserDO.class,
                   usernameFieldName = "userName",
                   passwordFieldName = "password",
                   roleFieldName = "role")
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean addUser(UserDO user) {
+    public boolean addUserWithNoEncryptedPwdNoIdNoTime(UserDO user) {
 
         // 添加 ID 和创建时间，将密码进行加密处理
         String uuid = UUIDUtils.getUuid();
@@ -153,8 +132,6 @@ public class UserServiceImpl implements UserService {
         try {
             return userMapper.addUser(user);
         } catch (DuplicateKeyException e) {
-            // 因为主键设置为了 userName，所以这里的 DuplicateKeyException 就是重复用户名的意思
-            // 相当于捕获：com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
             throw new ServiceException(ResultCode.USER_ALREADY_EXIST);
         }
     }
@@ -167,7 +144,6 @@ public class UserServiceImpl implements UserService {
      * @return 用户
      */
     @Override
-    @Cacheable(value = "usernameAndPassword", key = "#userName")
     public UserDTO getUserByNameAndPwd(String userName, String password) {
         String pwd = Md5Util.getMd5(password);
         UserDO userDO = userMapper.getUserByNameAndPwd(userName, pwd);
@@ -191,8 +167,7 @@ public class UserServiceImpl implements UserService {
     @DeleteUserCheck
     @Caching(evict = {
             @CacheEvict({"allUsers", "usernamesAndTheirWebs"}),
-            @CacheEvict(value = {"getUserByName", "usernameAndPassword", "getRoleByName"},
-                        key = "#userName")
+            @CacheEvict(value = {"getUserByName", "getRoleByName"}, key = "#userName")
     })
     public boolean deleteUserAndWebAndCommentData(@Username String userName, @Password String password) {
         return deleteUserManager.deleteUserAndWebAndCommentData(userName);
@@ -206,10 +181,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @CacheEvict(value = "allUsers", beforeInvocation = true)
+    @CachePut("allUsers")
     public List<UserDTO> getAllUsersRefreshing() {
-        UserService userService = ApplicationContextUtils.getBean(UserService.class);
-        return userService.getAllUsersCaching();
+        List<UserDO> users = userMapper.getUsers();
+        return DozerUtils.convertList(users, UserDTO.class);
     }
 
     @Override
