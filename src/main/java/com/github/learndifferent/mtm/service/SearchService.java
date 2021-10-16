@@ -16,20 +16,22 @@ public interface SearchService {
     /**
      * 是否存在该 Index，如果没有就创建 Index
      *
+     * @param indexName name of the index
      * @return 是否存在 Index，没有该 Index 的话返回是否创建成功
      * @throws com.github.learndifferent.mtm.exception.ServiceException 创建 index 的时候有可能会抛出网络异常
      */
-    boolean hasIndexOrCreate();
+    boolean hasIndexOrCreate(String indexName);
 
     /**
      * 是否存在该 Index
      *
+     * @param indexName name of the index
      * @return true 表示存在，false 表示不存在
      */
-    boolean existsIndex();
+    boolean existsIndex(String indexName);
 
     /**
-     * 在执行 differentFromDatabase() 方法之前，判断一下 Elasticsearch 中是否存在该 index。
+     * 在执行 websiteDataDiffFromDatabase() 方法之前，判断一下 Elasticsearch 中是否存在该 index。
      * <p>如果存在了，再执行。</p>
      * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
      * <p>也就是说，比较的是数据库中的 distinct url 的数量是否等于 Elasticsearch 中的数据数量</p>
@@ -37,16 +39,17 @@ public interface SearchService {
      * @param existIndex Elasticsearch 中是否存在该 index
      * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
      */
-    boolean differentFromDatabase(boolean existIndex);
+    boolean websiteDataDiffFromDatabase(boolean existIndex);
 
     /**
      * 删除步骤：先检查该 index 是否存在，
      * <p>如果不存在，返回 true 表示已经删除；</p>
      * <p>如果不存在该 index，就执行删除</p>
      *
+     * @param indexName name of the index
      * @return 是否删除成功
      */
-    boolean checkAndDeleteIndex();
+    boolean checkAndDeleteIndex(String indexName);
 
     /**
      * 重新生成搜索数据。
@@ -54,10 +57,10 @@ public interface SearchService {
      *
      * @return 是否成功
      */
-    boolean generateSearchData();
+    boolean generateWebsiteDataForSearch();
 
     /**
-     * 根据关键词搜索（还要统计关键词的次数来做热搜）
+     * 根据关键词搜索网页数据（还要统计关键词的次数来做热搜）
      *
      * @param keyword  关键词
      * @param pageInfo 分页信息
@@ -66,7 +69,7 @@ public interface SearchService {
      *                          如果搜索结果为 0，也会抛出无结果异常。
      *                          如果出现网络异常，也会抛出异常。
      */
-    SearchResultsDTO getSearchResult(String keyword, PageInfoDTO pageInfo);
+    SearchResultsDTO searchWebsiteData(String keyword, PageInfoDTO pageInfo);
 
     /**
      * 获取热搜排行榜

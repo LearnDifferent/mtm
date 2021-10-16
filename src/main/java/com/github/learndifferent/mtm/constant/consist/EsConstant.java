@@ -11,7 +11,9 @@ public final class EsConstant {
     private EsConstant() {
     }
 
-    public static final String INDEX = "web";
+    public static final String INDEX_WEB = "web";
+
+    public static final String INDEX_USER = "user";
 
     public static final String DESC = "desc";
 

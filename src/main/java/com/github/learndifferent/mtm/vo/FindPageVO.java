@@ -33,7 +33,7 @@ public class FindPageVO implements Serializable {
     private Boolean dataStatus;
 
     /**
-     * True if the data in database is different from the data in Elasticsearch
+     * True if the website data in database is different from the data in Elasticsearch
      */
     private Boolean hasNewUpdate;
 

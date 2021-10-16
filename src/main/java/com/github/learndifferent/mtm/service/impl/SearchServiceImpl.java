@@ -28,33 +28,35 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean hasIndexOrCreate() {
-        return elasticsearchManager.hasIndexOrCreate();
+    public boolean hasIndexOrCreate(String indexName) {
+        return elasticsearchManager.hasIndexOrCreate(indexName);
     }
 
     @Override
-    public boolean existsIndex() {
-        return elasticsearchManager.existsIndex();
+    public boolean existsIndex(String indexName) {
+        return elasticsearchManager.existsIndex(indexName);
     }
 
     @Override
-    public boolean differentFromDatabase(boolean existIndex) {
-        return elasticsearchManager.differentFromDatabase(existIndex);
+    public boolean websiteDataDiffFromDatabase(boolean existIndex) {
+        return elasticsearchManager.websiteDataDiffFromDatabase(existIndex);
     }
 
     @Override
-    public boolean checkAndDeleteIndex() {
-        return elasticsearchManager.checkAndDeleteIndex();
+    public boolean checkAndDeleteIndex(String indexName) {
+        return elasticsearchManager.checkAndDeleteIndex(indexName);
     }
 
     @Override
-    public boolean generateSearchData() {
-        return elasticsearchManager.generateSearchData();
+    public boolean generateWebsiteDataForSearch() {
+        return elasticsearchManager.generateWebsiteDataForSearch();
     }
 
     @Override
-    public SearchResultsDTO getSearchResult(String keyword, PageInfoDTO pageInfo) {
-        return elasticsearchManager.getSearchResult(keyword, pageInfo);
+    public SearchResultsDTO searchWebsiteData(String keyword, PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+        return elasticsearchManager.searchWebsiteData(keyword, from, size);
     }
 
     @Override

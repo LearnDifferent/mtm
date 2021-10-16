@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
+import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SearchResultsDTO;
@@ -49,10 +50,10 @@ public class FindController {
 
         // trending searches
         Set<String> trendingList = searchService.getTrends();
-        // existent of data for search
-        boolean exist = searchService.existsIndex();
+        // existent of website data for search
+        boolean exist = searchService.existsIndex(EsConstant.INDEX_WEB);
         // update information
-        boolean hasNewUpdate = searchService.differentFromDatabase(exist);
+        boolean hasNewUpdate = searchService.websiteDataDiffFromDatabase(exist);
 
         FindPageVO data = FindPageVO.builder()
                 .trendingList(trendingList)
@@ -106,48 +107,48 @@ public class FindController {
     public ResultVO<SearchResultsVO> search(@PageInfo PageInfoDTO pageInfo,
                                             @RequestParam("keyword") String keyword) {
 
-        SearchResultsDTO searchResultsDTO = searchService.getSearchResult(keyword, pageInfo);
+        SearchResultsDTO searchResultsDTO = searchService.searchWebsiteData(keyword, pageInfo);
         SearchResultsVO results = DozerUtils.convert(searchResultsDTO, SearchResultsVO.class);
 
         return ResultCreator.okResult(results);
     }
 
     /**
-     * Generate Elasticsearch data based on database
+     * Website Data generation for Elasticsearch based on database
      *
      * @return success or failure
      */
     @SystemLog(optsType = OptsType.UPDATE)
     @GetMapping("/build")
     public boolean generateSearchDataBasedOnDatabase() {
-        return searchService.generateSearchData();
+        return searchService.generateWebsiteDataForSearch();
     }
 
     /**
-     * Check and delete all data in Elasticsearch
+     * Check and delete all website data in Elasticsearch
      *
      * @return success or failure.
      */
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/build")
-    public boolean deleteSearch() {
-        return searchService.checkAndDeleteIndex();
+    public boolean deleteWebsiteDataSearch() {
+        return searchService.checkAndDeleteIndex(EsConstant.INDEX_WEB);
     }
 
     /**
      * Initialize Elasticsearch: Check whether the index exists. If not, create the index.
      *
+     * @param indexName name of the index
      * @return success or failure.
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link SearchService#hasIndexOrCreate()}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link SearchService#hasIndexOrCreate(String)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#CONNECTION_ERROR}
      *                                                                  if there is an error occurred while creating
-     *                                                                  the
-     *                                                                  index.
+     *                                                                  the index.
      */
     @SystemLog(optsType = OptsType.CREATE)
     @GetMapping("/createIndex")
-    public boolean hasIndexOrCreate() {
-        return searchService.hasIndexOrCreate();
+    public boolean hasIndexOrCreate(@RequestParam("indexName") String indexName) {
+        return searchService.hasIndexOrCreate(indexName);
     }
 }

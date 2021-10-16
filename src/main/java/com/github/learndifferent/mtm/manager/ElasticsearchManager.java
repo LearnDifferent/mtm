@@ -5,11 +5,11 @@ import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.WebForSearchDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
@@ -52,7 +52,6 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
@@ -73,28 +72,32 @@ public class ElasticsearchManager {
     private final RestHighLevelClient client;
     private final WebsiteMapper websiteMapper;
     private final TrendsManager trendsManager;
+    private final UserMapper userMapper;
 
     @Autowired
     public ElasticsearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
                                 WebsiteMapper websiteMapper,
-                                TrendsManager trendsManager) {
+                                TrendsManager trendsManager,
+                                UserMapper userMapper) {
         this.client = client;
         this.websiteMapper = websiteMapper;
         this.trendsManager = trendsManager;
+        this.userMapper = userMapper;
     }
 
     /**
      * 是否存在该 Index，如果没有就创建 Index
      *
+     * @param indexName name of the index
      * @return 是否存在 Index，没有该 Index 的话返回是否创建成功
      */
-    public boolean hasIndexOrCreate() {
+    public boolean hasIndexOrCreate(String indexName) {
 
-        return existsIndex() || createIndex();
+        return existsIndex(indexName) || createIndex(indexName);
     }
 
-    private boolean createIndex() {
-        CreateIndexRequest request = new CreateIndexRequest(EsConstant.INDEX);
+    private boolean createIndex(String indexName) {
+        CreateIndexRequest request = new CreateIndexRequest(indexName);
         try {
             CreateIndexResponse response = client.indices()
                     .create(request, RequestOptions.DEFAULT);
@@ -108,11 +111,12 @@ public class ElasticsearchManager {
     /**
      * 是否存在该 Index
      *
+     * @param indexName name of the index
      * @return true 表示存在，false 表示不存在
      */
-    public boolean existsIndex() {
+    public boolean existsIndex(String indexName) {
         try {
-            GetIndexRequest request = new GetIndexRequest(EsConstant.INDEX);
+            GetIndexRequest request = new GetIndexRequest(indexName);
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,12 +125,41 @@ public class ElasticsearchManager {
     }
 
     /**
-     * 统计数据条数
+     * 在执行 websiteDataDiffFromDatabase() 方法之前，判断一下 Elasticsearch 中是否存在该 index。
+     * <p>如果存在了，再执行。</p>
+     * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
+     *
+     * @param existIndex Elasticsearch 中是否存在该 index
+     * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
+     */
+    public boolean websiteDataDiffFromDatabase(boolean existIndex) {
+        if (existIndex) {
+            return websiteDataDiffFromDatabase();
+        }
+        return true;
+    }
+
+    /**
+     * Elasticsearch 和数据库中的数据不同步
+     *
+     * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
+     */
+    private boolean websiteDataDiffFromDatabase() {
+        // 数据库中的 distinct url 的数量
+        long databaseUrlCount = websiteMapper.countDistinctPublicUrl();
+        // Elasticsearch 中的文档的数量
+        long elasticsearchDocCount = countWebsiteDocs();
+        // 两者数量是否相同
+        return 0 != databaseUrlCount - elasticsearchDocCount;
+    }
+
+    /**
+     * 统计网页数据条数
      *
      * @return int 数据条数
      */
-    private long countDocs() {
-        CountRequest request = new CountRequest(EsConstant.INDEX);
+    private long countWebsiteDocs() {
+        CountRequest request = new CountRequest(EsConstant.INDEX_WEB);
         try {
             CountResponse countResponse = client.count(request, RequestOptions.DEFAULT);
             return countResponse.getCount();
@@ -140,35 +173,6 @@ public class ElasticsearchManager {
             }
             return -1L;
         }
-    }
-
-    /**
-     * Elasticsearch 和数据库中的数据不同步
-     *
-     * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
-     */
-    private boolean differentFromDatabase() {
-        // 数据库中的 distinct url 的数量
-        long databaseUrlCount = websiteMapper.countDistinctPublicUrl();
-        // Elasticsearch 中的文档的数量
-        long elasticsearchDocCount = countDocs();
-        // 两者数量是否相同
-        return 0 != databaseUrlCount - elasticsearchDocCount;
-    }
-
-    /**
-     * 在执行 differentFromDatabase() 方法之前，判断一下 Elasticsearch 中是否存在该 index。
-     * <p>如果存在了，再执行。</p>
-     * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
-     *
-     * @param existIndex Elasticsearch 中是否存在该 index
-     * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
-     */
-    public boolean differentFromDatabase(boolean existIndex) {
-        if (existIndex) {
-            return differentFromDatabase();
-        }
-        return true;
     }
 
     /**
@@ -206,7 +210,7 @@ public class ElasticsearchManager {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String json = mapper.writeValueAsString(web);
-            IndexRequest request = new IndexRequest(EsConstant.INDEX);
+            IndexRequest request = new IndexRequest(EsConstant.INDEX_WEB);
             // 用网址 url 作为 ID
             request.id(web.getUrl());
             request.timeout("8s");
@@ -234,15 +238,16 @@ public class ElasticsearchManager {
      * <p>如果不存在，返回 true 表示已经删除；</p>
      * <p>如果不存在该 index，就执行删除</p>
      *
+     * @param indexName name of the index
      * @return 是否删除成功
      */
-    public boolean checkAndDeleteIndex() {
+    public boolean checkAndDeleteIndex(String indexName) {
 
-        return !existsIndex() || deleteIndex();
+        return !existsIndex(indexName) || deleteIndex(indexName);
     }
 
-    private boolean deleteIndex() {
-        DeleteIndexRequest request = new DeleteIndexRequest(EsConstant.INDEX);
+    private boolean deleteIndex(String indexName) {
+        DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         try {
             AcknowledgedResponse response = client.indices()
                     .delete(request, RequestOptions.DEFAULT);
@@ -259,16 +264,16 @@ public class ElasticsearchManager {
      *
      * @return 是否成功
      */
-    public boolean generateSearchData() {
+    public boolean generateWebsiteDataForSearch() {
 
-        boolean notClear = !checkAndDeleteIndex();
+        boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_WEB);
         if (notClear) {
             // 如果无法清空之前的数据，抛出未知异常
             throw new ServiceException(ResultCode.ERROR);
         }
 
         // 清空之前的数据后，开始进行批量生成数据的操作
-        return bulkAdd(getAllWebsitesDataForSearch());
+        return bulkAddWebsiteDataForSearch(getAllWebsitesDataForSearch());
     }
 
     /**
@@ -280,13 +285,13 @@ public class ElasticsearchManager {
         return websiteMapper.getAllPublicWebDataForSearch();
     }
 
-    private boolean bulkAdd(List<WebForSearchDTO> webs) {
+    private boolean bulkAddWebsiteDataForSearch(List<WebForSearchDTO> webs) {
 
         BulkRequest bulkRequest = new BulkRequest();
 
         for (WebForSearchDTO web : webs) {
             String json = JsonUtils.toJson(web);
-            IndexRequest indexRequest = new IndexRequest(EsConstant.INDEX);
+            IndexRequest indexRequest = new IndexRequest(EsConstant.INDEX_WEB);
             indexRequest.id(web.getUrl());
             indexRequest.source(json, XContentType.JSON);
             bulkRequest.add(indexRequest);
@@ -303,93 +308,25 @@ public class ElasticsearchManager {
     }
 
     /**
-     * 异步分解搜索的关键词，并加入到热搜列表中
-     *
-     * @param keyword 没有进行分词处理和语言识别的搜索词
-     */
-    @Async("asyncTaskExecutor")
-    public void analyzeKeywordAndPutToTrendsListAsync(String keyword) {
-
-        if (StringUtils.isEmpty(keyword)) {
-            return;
-        }
-
-        // 检测 keyword 的语言并选择合适的分词器
-        String analyzer = detectLanguageAndGetAnalyzer(keyword);
-
-        AnalyzeRequest request = AnalyzeRequest
-                .withIndexAnalyzer(EsConstant.INDEX, analyzer, keyword);
-        try {
-            AnalyzeResponse analyze = client.indices()
-                    .analyze(request, RequestOptions.DEFAULT);
-            List<AnalyzeResponse.AnalyzeToken> tokens = analyze.getTokens();
-            for (AnalyzeResponse.AnalyzeToken token : tokens) {
-                String val = token.getTerm();
-                if (val.length() > 1) {
-                    // 统计字节数大于 1 的关键词，出现一次就加 1 个 score
-                    trendsManager.addToTrendingList(val);
-                }
-            }
-        } catch (IOException e) {
-            log.info("IOException while adding data to trending list. " +
-                    "Dropped this data because it's not important.");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 识别是哪国的语言，然后返回需要的 ES 分词器（目前支持英语、中文和日语）
-     *
-     * @param keyword 被检测的关键词
-     * @return 需要的分词器
-     */
-    @NotNull
-    private String detectLanguageAndGetAnalyzer(String keyword) {
-
-        LanguageDetector detector = LanguageDetectorBuilder
-                .fromLanguages(Language.JAPANESE, Language.CHINESE)
-                .build();
-        Language lan = detector.detectLanguageOf(keyword);
-
-        // 默认使用英文分词器
-        String analyzer = "english";
-
-        if (Language.JAPANESE.equals(lan)) {
-            // 如果是日语，使用日语的分词器
-            analyzer = EsConstant.ANALYZER_JAPANESE;
-        }
-
-        if (Language.CHINESE.equals(lan)) {
-            // 如果是中文，使用中文的分词器
-            analyzer = EsConstant.ANALYZER_CHINESE;
-        }
-
-        return analyzer;
-    }
-
-    /**
      * 根据关键词搜索（还要统计关键词的次数来做热搜）
      *
-     * @param keyword  关键词
-     * @param pageInfo 分页信息
+     * @param keyword 关键词
+     * @param from    from
+     * @param size    size
      * @return 结果（搜索结果，总页数，错误信息等）
-     * @throws ServiceException 关键词为空的情况， @EmptyStringCheck 注解会抛出无匹配结果异常。
+     * @throws ServiceException 关键词为空的情况， {@link EmptyStringCheck} 注解会抛出无匹配结果异常。
      *                          如果搜索结果为 0，也会抛出无结果异常。
      *                          如果出现网络异常，也会抛出异常。
      */
     @EmptyStringCheck
-    public SearchResultsDTO getSearchResult(
+    public SearchResultsDTO searchWebsiteData(
             @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
-            PageInfoDTO pageInfo) {
+            int from, int size) {
 
-        // 因为要调用内部类的代理方法，所以先获取代理类
         ElasticsearchManager elasticsearchManager =
                 ApplicationContextUtils.getBean(ElasticsearchManager.class);
         // 将搜索词分词后放入热搜统计
         elasticsearchManager.analyzeKeywordAndPutToTrendsListAsync(keyword);
-
-        int from = pageInfo.getFrom();
-        int size = pageInfo.getSize();
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(QueryBuilders.multiMatchQuery(keyword, EsConstant.DESC, EsConstant.TITLE))
@@ -402,7 +339,7 @@ public class ElasticsearchManager {
                         .numOfFragments(0))
                 .from(from).size(size);
 
-        SearchRequest request = new SearchRequest(EsConstant.INDEX).source(sourceBuilder);
+        SearchRequest request = new SearchRequest(EsConstant.INDEX_WEB).source(sourceBuilder);
 
         SearchHits hits;
 
@@ -435,12 +372,46 @@ public class ElasticsearchManager {
     }
 
     /**
+     * 异步分解搜索的关键词，并加入到热搜列表中
+     *
+     * @param keyword 没有进行分词处理和语言识别的搜索词
+     */
+    @Async("asyncTaskExecutor")
+    public void analyzeKeywordAndPutToTrendsListAsync(String keyword) {
+
+        if (StringUtils.isEmpty(keyword)) {
+            return;
+        }
+
+        // 检测 keyword 的语言并选择合适的分词器
+        String analyzer = detectLanguageAndGetAnalyzer(keyword);
+
+        AnalyzeRequest request = AnalyzeRequest
+                .withIndexAnalyzer(EsConstant.INDEX_WEB, analyzer, keyword);
+        try {
+            AnalyzeResponse analyze = client.indices()
+                    .analyze(request, RequestOptions.DEFAULT);
+            List<AnalyzeResponse.AnalyzeToken> tokens = analyze.getTokens();
+            for (AnalyzeResponse.AnalyzeToken token : tokens) {
+                String val = token.getTerm();
+                if (val.length() > 1) {
+                    // 统计字节数大于 1 的关键词，出现一次就加 1 个 score
+                    trendsManager.addToTrendingList(val);
+                }
+            }
+        } catch (IOException e) {
+            log.info("IOException while adding data to trending list. " +
+                    "Dropped this data because it's not important.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 根据 SearchHits 获取网页数据
      *
      * @param hits hits
      * @return 需要的网页数据
      */
-    @NotNull
     private List<WebForSearchDTO> getWebsitesDataForSearchByHits(SearchHits hits) {
 
         List<WebForSearchDTO> webs = new ArrayList<>();
@@ -452,6 +423,35 @@ public class ElasticsearchManager {
         }
 
         return webs;
+    }
+
+    /**
+     * 识别是哪国的语言，然后返回需要的 ES 分词器（目前支持英语、中文和日语）
+     *
+     * @param keyword 被检测的关键词
+     * @return 需要的分词器
+     */
+    private String detectLanguageAndGetAnalyzer(String keyword) {
+
+        LanguageDetector detector = LanguageDetectorBuilder
+                .fromLanguages(Language.JAPANESE, Language.CHINESE)
+                .build();
+        Language lan = detector.detectLanguageOf(keyword);
+
+        // 默认使用英文分词器
+        String analyzer = "english";
+
+        if (Language.JAPANESE.equals(lan)) {
+            // 如果是日语，使用日语的分词器
+            analyzer = EsConstant.ANALYZER_JAPANESE;
+        }
+
+        if (Language.CHINESE.equals(lan)) {
+            // 如果是中文，使用中文的分词器
+            analyzer = EsConstant.ANALYZER_CHINESE;
+        }
+
+        return analyzer;
     }
 
     /**
