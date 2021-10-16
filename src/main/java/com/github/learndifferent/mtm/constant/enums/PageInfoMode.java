@@ -19,7 +19,7 @@ public enum PageInfoMode {
 
     private final String paramName;
 
-    private PageInfoMode(final String paramName) {
+    PageInfoMode(final String paramName) {
         this.paramName = paramName;
     }
 

@@ -19,7 +19,7 @@ public enum LogStatus {
 
     private final String status;
 
-    private LogStatus(final String status) {
+    LogStatus(final String status) {
         this.status = status;
     }
 

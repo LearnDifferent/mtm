@@ -23,7 +23,7 @@ public enum RoleType {
 
     private final String role;
 
-    private RoleType(final String role) {
+    RoleType(final String role) {
         this.role = role;
     }
 

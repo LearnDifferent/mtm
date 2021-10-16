@@ -21,7 +21,7 @@ public enum SearchMode {
 
     private final String mode;
 
-    private SearchMode(final String mode) {
+    SearchMode(final String mode) {
         this.mode = mode;
     }
 

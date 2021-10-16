@@ -27,7 +27,7 @@ public enum ShowPattern {
 
     private final String pattern;
 
-    private ShowPattern(final String pattern) {
+    ShowPattern(final String pattern) {
         this.pattern = pattern;
     }
 

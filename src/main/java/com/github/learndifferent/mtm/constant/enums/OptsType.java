@@ -30,7 +30,7 @@ public enum OptsType {
 
     private final String value;
 
-    private OptsType(final String value) {
+    OptsType(final String value) {
         this.value = value;
     }
 
