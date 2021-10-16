@@ -48,6 +48,11 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
+    public boolean generateUserDataForSearch() {
+        return elasticsearchManager.generateUserDataForSearch();
+    }
+
+    @Override
     public boolean generateWebsiteDataForSearch() {
         return elasticsearchManager.generateWebsiteDataForSearch();
     }

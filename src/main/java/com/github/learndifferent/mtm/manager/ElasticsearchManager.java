@@ -6,8 +6,10 @@ import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.E
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.SearchResultsDTO;
+import com.github.learndifferent.mtm.dto.UserForSearchDTO;
 import com.github.learndifferent.mtm.dto.WebForSearchDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
+import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
@@ -259,6 +261,52 @@ public class ElasticsearchManager {
     }
 
     /**
+     * User Data generation for Elasticsearch based on database
+     *
+     * @return success or failure
+     */
+    public boolean generateUserDataForSearch() {
+
+        boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_WEB);
+        if (notClear) {
+            // 如果无法清空之前的数据，抛出未知异常
+            throw new ServiceException(ResultCode.ERROR);
+        }
+
+        List<UserDO> users = userMapper.getUsers();
+        List<UserForSearchDTO> usersForSearch = DozerUtils.convertList(users, UserForSearchDTO.class);
+        usersForSearch.forEach(u -> {
+            int webCount = websiteMapper.countUserPost(u.getUserName(), false);
+            u.setWebCount(webCount);
+        });
+
+        return bulkAddUserDataForSearch(usersForSearch);
+    }
+
+    private boolean bulkAddUserDataForSearch(List<UserForSearchDTO> users) {
+        BulkRequest bulkRequest = new BulkRequest();
+
+        users.forEach(u->{
+            IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
+            request.id(u.getUserId());
+
+            String json = JsonUtils.toJson(u);
+            request.source(json, XContentType.JSON);
+
+            bulkRequest.add(request);
+        });
+
+        try {
+            BulkResponse responses = client.bulk(bulkRequest, RequestOptions.DEFAULT);
+            // 没问题返回 true，出现问题返回 false
+            return !responses.hasFailures();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.CONNECTION_ERROR);
+        }
+    }
+
+    /**
      * 重新生成搜索数据。
      * <p>确保之前的数据已经清空，再根据数据库中的数据生成 Elasticsearch 的数据。</p>
      *
@@ -271,18 +319,10 @@ public class ElasticsearchManager {
             // 如果无法清空之前的数据，抛出未知异常
             throw new ServiceException(ResultCode.ERROR);
         }
-
+        // 获取所有网页数据，包装为 Elasticsearch 需要的数据结构
+        List<WebForSearchDTO> webs = websiteMapper.getAllPublicWebDataForSearch();
         // 清空之前的数据后，开始进行批量生成数据的操作
-        return bulkAddWebsiteDataForSearch(getAllWebsitesDataForSearch());
-    }
-
-    /**
-     * 获取所有网页数据，包装为 Elasticsearch 需要的数据结构
-     *
-     * @return 获取到的网页数据
-     */
-    private List<WebForSearchDTO> getAllWebsitesDataForSearch() {
-        return websiteMapper.getAllPublicWebDataForSearch();
+        return bulkAddWebsiteDataForSearch(webs);
     }
 
     private boolean bulkAddWebsiteDataForSearch(List<WebForSearchDTO> webs) {
@@ -290,10 +330,12 @@ public class ElasticsearchManager {
         BulkRequest bulkRequest = new BulkRequest();
 
         for (WebForSearchDTO web : webs) {
-            String json = JsonUtils.toJson(web);
             IndexRequest indexRequest = new IndexRequest(EsConstant.INDEX_WEB);
             indexRequest.id(web.getUrl());
+
+            String json = JsonUtils.toJson(web);
             indexRequest.source(json, XContentType.JSON);
+
             bulkRequest.add(indexRequest);
         }
 

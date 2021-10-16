@@ -5,14 +5,13 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
+import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SearchResultsDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SearchService;
-import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.vo.FindPageVO;
-import com.github.learndifferent.mtm.vo.SearchResultsVO;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,12 +39,12 @@ public class FindController {
     }
 
     /**
-     * Get trending searches, existent of data for search and the update information.
+     * Get trending searches, existent of website data for search and the update information.
      *
      * @return {@link ResultVO}<{@link FindPageVO}> trending searches, existent of data for search and update information
      */
     @SystemLog(optsType = OptsType.READ)
-    @GetMapping
+    @GetMapping("/load")
     public ResultVO<FindPageVO> load() {
 
         // trending searches
@@ -100,28 +99,34 @@ public class FindController {
      *
      * @param pageInfo pagination info
      * @param keyword  keyword (accept empty string and null)
-     * @return {@link ResultVO}<{@link SearchResultsVO}> Search results
+     * @return {@link ResultVO}<{@link SearchResultsDTO}> Search results
      */
     @SystemLog(optsType = OptsType.READ)
     @GetMapping("/search")
-    public ResultVO<SearchResultsVO> search(@PageInfo PageInfoDTO pageInfo,
-                                            @RequestParam("keyword") String keyword) {
+    public ResultVO<SearchResultsDTO> search(@PageInfo PageInfoDTO pageInfo,
+                                             @RequestParam("keyword") String keyword) {
 
-        SearchResultsDTO searchResultsDTO = searchService.searchWebsiteData(keyword, pageInfo);
-        SearchResultsVO results = DozerUtils.convert(searchResultsDTO, SearchResultsVO.class);
+        SearchResultsDTO results = searchService.searchWebsiteData(keyword, pageInfo);
 
         return ResultCreator.okResult(results);
     }
 
     /**
-     * Website Data generation for Elasticsearch based on database
+     * Data generation for Elasticsearch based on database
      *
+     * @param mode Search Mode
      * @return success or failure
      */
-    @SystemLog(optsType = OptsType.UPDATE)
     @GetMapping("/build")
-    public boolean generateSearchDataBasedOnDatabase() {
-        return searchService.generateWebsiteDataForSearch();
+    public boolean generateSearchDataBasedOnDatabase(@RequestParam("mode") SearchMode mode) {
+
+        switch (mode) {
+            case USER:
+                return searchService.generateUserDataForSearch();
+            case WEB:
+            default:
+                return searchService.generateWebsiteDataForSearch();
+        }
     }
 
     /**

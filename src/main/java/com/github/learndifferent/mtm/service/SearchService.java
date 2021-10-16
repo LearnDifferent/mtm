@@ -51,6 +51,14 @@ public interface SearchService {
      */
     boolean checkAndDeleteIndex(String indexName);
 
+
+    /**
+     * User Data generation for Elasticsearch based on database
+     *
+     * @return success or failure
+     */
+    boolean generateUserDataForSearch();
+
     /**
      * 重新生成搜索数据。
      * <p>确保之前的数据已经清空，再根据数据库中的数据生成 Elasticsearch 的数据。</p>
