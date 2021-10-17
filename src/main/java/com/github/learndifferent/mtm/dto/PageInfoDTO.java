@@ -1,5 +1,8 @@
 package com.github.learndifferent.mtm.dto;
 
+import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.annotation.general.page.PageInfoMethodArgumentResolver;
+import com.github.learndifferent.mtm.constant.enums.PageInfoMode;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,13 +11,17 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * 页面信息。
- * 通过 {@link com.github.learndifferent.mtm.annotation.general.page.PageInfoMethodArgumentResolver} 从 Request 中获取
+ * Pagination Info.
+ * <p>Request parameter annotated with {@link PageInfo} will be converted to {@link PageInfoDTO}
+ * by {@link PageInfoMethodArgumentResolver}</p>
+ * <p>The value of {@link PageInfo#size()} in {@link PageInfo} annotation will be set to {@link PageInfoDTO#size}.</p>
+ * <p>If the {@link PageInfo#pageInfoMode()} in {@link PageInfo} is {@link PageInfoMode#CURRENT_PAGE}, then the string
+ * value will be recognized as current page and will be calculated to be {@link PageInfoDTO#from}.
+ * If the {@link PageInfo#pageInfoMode()} is {@link PageInfoMode#FROM}, it will simply be set to
+ * {@link PageInfoDTO#from}</p>
  *
  * @author zhou
  * @date 2021/09/05
- * @see com.github.learndifferent.mtm.annotation.general.page.PageInfoMethodArgumentResolver
- * @see com.github.learndifferent.mtm.annotation.general.page.PageInfo
  */
 @Data
 @AllArgsConstructor
