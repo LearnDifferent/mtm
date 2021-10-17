@@ -1,7 +1,8 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.SearchResultsDTO;
+import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import java.util.Set;
 
@@ -51,25 +52,20 @@ public interface SearchService {
      */
     boolean checkAndDeleteIndex(String indexName);
 
-
     /**
-     * User Data generation for Elasticsearch based on database
+     * Data generation for Elasticsearch based on database
      *
+     * @param mode If the value is {@link SearchMode#USER}, generate user data.
+     *             If the value is {@link SearchMode#WEB}, generate website data.
+     *             The default mode is {@link SearchMode#WEB}.
      * @return success or failure
      */
-    boolean generateUserDataForSearch();
+    boolean generateDataForSearch(SearchMode mode);
 
     /**
-     * 重新生成搜索数据。
-     * <p>确保之前的数据已经清空，再根据数据库中的数据生成 Elasticsearch 的数据。</p>
+     * 根据关键词搜索数据（还要统计关键词的次数来做热搜）
      *
-     * @return 是否成功
-     */
-    boolean generateWebsiteDataForSearch();
-
-    /**
-     * 根据关键词搜索网页数据（还要统计关键词的次数来做热搜）
-     *
+     * @param mode     Search user data if {@link SearchMode#USER} and search website data if {@link SearchMode#WEB}
      * @param keyword  关键词
      * @param pageInfo 分页信息
      * @return 结果（搜索结果，总页数，错误信息等）
@@ -77,7 +73,7 @@ public interface SearchService {
      *                          如果搜索结果为 0，也会抛出无结果异常。
      *                          如果出现网络异常，也会抛出异常。
      */
-    SearchResultsDTO searchWebsiteData(String keyword, PageInfoDTO pageInfo);
+    SearchResultsDTO search(SearchMode mode, String keyword, PageInfoDTO pageInfo);
 
     /**
      * 获取热搜排行榜

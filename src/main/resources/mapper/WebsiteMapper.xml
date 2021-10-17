@@ -125,7 +125,7 @@
         ;
     </select>
 
-    <select id="getAllPublicWebDataForSearch" resultType="com.github.learndifferent.mtm.dto.WebForSearchDTO">
+    <select id="getAllPublicWebDataForSearch" resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`
         from website
         where `public` is true

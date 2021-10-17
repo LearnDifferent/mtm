@@ -1,12 +1,12 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.dto.search;
 
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import lombok.experimental.SuperBuilder;
 
 /**
  * 搜索结果
@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Accessors(chain = true)
 public class SearchResultsDTO implements Serializable {
 
@@ -32,7 +32,7 @@ public class SearchResultsDTO implements Serializable {
     /**
      * Paginated search results
      */
-    private List<WebForSearchDTO> webs;
+    private List<? extends DataForSearch> paginatedResults;
 
     private static final long serialVersionUID = 1L;
 }

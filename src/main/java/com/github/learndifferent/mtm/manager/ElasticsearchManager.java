@@ -5,9 +5,9 @@ import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.SearchResultsDTO;
-import com.github.learndifferent.mtm.dto.UserForSearchDTO;
-import com.github.learndifferent.mtm.dto.WebForSearchDTO;
+import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
+import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
+import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -286,7 +286,7 @@ public class ElasticsearchManager {
     private boolean bulkAddUserDataForSearch(List<UserForSearchDTO> users) {
         BulkRequest bulkRequest = new BulkRequest();
 
-        users.forEach(u->{
+        users.forEach(u -> {
             IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
             request.id(u.getUserId());
 
@@ -407,10 +407,11 @@ public class ElasticsearchManager {
                 .getWebsitesDataForSearchByHits(hits);
 
         return SearchResultsDTO.builder()
+                .paginatedResults(webs)
                 .totalCount(totalCount)
                 .totalPage(totalPage)
-                .webs(webs)
                 .build();
+
     }
 
     /**

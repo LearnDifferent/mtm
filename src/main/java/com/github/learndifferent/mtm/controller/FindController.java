@@ -7,7 +7,7 @@ import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.SearchResultsDTO;
+import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SearchService;
@@ -97,16 +97,17 @@ public class FindController {
     /**
      * Search
      *
-     * @param pageInfo pagination info
+     * @param mode     Search user data if {@link SearchMode#USER} and search website data if {@link SearchMode#WEB}
      * @param keyword  keyword (accept empty string and null)
+     * @param pageInfo pagination info
      * @return {@link ResultVO}<{@link SearchResultsDTO}> Search results
      */
-    @SystemLog(optsType = OptsType.READ)
     @GetMapping("/search")
-    public ResultVO<SearchResultsDTO> search(@PageInfo PageInfoDTO pageInfo,
-                                             @RequestParam("keyword") String keyword) {
+    public ResultVO<SearchResultsDTO> search(@RequestParam("mode") SearchMode mode,
+                                             @RequestParam("keyword") String keyword,
+                                             @PageInfo PageInfoDTO pageInfo) {
 
-        SearchResultsDTO results = searchService.searchWebsiteData(keyword, pageInfo);
+        SearchResultsDTO results = searchService.search(mode, keyword, pageInfo);
 
         return ResultCreator.okResult(results);
     }
@@ -114,19 +115,13 @@ public class FindController {
     /**
      * Data generation for Elasticsearch based on database
      *
-     * @param mode Search Mode
+     * @param mode Generate user data if {@link SearchMode#USER}
+     *             and generate website data if {@link SearchMode#WEB}.
      * @return success or failure
      */
     @GetMapping("/build")
     public boolean generateSearchDataBasedOnDatabase(@RequestParam("mode") SearchMode mode) {
-
-        switch (mode) {
-            case USER:
-                return searchService.generateUserDataForSearch();
-            case WEB:
-            default:
-                return searchService.generateWebsiteDataForSearch();
-        }
+        return searchService.generateDataForSearch(mode);
     }
 
     /**

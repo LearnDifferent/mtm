@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.dto.search;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class UserForSearchDTO implements Serializable {
+public class UserForSearchDTO implements Serializable, DataForSearch {
 
     /**
      * User ID

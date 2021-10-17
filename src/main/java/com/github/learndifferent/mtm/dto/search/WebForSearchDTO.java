@@ -1,5 +1,6 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.dto.search;
 
+import com.github.learndifferent.mtm.dto.search.DataForSearch;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class WebForSearchDTO implements Serializable {
+public class WebForSearchDTO implements Serializable, DataForSearch {
 
     /**
      * Title

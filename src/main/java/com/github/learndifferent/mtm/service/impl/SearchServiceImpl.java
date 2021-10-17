@@ -1,7 +1,8 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.SearchResultsDTO;
+import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.manager.TrendsManager;
 import com.github.learndifferent.mtm.service.SearchService;
@@ -48,20 +49,27 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean generateUserDataForSearch() {
-        return elasticsearchManager.generateUserDataForSearch();
+    public boolean generateDataForSearch(SearchMode mode) {
+        switch (mode) {
+            case USER:
+                return elasticsearchManager.generateUserDataForSearch();
+            case WEB:
+            default:
+                return elasticsearchManager.generateWebsiteDataForSearch();
+        }
     }
 
     @Override
-    public boolean generateWebsiteDataForSearch() {
-        return elasticsearchManager.generateWebsiteDataForSearch();
-    }
-
-    @Override
-    public SearchResultsDTO searchWebsiteData(String keyword, PageInfoDTO pageInfo) {
+    public SearchResultsDTO search(SearchMode mode, String keyword, PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        return elasticsearchManager.searchWebsiteData(keyword, from, size);
+        switch (mode) {
+            case USER:
+                return null;
+            case WEB:
+            default:
+                return elasticsearchManager.searchWebsiteData(keyword, from, size);
+        }
     }
 
     @Override
