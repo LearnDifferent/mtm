@@ -15,6 +15,16 @@ public final class EsConstant {
 
     public static final String INDEX_USER = "user";
 
+    public static final String USER_ID = "userId";
+
+    public static final String USER_NAME = "userName";
+
+    public static final String ROLE = "role";
+
+    public static final String WEB_COUNT = "webCount";
+
+    public static final String CREATION_TIME = "createTime";
+
     public static final String DESC = "desc";
 
     public static final String TITLE = "title";

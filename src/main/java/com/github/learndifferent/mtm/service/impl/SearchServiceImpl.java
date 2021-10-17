@@ -65,7 +65,7 @@ public class SearchServiceImpl implements SearchService {
         int size = pageInfo.getSize();
         switch (mode) {
             case USER:
-                return null;
+                return elasticsearchManager.searchUserData(keyword, from, size);
             case WEB:
             default:
                 return elasticsearchManager.searchWebsiteData(keyword, from, size);

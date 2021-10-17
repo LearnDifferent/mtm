@@ -5,15 +5,16 @@ import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
-import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
+import com.github.learndifferent.mtm.utils.AssertUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
@@ -21,7 +22,10 @@ import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
 import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -34,6 +38,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -47,7 +52,10 @@ import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -349,6 +357,95 @@ public class ElasticsearchManager {
         }
     }
 
+    @EmptyStringCheck
+    public SearchResultsDTO searchUserData(
+            @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
+            int from, int size) {
+
+        SearchSourceBuilder source = new SearchSourceBuilder();
+
+        // 模糊查询
+        WildcardQueryBuilder wildcardQueryUsername = QueryBuilders
+                .wildcardQuery(EsConstant.USER_NAME, keyword + "*")
+                .boost(2.0F);
+
+        WildcardQueryBuilder wildcardQueryUserId = QueryBuilders
+                .wildcardQuery(EsConstant.USER_ID, keyword + "*");
+
+        // 复合查询
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        boolQueryBuilder.should(wildcardQueryUsername);
+        boolQueryBuilder.should(wildcardQueryUserId);
+        boolQueryBuilder.minimumShouldMatch(1);
+
+        // 放入 queryBuilder 后，再添加 timeout、分页和高亮
+        source.query(boolQueryBuilder)
+                .timeout(new TimeValue(1, TimeUnit.MINUTES))
+                .from(from)
+                .size(size);
+
+        // search request
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(EsConstant.INDEX_USER).source(source);
+
+        try {
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+
+            SearchHits hits = response.getHits();
+            // 总数
+            long totalCount = hits.getTotalHits().value;
+            AssertUtils.isTrue(totalCount > 0, ResultCode.NO_RESULTS_FOUND);
+            // 总页数
+            int totalPages = PageUtil.getAllPages((int) totalCount, size);
+            // 分页后的结果
+            List<UserForSearchDTO> paginatedResults = getUserDataForSearchByHits(hits);
+            return SearchResultsDTO.builder()
+                    .paginatedResults(paginatedResults)
+                    .totalCount(totalCount)
+                    .totalPage(totalPages)
+                    .build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.CONNECTION_ERROR);
+        }
+    }
+
+    private List<UserForSearchDTO> getUserDataForSearchByHits(SearchHits hits) {
+        List<UserForSearchDTO> userList = new ArrayList<>();
+        hits.forEach(h -> {
+            Map<String, Object> sourceAsMap = h.getSourceAsMap();
+            UserForSearchDTO user = convertSourceToUser(sourceAsMap);
+            userList.add(user);
+        });
+        return userList;
+    }
+
+    private UserForSearchDTO convertSourceToUser(Map<String, Object> source) {
+        String userId = (String) source.get(EsConstant.USER_ID);
+        String userName = (String) source.get(EsConstant.USER_NAME);
+        String role = (String) source.get(EsConstant.ROLE);
+        Integer webCount = (Integer) source.get(EsConstant.WEB_COUNT);
+
+        String time = (String) source.get(EsConstant.CREATION_TIME);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date creationTime = null;
+        try {
+            creationTime = sdf.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        AssertUtils.notNull(creationTime, ResultCode.NO_RESULTS_FOUND);
+
+        return UserForSearchDTO.builder()
+                .userId(userId)
+                .userName(userName)
+                .role(role)
+                .createTime(creationTime)
+                .webCount(webCount)
+                .build();
+    }
+
     /**
      * 根据关键词搜索（还要统计关键词的次数来做热搜）
      *
@@ -367,11 +464,20 @@ public class ElasticsearchManager {
 
         ElasticsearchManager elasticsearchManager =
                 ApplicationContextUtils.getBean(ElasticsearchManager.class);
+
+        // 检测 keyword 的语言并选择合适的分词器
+        String analyzer = detectLanguageAndGetAnalyzer(keyword);
         // 将搜索词分词后放入热搜统计
-        elasticsearchManager.analyzeKeywordAndPutToTrendsListAsync(keyword);
+        elasticsearchManager.analyzeKeywordAndPutToTrendsListAsync(keyword, analyzer);
+
+        // 多字段匹配，title 的权限提高，设置分词器
+        MultiMatchQueryBuilder multiMatchQuery = QueryBuilders
+                .multiMatchQuery(keyword, EsConstant.DESC, EsConstant.TITLE)
+                .field(EsConstant.TITLE, 2.0F)
+                .analyzer(analyzer);
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
-                .query(QueryBuilders.multiMatchQuery(keyword, EsConstant.DESC, EsConstant.TITLE))
+                .query(multiMatchQuery)
                 .timeout(new TimeValue(1, TimeUnit.MINUTES))
                 .highlighter(new HighlightBuilder()
                         .field(EsConstant.DESC)
@@ -415,19 +521,46 @@ public class ElasticsearchManager {
     }
 
     /**
+     * 识别是哪国的语言，然后返回需要的 ES 分词器（目前支持英语、中文和日语）
+     *
+     * @param keyword 被检测的关键词
+     * @return 需要的分词器
+     */
+    private String detectLanguageAndGetAnalyzer(String keyword) {
+
+        LanguageDetector detector = LanguageDetectorBuilder
+                .fromLanguages(Language.JAPANESE, Language.CHINESE)
+                .build();
+        Language lan = detector.detectLanguageOf(keyword);
+
+        // 默认使用英文分词器
+        String analyzer = "english";
+
+        if (Language.JAPANESE.equals(lan)) {
+            // 如果是日语，使用日语的分词器
+            analyzer = EsConstant.ANALYZER_JAPANESE;
+        }
+
+        if (Language.CHINESE.equals(lan)) {
+            // 如果是中文，使用中文的分词器
+            analyzer = EsConstant.ANALYZER_CHINESE;
+        }
+
+        return analyzer;
+    }
+
+    /**
      * 异步分解搜索的关键词，并加入到热搜列表中
      *
-     * @param keyword 没有进行分词处理和语言识别的搜索词
+     * @param keyword  没有进行分词处理和语言识别的搜索词
+     * @param analyzer 分词器
      */
     @Async("asyncTaskExecutor")
-    public void analyzeKeywordAndPutToTrendsListAsync(String keyword) {
+    public void analyzeKeywordAndPutToTrendsListAsync(String keyword, String analyzer) {
 
         if (StringUtils.isEmpty(keyword)) {
             return;
         }
-
-        // 检测 keyword 的语言并选择合适的分词器
-        String analyzer = detectLanguageAndGetAnalyzer(keyword);
 
         AnalyzeRequest request = AnalyzeRequest
                 .withIndexAnalyzer(EsConstant.INDEX_WEB, analyzer, keyword);
@@ -459,9 +592,10 @@ public class ElasticsearchManager {
 
         List<WebForSearchDTO> webs = new ArrayList<>();
         for (SearchHit hit : hits) {
-            WebForSearchDTO web = hitHighlightAndGetWeb(hit,
+            Map<String, Object> source = hitHighlightAndGetSource(hit,
                     EsConstant.DESC,
                     EsConstant.TITLE);
+            WebForSearchDTO web = convertSourceToWeb(source);
             webs.add(web);
         }
 
@@ -469,42 +603,13 @@ public class ElasticsearchManager {
     }
 
     /**
-     * 识别是哪国的语言，然后返回需要的 ES 分词器（目前支持英语、中文和日语）
-     *
-     * @param keyword 被检测的关键词
-     * @return 需要的分词器
-     */
-    private String detectLanguageAndGetAnalyzer(String keyword) {
-
-        LanguageDetector detector = LanguageDetectorBuilder
-                .fromLanguages(Language.JAPANESE, Language.CHINESE)
-                .build();
-        Language lan = detector.detectLanguageOf(keyword);
-
-        // 默认使用英文分词器
-        String analyzer = "english";
-
-        if (Language.JAPANESE.equals(lan)) {
-            // 如果是日语，使用日语的分词器
-            analyzer = EsConstant.ANALYZER_JAPANESE;
-        }
-
-        if (Language.CHINESE.equals(lan)) {
-            // 如果是中文，使用中文的分词器
-            analyzer = EsConstant.ANALYZER_CHINESE;
-        }
-
-        return analyzer;
-    }
-
-    /**
-     * 实现高亮并返回实体类
+     * 实现高亮
      *
      * @param hit   搜索结果
      * @param field 需要高亮的字段
-     * @return 高亮后的实体类
+     * @return 高亮后的结果
      */
-    private WebForSearchDTO hitHighlightAndGetWeb(SearchHit hit, String... field) {
+    private Map<String, Object> hitHighlightAndGetSource(SearchHit hit, String... field) {
 
         Map<String, Object> source = hit.getSourceAsMap();
 
@@ -522,7 +627,7 @@ public class ElasticsearchManager {
             }
         }
 
-        return convertToWeb(source);
+        return source;
     }
 
     /**
@@ -531,7 +636,7 @@ public class ElasticsearchManager {
      * @param source 待转化
      * @return 实体类
      */
-    private WebForSearchDTO convertToWeb(Map<String, Object> source) {
+    private WebForSearchDTO convertSourceToWeb(Map<String, Object> source) {
 
         String title = (String) source.get(EsConstant.TITLE);
         String url = (String) source.get(EsConstant.URL);
