@@ -60,7 +60,6 @@ public class MyPageController {
 
         PersonalInfoVO personalInfoVO = PersonalInfoVO.builder()
                 .user(user)
-                .firstCharOfName(userName.trim().charAt(0))
                 .ip(ip)
                 .totalReplyNotifications(totalReplyNotifications)
                 .build();

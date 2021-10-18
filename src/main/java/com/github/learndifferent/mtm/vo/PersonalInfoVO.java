@@ -27,11 +27,6 @@ public class PersonalInfoVO implements Serializable {
     private UserDTO user;
 
     /**
-     * First character of my username
-     */
-    private Character firstCharOfName;
-
-    /**
      * IP Address
      */
     private String ip;
