@@ -127,12 +127,13 @@ public class FindController {
     /**
      * Check and delete all website data in Elasticsearch
      *
+     * @param mode Delete user data if {@link SearchMode#USER} and delete website data if {@link SearchMode#WEB}
      * @return success or failure.
      */
     @SystemLog(optsType = OptsType.DELETE)
-    @DeleteMapping("/build")
-    public boolean deleteWebsiteDataSearch() {
-        return searchService.checkAndDeleteIndex(EsConstant.INDEX_WEB);
+    @DeleteMapping("/delete")
+    public boolean deleteWebsiteDataSearch(@RequestParam("mode") SearchMode mode) {
+        return searchService.checkAndDeleteIndex(mode);
     }
 
     /**

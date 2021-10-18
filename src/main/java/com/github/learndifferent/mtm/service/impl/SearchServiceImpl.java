@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
@@ -44,8 +45,14 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean checkAndDeleteIndex(String indexName) {
-        return elasticsearchManager.checkAndDeleteIndex(indexName);
+    public boolean checkAndDeleteIndex(SearchMode mode) {
+        switch (mode) {
+            case USER:
+                return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_USER);
+            case WEB:
+            default:
+                return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_WEB);
+        }
     }
 
     @Override

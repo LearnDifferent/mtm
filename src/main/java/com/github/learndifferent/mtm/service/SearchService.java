@@ -47,10 +47,10 @@ public interface SearchService {
      * <p>如果不存在，返回 true 表示已经删除；</p>
      * <p>如果不存在该 index，就执行删除</p>
      *
-     * @param indexName name of the index
+     * @param mode Delete user data if {@link SearchMode#USER} and delete website data if {@link SearchMode#WEB}
      * @return 是否删除成功
      */
-    boolean checkAndDeleteIndex(String indexName);
+    boolean checkAndDeleteIndex(SearchMode mode);
 
     /**
      * Data generation for Elasticsearch based on database
