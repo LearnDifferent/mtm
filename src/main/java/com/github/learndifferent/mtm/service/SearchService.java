@@ -24,12 +24,12 @@ public interface SearchService {
     boolean hasIndexOrCreate(String indexName);
 
     /**
-     * 是否存在该 Index
+     * 是否存在该数据
      *
-     * @param indexName name of the index
+     * @param mode Check user data if {@link SearchMode#USER} and check website data if {@link SearchMode#WEB}
      * @return true 表示存在，false 表示不存在
      */
-    boolean existsIndex(String indexName);
+    boolean existsData(SearchMode mode);
 
     /**
      * 在执行 websiteDataDiffFromDatabase() 方法之前，判断一下 Elasticsearch 中是否存在该 index。

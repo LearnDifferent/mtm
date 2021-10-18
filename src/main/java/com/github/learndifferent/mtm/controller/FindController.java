@@ -3,7 +3,6 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
-import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
@@ -50,7 +49,7 @@ public class FindController {
         // trending searches
         Set<String> trendingList = searchService.getTrends();
         // existent of website data for search
-        boolean exist = searchService.existsIndex(EsConstant.INDEX_WEB);
+        boolean exist = searchService.existsData(SearchMode.WEB);
         // update information
         boolean hasNewUpdate = searchService.websiteDataDiffFromDatabase(exist);
 
@@ -110,6 +109,17 @@ public class FindController {
         SearchResultsDTO results = searchService.search(mode, keyword, pageInfo);
 
         return ResultCreator.okResult(results);
+    }
+
+    /**
+     * Check the existent of data for search
+     *
+     * @param mode Check user data if {@link SearchMode#USER} and check website data if {@link SearchMode#WEB}
+     * @return exists or not
+     */
+    @GetMapping("/exist")
+    public boolean checkDataExistence(@RequestParam("mode") SearchMode mode) {
+        return searchService.existsData(mode);
     }
 
     /**

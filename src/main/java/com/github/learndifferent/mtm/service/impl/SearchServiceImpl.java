@@ -35,8 +35,14 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean existsIndex(String indexName) {
-        return elasticsearchManager.existsIndex(indexName);
+    public boolean existsData(SearchMode mode) {
+        switch (mode) {
+            case USER:
+                return elasticsearchManager.existsIndex(EsConstant.INDEX_USER);
+            case WEB:
+            default:
+                return elasticsearchManager.existsIndex(EsConstant.INDEX_WEB);
+        }
     }
 
     @Override
