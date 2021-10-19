@@ -16,6 +16,7 @@ import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
@@ -45,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -120,44 +122,54 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
-    public boolean[] saveNewWebsiteData(SaveNewWebDataRequest newWebsiteData) {
+    public SaveWebDataResultDTO saveNewWebsiteData(SaveNewWebDataRequest newWebsiteData) {
 
         String url = newWebsiteData.getUrl();
         String username = newWebsiteData.getUsername();
 
         Boolean isPublicValue = newWebsiteData.getIsPublic();
-        // 如果 isPublicValue 为 null，就返回 true；否则，就按照原来的 boolean 值
-        boolean isPublic = isPublicValue == null || isPublicValue;
+        boolean isPublic = Optional.ofNullable(isPublicValue).orElse(true);
 
         Boolean syncToEsValue = newWebsiteData.getSyncToElasticsearch();
         // 只有公开的 public 数据可以被同步到 Elasticsearch；当 syncToEsValue 为 null 时，视为 true
         boolean syncToElasticsearch = isPublic && (syncToEsValue == null || syncToEsValue);
 
+        // 获取网页数据
         WebsiteServiceImpl websiteService =
                 ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
-
         WebWithNoIdentityDTO rawWebsite = websiteService.scrapeWebDataFromUrl(url, username);
 
-        // 如果选择同步到 Elasticsearch 中，就异步执行保存网页数据的方法并返回结果
-        // 如果选择不同步，也就是 syncToEs 为 false 或 null 的情况：直接返回 true 作为结果，表示无需异步存放
-        Future<Boolean> futureResult = elasticsearchManager
-                .saveDocAsync(rawWebsite, syncToElasticsearch);
+        // 默认 Future Result 为 null
+        Future<Boolean> resultOfElasticsearch = null;
+
+        if (syncToElasticsearch) {
+            // 如果选择同步到 Elasticsearch 中，就异步执行保存方法并返回结果
+            // 如果选择不同步，也就是 syncToEs 为 false 或 null 的情况：直接返回 true 作为结果，表示无需异步存放
+            resultOfElasticsearch = elasticsearchManager.saveDocAsync(rawWebsite);
+        }
 
         // 将网页数据放入数据库，返回是否成功放入
-        boolean toDatabase = websiteService.saveWebsiteData(rawWebsite, username, isPublic);
+        boolean hasSavedToDatabase = websiteService.saveWebsiteData(rawWebsite, username, isPublic);
 
-        // true 表示存放成功或无需存放到 Elasticsearch；false 表示存放失败
-        boolean toElasticsearch = true;
+        // 如果 Future Result 为 null，说明无需放入 Elasticsearch 中
+        if (resultOfElasticsearch == null) {
+            // 只返回数据库的保存结果即可
+            return SaveWebDataResultDTO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
+        }
+
+        // 获取异步存放数据到 Elasticsearch 的结果
+        boolean hasSavedToElasticsearch = false;
         try {
-            // 获取异步存放数据到 Elasticsearch 的结果
-            toElasticsearch = futureResult.get(10, TimeUnit.SECONDS);
+            hasSavedToElasticsearch = resultOfElasticsearch.get(10, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
 
-        return new boolean[]{toDatabase, toElasticsearch};
+        return SaveWebDataResultDTO.builder()
+                .hasSavedToDatabase(hasSavedToDatabase)
+                .hasSavedToElasticsearch(hasSavedToElasticsearch)
+                .build();
     }
-
 
     /**
      * 根据链接，获取网页的 title、url、img 和简介数据。

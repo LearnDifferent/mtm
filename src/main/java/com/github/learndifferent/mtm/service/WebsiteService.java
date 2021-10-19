@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
@@ -84,13 +85,14 @@ public interface WebsiteService {
                             boolean isPublic);
 
     /**
-     * 根据 URL 和用户名，收藏新的网页数据，并设定其是否公开
+     * Save New Website Data
      *
-     * @param newWebsiteData URL、用户名、是否是公开数据，以及是否同步数据到 Elasticsearch
-     * @return {@code boolean[]} boolean 数组 index 为 0 的位置表示是否存放到数据库中，
-     * boolean 数组 index 为 1 的位置表示是否存放到 Elasticsearch 中。
+     * @param newWebsiteData URL, username, a boolean value named {@code isPublic} related to privacy settings
+     *                       and a boolean value named {@code syncToElasticsearch} related to whether the data
+     *                       will be synchronized to Elasticsearch or not
+     * @return {@link SaveWebDataResultDTO} The result of saving website data
      */
-    boolean[] saveNewWebsiteData(SaveNewWebDataRequest newWebsiteData);
+    SaveWebDataResultDTO saveNewWebsiteData(SaveNewWebDataRequest newWebsiteData);
 
     /**
      * 获取该 pattern 下，分页后需要的网页数据和总页数

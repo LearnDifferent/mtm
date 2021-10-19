@@ -55,7 +55,7 @@ public enum ResultCode {
     /**
      * already marked it
      */
-    ALREADY_MARKED(2010, "You have ALREADY MARKED it. Can't do it twice."),
+    ALREADY_MARKED(2010, "You have already saved it. Can't do it twice."),
     /**
      * enter a valid URL
      */

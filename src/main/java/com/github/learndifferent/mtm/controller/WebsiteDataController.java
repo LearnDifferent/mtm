@@ -12,6 +12,7 @@ import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -86,13 +87,13 @@ public class WebsiteDataController {
      * @param newWebsiteData URL, username, a boolean value named {@code isPublic} related to privacy settings
      *                       and a boolean value named {@code syncToElasticsearch} related to whether the data
      *                       will be synchronized to Elasticsearch or not
-     * @return {@code boolean[]} The first element stores true if the data was successfully saved to Database
-     * and the second element stores true if Elasticsearch saved the data successfully
+     * @return {@link ResultVO}<{@link SaveWebDataResultDTO}> The result of saving website data
      */
     @SystemLog(title = "Mark", optsType = OptsType.CREATE)
     @PostMapping("/new")
-    public boolean[] saveNewWebsiteData(@RequestBody SaveNewWebDataRequest newWebsiteData) {
-        return websiteService.saveNewWebsiteData(newWebsiteData);
+    public ResultVO<SaveWebDataResultDTO> saveNewWebsiteData(@RequestBody SaveNewWebDataRequest newWebsiteData) {
+        SaveWebDataResultDTO results = websiteService.saveNewWebsiteData(newWebsiteData);
+        return ResultCreator.okResult(results);
     }
 
     /**

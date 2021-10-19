@@ -1,8 +1,8 @@
 package com.github.learndifferent.mtm.manager;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
+import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
@@ -202,43 +202,24 @@ public class ElasticsearchManager {
     /**
      * 异步存放文档
      *
-     * @param websiteData                   需要存放的网页原始数据
-     * @param ifFalseThenReturnTrueAsResult 如果传入的是 null 或 false，表示不要异步存放文档，
-     *                                      此时直接返回 true 作为结果，表示无需异步存放。
-     *                                      <p>如果传入的是 true，表示需要异步存放文档</p>
-     * @return {@code Future<Boolean>} true 表示成功，或者无需存放；false 表示存放失败
+     * @param websiteData 需要存放的网页原始数据
+     * @return {@code Future<Boolean>} true 表示成功；false 表示存放失败
      */
-    public Future<Boolean> saveDocAsync(WebWithNoIdentityDTO websiteData,
-                                        Boolean ifFalseThenReturnTrueAsResult) {
-        // 如果 dontSave 为 true，表示无需异步存放此 Doc，直接返回 true 作为结果
-        boolean dontSave = ifFalseThenReturnTrueAsResult == null
-                || !ifFalseThenReturnTrueAsResult;
-
-        if (dontSave) {
-            return AsyncResult.forValue(true);
-        }
-
-        // 如果需要异步存放到 Elasticsearch 就执行内部方法 saveDocAsync
-        ElasticsearchManager elasticsearchManager =
-                ApplicationContextUtils.getBean(ElasticsearchManager.class);
-        return elasticsearchManager.saveDocAsync(websiteData);
-    }
-
-
     @Async("asyncTaskExecutor")
+    @WebsiteDataClean
     public Future<Boolean> saveDocAsync(WebWithNoIdentityDTO websiteData) {
 
         WebForSearchDTO web = DozerUtils.convert(websiteData, WebForSearchDTO.class);
 
+        String json = JsonUtils.toJson(web);
+        IndexRequest request = new IndexRequest(EsConstant.INDEX_WEB);
+        request.id(web.getUrl());
+        request.timeout("8s");
+        request.source(json, XContentType.JSON);
+
         boolean success = false;
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(web);
-            IndexRequest request = new IndexRequest(EsConstant.INDEX_WEB);
-            // 用网址 url 作为 ID
-            request.id(web.getUrl());
-            request.timeout("8s");
-            request.source(json, XContentType.JSON);
             // 发送请求并返回结果
             IndexResponse response = client.index(request, RequestOptions.DEFAULT);
             int status = response.status().getStatus();
@@ -250,8 +231,8 @@ public class ElasticsearchManager {
             }
         } catch (IOException e) {
             // 如果无法存放，就放弃存放
-            log.error("IOException while saving document to Elasticsearch. " +
-                    "Dropped this data because it can be added manually.");
+            log.error("IOException while saving document to Elasticsearch. "
+                    + "Dropped this data because it can be added to Elasticsearch later manually.");
             e.printStackTrace();
         }
         return AsyncResult.forValue(success);
