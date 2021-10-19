@@ -31,6 +31,13 @@ public interface UserMapper {
     List<UserDO> getUsers();
 
     /**
+     * 获取用户数量
+     *
+     * @return 用户数量
+     */
+    int countUsers();
+
+    /**
      * 添加用户
      *
      * @param user 被添加的用户

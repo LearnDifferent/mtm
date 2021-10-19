@@ -69,6 +69,11 @@
         from user;
     </select>
 
+    <select id="countUsers" resultType="java.lang.Integer">
+        select count(*)
+        from user
+    </select>
+
     <update id="updateUser" parameterType="com.github.learndifferent.mtm.entity.UserDO">
         update user
         <set>

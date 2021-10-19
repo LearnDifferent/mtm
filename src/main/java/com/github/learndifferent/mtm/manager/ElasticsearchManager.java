@@ -135,41 +135,55 @@ public class ElasticsearchManager {
     }
 
     /**
-     * 在执行 websiteDataDiffFromDatabase() 方法之前，判断一下 Elasticsearch 中是否存在该 index。
+     * Elasticsearch 和数据库中的数据是否不同步。
+     * <p>在执行方法之前，判断一下 Elasticsearch 中是否存在该 index。</p>
      * <p>如果存在了，再执行。</p>
      * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
      *
-     * @param existIndex Elasticsearch 中是否存在该 index
      * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
      */
     public boolean websiteDataDiffFromDatabase(boolean existIndex) {
         if (existIndex) {
-            return websiteDataDiffFromDatabase();
+            // 数据库中的 distinct url 的数量
+            long databaseUrlCount = websiteMapper.countDistinctPublicUrl();
+            // Elasticsearch 中的文档的数量
+            long elasticsearchDocCount = countDocs(EsConstant.INDEX_WEB);
+            // 如果数量不相同，代表有变化；如果数量相同，代表没有变化
+            return databaseUrlCount != elasticsearchDocCount;
         }
+        // 如果不存在该 index，直接返回 true，表示不同
         return true;
     }
 
     /**
-     * Elasticsearch 和数据库中的数据不同步
+     * Elasticsearch 和数据库中的数据是否不同步。
+     * <p>在执行方法之前，判断一下 Elasticsearch 中是否存在该 index。</p>
+     * <p>如果存在了，再执行。</p>
+     * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
      *
      * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
      */
-    private boolean websiteDataDiffFromDatabase() {
-        // 数据库中的 distinct url 的数量
-        long databaseUrlCount = websiteMapper.countDistinctPublicUrl();
-        // Elasticsearch 中的文档的数量
-        long elasticsearchDocCount = countWebsiteDocs();
-        // 两者数量是否相同
-        return 0 != databaseUrlCount - elasticsearchDocCount;
+    public boolean userDataDiffFromDatabase(boolean existIndex) {
+        if (existIndex) {
+            // 数据库中的 distinct url 的数量
+            long databaseUserCount = userMapper.countUsers();
+            // Elasticsearch 中的文档的数量
+            long elasticsearchDocCount = countDocs(EsConstant.INDEX_USER);
+            // 如果数量不相同，代表有变化；如果数量相同，代表没有变化
+            return databaseUserCount != elasticsearchDocCount;
+        }
+        // 如果不存在该 index，直接返回 true，表示不同
+        return true;
     }
 
     /**
-     * 统计网页数据条数
+     * 统计该 Index 的文档条数
      *
+     * @param index index
      * @return int 数据条数
      */
-    private long countWebsiteDocs() {
-        CountRequest request = new CountRequest(EsConstant.INDEX_WEB);
+    private long countDocs(String index) {
+        CountRequest request = new CountRequest(index);
         try {
             CountResponse countResponse = client.count(request, RequestOptions.DEFAULT);
             return countResponse.getCount();
@@ -275,7 +289,7 @@ public class ElasticsearchManager {
      */
     public boolean generateUserDataForSearch() {
 
-        boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_WEB);
+        boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_USER);
         if (notClear) {
             // 如果无法清空之前的数据，抛出未知异常
             throw new ServiceException(ResultCode.ERROR);
@@ -398,7 +412,7 @@ public class ElasticsearchManager {
             // 总页数
             int totalPages = PageUtil.getAllPages((int) totalCount, size);
             // 分页后的结果
-            List<UserForSearchDTO> paginatedResults = getUserDataForSearchByHits(hits);
+            List<UserForSearchDTO> paginatedResults = getUsersByHits(hits);
             return SearchResultsDTO.builder()
                     .paginatedResults(paginatedResults)
                     .totalCount(totalCount)
@@ -410,23 +424,23 @@ public class ElasticsearchManager {
         }
     }
 
-    private List<UserForSearchDTO> getUserDataForSearchByHits(SearchHits hits) {
+    private List<UserForSearchDTO> getUsersByHits(SearchHits hits) {
         List<UserForSearchDTO> userList = new ArrayList<>();
         hits.forEach(h -> {
             Map<String, Object> sourceAsMap = h.getSourceAsMap();
-            UserForSearchDTO user = convertSourceToUser(sourceAsMap);
+            UserForSearchDTO user = convertToUser(sourceAsMap);
             userList.add(user);
         });
         return userList;
     }
 
-    private UserForSearchDTO convertSourceToUser(Map<String, Object> source) {
-        String userId = (String) source.get(EsConstant.USER_ID);
-        String userName = (String) source.get(EsConstant.USER_NAME);
-        String role = (String) source.get(EsConstant.ROLE);
-        Integer webCount = (Integer) source.get(EsConstant.WEB_COUNT);
+    private UserForSearchDTO convertToUser(Map<String, Object> map) {
+        String userId = (String) map.get(EsConstant.USER_ID);
+        String userName = (String) map.get(EsConstant.USER_NAME);
+        String role = (String) map.get(EsConstant.ROLE);
+        Integer webCount = (Integer) map.get(EsConstant.WEB_COUNT);
 
-        String time = (String) source.get(EsConstant.CREATION_TIME);
+        String time = (String) map.get(EsConstant.CREATION_TIME);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date creationTime = null;
         try {
@@ -473,8 +487,7 @@ public class ElasticsearchManager {
         // 多字段匹配，title 的权限提高，设置分词器
         MultiMatchQueryBuilder multiMatchQuery = QueryBuilders
                 .multiMatchQuery(keyword, EsConstant.DESC, EsConstant.TITLE)
-                .field(EsConstant.TITLE, 2.0F)
-                .analyzer(analyzer);
+                .field(EsConstant.TITLE, 2.0F);
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(multiMatchQuery)
@@ -595,7 +608,7 @@ public class ElasticsearchManager {
             Map<String, Object> source = hitHighlightAndGetSource(hit,
                     EsConstant.DESC,
                     EsConstant.TITLE);
-            WebForSearchDTO web = convertSourceToWeb(source);
+            WebForSearchDTO web = convertToWeb(source);
             webs.add(web);
         }
 
@@ -636,7 +649,7 @@ public class ElasticsearchManager {
      * @param source 待转化
      * @return 实体类
      */
-    private WebForSearchDTO convertSourceToWeb(Map<String, Object> source) {
+    private WebForSearchDTO convertToWeb(Map<String, Object> source) {
 
         String title = (String) source.get(EsConstant.TITLE);
         String url = (String) source.get(EsConstant.URL);
@@ -644,7 +657,10 @@ public class ElasticsearchManager {
         String desc = (String) source.get(EsConstant.DESC);
 
         return WebForSearchDTO.builder()
-                .title(title).url(url).img(img).desc(desc)
+                .title(title)
+                .url(url)
+                .img(img)
+                .desc(desc)
                 .build();
     }
 

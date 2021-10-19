@@ -46,8 +46,15 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean websiteDataDiffFromDatabase(boolean existIndex) {
-        return elasticsearchManager.websiteDataDiffFromDatabase(existIndex);
+    public boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean existIndex) {
+        switch (mode) {
+            case USER:
+                return elasticsearchManager.userDataDiffFromDatabase(existIndex);
+            case WEB:
+            default:
+                return elasticsearchManager.websiteDataDiffFromDatabase(existIndex);
+        }
+
     }
 
     @Override

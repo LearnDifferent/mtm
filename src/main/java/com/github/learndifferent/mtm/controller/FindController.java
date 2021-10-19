@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SearchService;
 import com.github.learndifferent.mtm.vo.FindPageVO;
+import com.github.learndifferent.mtm.vo.SearchDataStatusVO;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,7 +52,7 @@ public class FindController {
         // existent of website data for search
         boolean exist = searchService.existsData(SearchMode.WEB);
         // update information
-        boolean hasNewUpdate = searchService.websiteDataDiffFromDatabase(exist);
+        boolean hasNewUpdate = searchService.dataInDatabaseDiffFromElasticsearch(SearchMode.WEB, exist);
 
         FindPageVO data = FindPageVO.builder()
                 .trendingList(trendingList)
@@ -112,14 +113,16 @@ public class FindController {
     }
 
     /**
-     * Check the existent of data for search
+     * Check the existent and changes of data
      *
      * @param mode Check user data if {@link SearchMode#USER} and check website data if {@link SearchMode#WEB}
-     * @return exists or not
+     * @return data status
      */
-    @GetMapping("/exist")
-    public boolean checkDataExistence(@RequestParam("mode") SearchMode mode) {
-        return searchService.existsData(mode);
+    @GetMapping("/status")
+    public SearchDataStatusVO checkDataStatus(@RequestParam("mode") SearchMode mode) {
+        boolean exists = searchService.existsData(mode);
+        boolean hasChanges = searchService.dataInDatabaseDiffFromElasticsearch(mode, exists);
+        return SearchDataStatusVO.builder().exists(exists).hasChanges(hasChanges).build();
     }
 
     /**
