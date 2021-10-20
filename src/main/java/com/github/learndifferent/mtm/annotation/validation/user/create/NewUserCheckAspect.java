@@ -3,9 +3,9 @@ package com.github.learndifferent.mtm.annotation.validation.user.create;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.reflect.Field;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -107,9 +107,8 @@ public class NewUserCheckAspect {
      * @throws ServiceException 抛出相应状态码的异常
      */
     private void checkIfEmpty(String str, ResultCode resultCode) {
-        if (StringUtils.isEmpty(str)) {
-            throw new ServiceException(resultCode);
-        }
+        boolean empty = StringUtils.isEmpty(str);
+        ThrowExceptionUtils.throwIfTrue(empty, resultCode);
     }
 
     /**
@@ -121,9 +120,8 @@ public class NewUserCheckAspect {
      * @throws ServiceException 抛出相应状态码的异常
      */
     private void checkIfTooLong(String str, int length, ResultCode resultCode) {
-        if (str.length() > length) {
-            throw new ServiceException(resultCode);
-        }
+        boolean tooLong = str.length() > length;
+        ThrowExceptionUtils.throwIfTrue(tooLong, resultCode);
     }
 
     /**
@@ -134,10 +132,8 @@ public class NewUserCheckAspect {
      */
     private void checkIfOnlyLetterNumber(String str) {
         String regex = "^[a-z0-9A-Z]+$";
-        if (str.matches(regex)) {
-            return;
-        }
-        throw new ServiceException(ResultCode.USERNAME_ONLY_LETTERS_NUMBERS);
+        boolean notMatches = !str.matches(regex);
+        ThrowExceptionUtils.throwIfTrue(notMatches, ResultCode.USERNAME_ONLY_LETTERS_NUMBERS);
     }
 
     /**
@@ -148,9 +144,7 @@ public class NewUserCheckAspect {
      */
     private void checkIfUsernameExist(String username) {
         UserDTO userHasThatName = userService.getUserByName(username);
-        if (userHasThatName != null) {
-            // 如果用户名已经在 Database 中存在，就抛出异常
-            throw new ServiceException(ResultCode.USER_ALREADY_EXIST);
-        }
+        // 如果用户名已经在 Database 中存在，就抛出异常
+        ThrowExceptionUtils.throwIfNotNull(userHasThatName, ResultCode.USER_ALREADY_EXIST);
     }
 }

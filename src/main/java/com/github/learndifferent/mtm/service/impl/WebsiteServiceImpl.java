@@ -36,7 +36,8 @@ import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
-import com.github.learndifferent.mtm.utils.ReverseUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -433,9 +434,8 @@ public class WebsiteServiceImpl implements WebsiteService {
     @ModifyWebsitePermissionCheck
     public boolean changeWebPrivacySettings(@WebId int webId, @Username String userName) {
         WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
-        if (web == null) {
-            throw new ServiceException(ResultCode.WEBSITE_DATA_NOT_EXISTS);
-        }
+        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+
         boolean newPrivacy = !web.getIsPublic();
         WebsiteDO webWithNewPrivacy = web.setIsPublic(newPrivacy);
         return websiteMapper.updateWebsiteDataById(webWithNewPrivacy);
@@ -447,7 +447,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         if (web != null
                 && Boolean.FALSE.equals(web.getIsPublic())
-                && ReverseUtils.stringNotEqualsIgnoreCase(userName, web.getUserName())) {
+                && CompareStringUtil.notEqualsIgnoreCase(userName, web.getUserName())) {
             // Check permission: if the website exists, the website is not public
             // and the owner's username of website data does not match the username
             return null;

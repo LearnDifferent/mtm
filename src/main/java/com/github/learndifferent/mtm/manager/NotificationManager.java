@@ -9,6 +9,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,9 +58,10 @@ public class NotificationManager {
     public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int from, int to) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         List<String> notifications = redisTemplate.opsForList().range(key, from, to);
-        if (CollectionUtils.isEmpty(notifications)) {
-            throw new ServiceException(ResultCode.NO_RESULTS_FOUND);
-        }
+
+        boolean hasNoNotifications = CollectionUtils.isEmpty(notifications);
+        ThrowExceptionUtils.throwIfTrue(hasNoNotifications, ResultCode.NO_RESULTS_FOUND);
+
         return notifications.stream()
                 .map(n -> {
                     ReplyNotificationWithMsgDTO no = JsonUtils.toObject(n, ReplyNotificationWithMsgDTO.class);

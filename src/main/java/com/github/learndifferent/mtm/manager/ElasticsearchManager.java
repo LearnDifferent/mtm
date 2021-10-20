@@ -14,10 +14,10 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.learndifferent.mtm.utils.AssertUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
 import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
@@ -271,10 +271,8 @@ public class ElasticsearchManager {
     public boolean generateUserDataForSearch() {
 
         boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_USER);
-        if (notClear) {
-            // 如果无法清空之前的数据，抛出未知异常
-            throw new ServiceException(ResultCode.ERROR);
-        }
+        // 如果无法清空之前的数据，抛出异常
+        ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
 
         List<UserDO> users = userMapper.getUsers();
         List<UserForSearchDTO> usersForSearch = DozerUtils.convertList(users, UserForSearchDTO.class);
@@ -318,10 +316,9 @@ public class ElasticsearchManager {
     public boolean generateWebsiteDataForSearch() {
 
         boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_WEB);
-        if (notClear) {
-            // 如果无法清空之前的数据，抛出未知异常
-            throw new ServiceException(ResultCode.ERROR);
-        }
+        // 如果无法清空之前的数据，抛出未知异常
+        ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
+
         // 获取所有网页数据，包装为 Elasticsearch 需要的数据结构
         List<WebForSearchDTO> webs = websiteMapper.getAllPublicWebDataForSearch();
         // 清空之前的数据后，开始进行批量生成数据的操作
@@ -389,7 +386,8 @@ public class ElasticsearchManager {
             SearchHits hits = response.getHits();
             // 总数
             long totalCount = hits.getTotalHits().value;
-            AssertUtils.isTrue(totalCount > 0, ResultCode.NO_RESULTS_FOUND);
+            // 如果总数小于等于 0，说明没有结果，就抛出异常
+            ThrowExceptionUtils.throwIfTrue(totalCount <= 0, ResultCode.NO_RESULTS_FOUND);
             // 总页数
             int totalPages = PageUtil.getAllPages((int) totalCount, size);
             // 分页后的结果
@@ -430,7 +428,7 @@ public class ElasticsearchManager {
             e.printStackTrace();
         }
 
-        AssertUtils.notNull(creationTime, ResultCode.NO_RESULTS_FOUND);
+        ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
         return UserForSearchDTO.builder()
                 .userId(userId)
@@ -494,10 +492,8 @@ public class ElasticsearchManager {
 
         // 查询到的总数
         long totalCount = hits.getTotalHits().value;
-        if (totalCount == 0) {
-            // 没有结果的时候，抛出无结果异常
-            throw new ServiceException(ResultCode.NO_RESULTS_FOUND);
-        }
+        // 没有结果的时候，抛出无结果异常
+        ThrowExceptionUtils.throwIfTrue(totalCount <= 0, ResultCode.NO_RESULTS_FOUND);
 
         // 总页数
         int totalPage = PageUtil.getAllPages((int) totalCount, size);

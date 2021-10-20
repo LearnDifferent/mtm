@@ -4,9 +4,9 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.WebsiteService;
-import com.github.learndifferent.mtm.utils.ReverseUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +16,7 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * 获取网页 ID 和用户名信息，并检查是否该网页是否属于该用户。
@@ -72,31 +73,15 @@ public class ModifyWebsitePermissionCheckAspect {
             }
         }
 
-        checkPermission(webId, username);
-    }
-
-    /**
-     * 查看该用户是否有修改该网页的权限
-     *
-     * @param userName 需要删除网页的用户
-     * @param webId    需要被删除的网页 ID
-     * @throws ServiceException 如果没有权限，就抛出异常。其他错误，也会抛出相应异常
-     */
-    private void checkPermission(int webId, String userName) {
-
-        if (webId < 0) {
-            throw new ServiceException(ResultCode.WEBSITE_DATA_NOT_EXISTS);
-        }
-
-        if ("".equals(userName)) {
-            throw new ServiceException(ResultCode.USER_NOT_EXIST);
-        }
+        ThrowExceptionUtils.throwIfTrue(webId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         WebsiteDTO web = websiteService.findWebsiteDataById(webId);
+        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        if (ReverseUtils.hasNoPermissionToDelete(userName, web)) {
-            // 没有权限就抛出异常
-            throw new ServiceException(ResultCode.PERMISSION_DENIED);
-        }
+        boolean emptyUsername = StringUtils.isEmpty(username);
+        ThrowExceptionUtils.throwIfTrue(emptyUsername, ResultCode.USER_NOT_EXIST);
+
+        boolean notTheOwner = CompareStringUtil.notEqualsIgnoreCase(username, web.getUserName());
+        ThrowExceptionUtils.throwIfTrue(notTheOwner, ResultCode.PERMISSION_DENIED);
     }
 }

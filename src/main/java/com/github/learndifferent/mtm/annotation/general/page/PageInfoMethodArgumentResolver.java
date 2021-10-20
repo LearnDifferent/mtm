@@ -1,9 +1,10 @@
 package com.github.learndifferent.mtm.annotation.general.page;
 
 import com.github.learndifferent.mtm.constant.enums.PageInfoMode;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.utils.PageUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -38,9 +39,7 @@ public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentReso
 
         PageInfo annotation = parameter.getParameterAnnotation(PageInfo.class);
 
-        if (annotation == null) {
-            throw new ServiceException("No available annotation of Page Info.");
-        }
+        ThrowExceptionUtils.throwIfNull(annotation, ResultCode.FAILED);
 
         // 需要以 from 还是 current page 模式来获取页面信息
         PageInfoMode mode = annotation.pageInfoMode();

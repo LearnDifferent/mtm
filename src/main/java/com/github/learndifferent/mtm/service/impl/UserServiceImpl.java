@@ -17,6 +17,7 @@ import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.utils.UUIDUtils;
 import java.util.Date;
 import java.util.List;
@@ -69,10 +70,8 @@ public class UserServiceImpl implements UserService {
         UserServiceImpl userService = ApplicationContextUtils.getBean(UserServiceImpl.class);
         UserDTO user = userService.getUserByNameAndPwd(userName, oldPassword);
 
-        if (user == null) {
-            // 此时"用户不存在"，视为密码错误
-            throw new ServiceException(ResultCode.PASSWORD_INCORRECT);
-        }
+        // 用户不存在，视为密码错误
+        ThrowExceptionUtils.throwIfNull(user, ResultCode.PASSWORD_INCORRECT);
 
         // 加密新密码
         newPassword = Md5Util.getMd5(newPassword);

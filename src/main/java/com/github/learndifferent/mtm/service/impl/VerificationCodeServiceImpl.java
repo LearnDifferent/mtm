@@ -6,6 +6,7 @@ import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.E
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.VerificationCodeService;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.utils.VerifyCodeUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -75,9 +76,8 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     public void checkCode(@DefaultValueIfEmpty String verifyToken,
                           @DefaultValueIfEmpty String userTypeInCode) {
 
-        if (codeNotPassed(verifyToken, userTypeInCode)) {
-            throw new ServiceException(ResultCode.VERIFICATION_CODE_FAILED);
-        }
+        boolean codeNotPassed = codeNotPassed(verifyToken, userTypeInCode);
+        ThrowExceptionUtils.throwIfTrue(codeNotPassed, ResultCode.VERIFICATION_CODE_FAILED);
     }
 
     /**

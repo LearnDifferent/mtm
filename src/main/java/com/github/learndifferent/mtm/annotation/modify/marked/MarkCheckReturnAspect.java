@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -114,10 +115,8 @@ public class MarkCheckReturnAspect {
                 .filter(w -> w.getUserName().equals(userName))
                 .findFirst().orElse(null);
 
-        if (webUserMarked != null) {
-            // 如果已经收藏过了，抛出异常
-            throw new ServiceException(ResultCode.ALREADY_MARKED);
-        }
+        // 如果已经收藏过了，抛出异常
+        ThrowExceptionUtils.throwIfNotNull(webUserMarked, ResultCode.ALREADY_MARKED);
     }
 
 }

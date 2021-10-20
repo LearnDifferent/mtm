@@ -5,9 +5,9 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.WebsiteService;
-import com.github.learndifferent.mtm.utils.ReverseUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.apache.commons.lang3.BooleanUtils;
@@ -79,24 +79,22 @@ public class GetCommentsCheckAspect {
     private void checkUsername(String username) {
         String currentUsername = (String) StpUtil.getLoginId();
 
-        if (StringUtils.isEmpty(username)
-                || ReverseUtils.stringNotEqualsIgnoreCase(username, currentUsername)) {
-            throw new ServiceException(ResultCode.PERMISSION_DENIED);
-        }
+        boolean hasNoPermission = StringUtils.isEmpty(username)
+                || CompareStringUtil.notEqualsIgnoreCase(username, currentUsername);
+
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     private void checkWebsiteExistsAndPermission(int webId, String username) {
         WebsiteWithPrivacyDTO web = websiteService.findWebsiteDataWithPrivacyById(webId);
-        if (web == null) {
-            throw new ServiceException(ResultCode.WEBSITE_DATA_NOT_EXISTS);
-        }
+
+        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = web.getIsPublic();
         boolean isPrivate = BooleanUtils.isFalse(isPublic);
         String user = web.getUserName();
 
-        if (isPrivate && ReverseUtils.stringNotEqualsIgnoreCase(username, user)) {
-            throw new ServiceException(ResultCode.PERMISSION_DENIED);
-        }
+        boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, user);
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 }

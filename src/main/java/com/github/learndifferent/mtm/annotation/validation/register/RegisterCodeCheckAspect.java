@@ -10,9 +10,11 @@ import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.InvitationCodeService;
 import com.github.learndifferent.mtm.service.VerificationCodeService;
-import com.github.learndifferent.mtm.utils.ReverseUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -117,10 +119,8 @@ public class RegisterCodeCheckAspect {
 
         checkCodes(code, verifyToken, role, invitationCode, invitationToken);
 
-        if (roleParamIndex < 0) {
-            // 如果没有使用注解 @UserRole，就抛出异常
-            throw new ServiceException(ResultCode.USER_ROLE_NOT_FOUND);
-        }
+        // 如果没有使用注解 @UserRole，就抛出异常
+        ThrowExceptionUtils.throwIfTrue(roleParamIndex < 0, ResultCode.USER_ROLE_NOT_FOUND);
 
         Object[] args = pjp.getArgs();
         // 将角色的 String 值传入
@@ -133,9 +133,7 @@ public class RegisterCodeCheckAspect {
         ServletRequestAttributes attributes =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
-        if (attributes == null) {
-            throw new ServiceException("No attributes available.");
-        }
+        ThrowExceptionUtils.throwIfNull(attributes, ResultCode.FAILED);
 
         return attributes.getRequest();
     }
@@ -143,7 +141,7 @@ public class RegisterCodeCheckAspect {
     private String getStringValue(HttpServletRequest request, String parameterName) {
 
         String parameterValue = request.getParameter(parameterName);
-        return parameterValue == null ? "" : parameterValue;
+        return Optional.ofNullable(parameterValue).orElse("");
     }
 
     private RoleType getRole(RoleType defaultRole, HttpServletRequest request, String parameterName) {
@@ -199,9 +197,8 @@ public class RegisterCodeCheckAspect {
         // 获取 token 中的邀请码
         String correctCode = invitationCodeService.getInvitationCode(invitationToken);
 
-        if (ReverseUtils.stringNotEqualsIgnoreCase(userTypeInCode, correctCode)) {
-            // 如果 token 中的邀请码和用户输入的不符，就抛出自定义的异常
-            throw new ServiceException(ResultCode.INVITATION_CODE_FAILED);
-        }
+        // 如果 token 中的邀请码和用户输入的不符，就抛出c异常
+        boolean wrongCode = CompareStringUtil.notEqualsIgnoreCase(userTypeInCode, correctCode);
+        ThrowExceptionUtils.throwIfTrue(wrongCode, ResultCode.INVITATION_CODE_FAILED);
     }
 }

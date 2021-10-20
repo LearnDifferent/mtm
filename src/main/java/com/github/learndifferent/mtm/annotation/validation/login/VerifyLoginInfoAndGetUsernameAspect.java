@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.VerificationCodeService;
 import com.github.learndifferent.mtm.utils.JsonUtils;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -162,9 +162,7 @@ public class VerifyLoginInfoAndGetUsernameAspect {
         ServletRequestAttributes attributes =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
-        if (attributes == null) {
-            throw new ServiceException("No Request Attributes Available.");
-        }
+        ThrowExceptionUtils.throwIfNull(attributes, ResultCode.FAILED);
 
         // 获取 request。
         // 要在程序中定义 RequestBodyCacheFilter 将 request 转化为 ContentCachingRequestWrapper，
@@ -264,13 +262,13 @@ public class VerifyLoginInfoAndGetUsernameAspect {
             // 将 json 字符串转换为 Map<String, String> 并返回
             return JsonUtils.toObject(json, typeRef);
         } catch (ServiceException e) {
-            if (ResultCode.JSON_ERROR.equals(e.getResultCode())) {
-                // 如果是 JSON_ERROR，表示无法将 Json 字符串转化为 Request Body
-                // 说明没有传入 Request Body，也就没办法获取用户名和密码，所以抛出用户不存在的异常
-                throw new ServiceException(ResultCode.USER_NOT_EXIST);
-            } else {
-                throw new ServiceException(e.getResultCode(), e.getMessage(), e.getData());
-            }
+            // 如果是 JSON_ERROR，表示无法将 Json 字符串转化为 Request Body
+            // 说明没有传入 Request Body，也就没办法获取用户名和密码，所以抛出用户不存在的异常
+            boolean isJsonError = ResultCode.JSON_ERROR.equals(e.getResultCode());
+            ThrowExceptionUtils.throwIfTrue(isJsonError, ResultCode.USER_NOT_EXIST);
+
+            // 其他情况，直接抛出即可
+            throw new ServiceException(e.getResultCode(), e.getMessage(), e.getData());
         }
     }
 
@@ -306,11 +304,8 @@ public class VerifyLoginInfoAndGetUsernameAspect {
 
         // 验证码正确，就查找用户
         UserDTO user = userService.getUserByNameAndPwd(username, password);
-
-        if (ObjectUtils.isEmpty(user)) {
-            // 如果用户不存在，抛出不存在的异常（也就是用户名或密码不正确）
-            throw new ServiceException(ResultCode.USER_NOT_EXIST);
-        }
+        // 如果用户不存在，抛出不存在的异常（也就是用户名或密码不正确）
+        ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
     }
 
 }

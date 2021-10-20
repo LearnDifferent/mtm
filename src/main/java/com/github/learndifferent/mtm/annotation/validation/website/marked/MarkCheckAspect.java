@@ -5,7 +5,8 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.WebsiteService;
-import com.github.learndifferent.mtm.utils.ReverseUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import lombok.extern.slf4j.Slf4j;
@@ -102,9 +103,8 @@ public class MarkCheckAspect {
      */
     private void testUserPermission(String username) {
         String currentUsername = (String) StpUtil.getLoginIdDefaultNull();
-        if (ReverseUtils.stringNotEqualsIgnoreCase(username, currentUsername)) {
-            throw new ServiceException(ResultCode.PERMISSION_DENIED);
-        }
+        boolean notCurrentUser = CompareStringUtil.notEqualsIgnoreCase(username, currentUsername);
+        ThrowExceptionUtils.throwIfTrue(notCurrentUser, ResultCode.PERMISSION_DENIED);
     }
 
     /**
@@ -120,10 +120,8 @@ public class MarkCheckAspect {
                 .filter(w -> w.getUserName().equals(userName))
                 .findFirst().orElse(null);
 
-        if (web != null) {
-            // 如果该用户已经收藏了该网页，就抛出异常
-            throw new ServiceException(ResultCode.ALREADY_MARKED);
-        }
+        // 如果该用户已经收藏了该网页，就抛出异常
+        ThrowExceptionUtils.throwIfNotNull(web, ResultCode.ALREADY_MARKED);
     }
 
 }

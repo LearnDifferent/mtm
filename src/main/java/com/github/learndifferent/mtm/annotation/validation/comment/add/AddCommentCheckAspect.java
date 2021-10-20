@@ -8,10 +8,10 @@ import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.service.WebsiteService;
-import com.github.learndifferent.mtm.utils.ReverseUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.apache.commons.lang3.BooleanUtils;
@@ -118,45 +118,38 @@ public class AddCommentCheckAspect {
     }
 
     private void checkComment(String comment) {
-        if (comment == null || "".equals(comment.trim())) {
-            throw new ServiceException(ResultCode.COMMENT_EMPTY);
-        }
-        int maxLength = 140;
-        if (comment.length() > maxLength) {
-            throw new ServiceException(ResultCode.COMMENT_TOO_LONG);
-        }
+        boolean commentIsEmpty = comment == null || "".equals(comment.trim());
+        ThrowExceptionUtils.throwIfTrue(commentIsEmpty, ResultCode.COMMENT_EMPTY);
+
+        boolean tooLong = comment.length() > 140;
+        ThrowExceptionUtils.throwIfTrue(tooLong, ResultCode.COMMENT_TOO_LONG);
     }
 
     private void checkUsername(String username) {
         String currentUsername = (String) StpUtil.getLoginId();
 
-        if (StringUtils.isEmpty(username)
-                || ReverseUtils.stringNotEqualsIgnoreCase(username, currentUsername)) {
-            throw new ServiceException(ResultCode.PERMISSION_DENIED);
-        }
+        boolean hasNoPermission = StringUtils.isEmpty(username)
+                || CompareStringUtil.notEqualsIgnoreCase(username, currentUsername);
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     private void checkWebsiteExistsAndPermission(int webId, String username) {
         WebsiteWithPrivacyDTO web = websiteService.findWebsiteDataWithPrivacyById(webId);
-        if (web == null) {
-            throw new ServiceException(ResultCode.WEBSITE_DATA_NOT_EXISTS);
-        }
+
+        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = web.getIsPublic();
         boolean isPrivate = BooleanUtils.isFalse(isPublic);
         String user = web.getUserName();
 
-        if (isPrivate && ReverseUtils.stringNotEqualsIgnoreCase(username, user)) {
-            throw new ServiceException(ResultCode.PERMISSION_DENIED);
-        }
+        boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, user);
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     private void checkCommentContentExists(String comment, int webId, String username) {
         CommentDTO exist = commentService.getCommentByWebIdAndUsernameAndComment(
                 comment, webId, username);
-        if (exist != null) {
-            throw new ServiceException(ResultCode.COMMENT_EXISTS);
-        }
+        ThrowExceptionUtils.throwIfNotNull(exist, ResultCode.COMMENT_EXISTS);
     }
 
     private void checkReplyToCommentId(Integer replyToCommentId) {
@@ -165,8 +158,6 @@ public class AddCommentCheckAspect {
             return;
         }
         CommentDTO comment = commentService.getCommentById(replyToCommentId);
-        if (comment == null) {
-            throw new ServiceException(ResultCode.COMMENT_NOT_EXISTS);
-        }
+        ThrowExceptionUtils.throwIfNull(comment, ResultCode.COMMENT_NOT_EXISTS);
     }
 }

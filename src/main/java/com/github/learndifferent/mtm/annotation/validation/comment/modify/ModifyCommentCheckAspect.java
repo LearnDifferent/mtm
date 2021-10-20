@@ -5,9 +5,9 @@ import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.CommentDTO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.CommentService;
-import com.github.learndifferent.mtm.utils.ReverseUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.aspectj.lang.JoinPoint;
@@ -76,17 +76,15 @@ public class ModifyCommentCheckAspect {
 
     private void check(String username, int commentId) {
         CommentDTO comment = commentService.getCommentById(commentId);
-        if (comment == null) {
-            // 评论不存在的情况
-            throw new ServiceException(ResultCode.COMMENT_NOT_EXISTS);
-        }
+        // 评论不存在
+        ThrowExceptionUtils.throwIfNull(comment, ResultCode.COMMENT_NOT_EXISTS);
 
         String currentUsername = (String) StpUtil.getLoginId();
         String user = comment.getUsername();
-        if (ReverseUtils.stringNotEqualsIgnoreCase(currentUsername, username)
-                || ReverseUtils.stringNotEqualsIgnoreCase(username, user)) {
-            // 用户名不是当前用户名，或者不是该评论的所有者的情况
-            throw new ServiceException(ResultCode.PERMISSION_DENIED);
-        }
+
+        // 没有权限：用户名不是当前用户名，或者不是该评论的所有者
+        boolean hasNoPermission = CompareStringUtil.notEqualsIgnoreCase(currentUsername, username)
+                || CompareStringUtil.notEqualsIgnoreCase(username, user);
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 }

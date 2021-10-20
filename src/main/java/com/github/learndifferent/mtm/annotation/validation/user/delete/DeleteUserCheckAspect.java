@@ -8,7 +8,8 @@ import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
-import com.github.learndifferent.mtm.utils.ReverseUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.aspectj.lang.JoinPoint;
@@ -83,9 +84,7 @@ public class DeleteUserCheckAspect {
      */
     private void checkUserExists(String username, String password) {
         UserDTO user = userService.getUserByNameAndPwd(username, password);
-        if (user == null) {
-            throw new ServiceException(ResultCode.USER_NOT_EXIST);
-        }
+        ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
     }
 
     /**
@@ -98,10 +97,10 @@ public class DeleteUserCheckAspect {
 
         String currentUsername = (String) StpUtil.getLoginId();
 
-        if (StpUtil.hasRole(RoleType.GUEST.role())
-                || ReverseUtils.stringNotEqualsIgnoreCase(currentUsername, userName)) {
-            // 如果不是当前用户删除自己的帐号，就抛出异常；如果删除的是 Guest 用户，也抛出异常
-            throw new ServiceException(ResultCode.PERMISSION_DENIED);
-        }
+        // 如果不是当前用户删除自己的帐号，就抛出异常；如果删除的是 Guest 用户，也抛出异常
+        boolean hasNoPermission = StpUtil.hasRole(RoleType.GUEST.role())
+                || CompareStringUtil.notEqualsIgnoreCase(currentUsername, userName);
+
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 }
