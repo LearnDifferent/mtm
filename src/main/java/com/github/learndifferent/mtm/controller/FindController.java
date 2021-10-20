@@ -140,6 +140,11 @@ public class FindController {
      *
      * @param mode Delete user data if {@link SearchMode#USER} and delete website data if {@link SearchMode#WEB}
      * @return success or failure.
+     * @throws com.github.learndifferent.mtm.exception.ServiceException Only admin can delete all website data, and
+     *                                                                  if the current user is not admin, {@link
+     *                                                                  SearchService#checkAndDeleteIndex(SearchMode)}
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/delete")

@@ -50,6 +50,11 @@ public interface SearchService {
      *
      * @param mode Delete user data if {@link SearchMode#USER} and delete website data if {@link SearchMode#WEB}
      * @return 是否删除成功
+     * @throws com.github.learndifferent.mtm.exception.ServiceException Only admin can delete all website data, and
+     *                                                                  if the current user is not admin, {@link
+     *                                                                  com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation}
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
     boolean checkAndDeleteIndex(SearchMode mode);
 
