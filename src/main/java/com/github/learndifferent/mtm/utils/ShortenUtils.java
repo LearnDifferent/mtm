@@ -8,6 +8,8 @@ package com.github.learndifferent.mtm.utils;
  */
 public class ShortenUtils {
 
+    private ShortenUtils() {}
+
     /**
      * 缩减换行等
      *

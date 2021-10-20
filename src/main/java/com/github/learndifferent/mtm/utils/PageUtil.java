@@ -8,6 +8,9 @@ package com.github.learndifferent.mtm.utils;
  */
 public class PageUtil {
 
+    private PageUtil() {
+    }
+
     /**
      * 获取起始 Index（也就是 from 参数）
      *

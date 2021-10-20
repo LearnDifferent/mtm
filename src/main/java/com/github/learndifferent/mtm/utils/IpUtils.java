@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class IpUtils {
 
+    private IpUtils() {
+    }
+
     public static String getIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         String unknown = "unknown";

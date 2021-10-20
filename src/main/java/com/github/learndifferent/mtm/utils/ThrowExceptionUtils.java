@@ -11,6 +11,9 @@ import com.github.learndifferent.mtm.exception.ServiceException;
  */
 public class ThrowExceptionUtils {
 
+    private ThrowExceptionUtils() {
+    }
+
     /**
      * Throw an exception if the object is null
      *

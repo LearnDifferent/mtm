@@ -17,6 +17,9 @@ public class DozerUtils {
 
     private static final Mapper MAPPER = DozerBeanMapperBuilder.buildDefault();
 
+    private DozerUtils() {
+    }
+
     /**
      * 转换当前对象为另一个类型的对象
      *

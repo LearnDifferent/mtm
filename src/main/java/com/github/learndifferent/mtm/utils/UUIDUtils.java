@@ -10,6 +10,9 @@ import java.util.UUID;
  */
 public class UUIDUtils {
 
+    private UUIDUtils() {
+    }
+
     /**
      * 32 位默认长度的uuid
      *

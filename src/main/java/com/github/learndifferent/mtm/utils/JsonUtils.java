@@ -25,6 +25,9 @@ import org.springframework.format.annotation.DateTimeFormat;
  */
 public class JsonUtils {
 
+    private JsonUtils() {
+    }
+
     private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final ObjectMapper MAPPER;
 
