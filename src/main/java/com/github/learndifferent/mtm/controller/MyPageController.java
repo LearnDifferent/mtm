@@ -5,14 +5,12 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
-import com.github.learndifferent.mtm.response.ResultCreator;
-import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.IpUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
-import com.github.learndifferent.mtm.vo.MyWebsVO;
+import com.github.learndifferent.mtm.vo.MyWebsiteDataVO;
 import com.github.learndifferent.mtm.vo.PersonalInfoVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -48,33 +46,31 @@ public class MyPageController {
      * Get personal information
      *
      * @param request Request
-     * @return {@link ResultVO}<{@link PersonalInfoVO}> Personal information
+     * @return {@link PersonalInfoVO} Personal information
      */
     @GetMapping
-    public ResultVO<PersonalInfoVO> getPersonalInfo(HttpServletRequest request) {
+    public PersonalInfoVO getPersonalInfo(HttpServletRequest request) {
 
         String userName = (String) StpUtil.getLoginId();
         UserDTO user = userService.getUserByName(userName);
         String ip = IpUtils.getIp(request);
         long totalReplyNotifications = notificationService.countReplyNotifications(userName);
 
-        PersonalInfoVO personalInfoVO = PersonalInfoVO.builder()
+        return PersonalInfoVO.builder()
                 .user(user)
                 .ip(ip)
                 .totalReplyNotifications(totalReplyNotifications)
                 .build();
-
-        return ResultCreator.okResult(personalInfoVO);
     }
 
     /**
      * Get my website data
      *
      * @param pageInfo Pagination info
-     * @return {@link ResultVO}<{@link ?}> My paginated website data and total pages
+     * @return {@link MyWebsiteDataVO} My paginated website data and total pages
      */
     @GetMapping("/webs")
-    public ResultVO<MyWebsVO> getMyWebsData(@PageInfo PageInfoDTO pageInfo) {
+    public MyWebsiteDataVO getMyWebsiteDataInfo(@PageInfo PageInfoDTO pageInfo) {
         String userName = (String) StpUtil.getLoginId();
 
         int from = pageInfo.getFrom();
@@ -83,11 +79,9 @@ public class MyPageController {
         int totalCount = websiteService.countUserPost(userName, true);
         int totalPages = PageUtil.getAllPages(totalCount, size);
 
-        List<WebWithPrivacyCommentCountDTO> myWebs =
+        List<WebWithPrivacyCommentCountDTO> myWebsiteData =
                 websiteService.getWebsDataAndCommentCountByUser(userName, from, size, true);
 
-        MyWebsVO myWebsVO = MyWebsVO.builder().myWebs(myWebs).totalPages(totalPages).build();
-
-        return ResultCreator.okResult(myWebsVO);
+        return MyWebsiteDataVO.builder().myWebsiteData(myWebsiteData).totalPages(totalPages).build();
     }
 }

@@ -20,12 +20,12 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class MyWebsVO implements Serializable {
+public class MyWebsiteDataVO implements Serializable {
 
     /**
      * My paginated website data
      */
-    private List<WebWithPrivacyCommentCountDTO> myWebs;
+    private List<WebWithPrivacyCommentCountDTO> myWebsiteData;
 
     /**
      * Total pages

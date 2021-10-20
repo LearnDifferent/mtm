@@ -28,7 +28,7 @@ public class HomePageVO implements Serializable {
     /**
      * Paginated website data and total pages
      */
-    private WebsitePatternDTO websInfo;
+    private WebsitePatternDTO websiteDataInfo;
     /**
      * Username for further operation
      */

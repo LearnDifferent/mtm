@@ -73,26 +73,24 @@ public class HomeController {
      * @param pattern  search pattern
      * @param userName username
      * @param pageInfo pagination info
-     * @return {@link ResultVO}<{@link HomePageVO}> Data
+     * @return {@link HomePageVO} Data
      */
     @GetMapping("/load")
-    public ResultVO<HomePageVO> load(
+    public HomePageVO load(
             @RequestParam(value = "pattern", defaultValue = "recent") String pattern,
             @RequestParam(value = "userName", required = false) String userName,
             @PageInfo(size = 12) PageInfoDTO pageInfo) {
 
-        WebsitePatternDTO info = websiteService.getWebsitesByPattern(pattern,
+        WebsitePatternDTO websiteDataInfo = websiteService.getWebsitesByPattern(pattern,
                 userName, pageInfo);
 
         String currentUser = getCurrentUser();
 
-        HomePageVO homePageVO = HomePageVO.builder()
+        return HomePageVO.builder()
                 .currentUser(currentUser)
-                .websInfo(info)
+                .websiteDataInfo(websiteDataInfo)
                 .optUsername(userName)
                 .build();
-
-        return ResultCreator.okResult(homePageVO);
     }
 
     private String getCurrentUser() {

@@ -41,11 +41,11 @@ public class FindController {
     /**
      * Get trending searches, existent of website data for search and the update information.
      *
-     * @return {@link ResultVO}<{@link FindPageVO}> trending searches, existent of data for search and update information
+     * @return {@link FindPageVO} trending searches, existent of data for search and update information
      */
     @SystemLog(optsType = OptsType.READ)
     @GetMapping("/load")
-    public ResultVO<FindPageVO> load() {
+    public FindPageVO load() {
 
         // trending searches
         Set<String> trendingList = searchService.getTrends();
@@ -54,13 +54,11 @@ public class FindController {
         // update information
         boolean hasNewUpdate = searchService.dataInDatabaseDiffFromElasticsearch(SearchMode.WEB, exist);
 
-        FindPageVO data = FindPageVO.builder()
+        return FindPageVO.builder()
                 .trendingList(trendingList)
                 .dataStatus(exist)
                 .hasNewUpdate(hasNewUpdate)
                 .build();
-
-        return ResultCreator.okResult(data);
     }
 
     /**

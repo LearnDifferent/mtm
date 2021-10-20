@@ -3,8 +3,6 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
-import com.github.learndifferent.mtm.response.ResultCreator;
-import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.vo.AdminPageVO;
@@ -37,18 +35,16 @@ public class AdminController {
     /**
      * Get logs, all users' information and whether the current user is admin for admin page
      *
-     * @return {@link ResultVO}<{@link AdminPageVO}> information
+     * @return {@link AdminPageVO} logs, all users' information and whether the current user is admin
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
      *                                                                  will throw exception if the user is not admin.
      */
     @AdminValidation
     @GetMapping
-    public ResultVO<AdminPageVO> getAdminPageInfo() {
+    public AdminPageVO load() {
 
         List<SysLog> logs = logService.getSystemLogs();
         List<UserDTO> users = userService.getAllUsersCaching();
-        AdminPageVO data = AdminPageVO.builder().admin(true).logs(logs).users(users).build();
-
-        return ResultCreator.okResult(data);
+        return AdminPageVO.builder().admin(true).logs(logs).users(users).build();
     }
 }
