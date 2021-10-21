@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
+import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
@@ -70,32 +71,26 @@ public class HomeController {
     /**
      * Load data
      *
-     * @param pattern  search pattern
+     * @param pattern  website data presentation pattern
      * @param userName username
      * @param pageInfo pagination info
      * @return {@link HomePageVO} Data
      */
     @GetMapping("/load")
     public HomePageVO load(
-            @RequestParam(value = "pattern", defaultValue = "recent") String pattern,
+            @RequestParam("pattern") ShowPattern pattern,
             @RequestParam(value = "userName", required = false) String userName,
-            @PageInfo(size = 12) PageInfoDTO pageInfo) {
+            @PageInfo(size = 7) PageInfoDTO pageInfo) {
 
         WebsitePatternDTO websiteDataInfo = websiteService.getWebsitesByPattern(pattern,
                 userName, pageInfo);
 
-        String currentUser = getCurrentUser();
+        String currentUser = (String) StpUtil.getLoginId();
 
         return HomePageVO.builder()
                 .currentUser(currentUser)
                 .websiteDataInfo(websiteDataInfo)
                 .optUsername(userName)
                 .build();
-    }
-
-    private String getCurrentUser() {
-        Object loginId = StpUtil.getLoginId();
-        // Use String.valueOf() because the loginId will never be null
-        return String.valueOf(loginId);
     }
 }

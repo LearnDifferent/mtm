@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
@@ -222,7 +221,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     @EmptyStringCheck
-    public WebsitePatternDTO getWebsitesByPattern(@DefaultValueIfEmpty String pattern,
+    public WebsitePatternDTO getWebsitesByPattern(ShowPattern showPattern,
                                                   @DefaultValueIfEmpty String username,
                                                   PageInfoDTO pageInfo) {
 
@@ -230,8 +229,6 @@ public class WebsiteServiceImpl implements WebsiteService {
         int size = pageInfo.getSize();
 
         WebsitePatternDTO.WebsitePatternDTOBuilder builder = WebsitePatternDTO.builder();
-
-        ShowPattern showPattern = castPatternStringToPatternEnum(pattern);
 
         // Current Username
         String currentUsername = (String) StpUtil.getLoginId();
@@ -245,8 +242,7 @@ public class WebsiteServiceImpl implements WebsiteService {
                 List<WebsiteWithCountDTO> markedWebs = mostPublicMarkedWebs(from, size);
                 int markedTotalCount = countDistinctPublicUrl();
                 int markedTotalPage = PageUtil.getAllPages(markedTotalCount, size);
-                builder.webs(markedWebs).totalPage(markedTotalPage);
-                break;
+                return builder.webs(markedWebs).totalPage(markedTotalPage).build();
             case USER_PAGE:
                 // 查看某个用户所有收藏的情况
                 // 注意，这里是包含了公开和私有数据，及评论数的 WebWithPrivacyCommentCountDTO
@@ -255,8 +251,7 @@ public class WebsiteServiceImpl implements WebsiteService {
                 // 如果是当前用户，就需要包括私有数据
                 int userPageTotalCount = countUserPost(username, isCurrentUser);
                 int userPageTotalPage = PageUtil.getAllPages(userPageTotalCount, size);
-                builder.webs(userPageWebs).totalPage(userPageTotalPage);
-                break;
+                return builder.webs(userPageWebs).totalPage(userPageTotalPage).build();
             case WITHOUT_USER_PAGE:
                 // 查看除去某个用户的所有收藏的情况
                 // 注意，这里是包含了公开和私有数据，及评论数的 WebWithPrivacyCommentCountDTO
@@ -265,8 +260,7 @@ public class WebsiteServiceImpl implements WebsiteService {
                         getAllPubSpecUserPriWebsAndCommentCountExcUser(username, from, size, currentUsername);
                 int withoutUserPageTotalCount = countExcludeUserPost(username, currentUsername);
                 int withoutUserPageTotalPage = PageUtil.getAllPages(withoutUserPageTotalCount, size);
-                builder.webs(withoutUserPageWebs).totalPage(withoutUserPageTotalPage);
-                break;
+                return builder.webs(withoutUserPageWebs).totalPage(withoutUserPageTotalPage).build();
             case DEFAULT:
             default:
                 // 默认查看全部的情况（如果 pattern 不是以上的情况，也是按照默认情况处理）
@@ -277,10 +271,8 @@ public class WebsiteServiceImpl implements WebsiteService {
 
                 int totalCount = countAllPubAndSpecUserPriWebs(currentUsername);
                 int totalPage = PageUtil.getAllPages(totalCount, size);
-                builder.webs(webs).totalPage(totalPage);
+                return builder.webs(webs).totalPage(totalPage).build();
         }
-
-        return builder.build();
     }
 
     /**
@@ -313,16 +305,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         List<WebsiteDO> websites =
                 websiteMapper.findWebsitesDataByUser(username, from, size, includePrivate);
 
-        List<WebWithPrivacyCommentCountDTO> webs =
-                DozerUtils.convertList(websites, WebWithPrivacyCommentCountDTO.class);
-
-        // Get count of website post comments
-        webs.forEach(w -> {
-            Integer webId = w.getWebId();
-            int commentCount = countCommentManager.countCommentByWebId(webId);
-            w.setCommentCount(commentCount);
-        });
-        return webs;
+        return getWebsWithPrivacyCommentCount(websites);
     }
 
     /**
@@ -365,16 +348,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         List<WebsiteDO> websites = websiteMapper.findWebsitesDataExcludeUser(
                 excludeUsername, from, size, userNameToShowAll);
 
-        List<WebWithPrivacyCommentCountDTO> webs =
-                DozerUtils.convertList(websites, WebWithPrivacyCommentCountDTO.class);
-
-        // Get count of website post comments
-        webs.forEach(w -> {
-            Integer webId = w.getWebId();
-            int commentCount = countCommentManager.countCommentByWebId(webId);
-            w.setCommentCount(commentCount);
-        });
-        return webs;
+        return getWebsWithPrivacyCommentCount(websites);
     }
 
     /**
@@ -391,6 +365,10 @@ public class WebsiteServiceImpl implements WebsiteService {
         List<WebsiteDO> websites =
                 websiteMapper.getAllPubAndSpecUserPriWebs(from, size, specUsername);
 
+        return getWebsWithPrivacyCommentCount(websites);
+    }
+
+    private List<WebWithPrivacyCommentCountDTO> getWebsWithPrivacyCommentCount(List<WebsiteDO> websites) {
         List<WebWithPrivacyCommentCountDTO> webs =
                 DozerUtils.convertList(websites, WebWithPrivacyCommentCountDTO.class);
 
@@ -401,22 +379,6 @@ public class WebsiteServiceImpl implements WebsiteService {
             w.setCommentCount(commentCount);
         });
         return webs;
-    }
-
-    private ShowPattern castPatternStringToPatternEnum(String pattern) {
-
-        pattern = camelToSnake(pattern).toUpperCase();
-
-        try {
-            return ShowPattern.valueOf(pattern);
-        } catch (IllegalArgumentException | NullPointerException e) {
-            // 找不到的时候，返回默认值
-            return ShowPattern.DEFAULT;
-        }
-    }
-
-    private String camelToSnake(String value) {
-        return new PropertyNamingStrategy.SnakeCaseStrategy().translate(value);
     }
 
     @Override

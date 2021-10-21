@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
+import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
@@ -98,12 +99,12 @@ public interface WebsiteService {
     /**
      * 获取该 pattern 下，分页后需要的网页数据和总页数
      *
-     * @param pattern  默认模式为查询所有，如果有指定的模式，就按照指定模式获取
-     * @param username 如果需要用户名，就传入用户名；如果不需要，就传入空字符串；
-     * @param pageInfo 分页相关信息
+     * @param showPattern 展示的模式
+     * @param username    如果需要用户名，就传入用户名；如果不需要，就传入空字符串；
+     * @param pageInfo    分页相关信息
      * @return 该 pattern 下，分页后需要的网页数据和总页数
      */
-    WebsitePatternDTO getWebsitesByPattern(String pattern, String username, PageInfoDTO pageInfo);
+    WebsitePatternDTO getWebsitesByPattern(ShowPattern showPattern, String username, PageInfoDTO pageInfo);
 
     /**
      * Get all public website data and the count of their comments, of user the with name of {@code username}.

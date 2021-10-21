@@ -1,8 +1,11 @@
 package com.github.learndifferent.mtm.config;
 
 import cn.dev33.satoken.interceptor.SaRouteInterceptor;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfoMethodArgumentResolver;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
+import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import java.util.List;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -41,6 +44,7 @@ public class CustomWebConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new SearchModeConverter());
+        registry.addConverter(new ShowPatternConverter());
     }
 
 }
@@ -61,6 +65,21 @@ class SearchModeConverter implements Converter<String, SearchMode> {
             e.printStackTrace();
             // Returns default mode if exception
             return SearchMode.WEB;
+        }
+    }
+}
+
+class ShowPatternConverter implements Converter<String, ShowPattern> {
+
+    @Override
+    public ShowPattern convert(String source) {
+        try {
+            String snakeValue = new SnakeCaseStrategy().translate(source);
+            return ShowPattern.valueOf(snakeValue.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            e.printStackTrace();
+            // Returns default pattern if exception
+            return ShowPattern.DEFAULT;
         }
     }
 }
