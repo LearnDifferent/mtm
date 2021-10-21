@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.dto.search;
 
-import com.github.learndifferent.mtm.dto.search.DataForSearch;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -77,7 +77,7 @@ public class HomeController {
      * @return {@link HomePageVO} Data
      */
     @GetMapping("/load")
-    public HomePageVO load(
+    public HomePageVO getHomePageData(
             @RequestParam("pattern") ShowPattern pattern,
             @RequestParam(value = "userName", required = false) String userName,
             @PageInfo(size = 7) PageInfoDTO pageInfo) {

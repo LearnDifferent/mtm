@@ -52,7 +52,8 @@
         from website
         where `public` is true
         group by url, title, `desc`, img
-        order by count desc limit #{from}, #{size};
+        order by count desc
+        limit #{from}, #{size};
     </select>
 
     <select id="countDistinctPublicUrl" resultType="java.lang.Integer">

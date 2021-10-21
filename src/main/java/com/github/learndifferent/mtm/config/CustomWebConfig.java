@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.config;
 
 import cn.dev33.satoken.interceptor.SaRouteInterceptor;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfoMethodArgumentResolver;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
@@ -69,6 +68,12 @@ class SearchModeConverter implements Converter<String, SearchMode> {
     }
 }
 
+/**
+ * Convert string to {@link ShowPattern}
+ *
+ * @author zhou
+ * @date 2021/10/21
+ */
 class ShowPatternConverter implements Converter<String, ShowPattern> {
 
     @Override
