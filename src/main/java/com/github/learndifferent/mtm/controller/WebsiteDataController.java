@@ -49,14 +49,14 @@ public class WebsiteDataController {
      *
      * @param webId    Website ID
      * @param userName Username
-     * @return {@code ResultVO<?>} Success or failure.
+     * @return Success or failure.
      * @throws ServiceException {@link WebsiteService#delWebsiteDataById(int, String)} will throw
      *                          an exception if the user does not have permission to delete, the result
      *                          code will be {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
-    public ResultVO<?> deleteWebsiteData(@RequestParam("webId") Integer webId,
-                                         @RequestParam("userName") String userName) {
+    public ResultVO<ResultCode> deleteWebsiteData(@RequestParam("webId") Integer webId,
+                                                  @RequestParam("userName") String userName) {
 
         boolean success = websiteService.delWebsiteDataById(webId, userName);
         return success ? ResultCreator.result(ResultCode.DELETE_SUCCESS)
@@ -70,15 +70,15 @@ public class WebsiteDataController {
      *                    has no web id, username and creation time,
      *                    which only contains title, url, image and description.
      * @param userName    User who saves the website data
-     * @return {@code ResultVO<?>} Success or failure.
+     * @return Success or failure.
      * @throws ServiceException {@link WebsiteService#saveWebsiteData(WebWithNoIdentityDTO, String, boolean)}
      *                          will verify and throw exceptions if something goes wrong.
      *                          The Result Codes are: {@link ResultCode#ALREADY_MARKED}, {@link
      *                          ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      */
     @PostMapping("/existing")
-    public ResultVO<?> saveExistingPublicWebsiteData(@RequestBody SaveWebDataRequest websiteData,
-                                                     @RequestParam("userName") String userName) {
+    public ResultVO<ResultCode> saveExistingPublicWebsiteData(@RequestBody SaveWebDataRequest websiteData,
+                                                              @RequestParam("userName") String userName) {
 
         WebWithNoIdentityDTO website = DozerUtils.convert(websiteData, WebWithNoIdentityDTO.class);
         boolean success = websiteService.saveWebsiteData(website, userName, true);
@@ -116,8 +116,8 @@ public class WebsiteDataController {
      *                          if the user has no permission to change the website privacy settings.
      */
     @GetMapping
-    public ResultVO<?> changeWebPrivacySettings(@RequestParam("webId") Integer webId,
-                                                @RequestParam("userName") String userName) {
+    public ResultVO<ResultCode> changeWebPrivacySettings(@RequestParam("webId") Integer webId,
+                                                         @RequestParam("userName") String userName) {
         boolean success = websiteService.changeWebPrivacySettings(webId, userName);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.UPDATE_FAILED);
     }

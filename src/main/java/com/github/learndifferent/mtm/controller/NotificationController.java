@@ -84,11 +84,11 @@ public class NotificationController {
     /**
      * Delete system notifications
      *
-     * @return {@link ResultVO}<{@link ?}> {@link ResultCreator#okResult()}
+     * @return {@link ResultCreator#okResult()}
      */
     @SystemLog(title = "Notification", optsType = OptsType.DELETE)
     @DeleteMapping
-    public ResultVO<?> deleteSystemNotifications() {
+    public ResultVO<ResultCode> deleteSystemNotifications() {
         notificationService.deleteSystemNotification();
         return ResultCreator.okResult();
     }
@@ -97,11 +97,11 @@ public class NotificationController {
      * Send a system notification
      *
      * @param content the content to send
-     * @return {@link ResultVO}<{@link ?}> {@link ResultCreator#okResult()}
+     * @return {@link ResultCreator#okResult()}
      */
     @SystemLog(title = "Notification", optsType = OptsType.CREATE)
     @GetMapping("send/{content}")
-    public ResultVO<?> sendSystemNotification(@PathVariable String content) {
+    public ResultVO<ResultCode> sendSystemNotification(@PathVariable String content) {
         notificationService.sendSystemNotification(content);
         return ResultCreator.okResult();
     }

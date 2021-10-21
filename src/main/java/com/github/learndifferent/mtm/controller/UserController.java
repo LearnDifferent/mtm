@@ -57,11 +57,11 @@ public class UserController {
      * Change Password
      *
      * @param passwordInfo username, old password and new password
-     * @return {@code ResultVO<?>} Success or failure
+     * @return {@link ResultCode#PASSWORD_CHANGED} or {@link ResultCode#UPDATE_FAILED}
      */
     @NotGuest
     @PostMapping("/changePwd")
-    public ResultVO<?> changePassword(@RequestBody ChangePwdRequest passwordInfo) {
+    public ResultVO<ResultCode> changePassword(@RequestBody ChangePwdRequest passwordInfo) {
 
         boolean success = userService.changePassword(passwordInfo);
 
@@ -89,8 +89,8 @@ public class UserController {
      *                        ignored.
      *                        <p>{@link RegisterCodeCheck} annotation will use the value of it for verification if
      *                        necessary.</p>
-     * @return {@code ResultVO<?>} If success, return {@link ResultCreator#okResult()}.
-     * <p>If failure, return {@link ResultCreator#defaultFailResult()}</p>
+     * @return If success, return {@link ResultCreator#okResult()}. If failure, return {@link
+     * ResultCreator#defaultFailResult()}
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link RegisterCodeCheck} annotation will check
      *                                                                  the codes and {@link UserService#addUser(CreateUserRequest,
      *                                                                  String)} method will verify username, password
@@ -108,12 +108,12 @@ public class UserController {
      */
     @PostMapping("/create")
     @RegisterCodeCheck
-    public ResultVO<?> createUser(@RequestBody CreateUserRequest userInfo,
-                                  @UserRole(defaultRole = RoleType.USER) String role,
-                                  @VerificationCode String code,
-                                  @VerificationCodeToken String verifyToken,
-                                  @InvitationCode(required = false) String invitationCode,
-                                  @InvitationCodeToken(required = false) String invitationToken) {
+    public ResultVO<ResultCode> createUser(@RequestBody CreateUserRequest userInfo,
+                                           @UserRole(defaultRole = RoleType.USER) String role,
+                                           @VerificationCode String code,
+                                           @VerificationCodeToken String verifyToken,
+                                           @InvitationCode(required = false) String invitationCode,
+                                           @InvitationCodeToken(required = false) String invitationToken) {
 
         boolean success = userService.addUser(userInfo, role);
 
@@ -126,7 +126,7 @@ public class UserController {
      *
      * @param userName Username
      * @param password Password
-     * @return {@code ResultVO<?>} Success or failure
+     * @return Success or failure
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link UserService#deleteUserAndWebAndCommentData(String,
      *                                                                  String)} will verify user's name, password and
      *                                                                  permission to delete. If there is any mismatch,
@@ -135,15 +135,14 @@ public class UserController {
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
-    public ResultVO<?> deleteUser(@RequestParam("userName") String userName,
-                                  @RequestParam("password") String password) {
+    public ResultVO<String> deleteUser(@RequestParam("userName") String userName,
+                                       @RequestParam("password") String password) {
 
         boolean success = userService.deleteUserAndWebAndCommentData(userName, password);
 
         // Logout
         StpUtil.logout();
 
-        return success ? ResultCreator.okResult() :
-                ResultCreator.failResult("User does not exist.");
+        return success ? ResultCreator.okResult() : ResultCreator.failResult("User does not exist.");
     }
 }

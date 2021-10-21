@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.annotation.common.VerificationCode;
 import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.validation.login.VerifyLoginInfoAndGetParamValue;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.LoginRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -73,10 +74,10 @@ public class LoginController {
     /**
      * Logout
      *
-     * @return {@code ResultVO<?>} {@link ResultCreator#okResult()}
+     * @return {@link ResultCreator#okResult()}
      */
     @GetMapping("/out")
-    public ResultVO<?> logout() {
+    public ResultVO<ResultCode> logout() {
         StpUtil.logout();
 
         return ResultCreator.okResult();
