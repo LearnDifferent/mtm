@@ -1,8 +1,12 @@
 package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
+import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
+import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -12,10 +16,10 @@ import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -131,5 +135,19 @@ public class WebsiteDataController {
                                                    @RequestParam("userName") String userName) {
         WebsiteDTO web = websiteService.getWebsiteDataByIdAndCheckUsername(webId, userName);
         return web == null ? ResultCreator.failResult() : ResultCreator.okResult(web);
+    }
+
+    /**
+     * Get paginated website data and total pages by username
+     *
+     * @param username username
+     * @return {@link ResultVO}<{@link UserPublicWebInfoDTO}> Paginated public website data and total pages belonging to
+     * the user, with the result code of {@link ResultCode#SUCCESS}
+     */
+    @GetMapping("/get/{username}")
+    public ResultVO<UserPublicWebInfoDTO> getWebsiteDataInfoByUsername(@PathVariable("username") String username,
+                                                                       @PageInfo(size = 8) PageInfoDTO pageInfo) {
+        UserPublicWebInfoDTO info = websiteService.getUserPublicWebInfoDTO(username, pageInfo);
+        return ResultCreator.okResult(info);
     }
 }

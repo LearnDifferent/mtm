@@ -17,6 +17,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
+import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
@@ -34,9 +35,9 @@ import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -416,6 +417,23 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     private String camelToSnake(String value) {
         return new PropertyNamingStrategy.SnakeCaseStrategy().translate(value);
+    }
+
+    @Override
+    public UserPublicWebInfoDTO getUserPublicWebInfoDTO(String username, PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+
+        int totalCounts = websiteMapper.countUserPost(username, false);
+        int totalPages = PageUtil.getAllPages(totalCounts, size);
+
+        List<WebsiteDO> webs = websiteMapper.findWebsitesDataByUser(username, from, size, false);
+        List<WebsiteDTO> websiteData = DozerUtils.convertList(webs, WebsiteDTO.class);
+
+        return UserPublicWebInfoDTO.builder()
+                .totalPages(totalPages)
+                .websiteData(websiteData)
+                .build();
     }
 
     @Override

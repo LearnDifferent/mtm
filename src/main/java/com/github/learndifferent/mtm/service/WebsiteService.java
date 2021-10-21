@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.service;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
+import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
@@ -118,6 +119,15 @@ public interface WebsiteService {
                                                                          Integer from,
                                                                          Integer size,
                                                                          boolean includePrivate);
+
+    /**
+     * Get paginated website data and total pages by username
+     *
+     * @param username username
+     * @param pageInfo pagination info
+     * @return {@link UserPublicWebInfoDTO}
+     */
+    UserPublicWebInfoDTO getUserPublicWebInfoDTO(String username, PageInfoDTO pageInfo);
 
     /**
      * 通过 url 找到所有网页的数据，包括私有的。
