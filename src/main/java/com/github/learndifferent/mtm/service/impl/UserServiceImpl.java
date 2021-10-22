@@ -1,15 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.common.Password;
-import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.validation.user.create.NewUserCheck;
-import com.github.learndifferent.mtm.annotation.validation.user.delete.DeleteUserCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
-import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.DeleteUserManager;
+import com.github.learndifferent.mtm.manager.CdUserManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
@@ -18,15 +13,12 @@ import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import com.github.learndifferent.mtm.utils.UUIDUtils;
-import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -40,13 +32,13 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
-    private final DeleteUserManager deleteUserManager;
+    private final CdUserManager cdUserManager;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper,
-                           DeleteUserManager deleteUserManager) {
+                           CdUserManager cdUserManager) {
         this.userMapper = userMapper;
-        this.deleteUserManager = deleteUserManager;
+        this.cdUserManager = cdUserManager;
     }
 
     @Override
@@ -85,54 +77,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean addUser(CreateUserRequest usernameAndPassword, String role) {
 
-        UserDO user = DozerUtils.convert(usernameAndPassword, UserDO.class);
-        user.setRole(role);
-        UserServiceImpl userServiceImpl = ApplicationContextUtils.getBean(UserServiceImpl.class);
-        return userServiceImpl.addUserWithNoEncryptedPwdNoIdNoTime(user);
-    }
+        String username = usernameAndPassword.getUserName();
+        String notEncryptedPassword = usernameAndPassword.getPassword();
 
-    /**
-     * Add a user: encrypt the password, set an ID and creation time
-     *
-     * @param user 被添加的用户
-     * @return 成功与否
-     * @throws ServiceException {@link NewUserCheck} 注解会检查该用户名除了数字和英文字母外，是否还包含其他字符，如果有就抛出异常。
-     *                          <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
-     *                          <p>如果用户名大于 30 个字符，也会抛出异常。</p>
-     *                          <p>如果密码大于 50 个字符，也会抛出异常</p>
-     *                          <p>如果用户名或密码为空，抛出异常</p>
-     *                          <p>如果没有传入正确的用户角色，抛出异常</p>
-     *                          <p>Result Code 为：</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
-     *                          <br>
-     *                          <p>因为主键设置为了 userName，所以这里捕获的 {@link DuplicateKeyException} 异常就是重复用户名的意思，
-     *                          相当于捕获了 {@link com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException}。</p>
-     */
-    @NewUserCheck(userClass = UserDO.class,
-                  usernameFieldName = "userName",
-                  passwordFieldName = "password",
-                  roleFieldName = "role")
-    public boolean addUserWithNoEncryptedPwdNoIdNoTime(UserDO user) {
-
-        // 添加 ID 和创建时间，将密码进行加密处理
-        String uuid = UUIDUtils.getUuid();
-        Date createTime = new Date();
-        String password = Md5Util.getMd5(user.getPassword());
-        user.setUserId(uuid)
-                .setCreateTime(createTime)
-                .setPassword(password);
-
-        try {
-            return userMapper.addUser(user);
-        } catch (DuplicateKeyException e) {
-            throw new ServiceException(ResultCode.USER_ALREADY_EXIST);
-        }
+        return cdUserManager.createUser(username, notEncryptedPassword, role);
     }
 
     /**
@@ -163,13 +111,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @DeleteUserCheck
     @Caching(evict = {
             @CacheEvict({"allUsers", "usernamesAndTheirWebs"}),
             @CacheEvict(value = {"getUserByName", "getRoleByName"}, key = "#userName")
     })
-    public boolean deleteUserAndWebAndCommentData(@Username String userName, @Password String password) {
-        return deleteUserManager.deleteUserAndWebAndCommentData(userName);
+    public boolean deleteUserAndWebAndCommentData(String userName, String password) {
+        return cdUserManager.deleteUserAndWebAndCommentData(userName, password);
     }
 
     @Override

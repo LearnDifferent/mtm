@@ -92,12 +92,11 @@ public interface UserService {
      * @param userName username
      * @param password password
      * @return boolean success to delete or not
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.user.delete.DeleteUserCheck}
-     *                                                                  will verify user's name, password and
-     *                                                                  permission to delete. If there is any mismatch,
-     *                                                                  it will throw exceptions. The Result Codes are
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If there is any mismatch while verifying user's
+     *                                                                  name, password and permission to delete, it
+     *                                                                  will throw exceptions with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST}
-     *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
     boolean deleteUserAndWebAndCommentData(String userName, String password);
 

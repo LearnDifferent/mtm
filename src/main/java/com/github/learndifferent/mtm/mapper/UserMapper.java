@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.mapper;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -70,15 +71,6 @@ public interface UserMapper {
      */
     String getUserRoleById(String userId);
 
-
-    /**
-     * 根据 ID 获取用户
-     *
-     * @param userId 用户 ID
-     * @return 用户
-     */
-    UserDO getUserById(String userId);
-
     /**
      * 根据用户名获取用户
      *
@@ -88,12 +80,22 @@ public interface UserMapper {
     UserDO getUserByName(String userName);
 
     /**
-     * 根据用户名删除用户
+     * Get user id by username and password
      *
-     * @param userName 用户名
-     * @return 是否成功删除
+     * @param userName username
+     * @param password password
+     * @return user id or null if not exists
      */
-    boolean deleteUserByName(String userName);
+    String getUserIdByNameAndPassword(@Param("userName") String userName,
+                                      @Param("password") String password);
+
+    /**
+     * Delete user by user id
+     *
+     * @param userId user id
+     * @return success or failure
+     */
+    boolean deleteUserByUserId(String userId);
 
     /**
      * 更新用户数据

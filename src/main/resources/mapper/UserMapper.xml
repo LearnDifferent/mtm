@@ -32,10 +32,10 @@
                 #{createTime,jdbcType=DATE}, #{role,jdbcType=VARCHAR})
     </insert>
 
-    <delete id="deleteUserByName">
+    <delete id="deleteUserByUserId">
         delete
         from user
-        where user_name = #{userName};
+        where user_id = #{userId};
     </delete>
 
     <select id="getUserByNameAndPwd" resultMap="BaseResultMap">
@@ -44,16 +44,13 @@
         where user_name = #{param1}
           and password = #{param2};
     </select>
+
     <select id="getUserRoleById" resultType="java.lang.String">
         select role
         from user
         where user_id = #{userId};
     </select>
-    <select id="getUserById" resultMap="BaseResultMap">
-        select *
-        from user
-        where user_id = #{userId};
-    </select>
+
     <select id="getRoleByName" resultType="java.lang.String">
         select role
         from user
@@ -72,6 +69,13 @@
     <select id="countUsers" resultType="java.lang.Integer">
         select count(*)
         from user
+    </select>
+
+    <select id="getUserIdByNameAndPassword" resultType="java.lang.String">
+        select user_id
+        from user
+        where user_name = #{userName}
+          and password = #{password};
     </select>
 
     <update id="updateUser" parameterType="com.github.learndifferent.mtm.entity.UserDO">

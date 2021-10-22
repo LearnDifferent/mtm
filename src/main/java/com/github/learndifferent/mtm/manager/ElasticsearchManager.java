@@ -36,6 +36,7 @@ import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -286,7 +287,9 @@ public class ElasticsearchManager {
 
         users.forEach(u -> {
             IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
-            request.id(u.getUserId());
+
+            String userId = u.getUserId();
+            request.id(userId);
 
             String json = JsonUtils.toJson(u);
             request.source(json, XContentType.JSON);
@@ -304,8 +307,33 @@ public class ElasticsearchManager {
         }
     }
 
+    @Async("asyncTaskExecutor")
+    public void addUserDataToElasticsearchAsync(UserForSearchDTO user) {
+
+        IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
+        String userId = user.getUserId();
+        String json = JsonUtils.toJson(user);
+        request.id(userId).source(json, XContentType.JSON);
+        try {
+            client.index(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Async("asyncTaskExecutor")
+    public void removeUserFromElasticsearchAsync(String userId) {
+
+        DeleteRequest request = new DeleteRequest(EsConstant.INDEX_USER, userId);
+        try {
+            client.delete(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
-     * 重新生成搜索数据。
+     * 重新生成用于搜索的网页数据。
      * <p>确保之前的数据已经清空，再根据数据库中的数据生成 Elasticsearch 的数据。</p>
      *
      * @return 是否成功
