@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 搜索结果
+ * Search Results
  *
  * @author zhou
  * @date 2021/09/05
@@ -32,7 +32,7 @@ public class SearchResultsDTO implements Serializable {
     /**
      * Paginated search results
      */
-    private List<? extends DataForSearch> paginatedResults;
+    private List<? extends SearchResults> paginatedResults;
 
     private static final long serialVersionUID = 1L;
 }

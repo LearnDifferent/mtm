@@ -1,9 +1,9 @@
 package com.github.learndifferent.mtm.dto.search;
 
 /**
- * Data for search
+ * Search Results
  *
  * @author zhou
  * @date 2021/10/16
  */
-public interface DataForSearch {}
+public interface SearchResults {}

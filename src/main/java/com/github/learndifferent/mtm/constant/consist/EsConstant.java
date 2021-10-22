@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.constant.consist;
 
 /**
- * Elasticsearch 的 index
+ * Elasticsearch Indices
  *
  * @author zhou
  * @date 2021/09/05
@@ -20,8 +20,6 @@ public final class EsConstant {
     public static final String USER_NAME = "userName";
 
     public static final String ROLE = "role";
-
-    public static final String WEB_COUNT = "webCount";
 
     public static final String CREATION_TIME = "createTime";
 

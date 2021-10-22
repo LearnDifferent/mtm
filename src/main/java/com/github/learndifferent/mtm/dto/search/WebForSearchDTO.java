@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Elasticsearch 索引的数据结构（这里归为了 DTO，实际上也是 DO）
+ * Website Data for search
  *
  * @author zhou
  * @date 2021/09/05
@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class WebForSearchDTO implements Serializable, DataForSearch {
+public class WebForSearchDTO implements Serializable, SearchResults {
 
     /**
      * Title

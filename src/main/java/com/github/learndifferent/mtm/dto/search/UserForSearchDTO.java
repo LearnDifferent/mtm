@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import lombok.experimental.SuperBuilder;
 
 /**
  * User Data for search
@@ -19,8 +19,8 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-@Builder
-public class UserForSearchDTO implements Serializable, DataForSearch {
+@SuperBuilder
+public class UserForSearchDTO implements Serializable {
 
     /**
      * User ID
@@ -42,11 +42,6 @@ public class UserForSearchDTO implements Serializable, DataForSearch {
      * User Role
      */
     private String role;
-
-    /**
-     * The amount of public website data that user owns
-     */
-    private Integer webCount;
 
     private static final long serialVersionUID = 1L;
 }

@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
+import com.github.learndifferent.mtm.dto.search.UserForSearchWithWebCountDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -70,7 +71,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 操作 Elasticsearch
+ * Elasticsearch Manager
  *
  * @author zhou
  * @date 2021/09/05
@@ -276,10 +277,6 @@ public class ElasticsearchManager {
 
         List<UserDO> users = userMapper.getUsers();
         List<UserForSearchDTO> usersForSearch = DozerUtils.convertList(users, UserForSearchDTO.class);
-        usersForSearch.forEach(u -> {
-            int webCount = websiteMapper.countUserPost(u.getUserName(), false);
-            u.setWebCount(webCount);
-        });
 
         return bulkAddUserDataForSearch(usersForSearch);
     }
@@ -382,7 +379,6 @@ public class ElasticsearchManager {
 
         try {
             SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-
             SearchHits hits = response.getHits();
             // 总数
             long totalCount = hits.getTotalHits().value;
@@ -391,7 +387,7 @@ public class ElasticsearchManager {
             // 总页数
             int totalPages = PageUtil.getAllPages((int) totalCount, size);
             // 分页后的结果
-            List<UserForSearchDTO> paginatedResults = getUsersByHits(hits);
+            List<UserForSearchWithWebCountDTO> paginatedResults = getUsersWithWebCountByHits(hits);
             return SearchResultsDTO.builder()
                     .paginatedResults(paginatedResults)
                     .totalCount(totalCount)
@@ -403,21 +399,24 @@ public class ElasticsearchManager {
         }
     }
 
-    private List<UserForSearchDTO> getUsersByHits(SearchHits hits) {
-        List<UserForSearchDTO> userList = new ArrayList<>();
+    private List<UserForSearchWithWebCountDTO> getUsersWithWebCountByHits(SearchHits hits) {
+        List<UserForSearchWithWebCountDTO> userList = new ArrayList<>();
         hits.forEach(h -> {
             Map<String, Object> sourceAsMap = h.getSourceAsMap();
-            UserForSearchDTO user = convertToUser(sourceAsMap);
+            UserForSearchWithWebCountDTO user = convertToUser(sourceAsMap);
+
+            int webCount = websiteMapper.countUserPost(user.getUserName(), false);
+            user.setWebCount(webCount);
             userList.add(user);
         });
+
         return userList;
     }
 
-    private UserForSearchDTO convertToUser(Map<String, Object> map) {
+    private UserForSearchWithWebCountDTO convertToUser(Map<String, Object> map) {
         String userId = (String) map.get(EsConstant.USER_ID);
         String userName = (String) map.get(EsConstant.USER_NAME);
         String role = (String) map.get(EsConstant.ROLE);
-        Integer webCount = (Integer) map.get(EsConstant.WEB_COUNT);
 
         String time = (String) map.get(EsConstant.CREATION_TIME);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -430,12 +429,11 @@ public class ElasticsearchManager {
 
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
-        return UserForSearchDTO.builder()
+        return UserForSearchWithWebCountDTO.builder()
                 .userId(userId)
                 .userName(userName)
                 .role(role)
                 .createTime(creationTime)
-                .webCount(webCount)
                 .build();
     }
 
