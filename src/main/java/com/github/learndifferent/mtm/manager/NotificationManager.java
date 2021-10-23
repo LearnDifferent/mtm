@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 /**
- * About notification
+ * Notification Manager
  *
  * @author zhou
  * @date 2021/10/7
@@ -64,13 +65,29 @@ public class NotificationManager {
         return notifications.stream()
                 .map(n -> {
                     ReplyNotificationWithMsgDTO no = JsonUtils.toObject(n, ReplyNotificationWithMsgDTO.class);
-                    int commentId = no.getCommentId();
-                    // the text is null if the comment does not exist
-                    String text = commentMapper.getCommentTextById(commentId);
+                    String text = getCommentTextIfWebsiteAndCommentExist(no);
                     no.setMessage(text);
                     return no;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private String getCommentTextIfWebsiteAndCommentExist(ReplyNotificationWithMsgDTO notification) {
+
+        Integer webId = notification.getWebId();
+        // include private website data because another method
+        // that views the details will verify the permission later on
+        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
+
+        if (web == null) {
+            // if the website data does not exist,
+            // returns null to indicate that the comment does not exist
+            return null;
+        }
+
+        int commentId = notification.getCommentId();
+        // the result is null if the comment does not exist
+        return commentMapper.getCommentTextById(commentId);
     }
 
     public void sendReplyNotification(CommentDO comment) {
@@ -90,7 +107,8 @@ public class NotificationManager {
         int webId = comment.getWebId();
         Integer replyToCommentId = comment.getReplyToCommentId();
 
-        // 如果 replyToCommentId 为空，就提醒 webId 的所有者，否则，提醒 replyToCommentId 的所有者
+        // the notification belongs to the owner of the website data if replyToCommentId is null
+        // and belongs to the owner of the comment data if it's not null
         boolean notifyWebsiteOwner = replyToCommentId == null;
         String receiveUsername;
 
@@ -121,56 +139,43 @@ public class NotificationManager {
     }
 
     /**
-     * 发送系统通知
+     * Send System Notification and ensure the limit is 20
      *
-     * @param content 通知内容
+     * @param content content of notification
      */
     public void sendSystemNotification(String content) {
-        // 将消息存入 key 中
         redisTemplate.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, content);
-        // 确保该 key 只有 20 个 value
         redisTemplate.opsForList().trim(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
     }
 
     /**
-     * 获取前 20 条通知，并转化为 HTML 的形式
+     * Get first 20 messages and convert text to an HTML format
      *
-     * @return 转化为 HTML 的形式的前 20 条通知
+     * @return first 20 messages
      */
     public String getSystemNotificationsHtml() {
 
-        // 获取 notice 为 key 的所有值
-        List<String> msg = getSystemNotifications();
+        // get first 20 messages
+        List<String> messages = redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
 
-        int size = msg.size();
-
-        if (size == 0) {
-            // 如果没有消息，直接返回没消息的文字
+        if (CollectionUtils.isEmpty(messages)) {
             return "No Notifications Yet";
         }
 
-        StringBuilder sb = getHtmlMsg(msg, size);
+        int size = messages.size();
+        StringBuilder sb = getHtmlMsg(messages, size);
 
         return sb.toString();
     }
 
-    /**
-     * 获取系统的通知
-     *
-     * @return Redis 该通知相关 key 内的所有值
-     */
-    private List<String> getSystemNotifications() {
-        return redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, -1);
-    }
-
     private StringBuilder getHtmlMsg(List<String> msg, int size) {
-        // 如果小于 20 就用 List 的 size，如果大于 20，就为前 20 个
+
         int count = Math.min(size, 20);
 
         StringBuilder sb = new StringBuilder("Alerting System Notifications (" + count + ")：<br>");
 
         for (int i = 1; i <= count; i++) {
-            // 返回格式：<br>1. 消息<br>2. 消息...
+            // format：<br>1. first message <br>2. message .........
             sb.append("<br>").append(i).append(". ").append(msg.get(i - 1));
         }
         return sb;

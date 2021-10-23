@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Reply notification
+ * Reply Notification Data Transfer Object
  *
  * @author zhou
  * @date 2021/10/7
@@ -29,7 +29,7 @@ public class ReplyNotificationDTO implements Serializable {
     private Date creationTime;
 
     /**
-     * User's name, who is about to receive the notification.
+     * Name of the user, who is about to receive the notification.
      * If {@link ReplyNotificationDTO#getReplyToCommentId()} is null,
      * then the user is the owner of the website data.
      * If {@link ReplyNotificationDTO#getReplyToCommentId()} is not null,
@@ -38,17 +38,17 @@ public class ReplyNotificationDTO implements Serializable {
     private String receiveUsername;
 
     /**
-     * User's name, who sent the reply (or comment)
+     * Name of the user who sent the reply (or comment)
      */
     private String sendUsername;
 
     /**
-     * Comment id
+     * Comment ID
      */
     private Integer commentId;
 
     /**
-     * Web id
+     * Web ID
      */
     private Integer webId;
 

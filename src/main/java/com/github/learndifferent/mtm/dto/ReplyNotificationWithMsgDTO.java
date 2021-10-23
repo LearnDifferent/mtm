@@ -20,7 +20,7 @@ import lombok.ToString;
 public class ReplyNotificationWithMsgDTO extends ReplyNotificationDTO {
 
     /**
-     * New field: comment / reply message  (null if the comment or reply has been deleted)
+     * Comment / Reply Message  (null if the website data, comment or reply has been deleted)
      */
     private String message;
 }
