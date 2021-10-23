@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.E
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -138,66 +141,71 @@ public class ElasticsearchManager {
 
     /**
      * Elasticsearch 和数据库中的数据是否不同步。
-     * <p>在执行方法之前，判断一下 Elasticsearch 中是否存在该 index。</p>
-     * <p>如果存在了，再执行。</p>
-     * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
      *
+     * @param mode          search mode：如果不是指定的模式，直接返回 false，表示数据相同
+     * @param notExistIndex 是否不存在该 index：如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同
      * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
      */
-    public boolean websiteDataDiffFromDatabase(boolean existIndex) {
-        if (existIndex) {
-            // 数据库中的 distinct url 的数量
-            long databaseUrlCount = websiteMapper.countDistinctPublicUrl();
-            // Elasticsearch 中的文档的数量
-            long elasticsearchDocCount = countDocs(EsConstant.INDEX_WEB);
-            // 如果数量不相同，代表有变化；如果数量相同，代表没有变化
-            return databaseUrlCount != elasticsearchDocCount;
-        }
-        // 如果不存在该 index，直接返回 true，表示不同
-        return true;
-    }
+    public boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean notExistIndex) {
 
-    /**
-     * Elasticsearch 和数据库中的数据是否不同步。
-     * <p>在执行方法之前，判断一下 Elasticsearch 中是否存在该 index。</p>
-     * <p>如果存在了，再执行。</p>
-     * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
-     *
-     * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
-     */
-    public boolean userDataDiffFromDatabase(boolean existIndex) {
-        if (existIndex) {
-            // 数据库中的 distinct url 的数量
-            long databaseUserCount = userMapper.countUsers();
-            // Elasticsearch 中的文档的数量
-            long elasticsearchDocCount = countDocs(EsConstant.INDEX_USER);
-            // 如果数量不相同，代表有变化；如果数量相同，代表没有变化
-            return databaseUserCount != elasticsearchDocCount;
+        if (notExistIndex) {
+            // 如果不存在该 index，直接返回 true，表示不同
+            return true;
         }
-        // 如果不存在该 index，直接返回 true，表示不同
-        return true;
+
+        Future<Long> countEsDocsResult;
+        long databaseCount;
+
+        switch (mode) {
+            case USER:
+                countEsDocsResult = countDocsAsync(EsConstant.INDEX_USER);
+                databaseCount = userMapper.countUsers();
+                break;
+            case WEB:
+                countEsDocsResult = countDocsAsync(EsConstant.INDEX_WEB);
+                // 数据库中的 distinct url 的数量
+                databaseCount = websiteMapper.countDistinctPublicUrl();
+                break;
+            default:
+                // 没有模式的情况下，直接返回 false，表示数据相同
+                return false;
+        }
+
+        Long elasticsearchDocCount = null;
+        try {
+            elasticsearchDocCount = countEsDocsResult.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        long esCount = Optional.ofNullable(elasticsearchDocCount).orElse(0L);
+
+        // 如果数量不相同，代表有变化；如果数量相同，代表没有变化
+        return databaseCount != esCount;
     }
 
     /**
      * 统计该 Index 的文档条数
      *
      * @param index index
-     * @return int 数据条数
+     * @return 数据条数
      */
-    private long countDocs(String index) {
+    @Async("asyncTaskExecutor")
+    public Future<Long> countDocsAsync(String index) {
         CountRequest request = new CountRequest(index);
         try {
             CountResponse countResponse = client.count(request, RequestOptions.DEFAULT);
-            return countResponse.getCount();
+            long count = countResponse.getCount();
+            return AsyncResult.forValue(count);
         } catch (IOException | ElasticsearchStatusException e) {
             if (e instanceof ElasticsearchStatusException) {
                 log.warn("ElasticsearchStatusException while counting, " +
-                        "which means the Index has been deleted. Returned minus one.");
+                        "which means the Index has been deleted. Returned 0.");
             } else {
-                log.error("IOException while counting. Returned minus one.");
+                log.error("IOException while counting. Returned 0.");
                 e.printStackTrace();
             }
-            return -1L;
+            return AsyncResult.forValue(0L);
         }
     }
 

@@ -32,14 +32,13 @@ public interface SearchService {
     boolean existsData(SearchMode mode);
 
     /**
-     * 在执行 dataInDatabaseDiffFromElasticsearch() 方法之前，判断一下 Elasticsearch 中是否存在该 index。
-     * <p>如果存在了，再执行。</p>
-     * <p>如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同</p>
-     * <p>也就是说，比较的是数据库中的 distinct url 的数量是否等于 Elasticsearch 中的数据数量</p>
+     * Check if data in database is different from data in Elasticsearch.
      *
      * @param mode       Check user data if {@link SearchMode#USER} and check website data if {@link SearchMode#WEB}
-     * @param existIndex Elasticsearch 中是否存在该 index
-     * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
+     * @param existIndex Index exists or not
+     * @return Returns true if detect a difference.
+     * <p>If the index does not exist, returns true. If the {@link SearchMode} is not {@link SearchMode#USER} or
+     * {@link SearchMode#WEB}, or it's null, returns false.</p>
      */
     boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean existIndex);
 
