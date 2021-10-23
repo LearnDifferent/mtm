@@ -287,23 +287,23 @@ public class VerifyLoginInfoAndGetUsernameAspect {
     /**
      * 登录前检查
      *
-     * @param code        验证码
-     * @param verifyToken token
-     * @param username    用户名
-     * @param password    密码
+     * @param code                 验证码
+     * @param verifyToken          token
+     * @param username             用户名
+     * @param notEncryptedPassword not encrypted password
      * @throws ServiceException 用户不存在：ResultCode.USER_NOT_EXIST
      *                          和验证码错误：ResultCode.VERIFICATION_CODE_FAILED
      */
     private void checkBeforeLogin(String code,
                                   String verifyToken,
                                   String username,
-                                  String password) {
+                                  String notEncryptedPassword) {
 
         // 如果验证码错误，会抛出错误异常
         verificationCodeService.checkCode(verifyToken, code);
 
         // 验证码正确，就查找用户
-        UserDTO user = userService.getUserByNameAndPwd(username, password);
+        UserDTO user = userService.getUserByNameAndPwd(username, notEncryptedPassword);
         // 如果用户不存在，抛出不存在的异常（也就是用户名或密码不正确）
         ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
     }

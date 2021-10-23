@@ -53,44 +53,52 @@ public class CdUserManager {
     }
 
     /**
-     * 删除用户的网页数据和评论数据（包括回复）
+     * Delete all data related to the user
      *
-     * @param username 用户名
-     * @return 返回 false 表示删除失败，也就是没有该用户
+     * @param username             username
+     * @param notEncryptedPassword not encrypted password
+     * @return false if deletion unsuccessful, which means the user does not exist
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If there is any mismatch while verifying user's
+     *                                                                  name, password and permission to delete, it
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST}
+     *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean deleteUserAndWebAndCommentData(String username, String password) {
+    public boolean deleteAllDataRelatedToUser(String username, String notEncryptedPassword) {
 
-        String userId = checkUserExistsAndReturnUserId(username, password);
+        String userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
         checkDeletePermission(username);
 
-        // 删除该用户收藏的所有网页数据
+        // Delete website data related to the user
         websiteMapper.deleteWebsiteDataByUsername(username);
-        // 删除用户的评论数据
+        // Delete comment data related to the user
         commentMapper.deleteCommentsByUsername(username);
 
-        // 删除该用户的评论的通知（注意，没有设置 redis 的事务，不过按照执行情况也不需要 redis 的事务）
+        // Delete all notifications related to the user (Redis don't need transaction in this situation)
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + username.toLowerCase();
         notificationManager.deleteNotificationByKey(key);
 
-        // 异步删除 Elasticsearch 中的用户数据
+        // Remove user data from Elasticsearch asynchronously
         elasticsearchManager.removeUserFromElasticsearchAsync(userId);
 
-        // 删除该用户（false 表示没有该用户）
+        // Remove user data from database (false if the user does not exist)
         return userMapper.deleteUserByUserId(userId);
     }
 
     /**
-     * 检查删除用户的权限：只有该用户有删除该用户的权限，且 guest 用户无法被删除
+     * Check whether current user has permission to delete the account.
+     * <p>Current user has permission to delete itself as long as the user is not the role of guest.</p>
      *
-     * @param userName 用户名
-     * @throws com.github.learndifferent.mtm.exception.ServiceException 没有权限 {@link ResultCode#PERMISSION_DENIED}
+     * @param userName name of the user to delete
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If the current user does not have permission,
+     *                                                                  an exception will be thrown with the result code
+     *                                                                  of {@link ResultCode#PERMISSION_DENIED}
      */
     private void checkDeletePermission(String userName) {
 
         String currentUsername = (String) StpUtil.getLoginId();
 
-        // 如果不是当前用户删除自己的帐号，就抛出异常；如果删除的是 Guest 用户，也抛出异常
         boolean hasNoPermission = StpUtil.hasRole(RoleType.GUEST.role())
                 || CompareStringUtil.notEqualsIgnoreCase(currentUsername, userName);
 
@@ -98,11 +106,14 @@ public class CdUserManager {
     }
 
     /**
-     * 检查用户是否存在并返回 user id
+     * Check if the user exists and return the user ID
      *
-     * @param username             用户名
-     * @param notEncryptedPassword 未加密的密码
-     * @throws com.github.learndifferent.mtm.exception.ServiceException 用户不存在 {@link ResultCode#USER_NOT_EXIST}
+     * @param username             username
+     * @param notEncryptedPassword not encrypted password
+     * @return User ID
+     * @throws com.github.learndifferent.mtm.exception.ServiceException An exception will be thrown if the user does
+     *                                                                  not exist, with the result code of {@link
+     *                                                                  ResultCode#USER_NOT_EXIST}
      */
     private String checkUserExistsAndReturnUserId(String username, String notEncryptedPassword) {
         String password = Md5Util.getMd5(notEncryptedPassword);
@@ -122,27 +133,22 @@ public class CdUserManager {
 
 
     /**
-     * Add a user: encrypt the password, set an ID and creation time
+     * Add a user: encrypt the password, set a user ID and creation time
      *
-     * @param user 被添加的用户
-     * @return 成功与否
-     * @throws ServiceException {@link NewUserCheck} 注解会检查该用户名除了数字和英文字母外，是否还包含其他字符，如果有就抛出异常。
-     *                          <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
-     *                          <p>如果用户名大于 30 个字符，也会抛出异常。</p>
-     *                          <p>如果密码大于 50 个字符，也会抛出异常</p>
-     *                          <p>如果用户名或密码为空，抛出异常</p>
-     *                          <p>如果没有传入正确的用户角色，抛出异常</p>
-     *                          <p>Result Code 为：</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
-     *                          <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
-     *                          <br>
-     *                          <p>因为主键设置为了 userName，所以这里捕获的 {@link DuplicateKeyException} 异常就是重复用户名的意思，
-     *                          相当于捕获了 {@link com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException}。</p>
+     * @param user user data with not encrypted password and without user ID and creation time
+     * @return true if success
+     * @throws ServiceException {@link NewUserCheck} annotation will verify and throw an exception
+     *                          if something goes wrong. If the username is already taken, the result will be {@link
+     *                          com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}.
+     *                          If username contains not only letters and numbers, the result will be {@link
+     *                          com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}.
+     *                          If username is empty, the result will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}.
+     *                          If username is not less than 30 characters, the result will be {@link
+     *                          com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}.
+     *                          If password is empty, the result will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}.
+     *                          If password is not less than 50 characters, the result will be {@link
+     *                          com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
+     *                          If user role is not found, the result will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}.
      */
     @NewUserCheck(userClass = UserDO.class,
                   usernameFieldName = "userName",
@@ -150,22 +156,24 @@ public class CdUserManager {
                   roleFieldName = "role")
     public boolean addUserWithNoEncryptedPwdNoIdNoTime(UserDO user) {
 
-        // 添加 ID
+        // get user ID
         String uuid = UUIDUtils.getUuid();
-        // 添加创建时间
+        // get creation time
         Date createTime = new Date();
-        // 将密码进行加密处理
+        // encrypt password
         String password = Md5Util.getMd5(user.getPassword());
-        // 设置属性
+        // set user fields
         user.setUserId(uuid).setCreateTime(createTime).setPassword(password);
 
-        // 异步放入 Elasticsearch 中
+        // add to Elasticsearch asynchronously
         UserForSearchDTO userDataToEs = DozerUtils.convert(user, UserForSearchDTO.class);
         elasticsearchManager.addUserDataToElasticsearchAsync(userDataToEs);
 
         try {
             return userMapper.addUser(user);
         } catch (DuplicateKeyException e) {
+            // DuplicateKeyException is same as com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
+            // the primary key is userName, so duplicate key means username is already taken
             throw new ServiceException(ResultCode.USER_ALREADY_EXIST);
         }
     }

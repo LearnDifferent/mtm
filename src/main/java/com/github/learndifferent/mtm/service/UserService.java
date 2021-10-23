@@ -15,90 +15,94 @@ import java.util.List;
 public interface UserService {
 
     /**
-     * 获取所有用户的名称及其收藏的网页的个数，并按照网页个数排序
+     * Get all users' name and the number of websites that user owns, sorted by the number
      *
-     * @return 包装为只含有 userName 和 webCount 的 User 类列表
+     * @return {@link List}<{@link UserWithWebCountDTO}>
      */
     List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs();
 
     /**
-     * 获取某些用户的名称及其收藏的网页的个数，并按照网页个数排序
+     * Get users' name and the number of websites that user owns, sorted by the number
      *
-     * @param usernames 需要获取的用户名
-     * @return 包装为只含有 userName 和 webCount 的 User 类列表
+     * @param usernames users' name
+     * @return {@link List}<{@link UserWithWebCountDTO}>
      */
     List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs(List<String> usernames);
 
     /**
-     * 修改密码
+     * Change password
      *
      * @param info username, old password and new password
-     * @return 修改是否成功的信息
+     * @return true if success
      */
     boolean changePassword(ChangePwdRequest info);
 
     /**
-     * 传入用户名、未加密的密码和角色，生成用户，并调用添加用户的方法将用户添加到数据库。
+     * Add a user with username, user role and not encrypted password
      *
-     * @param usernameAndPassword 用户名和未加密的密码
-     * @param role                角色信息
-     * @return 成功与否
-     * @throws com.github.learndifferent.mtm.exception.ServiceException 在以下情况会抛出异常：
-     *                                                                  <p>如果该用户名除了数字和英文字母外，还包含其他字符，就抛出异常。</p>
-     *                                                                  <p>如果该用户已经存在，也会抛出用户已存在的异常。</p>
-     *                                                                  <p>如果用户名大于 30 个字符，也会抛出异常。</p>
-     *                                                                  <p>如果密码大于 50 个字符，也会抛出异常</p>
-     *                                                                  <p>如果用户名或密码为空，抛出异常</p>
-     *                                                                  <p>如果没有传入正确的用户角色，抛出异常</p>
-     *                                                                  <p>Result Code 为：</p>
-     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
-     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
-     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}</p>
-     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
-     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
-     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
-     *                                                                  <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
+     * @param usernameAndPassword username and not encrypted password
+     * @param role                user role
+     * @return true if success
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This method will verify and throw an exception
+     *                                                                  if something goes wrong. If the username is
+     *                                                                  already taken, the result will be {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}.
+     *                                                                  If username contains not only letters and
+     *                                                                  numbers, the result will be {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}.
+     *                                                                  If username is empty, the result will be {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}.
+     *                                                                  If username is not less than 30 characters, the
+     *                                                                  result will be {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}.
+     *                                                                  If password is empty, the result will be {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}.
+     *                                                                  If password is not less than 50 characters, the
+     *                                                                  result will be {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
+     *                                                                  If user role is not found, the result will be
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}.
      */
     boolean addUser(CreateUserRequest usernameAndPassword, String role);
 
     /**
-     * 根据用户名和密码查找用户
+     * Get user by name and password
      *
-     * @param userName 用户名
-     * @param password 密码
-     * @return 用户
+     * @param userName             username
+     * @param notEncryptedPassword not encrypted password
+     * @return user
      */
-    UserDTO getUserByNameAndPwd(String userName, String password);
+    UserDTO getUserByNameAndPwd(String userName, String notEncryptedPassword);
 
     /**
-     * 根据用户名获取用户角色
+     * Get user by user role
      *
-     * @param userName 用户名
-     * @return 用户角色
+     * @param userName username
+     * @return user role
      */
     String getRoleByName(String userName);
 
     /**
-     * 根据用户名获取用户（不区分大小写，也就是查询 abc 和 Abc 都能查到该用户）
+     * Get user by username
      *
-     * @param userName 用户名
-     * @return 用户
+     * @param userName username (ignore case)
+     * @return user
      */
     UserDTO getUserByName(String userName);
 
     /**
-     * Delete user as well as the comments and websites data belongs to the user.
+     * Delete all data related to the user
      *
-     * @param userName username
-     * @param password password
-     * @return boolean success to delete or not
+     * @param userName             username
+     * @param notEncryptedPassword not encrypted password
+     * @return false if deletion unsuccessful, which means the user does not exist
      * @throws com.github.learndifferent.mtm.exception.ServiceException If there is any mismatch while verifying user's
      *                                                                  name, password and permission to delete, it
-     *                                                                  will throw exceptions with the result code of
+     *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
-    boolean deleteUserAndWebAndCommentData(String userName, String password);
+    boolean deleteUserAndWebAndCommentData(String userName, String notEncryptedPassword);
 
     /**
      * Get all users. The content will be cached for 1 hour.

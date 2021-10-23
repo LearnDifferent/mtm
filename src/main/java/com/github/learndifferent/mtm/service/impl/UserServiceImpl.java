@@ -23,7 +23,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
- * UserService 实现类
+ * UserService implementation
  *
  * @author zhou
  * @date 2021/09/05
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(value = "usernamesAndTheirWebs")
     public List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs() {
-        // 传入的参数为 null，表示获取所有用户
+        // null means get all user's
         return userMapper.getNamesAndCountTheirPublicWebs(null);
     }
 
@@ -62,15 +62,15 @@ public class UserServiceImpl implements UserService {
         UserServiceImpl userService = ApplicationContextUtils.getBean(UserServiceImpl.class);
         UserDTO user = userService.getUserByNameAndPwd(userName, oldPassword);
 
-        // 用户不存在，视为密码错误
+        // if user does not exist, it will be considered as wrong password
         ThrowExceptionUtils.throwIfNull(user, ResultCode.PASSWORD_INCORRECT);
 
-        // 加密新密码
+        // encrypt the password
         newPassword = Md5Util.getMd5(newPassword);
-        // 设置新密码
+        // set the new password
         UserDO userDO = DozerUtils.convert(user, UserDO.class);
         userDO.setPassword(newPassword);
-        // 更新用户
+        // update user
         return userMapper.updateUser(userDO);
     }
 
@@ -83,17 +83,10 @@ public class UserServiceImpl implements UserService {
         return cdUserManager.createUser(username, notEncryptedPassword, role);
     }
 
-    /**
-     * 根据用户名和密码查找用户（密码需要加密）
-     *
-     * @param userName 用户名
-     * @param password 密码（没有加密）
-     * @return 用户
-     */
     @Override
-    public UserDTO getUserByNameAndPwd(String userName, String password) {
-        String pwd = Md5Util.getMd5(password);
-        UserDO userDO = userMapper.getUserByNameAndPwd(userName, pwd);
+    public UserDTO getUserByNameAndPwd(String userName, String notEncryptedPassword) {
+        String password = Md5Util.getMd5(notEncryptedPassword);
+        UserDO userDO = userMapper.getUserByNameAndPwd(userName, password);
         return DozerUtils.convert(userDO, UserDTO.class);
     }
 
@@ -115,8 +108,8 @@ public class UserServiceImpl implements UserService {
             @CacheEvict({"allUsers", "usernamesAndTheirWebs"}),
             @CacheEvict(value = {"getUserByName", "getRoleByName"}, key = "#userName")
     })
-    public boolean deleteUserAndWebAndCommentData(String userName, String password) {
-        return cdUserManager.deleteUserAndWebAndCommentData(userName, password);
+    public boolean deleteUserAndWebAndCommentData(String userName, String notEncryptedPassword) {
+        return cdUserManager.deleteAllDataRelatedToUser(userName, notEncryptedPassword);
     }
 
     @Override
