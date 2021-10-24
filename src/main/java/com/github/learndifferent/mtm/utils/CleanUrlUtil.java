@@ -13,6 +13,9 @@ public class CleanUrlUtil {
 
     public static String cleanup(String url) {
 
+        // 先 trim 一下
+        url = url.trim();
+
         // 存入的时候，只存入地址，不存入参数，所以要去掉「？」
         String questionMark = "?";
         if (url.contains(questionMark)) {
