@@ -12,8 +12,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
+ * Generate invitation code, save the code to Redis,
+ * send the invitation code via email and get the invitation code.
+ *
  * @author zhou
  * @date 2021/9/21
+ * @see SendEmailManager mail sending function
  */
 @Service
 public class InvitationCodeServiceImpl implements InvitationCodeService {
@@ -29,23 +33,28 @@ public class InvitationCodeServiceImpl implements InvitationCodeService {
     }
 
     /**
-     * 生成邀请码，存储其到 Redis 中（20 分钟内有效），并发送邮件。
+     * Generate invitation code, save the code to Redis (timeout: 20 minutes),
+     * and send the invitation code via email
      *
-     * @param email 电子邮件地址
-     * @throws ServiceException 出现 MessagingException 的时候，也就是邮件设置错误，
-     *                          会以 data 的方式返回设置好的验证码
+     * @param email email address
+     * @throws ServiceException if {@link MessagingException} occurs,
+     *                          a {@link ServiceException} will be thrown
+     *                          and the invitation code will be assigned to the
+     *                          "data" field in {@link ServiceException}
      */
     @Override
     public void send(String invitationToken, String email) {
 
-        // 生成邀请码
+        // generate invitation code
         String invitationCode = UUIDUtils.getUuid(5);
 
-        // key 是 invitationToken 的值，value 是邀请码，时间设定为 20 分钟
+        // key: token for invitation code
+        // value: invitation code
+        // timeout: 20 minutes
         redisTemplate.opsForValue().set(invitationToken, invitationCode,
                 20, TimeUnit.MINUTES);
 
-        // 发送邮件
+        // send email
         try {
             sendEmailManager.sendEmail(email,
                     "MTM - Your Invitation Code",
@@ -62,9 +71,10 @@ public class InvitationCodeServiceImpl implements InvitationCodeService {
     }
 
     /**
-     * 根据 invitationToken，获取存储于其中的邀请码
+     * Get the invitation code from Redis
      *
-     * @return {@code String}
+     * @param invitationToken token for invitation code
+     * @return invitation code
      */
     @Override
     public String getInvitationCode(String invitationToken) {
