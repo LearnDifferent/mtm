@@ -7,8 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 空字符串检查。
- * <p>如果 String 类型的参数为空或 null，进行下一步处理</p>
+ * Throw an exception or replace it with default value if the string is empty
  *
  * @author zhou
  * @date 2021/09/05
@@ -18,7 +17,7 @@ import java.lang.annotation.Target;
 public @interface EmptyStringCheck {
 
     /**
-     * 如果为空，转化为一个默认值
+     * Replace the string with default value if it's empty
      *
      * @author zhou
      * @date 2021/09/05
@@ -28,15 +27,15 @@ public @interface EmptyStringCheck {
     @interface DefaultValueIfEmpty {
 
         /**
-         * 如果为空字符串或 null 时，就转化为这个值
+         * Default value if the string is empty
          *
-         * @return 当字符串为空或 null 时的默认值
+         * @return default value if the string is empty
          */
         String value() default "";
     }
 
     /**
-     * 如果为空或 null 时，抛出 ServiceException 异常
+     * Throw an exception if the string is empty
      *
      * @author zhou
      * @date 2021/09/05
@@ -46,16 +45,16 @@ public @interface EmptyStringCheck {
     @interface ExceptionIfEmpty {
 
         /**
-         * ServiceException 需要的 ResultCode
+         * {@link ResultCode}
          *
-         * @return ResultCode
+         * @return {@link ResultCode}
          */
         ResultCode resultCode() default ResultCode.FAILED;
 
         /**
-         * 抛出异常时的信息
+         * Error message
          *
-         * @return 抛出异常时的信息
+         * @return error message
          */
         String errorMessage() default "";
     }

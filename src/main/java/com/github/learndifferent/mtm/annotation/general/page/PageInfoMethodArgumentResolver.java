@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.utils.PageUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -15,19 +16,18 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
- * 页面信息方法参数解析器。根据不同模式传入的信息，生成 PageInfoDTO。
- * <p>要通过自定义的 Web MVC 配置类的 addArgumentResolvers 方法加入进去才能生效。
- * 当前的配置类为 CustomWebConfig</p>
+ * Generate {@link PageInfoDTO} according to {@link PageInfoMode}.
  *
  * @author zhou
  * @date 2021/09/05
+ * @see com.github.learndifferent.mtm.config.CustomWebConfig#addArgumentResolvers(List)
  */
 @Slf4j
 public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
-        // 在有 @PageInfo 注解的位置生效，也就是返回 true
+        // Only when annotated with @PageInfo
         return parameter.hasParameterAnnotation(PageInfo.class);
     }
 
@@ -41,31 +41,33 @@ public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentReso
 
         ThrowExceptionUtils.throwIfNull(annotation, ResultCode.FAILED);
 
-        // 需要以 from 还是 current page 模式来获取页面信息
+        // "from" mode or "current page" mode
         PageInfoMode mode = annotation.pageInfoMode();
-        // 页面的 size
+        // page size
         int size = annotation.size();
 
-        // 获取传入的参数名
+        // use the name of mode as parameter name
         String paramName = mode.paramName();
-        // 获取传入的参数值（有可能为 null，也就是不存在）
+        // Get value from request
         String paramValue = webRequest.getParameter(paramName);
 
-        // 如果有值，就转化为数值（为空或 null 或无法转化为数字的时候，返回 0）
+        // Get the number from value.
+        // If the value is empty, null or not even a number,
+        // use 0 as default value
         int num = getNumberFromParamValue(paramValue);
 
         int from;
         switch (mode) {
             case FROM:
-                // 此时，num 表示 from
+                // "num" stands for "from" on "from" mode
                 from = num;
                 break;
             case CURRENT_PAGE:
             default:
-                // 此时，num 表示 current page
-                // 让 num 必须大于 0，然后将其设为变量 currentPage
+                // "num" stands for "current page" on "current page" mode
+                // num must be greater than 0
                 int currentPage = PageUtil.constrainGreaterThanZero(num);
-                // 根据 currentPage 变量获取 from
+                // get "from" according to current page
                 from = PageUtil.getFromIndex(currentPage, size);
         }
 
@@ -80,7 +82,6 @@ public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentReso
             try {
                 num = Integer.parseInt(paramValue);
             } catch (NumberFormatException e) {
-                // 如果输入的字符串无法转化为数字，就打印日志，然后使用默认值
                 e.printStackTrace();
                 log.warn("Can't cast to number. Return 0 instead.");
             }

@@ -6,11 +6,28 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 检查 {@link com.github.learndifferent.mtm.annotation.common.WebId} 注释对应的参数的网页 ID 是否存在，
- * {@link com.github.learndifferent.mtm.annotation.common.Username} 注解所对应的参数的用户是否为当前用户，
- * {@link com.github.learndifferent.mtm.annotation.common.Comment} 注解所对应的评论是否不为空，且小于等于 140 个字符，
- * 以及检查该用户是否已经对该网页进行了相同内容的评论，还有该用户是否有评论该网页的权限。
- * 如果是回复评论，还要检查回复的 {@link com.github.learndifferent.mtm.annotation.common.ReplyToCommentId} 所属的评论是否存在。
+ * This annotation has to be used along with {@link com.github.learndifferent.mtm.annotation.common.WebId},
+ * {@link com.github.learndifferent.mtm.annotation.common.Username},
+ * {@link com.github.learndifferent.mtm.annotation.common.Comment},
+ * and {@link com.github.learndifferent.mtm.annotation.common.ReplyToCommentId}.
+ * <p>
+ * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+ * if the username is not the current user's name or the user has no permissions to comment on this website.
+ * <p>
+ * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EXISTS}
+ * if the comment existed .
+ * <p>
+ * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
+ * if the website does not exist.
+ * <p>
+ * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EMPTY}
+ * if the comment is empty.
+ * <p>
+ * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}
+ * if the comment is too long.
+ * <p>
+ * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
+ * if the comment is a reply to another comment and the "another comment" does not exist
  *
  * @author zhou
  * @date 2021/9/28

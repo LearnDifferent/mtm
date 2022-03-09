@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.annotation.validation.website.permission;
 
+import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -19,8 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 获取网页 ID 和用户名信息，并检查是否该网页是否属于该用户。
- * 只有该用户才有修改该网页的权限。
+ * Verify whether the user has permission to modify the website data.
  *
  * @author zhou
  * @date 2021/09/05
@@ -46,29 +46,32 @@ public class ModifyWebsitePermissionCheckAspect {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Object[] args = joinPoint.getArgs();
 
-        int webId = 0;
+        int webId = -1;
         String username = "";
 
-        int count = -1;
+        AnnotationHelper helper = new AnnotationHelper(2);
+
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (annotation instanceof WebId
+                if (helper.hasNotFoundIndex(0)
+                        && annotation instanceof WebId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     webId = (int) args[i];
-                    count++;
+                    helper.findIndex(0);
                     break;
                 }
-                if (annotation instanceof Username
+                if (helper.hasNotFoundIndex(1)
+                        && annotation instanceof Username
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
-                    count++;
+                    helper.findIndex(1);
                     break;
                 }
             }
 
-            if (count == 2) {
+            if (helper.hasFoundAll()) {
                 break;
             }
         }

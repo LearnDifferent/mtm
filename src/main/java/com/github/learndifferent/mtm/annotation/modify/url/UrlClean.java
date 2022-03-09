@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * url 清理相关。需要配合 {@link com.github.learndifferent.mtm.annotation.common.Url} 注解使用
+ * Clean up the URL when the URL is annotated
+ * with {@link com.github.learndifferent.mtm.annotation.common.Url}
  *
  * @author zhou
  * @date 2021/09/05

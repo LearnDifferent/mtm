@@ -15,14 +15,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 检查用户名和密码，以及角色信息是否存在。会抛出 ServiceException 相应的异常。Result code 列表：
- * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
- * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
- * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}</p>
- * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
- * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
- * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
- * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
+ * Verify username, password and user role.
+ * If failed verification, throw exception with the following result codes according to the situation:
+ * <p>{@link ResultCode#USER_ALREADY_EXIST}</p>
+ * <p>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
+ * <p>{@link ResultCode#USERNAME_TOO_LONG}</p>
+ * <p>{@link ResultCode#USERNAME_EMPTY}</p>
+ * <p>{@link ResultCode#PASSWORD_TOO_LONG}</p>
+ * <p>{@link ResultCode#PASSWORD_EMPTY}</p>
+ * <p>{@link ResultCode#USER_ROLE_NOT_FOUND}</p>
  *
  * @author zhou
  * @date 2021/09/13
@@ -73,7 +74,7 @@ public class NewUserCheckAspect {
             return (String) value;
         } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
             e.printStackTrace();
-            // 如果无法获取，就转换为空字符串
+            // use empty string if can't get the value
             return "";
         }
     }
@@ -81,11 +82,11 @@ public class NewUserCheckAspect {
     private void checkUserRoleExists(String role) {
         checkIfEmpty(role, ResultCode.USER_ROLE_NOT_FOUND);
         try {
-            // 通过 valueOf 方法直接从大写的字符串中获取相应的 Enum
+            // get the RoleType(Enum) from the uppercase string
             RoleType.valueOf(role.toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
             e.printStackTrace();
-            // 如果无法转换，说明没有传入正确的 role
+            // exception when the role is not valid
             throw new ServiceException(ResultCode.USER_ROLE_NOT_FOUND);
         }
     }
@@ -99,25 +100,18 @@ public class NewUserCheckAspect {
         checkIfUsernameExist(username);
     }
 
-    /**
-     * 检查字符串是否为空
-     *
-     * @param str        字符串
-     * @param resultCode 结果状态码
-     * @throws ServiceException 抛出相应状态码的异常
-     */
     private void checkIfEmpty(String str, ResultCode resultCode) {
         boolean empty = StringUtils.isEmpty(str);
         ThrowExceptionUtils.throwIfTrue(empty, resultCode);
     }
 
     /**
-     * 检查字符串是否太长
+     * Check if the string is too long
      *
-     * @param str        字符串
-     * @param length     长度
-     * @param resultCode 结果状态码
-     * @throws ServiceException 抛出相应状态码的异常
+     * @param str        string
+     * @param length     longest length
+     * @param resultCode result code
+     * @throws ServiceException throw an exception if string is too long
      */
     private void checkIfTooLong(String str, int length, ResultCode resultCode) {
         boolean tooLong = str.length() > length;
@@ -125,10 +119,11 @@ public class NewUserCheckAspect {
     }
 
     /**
-     * 检查字符串是否仅包含英文字母和数字。如果包含除此以外的其他符号，包括空格。如果不是，就抛出异常。
+     * Check if string contains only letters and numbers
      *
-     * @param str str
-     * @throws ServiceException ResultCode.USERNAME_ONLY_LETTERS_NUMBERS
+     * @param str string
+     * @throws ServiceException if the string contains other characters,
+     *                          throw an exception with the result code of {@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}
      */
     private void checkIfOnlyLetterNumber(String str) {
         String regex = "^[a-z0-9A-Z]+$";
@@ -137,14 +132,14 @@ public class NewUserCheckAspect {
     }
 
     /**
-     * 检查用户名是否存在。如果用户名已经在 Database 中存在，就抛出异常。
+     * Check if username exists
      *
-     * @param username 用户名
-     * @throws ServiceException ResultCode.USER_ALREADY_EXIST
+     * @param username username
+     * @throws ServiceException if the username is already taken,
+     *                          throw an exception with the result code of {@link ResultCode#USER_ALREADY_EXIST}
      */
     private void checkIfUsernameExist(String username) {
         UserDTO userHasThatName = userService.getUserByName(username);
-        // 如果用户名已经在 Database 中存在，就抛出异常
         ThrowExceptionUtils.throwIfNotNull(userHasThatName, ResultCode.USER_ALREADY_EXIST);
     }
 }

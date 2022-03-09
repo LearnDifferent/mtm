@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 系统日志
+ * System Log
  *
  * @author zhou
  * @date 2021/09/05
@@ -17,14 +17,14 @@ import java.lang.annotation.Target;
 public @interface SystemLog {
 
     /**
-     * 标题
+     * Title
      *
-     * @return {@code String}
+     * @return {@code String} title
      */
     String title() default "";
 
     /**
-     * 操作类型
+     * Operation's type
      *
      * @return {@code OptsType}
      */

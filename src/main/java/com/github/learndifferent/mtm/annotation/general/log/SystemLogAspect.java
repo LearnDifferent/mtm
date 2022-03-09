@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 系统日志
+ * System Log
  *
  * @author zhou
  * @date 2021/09/05
@@ -48,7 +48,7 @@ public class SystemLogAspect {
 
         String title = annotation.title();
         if (StringUtils.isEmpty(title)) {
-            // 如果没有 Title，就让类名作为 title
+            // If no title available, use class name as tile
             title = pjp.getTarget().getClass().getSimpleName();
         }
         sysLog.title(title);
@@ -65,7 +65,7 @@ public class SystemLogAspect {
             sysLog.status(LogStatus.ERROR.status())
                     .msg(throwable.getMessage());
             logService.saveSystemLogAsync(sysLog.build());
-            // 包装为 RuntimeException 并抛出
+
             throw new RuntimeException(throwable);
         }
     }

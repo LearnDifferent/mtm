@@ -7,11 +7,11 @@ import java.lang.annotation.Target;
 
 /**
  * Check before getting comments.
+ * This annotation has to be used along with {@link com.github.learndifferent.mtm.annotation.common.WebId}
+ * and {@link com.github.learndifferent.mtm.annotation.common.Username}
  *
  * @author zhou
  * @date 2021/9/29
- * @see com.github.learndifferent.mtm.annotation.common.WebId
- * @see com.github.learndifferent.mtm.annotation.common.Username
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

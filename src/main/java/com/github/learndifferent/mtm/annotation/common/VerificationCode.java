@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 验证码（该注解用于获取参数名称，参数值会通过 Request 来读取）
+ * Annotation that helps getting and verifying the verification code's value from request
  *
  * @author zhou
  * @date 2021/09/20

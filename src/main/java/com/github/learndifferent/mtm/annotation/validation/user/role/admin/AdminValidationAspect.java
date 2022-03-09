@@ -10,7 +10,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 /**
- * 检查是否为管理员，如果不是管理员账户，就抛出异常
+ * Verify whether the user is admin or not
  *
  * @author zhou
  * @date 2021/09/05

@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 验证管理员
+ * Verify whether the user is admin or not
  *
  * @author zhou
  * @date 2021/09/05

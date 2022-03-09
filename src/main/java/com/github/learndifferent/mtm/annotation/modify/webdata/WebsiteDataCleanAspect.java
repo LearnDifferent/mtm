@@ -15,7 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 清理 Website 数据中 title 和 desc 的长度，判断 url 格式是否正确，以及清理 url
+ * Clean Up {@link WebWithNoIdentityDTO}'s fields:
+ * 1. Check if the URLs are valid
+ * 2. Clean up the format of the website URL
+ * 3. If the title or description is empty, replace it with URL as content
+ * 4. Shorten the title and description if necessary
  *
  * @author zhou
  * @date 2021/09/12
@@ -40,14 +44,14 @@ public class WebsiteDataCleanAspect {
                 String url = web.getUrl();
                 String img = web.getImg();
 
-                // 检查 url 和 img 链接的正确性
+                // Check if the URLs are valid
                 testIfUrl(url);
                 testIfUrl(img);
 
-                // 清理 URL
+                // Clean up the format of the URL
                 url = CleanUrlUtil.cleanup(url);
 
-                // 如果 title 或 desc 为空，替换为 URL 作为内容填充
+                // If the title or description is empty, replace it with URL as content
                 if (StringUtils.isEmpty(title)) {
                     title = url;
                 }
@@ -55,7 +59,7 @@ public class WebsiteDataCleanAspect {
                     desc = url;
                 }
 
-                // 缩短长度
+                // Shorten the title and description if necessary
                 title = ShortenUtils.shorten(title, 47);
                 desc = ShortenUtils.shorten(ShortenUtils.flatten(desc), 260);
 

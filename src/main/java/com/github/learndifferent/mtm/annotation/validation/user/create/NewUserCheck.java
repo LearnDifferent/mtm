@@ -6,7 +6,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 检查用户名和密码，以及角色信息是否存在着
+ * Verify username, password and user role.
+ * If failed verification, throw exception with the following result codes according to the situation:
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}</p>
  *
  * @author zhou
  * @date 2021/09/13
@@ -16,30 +24,30 @@ import java.lang.annotation.Target;
 public @interface NewUserCheck {
 
     /**
-     * 包含用户名和密码的属性的类
+     * The class that has the fields of username and password
      *
-     * @return {@code Class<? extends Serializable>} 包含用户名和密码的属性的类
+     * @return {@code Class<? extends Serializable>} class that has the fields of username and password
      */
     Class<?> userClass();
 
     /**
-     * 该类中，包含用户名的属性的名称
+     * The field name of username in the class
      *
-     * @return {@code String} 该类中，包含用户名的属性的名称
+     * @return {@code String} field name of username in the class
      */
     String usernameFieldName();
 
     /**
-     * 该类中，包含密码的属性的名称
+     * The field name of password in the class
      *
-     * @return {@code String} 该类中，包含密码的属性的名称
+     * @return {@code String} field name of password in the class
      */
     String passwordFieldName();
 
     /**
-     * 该类中，包含角色的属性的名称
+     * The field name of user role in the class
      *
-     * @return {@code String} 该类中，包含角色的属性的名称
+     * @return {@code String} field name of user role in the class
      */
     String roleFieldName();
 }

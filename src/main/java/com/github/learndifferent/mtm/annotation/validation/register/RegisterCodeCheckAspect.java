@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.annotation.validation.register;
 
+import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.InvitationCode;
 import com.github.learndifferent.mtm.annotation.common.InvitationCodeToken;
 import com.github.learndifferent.mtm.annotation.common.UserRole;
@@ -28,10 +29,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
- * 注册用户之前，对验证码进行判断。如果是 admin，还需要判断邀请码。
- * <p>如果验证码或邀请码出错，会抛出自定义的 ServiceException，代码分别为：
- * ResultCode.VERIFICATION_CODE_FAILED 和 ResultCode.INVITATION_CODE_FAILED</p>
- * <p>如果没有传入角色的参数，状态码为：USER_ROLE_NOT_FOUND</p>
+ * Verify register information
  *
  * @author zhou
  * @date 2021/09/05
@@ -59,71 +57,74 @@ public class RegisterCodeCheckAspect {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
 
-        // 获取方法中的参数的名称
         String[] parameterNames = signature.getParameterNames();
-        // 获取方法的参数中的注解
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 
-        // 声明验证码
+        // verification code
         String code = "";
-        // 声明验证码的 token
+        // token for verification code
         String verifyToken = "";
-        // 声明邀请码
+        // invitation code
         String invitationCode = "";
-        // 声明验证码的 token
+        // token for invitation code
         String invitationToken = "";
-        // 声明用户角色为 null
+        // User Role
         RoleType role = null;
 
+        // Index of the parameter that is annotated with @UserRole
         int roleParamIndex = -1;
-        int count = 0;
+
+        AnnotationHelper helper = new AnnotationHelper(5);
+
         for (int i = 0; i < parameterAnnotations.length; i++) {
-            // 遍历该位置的参数的所有注解
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (annotation instanceof VerificationCode) {
+                if (helper.hasNotFoundIndex(0)
+                        && annotation instanceof VerificationCode) {
                     code = getStringValue(request, parameterNames[i]);
-                    count++;
+                    helper.findIndex(0);
                     break;
                 }
-                if (annotation instanceof VerificationCodeToken) {
+                if (helper.hasNotFoundIndex(1)
+                        && annotation instanceof VerificationCodeToken) {
                     verifyToken = getStringValue(request, parameterNames[i]);
-                    count++;
+                    helper.findIndex(1);
                     break;
                 }
-                if (annotation instanceof InvitationCode) {
+                if (helper.hasNotFoundIndex(2)
+                        && annotation instanceof InvitationCode) {
                     invitationCode = getStringValue(request, parameterNames[i]);
-                    count++;
+                    helper.findIndex(2);
                     break;
                 }
-                if (annotation instanceof InvitationCodeToken) {
+                if (helper.hasNotFoundIndex(3)
+                        && annotation instanceof InvitationCodeToken) {
                     invitationToken = getStringValue(request, parameterNames[i]);
-                    count++;
+                    helper.findIndex(3);
                     break;
                 }
-                if (annotation instanceof UserRole) {
-                    // 获取默认角色
+                if (helper.hasNotFoundIndex(4)
+                        && annotation instanceof UserRole) {
                     RoleType defaultRole = ((UserRole) annotation).defaultRole();
-                    // 获取角色 type
                     role = getRole(defaultRole, request, parameterNames[i]);
-                    // 获取角色参数所在位置
+                    // Get the index
                     roleParamIndex = i;
-                    count++;
+                    helper.findIndex(4);
                     break;
                 }
             }
 
-            if (count == 5) {
+            if (helper.hasFoundAll()) {
                 break;
             }
         }
 
         checkCodes(code, verifyToken, role, invitationCode, invitationToken);
 
-        // 如果没有使用注解 @UserRole，就抛出异常
+        // throw an exception if no parameter is annotated with @UserRole
         ThrowExceptionUtils.throwIfTrue(roleParamIndex < 0, ResultCode.USER_ROLE_NOT_FOUND);
 
         Object[] args = pjp.getArgs();
-        // 将角色的 String 值传入
+        // assign value to the parameter that is annotated with @UserRole
         args[roleParamIndex] = role.role();
         return pjp.proceed(args);
     }
@@ -149,25 +150,26 @@ public class RegisterCodeCheckAspect {
         String roleString = request.getParameter(parameterName);
 
         try {
-            // 通过 valueOf 方法直接从大写的字符串中获取相应的 Enum
+            // get the RoleType(Enum) from the uppercase string
             return RoleType.valueOf(roleString.toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
             e.printStackTrace();
-            // 找不到的时候，默认返回角色
+            // return default role if can't get the value of role
             return defaultRole;
         }
     }
 
     /**
-     * 检查验证码和邀请码。出错的话抛出相应的异常
+     * Check the verification code and invitation code
      *
-     * @param code            验证码
-     * @param verifyToken     验证码 token
-     * @param role            角色
-     * @param invitationCode  邀请码
-     * @param invitationToken 邀请码 token
-     * @throws ServiceException ResultCode.VERIFICATION_CODE_FAILED
-     *                          和 ResultCode.INVITATION_CODE_FAILED
+     * @param code            verification code
+     * @param verifyToken     token for verification code
+     * @param role            User Role
+     * @param invitationCode  invitation code
+     * @param invitationToken token for invitation code
+     * @throws ServiceException If failed verification, it will throw an exception
+     *                          with the result code of {@link ResultCode#VERIFICATION_CODE_FAILED}
+     *                          and {@link ResultCode#INVITATION_CODE_FAILED}
      */
     private void checkCodes(String code,
                             String verifyToken,
@@ -175,29 +177,30 @@ public class RegisterCodeCheckAspect {
                             String invitationCode,
                             String invitationToken) {
 
-        // 如果验证码错误，抛出自定义异常
+        // throw exception if failed verification
         verificationCodeService.checkCode(verifyToken, code);
 
+        // If the user is admin, check the invitation code
         if (RoleType.ADMIN.equals(role)) {
-            // 如果角色是 Admin，需要确认邀请码，如果邀请码出错，会抛出异常
             checkInvitationCode(invitationCode, invitationToken);
         }
     }
 
     /**
-     * 检查邀请码是否正确，如果不正确，抛出异常。
+     * Check the invitation code
      *
-     * @param userTypeInCode  用户输入的邀请码
-     * @param invitationToken 邀请码de token
-     * @throws ServiceException ResultCode.INVITATION_CODE_FAILED
+     * @param userTypeInCode  invitation code that user typed in
+     * @param invitationToken token for invitation code
+     * @throws ServiceException If failed verification, it will throw an exception
+     *                          with the result code of {@link ResultCode#INVITATION_CODE_FAILED}
      */
     private void checkInvitationCode(String userTypeInCode,
                                      String invitationToken) {
 
-        // 获取 token 中的邀请码
+        // get the correct invitation code according to token
         String correctCode = invitationCodeService.getInvitationCode(invitationToken);
 
-        // 如果 token 中的邀请码和用户输入的不符，就抛出c异常
+        // verify the invocation code and throw an exception if failed verification
         boolean wrongCode = CompareStringUtil.notEqualsIgnoreCase(userTypeInCode, correctCode);
         ThrowExceptionUtils.throwIfTrue(wrongCode, ResultCode.INVITATION_CODE_FAILED);
     }

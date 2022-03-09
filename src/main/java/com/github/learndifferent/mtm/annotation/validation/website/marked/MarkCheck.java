@@ -7,7 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 检查用户是否已经收藏。如果已经收藏了、或是没有收藏的权限，就抛出异常。
+ * Verify whether the user has already bookmarked the website by username and URL,
+ * and verify whether the user has permission to bookmark the website.
  *
  * @author zhou
  * @date 2021/09/05
@@ -17,23 +18,23 @@ import java.lang.annotation.Target;
 public @interface MarkCheck {
 
     /**
-     * 包含用户名信息的参数的名称
+     * Name of the parameter that contains username
      *
-     * @return 包含用户名信息的参数的名称
+     * @return name of the parameter that contains username
      */
     String usernameParamName();
 
     /**
-     * 包含 url 信息的参数的 Class
+     * Name of the class that has a field that contains URL
      *
-     * @return 包含 url 信息的参数的 Class
+     * @return name of the class that has a field that contains URL
      */
     Class<? extends Serializable> paramClassContainsUrl();
 
     /**
-     * 在包含 URL 的 Class 中，URL 属性的名称
+     * Name of the field in the class that contains URL
      *
-     * @return URL 属性的名称
+     * @return name of the field in the class that contains URL
      */
     String urlFieldNameInParamClass();
 }

@@ -6,8 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 检查该 {@link com.github.learndifferent.mtm.annotation.common.WebId} 注解的 web id 的数据是否属于
- * {@link com.github.learndifferent.mtm.annotation.common.Username} 注解的用户名的用户
+ * Verify whether the user has permission to modify the website data.
+ * This annotation has to be used along with {@link com.github.learndifferent.mtm.annotation.common.WebId}
+ * and {@link com.github.learndifferent.mtm.annotation.common.Username}
  *
  * @author zhou
  * @date 2021/09/05

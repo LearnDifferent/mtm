@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation.comment.get;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -24,8 +25,6 @@ import org.springframework.util.StringUtils;
  *
  * @author zhou
  * @date 2021/9/29
- * @see com.github.learndifferent.mtm.annotation.common.WebId
- * @see com.github.learndifferent.mtm.annotation.common.Username
  */
 @Aspect
 @Component
@@ -47,26 +46,29 @@ public class GetCommentsCheckAspect {
         String username = "";
         int webId = -1;
 
-        int count = 0;
+        AnnotationHelper helper = new AnnotationHelper(2);
+
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (annotation instanceof WebId
+                if (helper.hasNotFoundIndex(0)
+                        && annotation instanceof WebId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     webId = (int) args[i];
-                    count++;
+                    helper.findIndex(0);
                     break;
                 }
-                if (annotation instanceof Username
+                if (helper.hasNotFoundIndex(1)
+                        && annotation instanceof Username
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
-                    count++;
+                    helper.findIndex(1);
                     break;
                 }
             }
 
-            if (count == 2) {
+            if (helper.hasFoundAll()) {
                 break;
             }
         }

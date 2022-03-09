@@ -7,12 +7,12 @@ import java.lang.annotation.Target;
 
 /**
  * Check before comment modification
+ * This annotation has to be used along with {@link com.github.learndifferent.mtm.annotation.common.CommentId}
+ * and {@link com.github.learndifferent.mtm.annotation.common.Username}
  *
  * @author zhou
  * @date 2021/9/29
  * @see ModifyCommentCheckAspect
- * @see com.github.learndifferent.mtm.annotation.common.CommentId
- * @see com.github.learndifferent.mtm.annotation.common.Username
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

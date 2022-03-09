@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation.comment.modify;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -23,8 +24,6 @@ import org.springframework.stereotype.Component;
  *
  * @author zhou
  * @date 2021/9/29
- * @see com.github.learndifferent.mtm.annotation.common.CommentId
- * @see com.github.learndifferent.mtm.annotation.common.Username
  */
 @Order(1)
 @Aspect
@@ -47,26 +46,29 @@ public class ModifyCommentCheckAspect {
         String username = "";
         int commentId = -1;
 
-        int count = 0;
+        AnnotationHelper helper = new AnnotationHelper(2);
+
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (annotation instanceof CommentId
+                if (helper.hasNotFoundIndex(0)
+                        && annotation instanceof CommentId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     commentId = (int) args[i];
-                    count++;
+                    helper.findIndex(0);
                     break;
                 }
-                if (annotation instanceof Username
+                if (helper.hasNotFoundIndex(1)
+                        && annotation instanceof Username
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
-                    count++;
+                    helper.findIndex(1);
                     break;
                 }
             }
 
-            if (count == 2) {
+            if (helper.hasFoundAll()) {
                 break;
             }
         }
@@ -76,15 +78,15 @@ public class ModifyCommentCheckAspect {
 
     private void check(String username, int commentId) {
         CommentDTO comment = commentService.getCommentById(commentId);
-        // 评论不存在
+        // comment does not exists
         ThrowExceptionUtils.throwIfNull(comment, ResultCode.COMMENT_NOT_EXISTS);
 
         String currentUsername = (String) StpUtil.getLoginId();
-        String user = comment.getUsername();
+        String commentUsername = comment.getUsername();
 
-        // 没有权限：用户名不是当前用户名，或者不是该评论的所有者
+        // No permissions：username is not current user's name or the comment owner's name
         boolean hasNoPermission = CompareStringUtil.notEqualsIgnoreCase(currentUsername, username)
-                || CompareStringUtil.notEqualsIgnoreCase(username, user);
+                || CompareStringUtil.notEqualsIgnoreCase(username, commentUsername);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 }

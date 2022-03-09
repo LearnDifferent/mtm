@@ -6,7 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 清理 Website 数据中 title 和 desc 的长度，判断 url 格式是否正确，以及清理 url
+ * Clean Up {@link com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO}'s fields:
+ * 1. Check if the URLs are valid
+ * 2. Clean up the format of the website URL
+ * 3. If the title or description is empty, replace it with URL as content
+ * 4. Shorten the title and description if necessary
  *
  * @author zhou
  * @date 2021/09/12

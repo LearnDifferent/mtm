@@ -14,7 +14,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * 用于固定 URL 格式
+ * Clean up the URL
  *
  * @author zhou
  * @date 2021/09/05
@@ -34,7 +34,6 @@ public class UrlCleanAspect {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Object[] args = pjp.getArgs();
 
-        // 没有找到 URL
         boolean cantFindUrl = true;
 
         outer:
@@ -52,7 +51,7 @@ public class UrlCleanAspect {
         }
 
         if (cantFindUrl) {
-            log.info("没有找到 URL，请检查参数名称是否正确");
+            log.warn("Can't find the URL: Please check the parameter name");
         }
 
         return pjp.proceed(args);

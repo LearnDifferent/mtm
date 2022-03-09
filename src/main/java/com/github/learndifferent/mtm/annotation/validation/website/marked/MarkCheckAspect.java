@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation.website.marked;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -20,8 +21,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * 根据 username 和 url，查看用户是否已经收藏了该网页。
- * <p>如果已经收藏了、或是没有收藏的权限，就抛出异常。</p>
+ * Verify whether the user has already bookmarked the website by username and URL,
+ * and verify whether the user has permission to bookmark the website.
  *
  * @author zhou
  * @date 2021/09/05
@@ -52,26 +53,29 @@ public class MarkCheckAspect {
 
         String usernameParamName = annotation.usernameParamName();
 
-        int count = 0;
         String url = "";
         String username = "";
 
+        AnnotationHelper helper = new AnnotationHelper(2);
+
         for (int i = 0; i < parameterNames.length; i++) {
-            if (classContainsUrl.isAssignableFrom(parameterTypes[i]) &&
-                    args[i] != null) {
+            if (helper.hasNotFoundIndex(0)
+                    && classContainsUrl.isAssignableFrom(parameterTypes[i])
+                    && args[i] != null) {
 
                 url = getUrl(urlFieldName, args[i]);
-                count++;
+                helper.findIndex(0);
             }
 
-            if (usernameParamName.equals(parameterNames[i]) &&
-                    String.class.isAssignableFrom(parameterTypes[i]) &&
-                    ObjectUtils.isNotEmpty(args[i])) {
+            if (helper.hasNotFoundIndex(1)
+                    && usernameParamName.equals(parameterNames[i])
+                    && String.class.isAssignableFrom(parameterTypes[i])
+                    && ObjectUtils.isNotEmpty(args[i])) {
                 username = (String) args[i];
-                count++;
+                helper.findIndex(1);
             }
 
-            if (count == 2) {
+            if (helper.hasFoundAll()) {
                 break;
             }
         }
@@ -89,17 +93,18 @@ public class MarkCheckAspect {
             return (String) urlField.get(arg);
         } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
             e.printStackTrace();
-            log.warn("无法获取 URL，已转换为空字符串");
+            log.warn("Can't get the URL: Use empty string instead");
             return "";
         }
     }
 
 
     /**
-     * 测试用户权限。如果当前用户的用户名和传入的 username 不同，就抛出异常
+     * Verify whether the user has permission to bookmark the website.
      *
-     * @param username 用户名
-     * @throws ServiceException 如果当前用户的用户名和传入的 username 不同，就抛出没有权限异常
+     * @param username username
+     * @throws ServiceException if the user is not the current user,
+     *                          throw an exception with the result code of {@link ResultCode#PERMISSION_DENIED}
      */
     private void testUserPermission(String username) {
         String currentUsername = (String) StpUtil.getLoginIdDefaultNull();
@@ -107,21 +112,12 @@ public class MarkCheckAspect {
         ThrowExceptionUtils.throwIfTrue(notCurrentUser, ResultCode.PERMISSION_DENIED);
     }
 
-    /**
-     * 查看用户是否已经收藏了该网站
-     *
-     * @param userName 需要收藏该网站的用户
-     * @param url      网页链接
-     * @throws ServiceException 如果已经收藏了，就抛出异常
-     */
     private void testIfUserMarkedWeb(String userName, String url) {
 
         WebsiteDTO web = websiteService.findWebsitesDataByUrl(url).stream()
                 .filter(w -> w.getUserName().equals(userName))
                 .findFirst().orElse(null);
 
-        // 如果该用户已经收藏了该网页，就抛出异常
         ThrowExceptionUtils.throwIfNotNull(web, ResultCode.ALREADY_MARKED);
     }
-
 }

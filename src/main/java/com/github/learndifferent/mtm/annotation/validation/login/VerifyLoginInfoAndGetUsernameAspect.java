@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation.login;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Password;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.VerificationCode;
@@ -31,9 +32,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 
 /**
- * 检查登陆信息是否正确。
- * 登陆信息从 request 中获取，如果从 param 中没有获取到，就从 body 中获取相应的信息。
- * 检查过后，给需要的参数赋值。
+ * Check if the Login Info is valid and get parameter values from Request
  *
  * @author zhou
  * @date 2021/09/05
@@ -53,12 +52,6 @@ public class VerifyLoginInfoAndGetUsernameAspect {
         this.userService = userService;
     }
 
-    /**
-     * 验证登陆相关数据，如果出错，就抛出异常，然后赋值
-     *
-     * @param verifyLoginInfoAndGetParamValue 注解
-     * @throws ServiceException 验证出错，就抛出异常
-     */
     @Around("@annotation(verifyLoginInfoAndGetParamValue)")
     public Object around(ProceedingJoinPoint pjp, VerifyLoginInfoAndGetParamValue verifyLoginInfoAndGetParamValue)
             throws Throwable {
@@ -66,12 +59,9 @@ public class VerifyLoginInfoAndGetUsernameAspect {
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
 
-        // 获取方法中的参数的名称
         String[] parameterNames = signature.getParameterNames();
-        // 获取方法的参数中的注解
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
 
-        // 声明需要的参数的名称
         String codeParamName = "";
         String verifyTokenParamName = "";
         String usernameParamName = "";
@@ -80,22 +70,24 @@ public class VerifyLoginInfoAndGetUsernameAspect {
         // the parameters' names that the values may be not present
         List<String> paramsValueMayBeNotPresent = new ArrayList<>();
 
-        int count = 0;
-        // 遍历所有参数所添加的注解
+        AnnotationHelper helper = new AnnotationHelper(4);
+
         for (int i = 0; i < parameterAnnotations.length; i++) {
-            // 遍历该位置的参数的所有注解
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (annotation instanceof VerificationCode) {
+                if (helper.hasNotFoundIndex(0)
+                        && annotation instanceof VerificationCode) {
                     codeParamName = parameterNames[i];
-                    count++;
+                    helper.findIndex(0);
                     break;
                 }
-                if (annotation instanceof VerificationCodeToken) {
+                if (helper.hasNotFoundIndex(1)
+                        && annotation instanceof VerificationCodeToken) {
                     verifyTokenParamName = parameterNames[i];
-                    count++;
+                    helper.findIndex(1);
                     break;
                 }
-                if (annotation instanceof Username) {
+                if (helper.hasNotFoundIndex(2)
+                        && annotation instanceof Username) {
                     usernameParamName = parameterNames[i];
                     // if the parameter is not required, then add to the list
                     boolean required = ((Username) annotation).required();
@@ -104,10 +96,11 @@ public class VerifyLoginInfoAndGetUsernameAspect {
                         paramsValueMayBeNotPresent.add(usernameParamName);
                     }
 
-                    count++;
+                    helper.findIndex(2);
                     break;
                 }
-                if (annotation instanceof Password) {
+                if (helper.hasNotFoundIndex(3)
+                        && annotation instanceof Password) {
                     passwordParamName = parameterNames[i];
 
                     // if the parameter is not required, then add to the list
@@ -117,12 +110,12 @@ public class VerifyLoginInfoAndGetUsernameAspect {
                         paramsValueMayBeNotPresent.add(passwordParamName);
                     }
 
-                    count++;
+                    helper.findIndex(3);
                     break;
                 }
             }
 
-            if (count == 4) {
+            if (helper.hasFoundAll()) {
                 break;
             }
         }
@@ -138,6 +131,15 @@ public class VerifyLoginInfoAndGetUsernameAspect {
                 usernameParamName, passwordParamName);
 
         // Get the values
+        Object[] args = getArgs(pjp, parameterNames, paramsValueMayBeNotPresent, contents);
+
+        return pjp.proceed(args);
+    }
+
+    private Object[] getArgs(ProceedingJoinPoint pjp,
+                             String[] parameterNames,
+                             List<String> paramsValueMayBeNotPresent,
+                             Map<String, String> contents) {
         Object[] args = pjp.getArgs();
         for (String paramName : paramsValueMayBeNotPresent) {
             for (int i = 0; i < parameterNames.length; i++) {
@@ -147,10 +149,8 @@ public class VerifyLoginInfoAndGetUsernameAspect {
                 }
             }
         }
-
-        return pjp.proceed(args);
+        return args;
     }
-
 
     /**
      * 获取可以重复使用的 Request Wrapper

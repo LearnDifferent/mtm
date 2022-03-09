@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 该注解所修饰的参数为邀请码 token
+ * Token for invitation code
  *
  * @author zhou
  * @date 2021/09/20

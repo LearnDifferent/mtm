@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation.comment.add;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Comment;
 import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
@@ -25,13 +26,23 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * 检查：
- * 1. 用户名是否为当前用户的用户名
- * 2. 该 Web ID 的网页是否存在
- * 3. 评论是否小于等于 140 字符且不为空
- * 4. 检查该用户是否已经对该网页进行了相同内容的评论
- * 5. 检查的评论权限：只有公开的网页能被评论；如果是私有的网页，那么评论者必须为该网页的所有者
- * 6. 如果是回复评论，需要检查回复的评论的 Comment ID 是否存在
+ * Throw an exception with the result code of {@link ResultCode#PERMISSION_DENIED}
+ * if the username is not the current user's name or the user has no permissions to comment on this website.
+ * <p>
+ * Throw an exception with the result code of {@link ResultCode#COMMENT_EXISTS}
+ * if the comment existed .
+ * <p>
+ * Throw an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
+ * if the website does not exist.
+ * <p>
+ * Throw an exception with the result code of {@link ResultCode#COMMENT_EMPTY}
+ * if the comment is empty.
+ * <p>
+ * Throw an exception with the result code of {@link ResultCode#COMMENT_TOO_LONG}
+ * if the comment is too long.
+ * <p>
+ * Throw an exception with the result code of {@link ResultCode#COMMENT_NOT_EXISTS}
+ * if the comment is a reply to another comment and the "another comment" does not exist
  *
  * @author zhou
  * @date 2021/9/28
@@ -66,40 +77,45 @@ public class AddCommentCheckAspect {
         String username = "";
         Integer replyToCommentId = null;
 
-        int counter = 0;
+        AnnotationHelper helper = new AnnotationHelper(4);
+
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (annotation instanceof Comment
+                if (helper.hasNotFoundIndex(0)
+                        && annotation instanceof Comment
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     comment = (String) args[i];
-                    counter++;
+                    helper.findIndex(0);
                     break;
                 }
-                if (annotation instanceof WebId
+                if (helper.hasNotFoundIndex(1)
+                        && annotation instanceof WebId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     webId = (int) args[i];
-                    counter++;
+                    helper.findIndex(1);
                     break;
                 }
-                if (annotation instanceof Username
+                if (helper.hasNotFoundIndex(2)
+                        && annotation instanceof Username
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
-                    counter++;
+                    helper.findIndex(2);
                     break;
                 }
-                if (annotation instanceof ReplyToCommentId
+                if (helper.hasNotFoundIndex(3)
+                        && annotation instanceof ReplyToCommentId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     replyToCommentId = (Integer) args[i];
-                    counter++;
+                    helper.findIndex(3);
                     break;
                 }
             }
 
-            if (counter == 4) {
+            if (helper.hasFoundAll()) {
                 break;
             }
         }
@@ -154,7 +170,7 @@ public class AddCommentCheckAspect {
 
     private void checkReplyToCommentId(Integer replyToCommentId) {
         if (replyToCommentId == null) {
-            // 为 null 时，说明是普通的评论，不是一条回复
+            // null means it's a comment, not a reply
             return;
         }
         CommentDTO comment = commentService.getCommentById(replyToCommentId);
