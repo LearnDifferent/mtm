@@ -16,66 +16,67 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper {
 
     /**
-     * 获取某些用户的名称及其收藏的公开的网页的个数，并按照网页个数排序
-     * <p>如果传入的 usernames 列表为空，表示：获取所有用户的名称及其收藏的网页的个数，并按照网页个数排序。</p>
+     * Get user names and the number of public website data that user owns, sorted by the number.
      *
-     * @param usernames 需要获取的用户名
-     * @return 包装为只含有 userName 和 webCount 的 User 类列表
+     * @param usernames user names.
+     *                  If the {@code usernames} is empty, return all users' data.
+     * @return {@link List}<{@link UserWithWebCountDTO}>
      */
     List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs(List<String> usernames);
 
     /**
-     * 获取全部用户
+     * Get all users
      *
-     * @return 全部用户列表
+     * @return {@link List}<{@link UserDO}> users
      */
     List<UserDO> getUsers();
 
     /**
-     * 获取用户数量
+     * Count the number of users
      *
-     * @return 用户数量
+     * @return number of users
      */
     int countUsers();
 
     /**
-     * 添加用户
+     * Add new user
      *
-     * @param user 被添加的用户
-     * @return 成功返回 true
+     * @param user new user
+     * @return true if success
      */
     boolean addUser(UserDO user);
 
     /**
-     * 根据用户名和密码查找用户
+     * Find user by username and password
      *
-     * @param userName 用户名
-     * @param password 密码
-     * @return 用户
+     * @param userName username
+     * @param password password
+     * @return user
      */
-    UserDO getUserByNameAndPwd(String userName, String password);
+    UserDO getUserByNameAndPwd(@Param("userName") String userName,
+                               @Param("password") String password);
 
     /**
-     * 根据用户名获取用户角色
+     * Get user role by username
      *
-     * @param userName 用户名
-     * @return 用户角色
+     * @param userName username
+     * @return user role
      */
     String getRoleByName(String userName);
 
     /**
-     * 根据用户 ID，获取用户角色
+     * Get user role by user ID
      *
-     * @param userId 用户 ID
-     * @return 用户角色
+     * @param userId user ID
+     * @return user role
      */
     String getUserRoleById(String userId);
 
     /**
-     * 根据用户名获取用户
+     * Get user by username
      *
-     * @param userName 用户名
-     * @return 用户
+     * @param userName username
+     * @return user
      */
     UserDO getUserByName(String userName);
 
@@ -98,10 +99,10 @@ public interface UserMapper {
     boolean deleteUserByUserId(String userId);
 
     /**
-     * 更新用户数据
+     * Update user
      *
-     * @param user 用户数据
-     * @return 是否更新成功
+     * @param user user data to update
+     * @return true if success
      */
     boolean updateUser(UserDO user);
 }

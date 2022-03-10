@@ -16,8 +16,7 @@
         <where>
             w.public is true
             <if test="list != null and list.size() != 0">
-                and
-                <foreach collection="list" separator="or" open="(" close=")" item="userName">
+                <foreach collection="list" separator="or" open="and (" close=")" item="userName">
                     u.user_name = #{userName}
                 </foreach>
             </if>
@@ -42,8 +41,8 @@
     <select id="getUserByNameAndPwd" resultMap="BaseResultMap">
         select *
         from user
-        where user_name = #{param1}
-          and password = #{param2};
+        where user_name = #{userName}
+          and password = #{password};
     </select>
 
     <select id="getUserRoleById" resultType="java.lang.String">

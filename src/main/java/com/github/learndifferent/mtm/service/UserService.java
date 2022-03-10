@@ -75,7 +75,7 @@ public interface UserService {
     UserDTO getUserByNameAndPwd(String userName, String notEncryptedPassword);
 
     /**
-     * Get user by user role
+     * Get user role by username
      *
      * @param userName username
      * @return user role
