@@ -10,18 +10,19 @@
     </resultMap>
 
     <select id="getNamesAndCountTheirPublicWebs" resultType="com.github.learndifferent.mtm.dto.UserWithWebCountDTO">
-        select count(web_id) webCount, u.user_name
+        select count(web_id) webCount, u.user_name userName
         from website w
         left join user u on w.user_name = u.user_name
-        where w.public is true
         <where>
+            w.public is true
             <if test="list != null and list.size() != 0">
+                and
                 <foreach collection="list" separator="or" open="(" close=")" item="userName">
                     u.user_name = #{userName}
                 </foreach>
             </if>
         </where>
-        group by u.user_name
+        group by userName
         order by webCount desc;
     </select>
 
