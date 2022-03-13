@@ -51,9 +51,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         redisTemplate.opsForValue().set(verifyToken, verCode, 5, TimeUnit.MINUTES);
 
         // 将验证码图片转为 Base 64
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        try {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             VerifyCodeUtils.outputImage(230, 60, os, verCode);
             return "data:image/png;base64," + Base64Utils.encodeToString(os.toByteArray());
         } catch (IOException e) {

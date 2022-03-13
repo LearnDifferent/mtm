@@ -12,6 +12,7 @@ import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -41,7 +42,7 @@ public class NotificationManager {
     }
 
     /**
-     * Delete all notifications
+     * Delete all notifications of {@code notificationRedisKey}
      *
      * @param notificationRedisKey redis key
      */
@@ -52,7 +53,7 @@ public class NotificationManager {
     public long countReplyNotifications(String receiveUsername) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         Long size = redisTemplate.opsForList().size(key);
-        return size == null ? 0 : size;
+        return Optional.ofNullable(size).orElse(0L);
     }
 
     public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int from, int to) {
@@ -103,11 +104,11 @@ public class NotificationManager {
 
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
 
-        int commentId = comment.getCommentId();
-        int webId = comment.getWebId();
+        Integer commentId = comment.getCommentId();
+        Integer webId = comment.getWebId();
         Integer replyToCommentId = comment.getReplyToCommentId();
 
-        // the notification belongs to the owner of the website data if replyToCommentId is null
+        // the notification belongs to the owner of the website data if replyToCommentId is null,
         // and belongs to the owner of the comment data if it's not null
         boolean notifyWebsiteOwner = replyToCommentId == null;
         String receiveUsername;
@@ -162,14 +163,14 @@ public class NotificationManager {
             return "No Notifications Yet";
         }
 
-        int size = messages.size();
-        StringBuilder sb = getHtmlMsg(messages, size);
+        StringBuilder sb = getHtmlMsg(messages);
 
         return sb.toString();
     }
 
-    private StringBuilder getHtmlMsg(List<String> msg, int size) {
+    private StringBuilder getHtmlMsg(List<String> msg) {
 
+        int size = msg.size();
         int count = Math.min(size, 20);
 
         StringBuilder sb = new StringBuilder("Alerting System Notifications (" + count + ")：<br>");
