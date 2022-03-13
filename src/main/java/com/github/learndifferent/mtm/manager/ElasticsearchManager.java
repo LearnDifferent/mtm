@@ -22,7 +22,6 @@ import com.github.learndifferent.mtm.utils.PageUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
-import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -88,16 +87,19 @@ public class ElasticsearchManager {
     private final WebsiteMapper websiteMapper;
     private final TrendsManager trendsManager;
     private final UserMapper userMapper;
+    private final LanguageDetector languageDetector;
 
     @Autowired
     public ElasticsearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
                                 WebsiteMapper websiteMapper,
                                 TrendsManager trendsManager,
-                                UserMapper userMapper) {
+                                UserMapper userMapper,
+                                LanguageDetector languageDetector) {
         this.client = client;
         this.websiteMapper = websiteMapper;
         this.trendsManager = trendsManager;
         this.userMapper = userMapper;
+        this.languageDetector = languageDetector;
     }
 
     /**
@@ -199,8 +201,8 @@ public class ElasticsearchManager {
             return AsyncResult.forValue(count);
         } catch (IOException | ElasticsearchStatusException e) {
             if (e instanceof ElasticsearchStatusException) {
-                log.warn("ElasticsearchStatusException while counting, " +
-                        "which means the Index has been deleted. Returned 0.");
+                log.warn("ElasticsearchStatusException while counting, "
+                        + "which means the Index has been deleted. Returned 0.");
             } else {
                 log.error("IOException while counting. Returned 0.");
                 e.printStackTrace();
@@ -224,7 +226,7 @@ public class ElasticsearchManager {
         String json = JsonUtils.toJson(web);
         IndexRequest request = new IndexRequest(EsConstant.INDEX_WEB);
         request.id(web.getUrl());
-        request.timeout("8s");
+        request.timeout(new TimeValue(8, TimeUnit.SECONDS));
         request.source(json, XContentType.JSON);
 
         boolean success = false;
@@ -251,7 +253,7 @@ public class ElasticsearchManager {
     /**
      * 删除步骤：先检查该 index 是否存在，
      * <p>如果不存在，返回 true 表示已经删除；</p>
-     * <p>如果不存在该 index，就执行删除</p>
+     * <p>如果存在该 index，就执行删除</p>
      *
      * @param indexName name of the index
      * @return 是否删除成功
@@ -398,10 +400,10 @@ public class ElasticsearchManager {
                 .wildcardQuery(EsConstant.USER_ID, keyword + "*");
 
         // 复合查询
-        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-        boolQueryBuilder.should(wildcardQueryUsername);
-        boolQueryBuilder.should(wildcardQueryUserId);
-        boolQueryBuilder.minimumShouldMatch(1);
+        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder()
+                .should(wildcardQueryUsername)
+                .should(wildcardQueryUserId)
+                .minimumShouldMatch(1);
 
         // 放入 queryBuilder 后，再添加 timeout、分页和高亮
         source.query(boolQueryBuilder)
@@ -424,6 +426,7 @@ public class ElasticsearchManager {
             int totalPages = PageUtil.getAllPages((int) totalCount, size);
             // 分页后的结果
             List<UserForSearchWithWebCountDTO> paginatedResults = getUsersWithWebCountByHits(hits);
+
             return SearchResultsDTO.builder()
                     .paginatedResults(paginatedResults)
                     .totalCount(totalCount)
@@ -489,11 +492,11 @@ public class ElasticsearchManager {
             @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
             int from, int size) {
 
-        ElasticsearchManager elasticsearchManager =
-                ApplicationContextUtils.getBean(ElasticsearchManager.class);
-
         // 检测 keyword 的语言并选择合适的分词器
         String analyzer = detectLanguageAndGetAnalyzer(keyword);
+
+        ElasticsearchManager elasticsearchManager =
+                ApplicationContextUtils.getBean(ElasticsearchManager.class);
         // 将搜索词分词后放入热搜统计
         elasticsearchManager.analyzeKeywordAndPutToTrendsListAsync(keyword, analyzer);
 
@@ -552,10 +555,7 @@ public class ElasticsearchManager {
      */
     private String detectLanguageAndGetAnalyzer(String keyword) {
 
-        LanguageDetector detector = LanguageDetectorBuilder
-                .fromLanguages(Language.JAPANESE, Language.CHINESE)
-                .build();
-        Language lan = detector.detectLanguageOf(keyword);
+        Language lan = languageDetector.detectLanguageOf(keyword);
 
         // 默认使用英文分词器
         String analyzer = "english";
@@ -600,8 +600,8 @@ public class ElasticsearchManager {
                 }
             }
         } catch (IOException e) {
-            log.info("IOException while adding data to trending list. " +
-                    "Dropped this data because it's not important.");
+            log.info("IOException while adding data to trending list. "
+                    + "Dropped this data because it's not important.");
             e.printStackTrace();
         }
     }
@@ -636,9 +636,10 @@ public class ElasticsearchManager {
     private Map<String, Object> hitHighlightAndGetSource(SearchHit hit, String... field) {
 
         Map<String, Object> source = hit.getSourceAsMap();
+        Map<String, HighlightField> highlightFields = hit.getHighlightFields();
 
         for (String f : field) {
-            HighlightField highlightField = hit.getHighlightFields().get(f);
+            HighlightField highlightField = highlightFields.get(f);
             if (highlightField != null) {
                 Text[] texts = highlightField.fragments();
 
