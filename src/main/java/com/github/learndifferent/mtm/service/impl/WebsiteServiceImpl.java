@@ -132,8 +132,11 @@ public class WebsiteServiceImpl implements WebsiteService {
         boolean isPublic = Optional.ofNullable(isPublicValue).orElse(true);
 
         Boolean syncToEsValue = newWebsiteData.getSyncToElasticsearch();
-        // 只有公开的 public 数据可以被同步到 Elasticsearch；当 syncToEsValue 为 null 时，视为 true
-        boolean syncToElasticsearch = isPublic && (syncToEsValue == null || syncToEsValue);
+        // 当 syncToEsValue 为 null 时，视为 true
+        boolean syncToElasticsearchValue = Optional.ofNullable(syncToEsValue).orElse(true);
+
+        // 只有公开的 public 数据可以被同步到 Elasticsearch
+        boolean syncToElasticsearch = isPublic && syncToElasticsearchValue;
 
         // 获取网页数据
         WebsiteServiceImpl websiteService =
@@ -146,6 +149,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         if (syncToElasticsearch) {
             // 如果选择同步到 Elasticsearch 中，就异步执行保存方法并返回结果
             // 如果选择不同步，也就是 syncToEs 为 false 或 null 的情况：直接返回 true 作为结果，表示无需异步存放
+            // 此时 resultOfElasticsearch 会从 null 转化为 FutureTask 类型的值
             resultOfElasticsearch = elasticsearchManager.saveDocAsync(rawWebsite);
         }
 
@@ -161,7 +165,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         // 获取异步存放数据到 Elasticsearch 的结果
         boolean hasSavedToElasticsearch = false;
         try {
-            hasSavedToElasticsearch = resultOfElasticsearch.get(10, TimeUnit.SECONDS);
+            hasSavedToElasticsearch = resultOfElasticsearch.get(10L, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -422,16 +426,18 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
-    public WebsiteDTO getWebsiteDataByIdAndCheckUsername(int webId, String userName) {
+    public WebsiteDTO getWebsiteDataByIdAndUsername(int webId, String userName) {
         WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
 
-        if (web != null
-                && Boolean.FALSE.equals(web.getIsPublic())
-                && CompareStringUtil.notEqualsIgnoreCase(userName, web.getUserName())) {
-            // Check permission: if the website exists, the website is not public
-            // and the owner's username of website data does not match the username
-            return null;
-        }
+        // website data does not exist
+        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+
+        // website data is not public
+        // and the owner's username of website data does not match the username
+        boolean noPermission = Boolean.FALSE.equals(web.getIsPublic())
+                && CompareStringUtil.notEqualsIgnoreCase(userName, web.getUserName());
+        ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
+
         return DozerUtils.convert(web, WebsiteDTO.class);
     }
 

@@ -123,18 +123,21 @@ public class WebsiteDataController {
     }
 
     /**
-     * Get website data by {@code webId}
+     * Get website data by {@code webId} and {@code userName}
      *
      * @param webId    web id
      * @param userName username
-     * @return {@link ResultVO}<{@link WebsiteDTO}> If the user has no permission to get the website data,
-     * or the website doesn't exists, then it will return {@code null}
+     * @return {@link ResultVO}<{@link WebsiteDTO}> website data
+     * @throws ServiceException If the user has no permission to get the website data,
+     *                          or the website data doesn't exist, a {@link ServiceException}
+     *                          will be thrown with the result code of {@link ResultCode#PERMISSION_DENIED}
+     *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
     @GetMapping("/get")
-    public ResultVO<WebsiteDTO> getWebsiteDataById(@RequestParam("webId") Integer webId,
-                                                   @RequestParam("userName") String userName) {
-        WebsiteDTO web = websiteService.getWebsiteDataByIdAndCheckUsername(webId, userName);
-        return web == null ? ResultCreator.failResult() : ResultCreator.okResult(web);
+    public ResultVO<WebsiteDTO> getWebsiteDataByIdAndUsername(@RequestParam("webId") Integer webId,
+                                                              @RequestParam("userName") String userName) {
+        WebsiteDTO web = websiteService.getWebsiteDataByIdAndUsername(webId, userName);
+        return ResultCreator.okResult(web);
     }
 
     /**

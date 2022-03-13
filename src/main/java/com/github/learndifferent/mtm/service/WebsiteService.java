@@ -169,15 +169,18 @@ public interface WebsiteService {
     boolean changeWebPrivacySettings(int webId, String userName);
 
     /**
-     * Get website data by {@code webId}.
-     * If the user has no permission to get the website data,
-     * or the website doesn't exists, then it will return {@code null}
+     * Get website data by {@code webId} and {@code userName}
      *
-     * @param webId    网络账号
-     * @param userName 用户名
-     * @return {@link WebsiteDTO} website data or null if the user has no permission
+     * @param webId    web id
+     * @param userName username
+     * @return {@link WebsiteDTO} website data
+     * @throws ServiceException If the user has no permission to get the website data,
+     *                          or the website data doesn't exist, a {@link ServiceException}
+     *                          will be thrown with the result code of
+     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                          or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
-    WebsiteDTO getWebsiteDataByIdAndCheckUsername(int webId, String userName);
+    WebsiteDTO getWebsiteDataByIdAndUsername(int webId, String userName);
 
     /**
      * 以 HTML 格式，导出该用户的所有网页数据。如果该用户没有数据，直接输出无数据的提示。
