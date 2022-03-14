@@ -5,10 +5,10 @@ import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
+import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
@@ -104,7 +104,7 @@ public interface WebsiteService {
      * @param pageInfo    分页相关信息
      * @return 该 pattern 下，分页后需要的网页数据和总页数
      */
-    WebsitePatternDTO getWebsitesByPattern(ShowPattern showPattern, String username, PageInfoDTO pageInfo);
+    WebDataAndTotalPagesDTO getWebsitesByPattern(ShowPattern showPattern, String username, PageInfoDTO pageInfo);
 
     /**
      * Get all public website data and the count of their comments, of user the with name of {@code username}.

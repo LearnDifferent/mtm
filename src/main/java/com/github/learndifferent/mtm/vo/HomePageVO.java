@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.vo;
 
-import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
+import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +28,7 @@ public class HomePageVO implements Serializable {
     /**
      * Paginated website data and total pages
      */
-    private WebsitePatternDTO websiteDataInfo;
+    private WebDataAndTotalPagesDTO websiteDataInfo;
     /**
      * Username for further operation
      */

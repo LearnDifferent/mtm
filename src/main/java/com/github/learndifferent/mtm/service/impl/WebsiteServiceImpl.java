@@ -17,10 +17,10 @@ import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
+import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
@@ -225,9 +225,9 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     @EmptyStringCheck
-    public WebsitePatternDTO getWebsitesByPattern(ShowPattern showPattern,
-                                                  @DefaultValueIfEmpty String username,
-                                                  PageInfoDTO pageInfo) {
+    public WebDataAndTotalPagesDTO getWebsitesByPattern(ShowPattern showPattern,
+                                                        @DefaultValueIfEmpty String username,
+                                                        PageInfoDTO pageInfo) {
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
@@ -238,7 +238,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         // 如果是，在需要的时候，就要囊括所有数据；如果不是，就只囊括公开的数据
         boolean isCurrentUser = currentUsername.equalsIgnoreCase(username);
 
-        WebsitePatternDTO.WebsitePatternDTOBuilder builder = WebsitePatternDTO.builder();
+        WebDataAndTotalPagesDTO.WebDataAndTotalPagesDTOBuilder builder = WebDataAndTotalPagesDTO.builder();
 
         switch (showPattern) {
             case MARKED:

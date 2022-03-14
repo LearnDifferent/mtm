@@ -7,8 +7,8 @@ import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
+import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.dto.WebsitePatternDTO;
 import com.github.learndifferent.mtm.query.WebFilterRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -82,7 +82,7 @@ public class HomeController {
             @RequestParam(value = "userName", required = false) String userName,
             @PageInfo(size = 7) PageInfoDTO pageInfo) {
 
-        WebsitePatternDTO websiteDataInfo = websiteService.getWebsitesByPattern(pattern,
+        WebDataAndTotalPagesDTO websiteDataInfo = websiteService.getWebsitesByPattern(pattern,
                 userName, pageInfo);
 
         String currentUser = (String) StpUtil.getLoginId();

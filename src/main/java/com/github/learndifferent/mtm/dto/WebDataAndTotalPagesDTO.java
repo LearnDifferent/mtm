@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * WebsitePattern 的 dto
+ * Website Data and Total Pages (Data Transfer Object)
  *
  * @author zhou
  * @date 2021/09/05
@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class WebsitePatternDTO implements Serializable {
+public class WebDataAndTotalPagesDTO implements Serializable {
 
     /**
      * Paginated website data
