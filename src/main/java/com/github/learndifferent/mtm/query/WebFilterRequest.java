@@ -7,13 +7,15 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
- * 筛选器：根据用户名和日期，筛选网页，并根据需要加载的数量显示网页
+ * Filter Website Data by Username and Creation Time
  *
  * @author zhou
  * @date 2021/09/05
  */
+@Component
 public class WebFilterRequest implements Serializable {
 
     /**
@@ -23,12 +25,12 @@ public class WebFilterRequest implements Serializable {
     private int load;
 
     /**
-     * Filter by username. Null or empty means selecting all users.
+     * Filter by Username. Null or empty means selecting all users.
      */
     private List<String> usernames;
 
     /**
-     * Filter by date: Start from this date (including this date). Null means not selecting date.
+     * Filter by Creation Time: Start from this date (including this date). Null means not selecting date.
      */
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date fromDate;
