@@ -1,8 +1,9 @@
 package com.github.learndifferent.mtm.dto.search;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.learndifferent.mtm.config.CustomInstantSerializer;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,8 +36,8 @@ public class UserForSearchDTO implements Serializable {
     /**
      * Creation date
      */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date createTime;
+    @JsonSerialize(using = CustomInstantSerializer.class)
+    private Instant createTime;
 
     /**
      * User Role

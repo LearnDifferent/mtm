@@ -1,8 +1,7 @@
 package com.github.learndifferent.mtm.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,8 +45,7 @@ public class WebsiteDTO implements Serializable {
     /**
      * Creation date
      */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date createTime;
+    private Instant createTime;
 
     private static final long serialVersionUID = 1L;
 }

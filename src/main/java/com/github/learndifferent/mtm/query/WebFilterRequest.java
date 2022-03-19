@@ -1,10 +1,11 @@
 package com.github.learndifferent.mtm.query;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
  * @date 2021/09/05
  */
 @Component
+@Slf4j
 public class WebFilterRequest implements Serializable {
 
     /**
@@ -32,14 +34,12 @@ public class WebFilterRequest implements Serializable {
     /**
      * Filter by Creation Time: Start from this date (including this date). Null means not selecting date.
      */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date fromDate;
+    private Instant fromDate;
 
     /**
      * Filter by date: The date to end (including this date). Null means not selecting date.
      */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date toDate;
+    private Instant toDate;
 
     /**
      * Order by which field
@@ -60,49 +60,68 @@ public class WebFilterRequest implements Serializable {
     public WebFilterRequest() {
     }
 
-    /**
-     * 将传入的日期列表 dates，转化为实例内的两个日期属性
-     */
-    public void setDates(List<Date> dates) {
-        // 列表内有多少个日期
+    public void setDates(List<String> dates) {
         int len = dates.size();
 
         switch (len) {
-            // 如果长度为 0，表示筛选全部日期（让两个属性都为 null 即可）
             case 0:
+                // Don't filter by datetime if no datetime is selected
                 this.fromDate = null;
                 this.toDate = null;
                 break;
-            // 如果长度为 1，表示只筛选这一天
             case 1:
-                this.fromDate = dates.get(0);
-                this.toDate = dates.get(0);
+                // Select the particular datetime till current datetime
+                // if only one datetime is selected
+                this.fromDate = getDate(dates.get(0));
+                this.toDate = Instant.now();
                 break;
-            // 如果长度为 2，表示筛选两个日期之间
             case 2:
-                Date date1 = dates.get(0);
-                Date date2 = dates.get(1);
-                // 给日期按照时间顺序排序
-                orderDate(date1, date2);
+                // Select between two datetime ranges
+                this.fromDate = getDate(dates.get(0));
+                this.toDate = getDate(dates.get(1));
                 break;
-            // 其他情况，抛出异常（这个异常类似于 IllegalArgumentException）
             default:
-                throw new ServiceException("不能设定" + len + "个日期");
+                throw new ServiceException("Can't set " + len + " datetime ranges");
+        }
+
+        // Check and change the datetime order if necessary
+        checkAndOrderDatetime();
+    }
+
+    private Instant getDate(String date) {
+        try {
+            return Instant.parse(date);
+        } catch (NullPointerException | DateTimeParseException e) {
+            e.printStackTrace();
+            log.warn("Can't get the datetime, change to current datetime instead.");
+            return Instant.now();
         }
     }
 
-    private void orderDate(Date date1, Date date2) {
-        if (date1.before(date2)) {
-            this.fromDate = date1;
-            this.toDate = date2;
-        } else {
-            this.fromDate = date2;
-            this.toDate = date1;
+    private void checkAndOrderDatetime() {
+        if (this.fromDate == null && this.toDate == null) {
+            // Don't filter by datetime if no datetime is selected
+            return;
+        }
+        // Make it be the current datetime if one of them is null
+        if (this.fromDate == null) {
+            this.fromDate = Instant.now();
+        }
+        if (this.toDate == null) {
+            this.toDate = Instant.now();
+        }
+        // Change datetime order if necessary
+        if (this.toDate.isBefore(this.fromDate)) {
+            Instant tmp = this.toDate;
+            this.toDate = this.fromDate;
+            this.fromDate = tmp;
         }
     }
 
     /**
-     * 是否按照时间排序
+     * Set if order by time
+     *
+     * @param ifOrderByTime if order by time
      */
     public void setIfOrderByTime(Boolean ifOrderByTime) {
         if (BooleanUtils.isTrue(ifOrderByTime)) {
@@ -114,7 +133,9 @@ public class WebFilterRequest implements Serializable {
     }
 
     /**
-     * 是否按照 desc 排序
+     * Set if descending order
+     *
+     * @param ifDesc if descending order
      */
     public void setIfDesc(Boolean ifDesc) {
         this.desc = ifDesc;

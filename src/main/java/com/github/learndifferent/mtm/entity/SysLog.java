@@ -1,8 +1,7 @@
 package com.github.learndifferent.mtm.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,8 +53,7 @@ public class SysLog implements Serializable {
     /**
      * Creation time
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date optTime;
+    private Instant optTime;
 
     private static final long serialVersionUID = 1L;
 

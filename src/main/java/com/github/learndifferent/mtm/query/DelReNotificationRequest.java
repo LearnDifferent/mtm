@@ -1,8 +1,7 @@
 package com.github.learndifferent.mtm.query;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,8 +24,7 @@ public class DelReNotificationRequest implements Serializable {
     /**
      * Creation time
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date creationTime;
+    private Instant creationTime;
 
     /**
      * User's name, who is about to receive the notification.

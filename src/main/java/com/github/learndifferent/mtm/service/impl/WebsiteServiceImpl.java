@@ -43,9 +43,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -118,7 +118,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         WebsiteDO websiteDO = DozerUtils.convert(rawWebsite, WebsiteDO.class);
         return websiteMapper.addWebsiteData(websiteDO
                 .setUserName(userName)
-                .setCreateTime(new Date())
+                .setCreateTime(Instant.now())
                 .setIsPublic(isPublic));
     }
 
@@ -454,8 +454,11 @@ public class WebsiteServiceImpl implements WebsiteService {
                                                String currentUsername,
                                                HttpServletResponse response) {
 
-        Date date = Calendar.getInstance().getTime();
-        String time = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS").format(date);
+        Instant now = Instant.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss_SSS")
+                .withZone(ZoneId.systemDefault());
+        String time = dtf.format(now);
+
         String filename = username + "_" + time + ".html";
 
         boolean includePrivate = username.equalsIgnoreCase(currentUsername);

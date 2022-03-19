@@ -8,7 +8,7 @@
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="img" jdbcType="VARCHAR" property="img"/>
         <result column="desc" jdbcType="VARCHAR" property="desc"/>
-        <result column="creation_time" jdbcType="DATE" property="createTime"/>
+        <result column="creation_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="public" jdbcType="BOOLEAN" property="isPublic"/>
     </resultMap>
 
@@ -26,14 +26,14 @@
         </where>
         <!-- fromDate 和 toDate 表示日期范围 -->
         <if test="fromDate != null and toDate != null">
-            HAVING creation_time <![CDATA[ >= ]]> #{fromDate,jdbcType=DATE}
-            AND creation_time <![CDATA[ <= ]]> #{toDate,jdbcType=DATE}
+            HAVING creation_time <![CDATA[ >= ]]> #{fromDate,jdbcType=TIMESTAMP}
+            AND creation_time <![CDATA[ <= ]]> #{toDate,jdbcType=TIMESTAMP}
         </if>
         <!-- 如果上面不是「大于等于 / 小于等于」，而是「大于 / 小于」的情况
          ，上面的 if 标签需要加上「and !fromDate.equals(toDate)」
          ，然后还要加上下面这个 if 判断-->
         <!--        <if test="fromDate != null and toDate != null and fromDate.equals(toDate)">-->
-        <!--            HAVING creation_time = #{fromDate,jdbcType=DATE}-->
+        <!--            HAVING creation_time = #{fromDate,jdbcType=TIMESTAMP}-->
         <!--        </if>-->
         <if test="order != null and order != ''">
             <!-- 动态 SQL 中，如果有 order by 的情况下，不要使用 # 符号，而要使用 $ 符号 -->
@@ -181,7 +181,7 @@
             url             = #{url,jdbcType=VARCHAR},
             img             = #{img,jdbcType=VARCHAR},
             `desc`          = #{desc,jdbcType=VARCHAR},
-            `creation_time` = #{createTime,jdbcType=DATE},
+            `creation_time` = #{createTime,jdbcType=TIMESTAMP},
             `public`        = #{isPublic,jdbcType=BOOLEAN}
         where web_id = #{webId,jdbcType=INTEGER}
     </update>

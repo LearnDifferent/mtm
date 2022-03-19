@@ -1,8 +1,7 @@
 package com.github.learndifferent.mtm.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,8 +24,7 @@ public class ReplyNotificationDTO implements Serializable {
     /**
      * Creation time
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date creationTime;
+    private Instant creationTime;
 
     /**
      * Name of the user, who is about to receive the notification.

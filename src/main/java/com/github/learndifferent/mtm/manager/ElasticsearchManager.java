@@ -23,10 +23,9 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -458,12 +457,13 @@ public class ElasticsearchManager {
         String role = (String) map.get(EsConstant.ROLE);
 
         String time = (String) map.get(EsConstant.CREATION_TIME);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date creationTime = null;
+
+        Instant creationTime;
         try {
-            creationTime = sdf.parse(time);
-        } catch (ParseException e) {
+            creationTime = Instant.parse(time);
+        } catch (DateTimeParseException e) {
             e.printStackTrace();
+            throw new ServiceException(ResultCode.NO_RESULTS_FOUND);
         }
 
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);

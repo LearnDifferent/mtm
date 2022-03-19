@@ -1,8 +1,7 @@
 package com.github.learndifferent.mtm.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,8 +37,7 @@ public class UserDO implements Serializable {
     /**
      * Creation Time
      */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date createTime;
+    private Instant createTime;
     /**
      * User Role
      */

@@ -1,8 +1,7 @@
 package com.github.learndifferent.mtm.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,8 +47,7 @@ public class WebsiteDO implements Serializable {
     /**
      * 网页数据的创建时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date createTime;
+    private Instant createTime;
 
     /**
      * True if this is a public post

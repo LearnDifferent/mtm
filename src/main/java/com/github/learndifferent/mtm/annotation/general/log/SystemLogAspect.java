@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import java.lang.reflect.Method;
-import java.util.Date;
+import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -38,7 +38,7 @@ public class SystemLogAspect {
 
         SysLog.SysLogBuilder sysLog = SysLog.builder();
         OptsType optsType = annotation.optsType();
-        sysLog.optType(optsType.value()).optTime(new Date());
+        sysLog.optType(optsType.value()).optTime(Instant.now());
 
         MethodSignature signature = (MethodSignature) pjp.getSignature();
 

@@ -17,7 +17,7 @@ import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,7 +96,7 @@ public class CommentServiceImpl implements CommentService {
         CommentDO commentDO = CommentDO.builder()
                 .comment(comment).webId(webId).username(username)
                 .replyToCommentId(replyToCommentId)
-                .creationTime(new Date())
+                .creationTime(Instant.now())
                 .build();
 
         // this method will set the ID to the CommentDO automatically

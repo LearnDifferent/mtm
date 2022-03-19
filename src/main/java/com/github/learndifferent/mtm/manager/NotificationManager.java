@@ -10,7 +10,7 @@ import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -120,7 +120,7 @@ public class NotificationManager {
         }
 
         String sendUsername = comment.getUsername();
-        Date creationTime = comment.getCreationTime();
+        Instant creationTime = comment.getCreationTime();
 
         return ReplyNotificationDTO.builder()
                 .creationTime(creationTime)

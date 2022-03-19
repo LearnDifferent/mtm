@@ -17,7 +17,7 @@ import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.utils.UUIDUtils;
-import java.util.Date;
+import java.time.Instant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
@@ -158,12 +158,10 @@ public class CdUserManager {
 
         // get user ID
         String uuid = UUIDUtils.getUuid();
-        // get creation time
-        Date createTime = new Date();
         // encrypt password
         String password = Md5Util.getMd5(user.getPassword());
         // set user fields
-        user.setUserId(uuid).setCreateTime(createTime).setPassword(password);
+        user.setUserId(uuid).setCreateTime(Instant.now()).setPassword(password);
 
         // add to Elasticsearch asynchronously
         UserForSearchDTO userDataToEs = DozerUtils.convert(user, UserForSearchDTO.class);

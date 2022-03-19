@@ -5,7 +5,7 @@
         <result column="user_id" jdbcType="VARCHAR" property="userId"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
-        <result column="creation_time" jdbcType="DATE" property="createTime"/>
+        <result column="creation_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="role" jdbcType="VARCHAR" property="role"/>
     </resultMap>
 
@@ -29,7 +29,7 @@
         insert into user (user_id, user_name, `password`,
                           creation_time, `role`)
         values (#{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
-                #{createTime,jdbcType=DATE}, #{role,jdbcType=VARCHAR})
+                #{createTime,jdbcType=TIMESTAMP}, #{role,jdbcType=VARCHAR})
     </insert>
 
     <delete id="deleteUserByUserId">
