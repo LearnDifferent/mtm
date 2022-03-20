@@ -21,7 +21,7 @@ import javax.imageio.ImageIO;
  * 来源自 <a href="https://github.com/w8854123/shaoxia/blob/master/src/main/java/com/shaoxia/util/VerifyCodeUtils.java">GitHub</a>，
  * 仅做简单修改，不保证格式和功能的正确性。
  *
- * @author <a href="https://github.com/w8854123">shaoxia</>
+ * @author <a href="https://github.com/w8854123">shaoxia</a>
  * @date 2016/09/12
  */
 public class VerifyCodeUtils {
