@@ -36,9 +36,9 @@ elasticsearch:
   port: 9200
   isHttps: false
 # Initialize WebFilterRequest.java
-website-filter:
+website-data-filter:
   load: 10
-  order: "user_name"
+  order: "creation_time"
   isDesc: false
 # Async Configuration
 custom-async:

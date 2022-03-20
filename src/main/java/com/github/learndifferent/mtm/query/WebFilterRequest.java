@@ -23,7 +23,7 @@ public class WebFilterRequest implements Serializable {
     /**
      * Amount of data to load
      */
-    @Value("${website-filter.load}")
+    @Value("${website-data-filter.load}")
     private int load;
 
     /**
@@ -44,13 +44,13 @@ public class WebFilterRequest implements Serializable {
     /**
      * Order by which field
      */
-    @Value("${website-filter.order}")
+    @Value("${website-data-filter.order}")
     private String order;
 
     /**
      * True if ascending order, false if descending order
      */
-    @Value("${website-filter.isDesc}")
+    @Value("${website-data-filter.isDesc}")
     private Boolean desc;
 
     private static final String CREATION_TIME = "creation_time";
@@ -119,16 +119,17 @@ public class WebFilterRequest implements Serializable {
     }
 
     /**
-     * Set if order by time
+     * Set if order by creation time
      *
-     * @param ifOrderByTime if order by time
+     * @param ifOrderByTime True or null if order by creation time.
+     *                      False if order by username.
      */
     public void setIfOrderByTime(Boolean ifOrderByTime) {
-        if (BooleanUtils.isTrue(ifOrderByTime)) {
-            this.order = CREATION_TIME;
-        } else {
-            // 这种情况包括了 null
+        if (BooleanUtils.isFalse(ifOrderByTime)) {
             this.order = USER_NAME;
+        } else {
+            // including null
+            this.order = CREATION_TIME;
         }
     }
 
