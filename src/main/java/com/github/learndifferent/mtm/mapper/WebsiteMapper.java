@@ -1,9 +1,9 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.WebsiteDataFilterDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
-import com.github.learndifferent.mtm.query.WebFilterRequest;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -27,7 +27,7 @@ public interface WebsiteMapper {
      *               ，desc 为 false 或 null 时，不按照 desc 排序
      * @return 符合条件的网页数据
      */
-    List<WebsiteDO> findPublicWebDataByFilter(WebFilterRequest filter);
+    List<WebsiteDO> findPublicWebDataByFilter(WebsiteDataFilterDTO filter);
 
 
     /**

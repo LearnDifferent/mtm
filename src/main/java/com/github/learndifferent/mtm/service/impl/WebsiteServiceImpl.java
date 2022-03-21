@@ -21,6 +21,7 @@ import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.dto.WebsiteDataFilterDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
@@ -29,7 +30,7 @@ import com.github.learndifferent.mtm.manager.CountCommentManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
-import com.github.learndifferent.mtm.query.WebFilterRequest;
+import com.github.learndifferent.mtm.query.WebDataFilterRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
@@ -46,6 +47,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -53,6 +55,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -68,6 +71,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @date 2021/09/05
  */
 @Service
+@Slf4j
 public class WebsiteServiceImpl implements WebsiteService {
 
     private final WebsiteMapper websiteMapper;
@@ -84,9 +88,76 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
-    public List<WebsiteDTO> findPublicWebDataByFilter(WebFilterRequest filter) {
+    public List<WebsiteDTO> findPublicWebDataByFilter(WebDataFilterRequest filterRequest) {
+
+        WebsiteDataFilterDTO filter = getFilterFromRequest(filterRequest);
         List<WebsiteDO> webs = websiteMapper.findPublicWebDataByFilter(filter);
         return DozerUtils.convertList(webs, WebsiteDTO.class);
+    }
+
+    private WebsiteDataFilterDTO getFilterFromRequest(WebDataFilterRequest filterRequest) {
+
+        WebsiteDataFilterDTO filter = DozerUtils.convert(filterRequest, WebsiteDataFilterDTO.class);
+
+        // set datetime
+        List<String> datetimeList = filterRequest.getDatetimeList();
+        setTimes(filter, datetimeList);
+
+        return filter;
+    }
+
+    private void setTimes(WebsiteDataFilterDTO filter, List<String> datetimeList) {
+        if (CollectionUtils.isEmpty(datetimeList)) {
+            // Don't filter by datetime if no datetime is selected
+            return;
+        }
+
+        int len = datetimeList.size();
+        Instant fromDatetime;
+        Instant toDatetime;
+
+        switch (len) {
+            case 1:
+                // Select the particular datetime till current datetime
+                // if only one datetime is selected
+                fromDatetime = getDatetime(datetimeList.get(0));
+                toDatetime = Instant.now();
+                break;
+            case 2:
+                // Select between two datetime ranges
+                fromDatetime = getDatetime(datetimeList.get(0));
+                toDatetime = getDatetime(datetimeList.get(1));
+                break;
+            default:
+                throw new ServiceException("Can't set " + len + " datetime ranges");
+        }
+
+        // set datetime
+        filter.setFromDatetime(fromDatetime).setToDatetime(toDatetime);
+        // check and change the datetime order if necessary
+        checkAndOrderDatetime(filter);
+    }
+
+    private Instant getDatetime(String datetime) {
+        try {
+            return Instant.parse(datetime);
+        } catch (NullPointerException | DateTimeParseException e) {
+            // Make it be the current datetime if exception
+            e.printStackTrace();
+            log.warn("Can't get the datetime, change to current datetime instead.");
+            return Instant.now();
+        }
+    }
+
+    private void checkAndOrderDatetime(WebsiteDataFilterDTO filter) {
+        Instant fromDatetime = filter.getFromDatetime();
+        Instant toDatetime = filter.getToDatetime();
+
+        // Change datetime order if necessary
+        if (toDatetime.isBefore(fromDatetime)) {
+            filter.setToDatetime(fromDatetime);
+            filter.setFromDatetime(toDatetime);
+        }
     }
 
     @Override
