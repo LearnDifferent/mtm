@@ -9,7 +9,7 @@ import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.query.WebFilterRequest;
+import com.github.learndifferent.mtm.query.WebDataFilterRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
@@ -60,9 +60,8 @@ public class HomeController {
      * @param filter filter request
      * @return {@link ResultVO}<{@link List}<{@link WebsiteDTO}>> Filtered Paginated Website Data
      */
-    @SystemLog(title = "Filter", optsType = OptsType.READ)
     @PostMapping("/filter")
-    public ResultVO<List<WebsiteDTO>> filter(@RequestBody WebFilterRequest filter) {
+    public ResultVO<List<WebsiteDTO>> filter(@RequestBody WebDataFilterRequest filter) {
 
         List<WebsiteDTO> webs = websiteService.findPublicWebDataByFilter(filter);
         return ResultCreator.okResult(webs);

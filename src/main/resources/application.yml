@@ -35,11 +35,6 @@ elasticsearch:
   host: es
   port: 9200
   isHttps: false
-# Initialize WebFilterRequest.java
-website-data-filter:
-  load: 10
-  order: "creation_time"
-  isDesc: false
 # Async Configuration
 custom-async:
   core-pool-size: 3

@@ -12,7 +12,7 @@ import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
-import com.github.learndifferent.mtm.query.WebFilterRequest;
+import com.github.learndifferent.mtm.query.WebDataFilterRequest;
 import com.github.learndifferent.mtm.response.ResultVO;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -27,15 +27,12 @@ import org.springframework.web.multipart.MultipartFile;
 public interface WebsiteService {
 
     /**
-     * 根据 WebFilterRequest 筛选器来筛选公开的网页数据
+     * Filter public website data by {@link WebDataFilterRequest}
      *
-     * @param filter 筛选器，筛选器包含：
-     *               需要加载多少条数据，
-     *               所有用户名（没有用户名的时候表示查找所有），
-     *               日期（可以是一个或两个，没有的时候表示查找所有）
-     * @return 筛选出来的网页
+     * @param filterRequest Filter Public Website Data Request
+     * @return Filtered Paginated Website Data
      */
-    List<WebsiteDTO> findPublicWebDataByFilter(WebFilterRequest filter);
+    List<WebsiteDTO> findPublicWebDataByFilter(WebDataFilterRequest filterRequest);
 
     /**
      * 计算某个用户收藏的网页的总数（可以选择是否包含私有的网页数据）
