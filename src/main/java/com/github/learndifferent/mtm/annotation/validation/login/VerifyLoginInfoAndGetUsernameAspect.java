@@ -70,6 +70,9 @@ public class VerifyLoginInfoAndGetUsernameAspect {
         // the parameters' names that the values may be not present
         List<String> paramsValueMayBeNotPresent = new ArrayList<>();
 
+        // index of the username
+        int usernameIndex = -1;
+
         AnnotationHelper helper = new AnnotationHelper(4);
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
@@ -96,6 +99,9 @@ public class VerifyLoginInfoAndGetUsernameAspect {
                         paramsValueMayBeNotPresent.add(usernameParamName);
                     }
 
+                    // update the index of username
+                    usernameIndex = i;
+
                     helper.findIndex(2);
                     break;
                 }
@@ -120,6 +126,23 @@ public class VerifyLoginInfoAndGetUsernameAspect {
             }
         }
 
+        // if can't find all annotations, throw an exception.
+        // this also means that the usernameIndex is greater than -1.
+        boolean notFoundAll = !helper.hasFoundAll();
+        ThrowExceptionUtils.throwIfTrue(notFoundAll, ResultCode.USER_NOT_EXIST);
+
+        return proceed(pjp, parameterNames, codeParamName, verifyTokenParamName,
+                usernameParamName, passwordParamName, paramsValueMayBeNotPresent, usernameIndex);
+    }
+
+    private Object proceed(ProceedingJoinPoint pjp,
+                           String[] parameterNames,
+                           String codeParamName,
+                           String verifyTokenParamName,
+                           String usernameParamName,
+                           String passwordParamName,
+                           List<String> paramsValueMayBeNotPresent,
+                           int usernameIndex) throws Throwable {
         // 获取可以重复使用的 Request Wrapper
         ContentCachingRequestWrapper request = getRequestWrapper();
 
@@ -127,11 +150,13 @@ public class VerifyLoginInfoAndGetUsernameAspect {
         Map<String, String> contents = getParameterNamesAndValues(codeParamName,
                 verifyTokenParamName, usernameParamName, passwordParamName, request);
 
-        checkBeforeLogin(contents, codeParamName, verifyTokenParamName,
-                usernameParamName, passwordParamName);
+        String properCaseUsername = verifyAndGetProperCaseUsername(contents,
+                codeParamName, verifyTokenParamName, usernameParamName, passwordParamName);
 
         // Get the values
         Object[] args = getArgs(pjp, parameterNames, paramsValueMayBeNotPresent, contents);
+        // convert username to proper case
+        args[usernameIndex] = properCaseUsername;
 
         return pjp.proceed(args);
     }
@@ -272,40 +297,39 @@ public class VerifyLoginInfoAndGetUsernameAspect {
         }
     }
 
-    private void checkBeforeLogin(Map<String, String> contents,
-                                  String codeParamName,
-                                  String verifyTokenParamName,
-                                  String usernameParamName,
-                                  String passwordParamName) {
+    private String verifyAndGetProperCaseUsername(Map<String, String> contents,
+                                                  String codeParamName,
+                                                  String verifyTokenParamName,
+                                                  String usernameParamName,
+                                                  String passwordParamName) {
 
-        checkBeforeLogin(contents.get(codeParamName),
+        return verifyAndGetProperCaseUsername(contents.get(codeParamName),
                 contents.get(verifyTokenParamName),
                 contents.get(usernameParamName),
                 contents.get(passwordParamName));
     }
 
     /**
-     * 登录前检查
+     * Check if the Login Info is valid and get the proper case {@code username}
      *
-     * @param code                 验证码
+     * @param code                 verification code that the user entered
      * @param verifyToken          token
-     * @param username             用户名
-     * @param notEncryptedPassword not encrypted password
-     * @throws ServiceException 用户不存在：ResultCode.USER_NOT_EXIST
-     *                          和验证码错误：ResultCode.VERIFICATION_CODE_FAILED
+     * @param username             username
+     * @param notEncryptedPassword password that has not been encrypted
+     * @throws ServiceException throw an exception with the result code of {@link ResultCode#USER_NOT_EXIST}
+     *                          or {@link ResultCode#VERIFICATION_CODE_FAILED} if failure
      */
-    private void checkBeforeLogin(String code,
-                                  String verifyToken,
-                                  String username,
-                                  String notEncryptedPassword) {
+    private String verifyAndGetProperCaseUsername(String code,
+                                                  String verifyToken,
+                                                  String username,
+                                                  String notEncryptedPassword) {
 
-        // 如果验证码错误，会抛出错误异常
         verificationCodeService.checkCode(verifyToken, code);
 
-        // 验证码正确，就查找用户
         UserDTO user = userService.getUserByNameAndPwd(username, notEncryptedPassword);
-        // 如果用户不存在，抛出不存在的异常（也就是用户名或密码不正确）
         ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
+
+        return user.getUserName();
     }
 
 }

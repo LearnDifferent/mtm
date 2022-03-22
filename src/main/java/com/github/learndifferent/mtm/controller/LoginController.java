@@ -47,6 +47,10 @@ public class LoginController {
      *                    If the parameter {@code userName} is not present in the request,
      *                    then {@link VerifyLoginInfoAndGetParamValue} annotation will get the value from request body
      *                    and an exception will be thrown in case {@code userName} is not present in the body content.
+     *                    <p>
+     *                    {@link VerifyLoginInfoAndGetParamValue} annotation will convert {@code userName}
+     *                    to proper case as well.
+     *                    </p>
      * @param password    Password for Verification: {@link VerifyLoginInfoAndGetParamValue} annotation will get the
      *                    value from request. If the parameter {@code password} is not present in the request,
      *                    then {@link VerifyLoginInfoAndGetParamValue} annotation will get the value from request body
