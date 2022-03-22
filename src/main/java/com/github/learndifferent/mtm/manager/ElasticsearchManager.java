@@ -9,7 +9,7 @@ import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
-import com.github.learndifferent.mtm.dto.search.UserForSearchWithWebCountDTO;
+import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -406,6 +407,10 @@ public class ElasticsearchManager {
 
         // 放入 queryBuilder 后，再添加 timeout、分页和高亮
         source.query(boolQueryBuilder)
+                .highlighter(new HighlightBuilder()
+                        .field(EsConstant.USER_NAME)
+                        .field(EsConstant.USER_ID)
+                        .numOfFragments(0))
                 .timeout(new TimeValue(1, TimeUnit.MINUTES))
                 .from(from)
                 .size(size);
@@ -424,7 +429,7 @@ public class ElasticsearchManager {
             // 总页数
             int totalPages = PageUtil.getAllPages((int) totalCount, size);
             // 分页后的结果
-            List<UserForSearchWithWebCountDTO> paginatedResults = getUsersWithWebCountByHits(hits);
+            List<UserForSearchWithMoreInfo> paginatedResults = getUsersWithWebCountByHits(hits);
 
             return SearchResultsDTO.builder()
                     .paginatedResults(paginatedResults)
@@ -437,21 +442,30 @@ public class ElasticsearchManager {
         }
     }
 
-    private List<UserForSearchWithWebCountDTO> getUsersWithWebCountByHits(SearchHits hits) {
-        List<UserForSearchWithWebCountDTO> userList = new ArrayList<>();
+    private List<UserForSearchWithMoreInfo> getUsersWithWebCountByHits(SearchHits hits) {
+        List<UserForSearchWithMoreInfo> userList = new ArrayList<>();
         hits.forEach(h -> {
+            // get user basic info
             Map<String, Object> sourceAsMap = h.getSourceAsMap();
-            UserForSearchWithWebCountDTO user = convertToUser(sourceAsMap);
+            UserForSearchWithMoreInfo user = convertToUser(sourceAsMap);
 
+            // highlighted fields
+            Map<String, HighlightField> highlightFields = h.getHighlightFields();
+            Set<String> fields = highlightFields.keySet();
+            user.setHighlightedFields(new ArrayList<>(fields));
+
+            // the number of websites bookmarked by the user
             int webCount = websiteMapper.countUserPost(user.getUserName(), false);
             user.setWebCount(webCount);
+
+            // add to list
             userList.add(user);
         });
 
         return userList;
     }
 
-    private UserForSearchWithWebCountDTO convertToUser(Map<String, Object> map) {
+    private UserForSearchWithMoreInfo convertToUser(Map<String, Object> map) {
         String userId = (String) map.get(EsConstant.USER_ID);
         String userName = (String) map.get(EsConstant.USER_NAME);
         String role = (String) map.get(EsConstant.ROLE);
@@ -468,7 +482,7 @@ public class ElasticsearchManager {
 
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
-        return UserForSearchWithWebCountDTO.builder()
+        return UserForSearchWithMoreInfo.builder()
                 .userId(userId)
                 .userName(userName)
                 .role(role)
