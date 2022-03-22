@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 操作通知（在 Redis 中）
+ * Notification Service Implementation
  *
  * @author zhou
  * @date 2021/09/21
@@ -34,6 +34,11 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public long countReplyNotifications(String receiveUsername) {
         return notificationManager.countReplyNotifications(receiveUsername);
+    }
+
+    @Override
+    public int countNewReplyNotifications(String receiveUsername) {
+        return notificationManager.countNewReplyNotifications(receiveUsername);
     }
 
     @Override

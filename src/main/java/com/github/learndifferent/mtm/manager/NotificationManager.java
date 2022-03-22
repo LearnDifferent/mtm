@@ -56,12 +56,34 @@ public class NotificationManager {
         return Optional.ofNullable(size).orElse(0L);
     }
 
+    public int countNewReplyNotifications(String receiveUsername) {
+        String key = KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase();
+        String notificationCount = redisTemplate.opsForValue().get(key);
+        String count = Optional.ofNullable(notificationCount).orElse("0");
+        try {
+            return Integer.parseInt(count);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Get reply notifications and clear notification count
+     *
+     * @param receiveUsername username
+     * @param from            from
+     * @param to              to
+     * @return reply notifications
+     */
     public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int from, int to) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         List<String> notifications = redisTemplate.opsForList().range(key, from, to);
 
         boolean hasNoNotifications = CollectionUtils.isEmpty(notifications);
         ThrowExceptionUtils.throwIfTrue(hasNoNotifications, ResultCode.NO_RESULTS_FOUND);
+
+        // clear notification count
+        redisTemplate.delete(KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase());
 
         return notifications.stream()
                 .map(n -> {
@@ -91,6 +113,11 @@ public class NotificationManager {
         return commentMapper.getCommentTextById(commentId);
     }
 
+    /**
+     * Send reply notification and increase notification count
+     *
+     * @param comment comment / reply to send
+     */
     public void sendReplyNotification(CommentDO comment) {
 
         ReplyNotificationDTO notification = getReplyNotificationDTO(comment);
@@ -100,6 +127,10 @@ public class NotificationManager {
 
         String value = JsonUtils.toJson(notification);
         redisTemplate.opsForList().leftPush(key, value);
+
+        // increase notification count
+        redisTemplate.opsForValue().increment(
+                KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase());
     }
 
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {

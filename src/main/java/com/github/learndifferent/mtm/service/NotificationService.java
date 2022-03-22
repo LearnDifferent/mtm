@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import java.util.List;
 
 /**
- * 操作通知（在 Redis 中）
+ * Notification Service
  *
  * @author zhou
  * @date 2021/09/21
@@ -15,13 +15,21 @@ public interface NotificationService {
     /**
      * Count the total number of reply notifications
      *
-     * @param receiveUsername 获得用户名
+     * @param receiveUsername username
      * @return total number of reply notifications
      */
     long countReplyNotifications(String receiveUsername);
 
     /**
-     * Get reply / comment notifications
+     * Count the number of new reply notifications
+     *
+     * @param receiveUsername username
+     * @return number of new reply notifications
+     */
+    int countNewReplyNotifications(String receiveUsername);
+
+    /**
+     * Get reply / comment notifications and clear notification count
      *
      * @param receiveUsername user's name who is about to receive notifications
      * @param to              index of the last element of the reply notification list

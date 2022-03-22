@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -65,6 +66,18 @@ public class NotificationController {
                                                                              @RequestParam(value = "to", defaultValue = "10")
                                                                                      int to) {
         return ResultCreator.okResult(notificationService.getReplyNotifications(username, to));
+    }
+
+
+    /**
+     * Count the number of new reply notifications for the current user
+     *
+     * @return number of new reply notifications
+     */
+    @GetMapping("/reply/new")
+    public ResultVO<Integer> countNewReplyNotifications() {
+        String currentUsername = (String) StpUtil.getLoginId();
+        return ResultCreator.okResult(notificationService.countNewReplyNotifications(currentUsername));
     }
 
     /**
