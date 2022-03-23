@@ -71,7 +71,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void deleteSystemNotification() {
-        notificationManager.deleteNotificationByKey(KeyConstant.SYSTEM_NOTIFICATION);
+        notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION);
     }
 
     @Override
@@ -79,13 +79,11 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationManager.getSysNotHtmlAndRecordName(username);
     }
 
-    /**
-     * 发送通知
-     *
-     * @param content 通知
-     */
     @Override
-    public void sendSystemNotification(String content) {
+    public void sendSysNotAndDelSavedNames(String content) {
+        // send notification
         notificationManager.sendSystemNotification(content);
+        // delete all saved usernames
+        notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
     }
 }

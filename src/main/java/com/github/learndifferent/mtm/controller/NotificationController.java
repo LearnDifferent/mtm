@@ -117,7 +117,7 @@ public class NotificationController {
     @SystemLog(title = "Notification", optsType = OptsType.CREATE)
     @GetMapping("send/{content}")
     public ResultVO<ResultCode> sendSystemNotification(@PathVariable String content) {
-        notificationService.sendSystemNotification(content);
+        notificationService.sendSysNotAndDelSavedNames(content);
         return ResultCreator.okResult();
     }
 }

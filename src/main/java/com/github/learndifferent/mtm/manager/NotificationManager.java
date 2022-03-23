@@ -42,12 +42,12 @@ public class NotificationManager {
     }
 
     /**
-     * Delete all notifications of {@code notificationRedisKey}
+     * Delete {@code key}
      *
-     * @param notificationRedisKey redis key
+     * @param key redis key
      */
-    public void deleteNotificationByKey(String notificationRedisKey) {
-        redisTemplate.delete(notificationRedisKey);
+    public void deleteByKey(String key) {
+        redisTemplate.delete(key);
     }
 
     public long countReplyNotifications(String receiveUsername) {
@@ -199,7 +199,7 @@ public class NotificationManager {
         StringBuilder sb = getHtmlMsg(messages);
 
         // record the lowercase username
-        redisTemplate.opsForSet().add(KeyConstant.SYSTEM_NOTIFICATION_READ_USER, username.toLowerCase());
+        redisTemplate.opsForSet().add(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
         return sb.toString();
     }
 

@@ -44,10 +44,10 @@ public interface NotificationService {
 
 
     /**
-     * 删除回复通知
+     * Delete reply notification
      *
-     * @param data 需要删除的通知数据
-     * @throws com.github.learndifferent.mtm.exception.ServiceException 检查用户的权限并抛出异常
+     * @param data notification data to delete
+     * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception if failure
      */
     void deleteReplyNotification(DelReNotificationRequest data);
 
@@ -66,9 +66,11 @@ public interface NotificationService {
     String getSysNotHtmlAndRecordName(String username);
 
     /**
-     * 发送通知
+     * Send System Notification and ensure the limit is 20.
+     * <p>This will also delete all saved usernames that
+     * read the most recent previous system notifications.</p>
      *
-     * @param content 通知
+     * @param content content of notification
      */
-    void sendSystemNotification(String content);
+    void sendSysNotAndDelSavedNames(String content);
 }

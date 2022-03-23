@@ -19,7 +19,7 @@ public final class KeyConstant {
     /**
      * The key of the lowercase usernames of users that have read the latest system notifications
      */
-    public static final String SYSTEM_NOTIFICATION_READ_USER = "systemNotification:read";
+    public static final String SYSTEM_NOTIFICATION_READ_USERS = "systemNotification:read";
 
     /**
      * The key of reply notification is "notification:" + lowercase username
