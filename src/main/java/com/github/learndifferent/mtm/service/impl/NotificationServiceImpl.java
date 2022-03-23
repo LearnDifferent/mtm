@@ -74,12 +74,9 @@ public class NotificationServiceImpl implements NotificationService {
         notificationManager.deleteNotificationByKey(KeyConstant.SYSTEM_NOTIFICATION);
     }
 
-    /**
-     * 获取前 20 条通知，并转化为 HTML 的形式
-     */
     @Override
-    public String getSystemNotificationsHtml() {
-        return notificationManager.getSystemNotificationsHtml();
+    public String getSysNotHtmlAndRecordName(String username) {
+        return notificationManager.getSysNotHtmlAndRecordName(username);
     }
 
     /**

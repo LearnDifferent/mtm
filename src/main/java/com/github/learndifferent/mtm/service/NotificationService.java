@@ -57,11 +57,13 @@ public interface NotificationService {
     void deleteSystemNotification();
 
     /**
-     * 获取前 20 条通知，并转化为 HTML 的形式
+     * Get first 20 system notifications and convert the text to an HTML format.
+     * <p>This will also record the username of the user who wants to get the latest system notifications</p>
      *
-     * @return 转化为 HTML 的形式的前 20 条通知
+     * @param username username of the user who wants to get the latest system notifications
+     * @return first 20 system notifications
      */
-    String getSystemNotificationsHtml();
+    String getSysNotHtmlAndRecordName(String username);
 
     /**
      * 发送通知

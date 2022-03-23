@@ -181,11 +181,13 @@ public class NotificationManager {
     }
 
     /**
-     * Get first 20 messages and convert text to an HTML format
+     * Get first 20 system notifications and convert the text to an HTML format.
+     * <p>This will also record the username of the user who wants to get the latest system notifications</p>
      *
-     * @return first 20 messages
+     * @param username username of the user who wants to get the latest system notifications
+     * @return first 20 system notifications
      */
-    public String getSystemNotificationsHtml() {
+    public String getSysNotHtmlAndRecordName(String username) {
 
         // get first 20 messages
         List<String> messages = redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
@@ -196,6 +198,8 @@ public class NotificationManager {
 
         StringBuilder sb = getHtmlMsg(messages);
 
+        // record the lowercase username
+        redisTemplate.opsForSet().add(KeyConstant.SYSTEM_NOTIFICATION_READ_USER, username.toLowerCase());
         return sb.toString();
     }
 

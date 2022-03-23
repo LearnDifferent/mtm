@@ -46,7 +46,9 @@ public class NotificationController {
     @SystemLog(title = "Notification", optsType = OptsType.READ)
     @GetMapping
     public ResultVO<String> getSystemNotifications() {
-        return ResultCreator.okResult(notificationService.getSystemNotificationsHtml());
+        String currentUsername = (String) StpUtil.getLoginId();
+        String notifications = notificationService.getSysNotHtmlAndRecordName(currentUsername);
+        return ResultCreator.okResult(notifications);
     }
 
     /**
