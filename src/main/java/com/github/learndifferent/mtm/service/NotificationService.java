@@ -52,9 +52,10 @@ public interface NotificationService {
     void deleteReplyNotification(DelReNotificationRequest data);
 
     /**
-     * 删除系统通知
+     * Delete all system notifications and remove all saved usernames
+     * that read the most recent previous system notifications
      */
-    void deleteSystemNotification();
+    void deleteSysNotificationAndSavedNames();
 
     /**
      * Get first 20 system notifications and convert the text to an HTML format.

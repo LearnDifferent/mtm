@@ -70,8 +70,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void deleteSystemNotification() {
+    public void deleteSysNotificationAndSavedNames() {
+        // delete all notifications
         notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION);
+        // delete all saved usernames
+        notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
     }
 
     @Override

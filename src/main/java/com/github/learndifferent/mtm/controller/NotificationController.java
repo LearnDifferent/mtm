@@ -69,8 +69,7 @@ public class NotificationController {
                                                                                      int to) {
         return ResultCreator.okResult(notificationService.getReplyNotifications(username, to));
     }
-
-
+    
     /**
      * Count the number of new reply notifications for the current user
      *
@@ -104,7 +103,7 @@ public class NotificationController {
     @SystemLog(title = "Notification", optsType = OptsType.DELETE)
     @DeleteMapping
     public ResultVO<ResultCode> deleteSystemNotifications() {
-        notificationService.deleteSystemNotification();
+        notificationService.deleteSysNotificationAndSavedNames();
         return ResultCreator.okResult();
     }
 
