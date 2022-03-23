@@ -89,4 +89,9 @@ public class NotificationServiceImpl implements NotificationService {
         // delete all saved usernames
         notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
     }
+
+    @Override
+    public boolean checkIfReadLatestSysNotification(String username) {
+        return notificationManager.checkIfReadLatestSysNotification(username);
+    }
 }

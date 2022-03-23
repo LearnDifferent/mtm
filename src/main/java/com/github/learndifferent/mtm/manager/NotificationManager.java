@@ -189,8 +189,7 @@ public class NotificationManager {
      */
     public String getSysNotHtmlAndRecordName(String username) {
 
-        // get first 20 messages
-        List<String> messages = redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
+        List<String> messages = getFirst20SystemNotifications();
 
         if (CollectionUtils.isEmpty(messages)) {
             return "No Notifications Yet";
@@ -201,6 +200,11 @@ public class NotificationManager {
         // record the lowercase username
         redisTemplate.opsForSet().add(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
         return sb.toString();
+    }
+
+    private List<String> getFirst20SystemNotifications() {
+        // get first 20 messages
+        return redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
     }
 
     private StringBuilder getHtmlMsg(List<String> msg) {
@@ -224,5 +228,27 @@ public class NotificationManager {
      */
     public void deleteFromReadSysNot(String username) {
         redisTemplate.opsForSet().remove(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
+    }
+
+    /**
+     * Check whether the user has read the latest system notification
+     *
+     * @param username username of the user
+     * @return true if user has read the latest notification, or there is no system notification
+     * <p>false if user has not read the latest notification</p>
+     */
+    public boolean checkIfReadLatestSysNotification(String username) {
+
+        // return true if there is no notification
+        List<String> notifications = getFirst20SystemNotifications();
+        if (CollectionUtils.isEmpty(notifications)) {
+            return true;
+        }
+
+        // return true if user has read the latest notification
+        Boolean isMember = redisTemplate.opsForSet()
+                .isMember(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
+
+        return Optional.ofNullable(isMember).orElse(false);
     }
 }

@@ -74,4 +74,13 @@ public interface NotificationService {
      * @param content content of notification
      */
     void sendSysNotAndDelSavedNames(String content);
+
+    /**
+     * Check whether the user has read the latest system notification
+     *
+     * @param username username of the user
+     * @return true if user has read the latest notification, or there is no system notification
+     * <p>false if user has not read the latest notification</p>
+     */
+    boolean checkIfReadLatestSysNotification(String username);
 }

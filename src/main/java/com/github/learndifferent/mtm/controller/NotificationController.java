@@ -69,7 +69,7 @@ public class NotificationController {
                                                                                      int to) {
         return ResultCreator.okResult(notificationService.getReplyNotifications(username, to));
     }
-    
+
     /**
      * Count the number of new reply notifications for the current user
      *
@@ -114,9 +114,22 @@ public class NotificationController {
      * @return {@link ResultCreator#okResult()}
      */
     @SystemLog(title = "Notification", optsType = OptsType.CREATE)
-    @GetMapping("send/{content}")
+    @GetMapping("/send/{content}")
     public ResultVO<ResultCode> sendSystemNotification(@PathVariable String content) {
         notificationService.sendSysNotAndDelSavedNames(content);
         return ResultCreator.okResult();
+    }
+
+    /**
+     * Check whether the current user has read the latest system notification
+     *
+     * @return true if current user has read the latest notification, or there is no system notification
+     * <p>false if current user has not read the latest notification</p>
+     */
+    @GetMapping("/read")
+    public ResultVO<Boolean> checkIfReadLatestSysNotification() {
+        String currentUsername = (String) StpUtil.getLoginId();
+        boolean hasRead = notificationService.checkIfReadLatestSysNotification(currentUsername);
+        return ResultCreator.okResult(hasRead);
     }
 }
