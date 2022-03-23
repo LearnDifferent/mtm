@@ -216,4 +216,13 @@ public class NotificationManager {
         }
         return sb;
     }
+
+    /**
+     * Remove the username from the set of users who have read the most recent previous system notification
+     *
+     * @param username The username of the user who has read the most recent previous system notification
+     */
+    public void deleteFromReadSysNot(String username) {
+        redisTemplate.opsForSet().remove(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
+    }
 }

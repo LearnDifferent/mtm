@@ -77,7 +77,8 @@ public class CdUserManager {
 
         // Delete all notifications related to the user (Redis don't need transaction in this situation)
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + username.toLowerCase();
-        notificationManager.deleteNotificationByKey(key);
+        notificationManager.deleteByKey(key);
+        notificationManager.deleteFromReadSysNot(username);
 
         // Remove user data from Elasticsearch asynchronously
         elasticsearchManager.removeUserFromElasticsearchAsync(userId);
