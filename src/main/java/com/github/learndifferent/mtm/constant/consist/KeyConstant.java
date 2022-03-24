@@ -30,4 +30,9 @@ public final class KeyConstant {
      * The key of reply notification count is "notification:count:" + lowercase username
      */
     public static final String REPLY_NOTIFICATION_COUNT_PREFIX = "notification:count:";
+
+    /**
+     * The key of website data's views is "view:" + {@code webId}
+     */
+    public static final String WEB_VIEW_COUNT_PREFIX = "view:";
 }
