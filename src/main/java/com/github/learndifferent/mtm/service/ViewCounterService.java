@@ -37,4 +37,10 @@ public interface ViewCounterService {
      *                                                                  will be thrown if no data available
      */
     List<String> saveViewsToDbAndReturnFailKeys();
+
+
+    /**
+     * A scheduled task to run {@link #saveViewsToDbAndReturnFailKeys()} every 12 hours
+     */
+    void saveViewsToDatabaseScheduledTask();
 }

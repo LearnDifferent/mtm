@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.WebDataViewDO;
 import com.github.learndifferent.mtm.mapper.WebDataViewMapper;
 import com.github.learndifferent.mtm.service.ViewCounterService;
+import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,5 +123,13 @@ public class ViewCounterServiceImpl implements ViewCounterService {
             // add the key to list if failure
             failKeys.add(key);
         }
+    }
+
+    @Override
+    @Scheduled(fixedRate = 43_200_000)
+    public void saveViewsToDatabaseScheduledTask() {
+        ViewCounterServiceImpl viewCounterService =
+                ApplicationContextUtils.getBean(ViewCounterServiceImpl.class);
+        viewCounterService.saveViewsToDbAndReturnFailKeys();
     }
 }
