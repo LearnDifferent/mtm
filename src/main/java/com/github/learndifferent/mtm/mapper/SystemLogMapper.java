@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.mapper;
 
 import com.github.learndifferent.mtm.entity.SysLog;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -24,7 +25,9 @@ public interface SystemLogMapper {
     /**
      * Get system logs
      *
+     * @param from from
+     * @param size size
      * @return {@link List}<{@link SysLog}> system logs
      */
-    List<SysLog> getSystemLogs();
+    List<SysLog> getSystemLogs(@Param("from") int from, @Param("size") int size);
 }

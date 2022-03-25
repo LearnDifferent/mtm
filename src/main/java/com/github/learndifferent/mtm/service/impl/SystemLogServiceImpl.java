@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.mapper.SystemLogMapper;
 import com.github.learndifferent.mtm.service.SystemLogService;
@@ -27,8 +28,10 @@ public class SystemLogServiceImpl implements SystemLogService {
 
     @Override
     @Cacheable(value = "system-log", unless = "#result == null or #result.isEmpty()")
-    public List<SysLog> getSystemLogs() {
-        return systemLogMapper.getSystemLogs();
+    public List<SysLog> getSystemLogs(PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+        return systemLogMapper.getSystemLogs(from, size);
     }
 
     @Async("asyncTaskExecutor")

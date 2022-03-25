@@ -19,6 +19,7 @@
     <select id="getSystemLogs" resultType="com.github.learndifferent.mtm.entity.SysLog">
         select *
         from system_log
-        order by opt_time desc;
+        order by opt_time desc
+        limit #{from}, #{size};
     </select>
 </mapper>
