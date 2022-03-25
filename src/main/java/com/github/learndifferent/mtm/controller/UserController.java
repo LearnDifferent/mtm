@@ -10,16 +10,13 @@ import com.github.learndifferent.mtm.annotation.validation.register.RegisterCode
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
-import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,16 +38,6 @@ public class UserController {
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-
-    /**
-     * Get users and refresh the cache
-     *
-     * @return {@code ResultVO<List<UserDTO>>} Users
-     */
-    @GetMapping
-    public ResultVO<List<UserDTO>> getUsers() {
-        return ResultCreator.okResult(userService.getAllUsersRefreshing());
     }
 
     /**

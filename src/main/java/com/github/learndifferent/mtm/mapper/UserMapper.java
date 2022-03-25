@@ -25,11 +25,13 @@ public interface UserMapper {
     List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs(List<String> usernames);
 
     /**
-     * Get all users
+     * Get users
      *
+     * @param from from (null if get all)
+     * @param size size (null if get all)
      * @return {@link List}<{@link UserDO}> users
      */
-    List<UserDO> getUsers();
+    List<UserDO> getUsers(@Param("from") Integer from, @Param("size") Integer size);
 
     /**
      * Count the number of users

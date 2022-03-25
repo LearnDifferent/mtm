@@ -63,7 +63,11 @@
     </select>
     <select id="getUsers" resultMap="BaseResultMap">
         select *
-        from user;
+        from user
+        order by creation_time desc
+        <if test="from!=null and size!=null">
+            limit #{from}, #{size}
+        </if>
     </select>
 
     <select id="countUsers" resultType="java.lang.Integer">

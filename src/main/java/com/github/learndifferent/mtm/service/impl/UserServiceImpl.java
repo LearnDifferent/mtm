@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
@@ -16,10 +17,8 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -105,7 +104,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict({"allUsers", "usernamesAndTheirWebs"}),
+            @CacheEvict("usernamesAndTheirWebs"),
             @CacheEvict(value = {"getUserByName", "getRoleByName"}, key = "#userName")
     })
     public boolean deleteUserAndWebAndCommentData(String userName, String notEncryptedPassword) {
@@ -113,23 +112,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable("allUsers")
-    public List<UserDTO> getAllUsersCaching() {
-        List<UserDO> users = userMapper.getUsers();
+    public List<UserDTO> getUsers(PageInfoDTO pageInfo) {
+        Integer from = pageInfo.getFrom();
+        Integer size = pageInfo.getSize();
+        List<UserDO> users = userMapper.getUsers(from, size);
         return DozerUtils.convertList(users, UserDTO.class);
-    }
-
-    @Override
-    @CachePut("allUsers")
-    public List<UserDTO> getAllUsersRefreshing() {
-        List<UserDO> users = userMapper.getUsers();
-        return DozerUtils.convertList(users, UserDTO.class);
-    }
-
-    @Override
-    @Scheduled(cron = "0 0 * * * ?")
-    public void getAllUserRefreshingScheduledTask() {
-        UserService userService = ApplicationContextUtils.getBean(UserService.class);
-        userService.getAllUsersRefreshing();
     }
 }

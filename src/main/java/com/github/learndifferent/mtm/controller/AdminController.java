@@ -54,6 +54,23 @@ public class AdminController {
     }
 
     /**
+     * Get users
+     *
+     * @param pageInfo pagination info
+     * @return users
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
+     */
+    @GetMapping("/users")
+    @AdminValidation
+    public ResultVO<List<UserDTO>> getUsers(@PageInfo(size = 20) PageInfoDTO pageInfo) {
+        List<UserDTO> users = userService.getUsers(pageInfo);
+        return ResultCreator.okResult(users);
+    }
+
+    /**
      * Get logs, all users' information and whether the current user is admin for admin page
      *
      * @return {@link AdminPageVO} logs, all users' information and whether the current user is admin
@@ -65,7 +82,6 @@ public class AdminController {
     @AdminValidation
     @GetMapping
     public AdminPageVO load() {
-        List<UserDTO> users = userService.getAllUsersCaching();
-        return AdminPageVO.builder().admin(true).users(users).build();
+        return AdminPageVO.builder().admin(true).build();
     }
 }

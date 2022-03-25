@@ -144,6 +144,7 @@ public class WebsiteDataController {
      * Get paginated website data and total pages by username
      *
      * @param username username
+     * @param pageInfo pagination info
      * @return {@link ResultVO}<{@link UserPublicWebInfoDTO}> Paginated public website data and total pages belonging to
      * the user, with the result code of {@link ResultCode#SUCCESS}
      */

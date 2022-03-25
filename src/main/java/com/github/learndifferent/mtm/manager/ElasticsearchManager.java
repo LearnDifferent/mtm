@@ -286,7 +286,7 @@ public class ElasticsearchManager {
         // 如果无法清空之前的数据，抛出异常
         ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
 
-        List<UserDO> users = userMapper.getUsers();
+        List<UserDO> users = userMapper.getUsers(null, null);
         List<UserForSearchDTO> usersForSearch = DozerUtils.convertList(users, UserForSearchDTO.class);
 
         return bulkAddUserDataForSearch(usersForSearch);

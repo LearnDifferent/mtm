@@ -68,9 +68,7 @@ public class RedisConfig {
                 .withCacheConfiguration("getUserByName",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10)))
                 .withCacheConfiguration("system-log",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30)))
-                .withCacheConfiguration("allUsers",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1)));
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30)));
 
     }
 }

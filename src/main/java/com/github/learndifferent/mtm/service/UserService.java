@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
@@ -105,22 +106,10 @@ public interface UserService {
     boolean deleteUserAndWebAndCommentData(String userName, String notEncryptedPassword);
 
     /**
-     * Get all users. The content will be cached for 1 hour.
+     * Get users
      *
-     * @return {@link List}<{@link UserDTO}> users
-     * @see com.github.learndifferent.mtm.config.RedisConfig
-     */
-    List<UserDTO> getAllUsersCaching();
-
-    /**
-     * Get all users and refresh the cache
-     *
+     * @param pageInfo pagination info
      * @return {@link List}<{@link UserDTO}> users
      */
-    List<UserDTO> getAllUsersRefreshing();
-
-    /**
-     * A scheduled task to run {@link #getAllUsersRefreshing()} every hour on the hour automatically
-     */
-    void getAllUserRefreshingScheduledTask();
+    List<UserDTO> getUsers(PageInfoDTO pageInfo);
 }
