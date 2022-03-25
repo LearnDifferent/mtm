@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.learndifferent.mtm.mapper.WebDataViewMapper">
+    <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.WebDataViewDO">
+        <result column="web_id" jdbcType="INTEGER" property="webId"/>
+        <result column="views" jdbcType="INTEGER" property="views"/>
+    </resultMap>
+    <insert id="addAll" parameterType="com.github.learndifferent.mtm.entity.WebDataViewDO">
+        insert into website_views (web_id, views)
+        values
+        <foreach collection="set" item="webAndViews" separator=",">
+            (#{webAndViews.webId,jdbcType=INTEGER}, #{webAndViews.views,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+    <delete id="clearAll">
+        delete
+        from website_views;
+    </delete>
+</mapper>

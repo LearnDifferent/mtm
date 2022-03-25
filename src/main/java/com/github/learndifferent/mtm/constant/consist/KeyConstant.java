@@ -32,6 +32,11 @@ public final class KeyConstant {
     public static final String REPLY_NOTIFICATION_COUNT_PREFIX = "notification:count:";
 
     /**
+     * The key of the set that stores all the keys of website data's views
+     */
+    public static final String VIEW_KEY_SET = "all:view";
+
+    /**
      * The key of website data's views is "view:" + {@code webId}
      */
     public static final String WEB_VIEW_COUNT_PREFIX = "view:";

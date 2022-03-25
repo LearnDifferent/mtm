@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.ViewCounterService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +34,7 @@ public class ViewCounterController {
      */
     @GetMapping("/incr")
     public void increaseViews(@RequestParam("webId") Integer webId) {
-        viewCounterService.increaseViews(webId);
+        viewCounterService.increaseViewsAndAddToSet(webId);
     }
 
     /**
@@ -47,4 +48,20 @@ public class ViewCounterController {
         int views = viewCounterService.countViews(webId);
         return ResultCreator.okResult(views);
     }
+
+    /**
+     * Save the numbers of views to the database
+     * and return a list of the keys that failed to save
+     *
+     * @return the list of the keys that failed to save
+     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
+     *                                                                  will be thrown if no data available
+     */
+    @GetMapping("/update-db")
+    public ResultVO<List<String>> saveViewsToDbAndReturnFailKeys() {
+        List<String> failKeys = viewCounterService.saveViewsToDbAndReturnFailKeys();
+        return ResultCreator.okResult(failKeys);
+    }
+
 }
