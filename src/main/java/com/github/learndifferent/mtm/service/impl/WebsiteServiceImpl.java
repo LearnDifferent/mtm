@@ -27,6 +27,7 @@ import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.CountCommentManager;
+import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
@@ -77,14 +78,17 @@ public class WebsiteServiceImpl implements WebsiteService {
     private final WebsiteMapper websiteMapper;
     private final ElasticsearchManager elasticsearchManager;
     private final CountCommentManager countCommentManager;
+    private final DeleteViewManager deleteViewManager;
 
     @Autowired
     public WebsiteServiceImpl(WebsiteMapper websiteMapper,
                               ElasticsearchManager elasticsearchManager,
-                              CountCommentManager countCommentManager) {
+                              CountCommentManager countCommentManager,
+                              DeleteViewManager deleteViewManager) {
         this.websiteMapper = websiteMapper;
         this.elasticsearchManager = elasticsearchManager;
         this.countCommentManager = countCommentManager;
+        this.deleteViewManager = deleteViewManager;
     }
 
     @Override
@@ -482,7 +486,11 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     @ModifyWebsitePermissionCheck
     public boolean delWebsiteDataById(@WebId int webId, @Username String userName) {
-        return websiteMapper.deleteWebsiteDataById(webId);
+        boolean success = websiteMapper.deleteWebsiteDataById(webId);
+        if (success) {
+            deleteViewManager.deleteWebView(webId);
+        }
+        return success;
     }
 
     @Override

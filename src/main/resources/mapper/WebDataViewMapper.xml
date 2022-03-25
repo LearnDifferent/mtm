@@ -22,4 +22,9 @@
                  left join website w on v.web_id = w.web_id
         order by v.views desc;
     </select>
+    <delete id="deleteViewData">
+        delete
+        from website_views
+        where web_id = #{webId,jdbcType=INTEGER};
+    </delete>
 </mapper>

@@ -17,14 +17,14 @@ import org.springframework.stereotype.Repository;
 public interface WebDataViewMapper {
 
     /**
-     * Add all data to database
+     * Add all views data to database
      *
      * @param allWebDataViews all data
      */
     void addAll(@Param("set") Set<WebDataViewDO> allWebDataViews);
 
     /**
-     * Clear all data
+     * Clear all views data
      *
      * @return success or not
      */
@@ -36,4 +36,12 @@ public interface WebDataViewMapper {
      * @return all visited bookmarks
      */
     List<VisitedBookmarksDTO> getAllVisitedWebData();
+
+    /**
+     * Delete views data by {@code webId}
+     *
+     * @param webId ID
+     * @return true if success
+     */
+    boolean deleteViewData(int webId);
 }
