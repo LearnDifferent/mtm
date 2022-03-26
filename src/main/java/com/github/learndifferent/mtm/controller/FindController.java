@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
@@ -99,6 +100,10 @@ public class FindController {
      * @param keyword  keyword (accept empty string and null)
      * @param pageInfo pagination info
      * @return {@link ResultVO}<{@link SearchResultsDTO}> Search results
+     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
+     *                                                                  will be thrown if there are no results that
+     *                                                                  match the keyword
      */
     @GetMapping("/search")
     public ResultVO<SearchResultsDTO> search(@RequestParam("mode") SearchMode mode,
@@ -106,7 +111,6 @@ public class FindController {
                                              @PageInfo PageInfoDTO pageInfo) {
 
         SearchResultsDTO results = searchService.search(mode, keyword, pageInfo);
-
         return ResultCreator.okResult(results);
     }
 
@@ -141,13 +145,13 @@ public class FindController {
      * @param mode Delete user data if {@link SearchMode#USER} and delete website data if {@link SearchMode#WEB}
      * @return success or failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException Only admin can delete all website data, and
-     *                                                                  if the current user is not admin, {@link
-     *                                                                  SearchService#checkAndDeleteIndex(SearchMode)}
+     *                                                                  if the current user is not admin,
+     *                                                                  {@link AdminValidation} annotation
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
-    @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/delete")
+    @AdminValidation
     public boolean deleteWebsiteDataSearch(@RequestParam("mode") SearchMode mode) {
         return searchService.checkAndDeleteIndex(mode);
     }

@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
@@ -52,7 +51,6 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    @AdminValidation
     public boolean checkAndDeleteIndex(SearchMode mode) {
         switch (mode) {
             case USER:
