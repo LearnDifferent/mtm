@@ -46,7 +46,8 @@ public interface ViewCounterService {
     void saveViewsToDatabaseScheduledTask();
 
     /**
-     * Get visited bookmarks from database
+     * Get visited bookmarks from database.
+     * If no data available, the empty result will be cached for 30 seconds.
      *
      * @param pageInfo pagination info
      * @return visited bookmarks

@@ -112,6 +112,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "getUsers", unless = "#result != null and #result.size() > 0")
     public List<UserDTO> getUsers(PageInfoDTO pageInfo) {
         Integer from = pageInfo.getFrom();
         Integer size = pageInfo.getSize();

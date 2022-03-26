@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -137,6 +138,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     }
 
     @Override
+    @Cacheable(value = "getVisitedBookmarks", unless = "#result != null and #result.size() > 0")
     public List<VisitedBookmarksDTO> getVisitedBookmarks(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();

@@ -67,8 +67,12 @@ public class RedisConfig {
         return builder -> builder
                 .withCacheConfiguration("getUserByName",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10)))
+                .withCacheConfiguration("getUsers",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(20)))
+                .withCacheConfiguration("getVisitedBookmarks",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30)))
                 .withCacheConfiguration("system-log",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30)));
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(40)));
 
     }
 }

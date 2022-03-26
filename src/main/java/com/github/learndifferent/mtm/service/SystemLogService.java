@@ -14,7 +14,7 @@ public interface SystemLogService {
 
     /**
      * Get System Logs.
-     * The logs will be cached for 30 seconds.
+     * The result will be cached for 40 seconds.
      *
      * @param pageInfo pagination info
      * @return {@link List}<{@link SysLog}> system logs

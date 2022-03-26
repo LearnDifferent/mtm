@@ -27,7 +27,7 @@ public class SystemLogServiceImpl implements SystemLogService {
     }
 
     @Override
-    @Cacheable(value = "system-log", unless = "#result == null or #result.isEmpty()")
+    @Cacheable(value = "system-log")
     public List<SysLog> getSystemLogs(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();

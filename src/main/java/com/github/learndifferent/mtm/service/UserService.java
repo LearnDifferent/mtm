@@ -106,7 +106,8 @@ public interface UserService {
     boolean deleteUserAndWebAndCommentData(String userName, String notEncryptedPassword);
 
     /**
-     * Get users
+     * Get users.
+     * If no users found, the empty result will be cached for 20 seconds.
      *
      * @param pageInfo pagination info
      * @return {@link List}<{@link UserDTO}> users
