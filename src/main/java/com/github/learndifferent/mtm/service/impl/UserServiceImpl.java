@@ -1,10 +1,12 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
+import com.github.learndifferent.mtm.entity.UserDO.UserDOBuilder;
 import com.github.learndifferent.mtm.manager.CdUserManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
@@ -90,7 +92,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "getRoleByName", key = "#userName")
     public String getRoleByName(String userName) {
         return userMapper.getRoleByName(userName);
     }
@@ -105,7 +106,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Caching(evict = {
             @CacheEvict("usernamesAndTheirWebs"),
-            @CacheEvict(value = {"getUserByName", "getRoleByName"}, key = "#userName")
+            @CacheEvict(value = {"getUserByName"}, key = "#userName")
     })
     public boolean deleteUserAndWebAndCommentData(String userName, String notEncryptedPassword) {
         return cdUserManager.deleteAllDataRelatedToUser(userName, notEncryptedPassword);
@@ -118,5 +119,38 @@ public class UserServiceImpl implements UserService {
         Integer size = pageInfo.getSize();
         List<UserDO> users = userMapper.getUsers(from, size);
         return DozerUtils.convertList(users, UserDTO.class);
+    }
+
+    @Override
+    public boolean changeUserRole(String userId, String newRole) {
+        String curRole = userMapper.getUserRoleById(userId);
+        try {
+            RoleType currentRole = RoleType.valueOf(curRole.toUpperCase());
+            RoleType newUserRole = RoleType.valueOf(newRole.toUpperCase());
+            return changeUserRole(userId, currentRole, newUserRole);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            e.printStackTrace();
+            // if can't get the role, return false
+            return false;
+        }
+    }
+
+    private boolean changeUserRole(String userId, RoleType curRole, RoleType newRole) {
+        if (curRole.equals(newRole)) {
+            return true;
+        }
+
+        UserDOBuilder builder = UserDO.builder().userId(userId);
+        switch (curRole) {
+            case USER:
+                UserDO upgrade = builder.role(RoleType.ADMIN.role()).build();
+                return userMapper.updateUser(upgrade);
+            case ADMIN:
+                UserDO degrade = builder.role(RoleType.USER.role()).build();
+                return userMapper.updateUser(degrade);
+            default:
+                // false if the user role is neither admin nor user
+                return false;
+        }
     }
 }

@@ -7,6 +7,7 @@ import com.github.learndifferent.mtm.annotation.common.UserRole;
 import com.github.learndifferent.mtm.annotation.common.VerificationCode;
 import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.validation.register.RegisterCodeCheck;
+import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
@@ -17,6 +18,7 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,7 +46,11 @@ public class UserController {
      * Change Password
      *
      * @param passwordInfo username, old password and new password
-     * @return {@link ResultCode#PASSWORD_CHANGED} or {@link ResultCode#UPDATE_FAILED}
+     * @return {@link ResultVO} with the result code of {@link ResultCode#PASSWORD_CHANGED} or {@link ResultCode#UPDATE_FAILED}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED} will be
+     *                                                                  thrown by the {@link NotGuest} annotation
+     *                                                                  if the user is guest
      */
     @NotGuest
     @PostMapping("/changePwd")
@@ -104,8 +110,7 @@ public class UserController {
 
         boolean success = userService.addUser(userInfo, role);
 
-        return success ? ResultCreator.okResult()
-                : ResultCreator.defaultFailResult();
+        return success ? ResultCreator.okResult() : ResultCreator.defaultFailResult();
     }
 
     /**
@@ -131,5 +136,27 @@ public class UserController {
         StpUtil.logout();
 
         return success ? ResultCreator.okResult() : ResultCreator.failResult("User does not exist.");
+    }
+
+    /**
+     * Change User Role
+     *
+     * @param userId  ID of the user
+     * @param newRole the new role of the user
+     * @return Return {@link ResultCreator#okResult()} if success.
+     * <p>Return {@link ResultVO} with the result code of {@link ResultCode#PERMISSION_DENIED}
+     * if failure, or the user role is neither {@code admin} nor {@code user}</p>
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the current user is not admin
+     */
+    @GetMapping("/role")
+    @AdminValidation
+    public ResultVO<ResultCode> changeUserRole(@RequestParam("userId") String userId,
+                                               @RequestParam("newRole") String newRole) {
+        boolean success = userService.changeUserRole(userId, newRole);
+        return success ? ResultCreator.okResult()
+                : ResultCreator.result(ResultCode.PERMISSION_DENIED);
     }
 }
