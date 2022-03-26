@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.manager;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
@@ -251,4 +252,24 @@ public class NotificationManager {
 
         return Optional.ofNullable(isMember).orElse(false);
     }
+
+    /**
+     * Record the role changes of a user
+     *
+     * @param userId     the user's id
+     * @param formerRole the former role of the user
+     * @param newRole    the new role that the user has been assigned to
+     */
+    public void recordRoleChanges(String userId, RoleType formerRole, RoleType newRole) {
+        if (formerRole.equals(newRole)) {
+            return;
+        }
+
+        String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
+        // put new role
+        redisTemplate.opsForHash().put(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY, newRole.role());
+        // put former role if absent: only record the first role
+        redisTemplate.opsForHash().putIfAbsent(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY, formerRole.role());
+    }
+
 }

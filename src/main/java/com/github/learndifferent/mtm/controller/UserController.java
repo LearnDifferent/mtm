@@ -155,7 +155,7 @@ public class UserController {
     @AdminValidation
     public ResultVO<ResultCode> changeUserRole(@RequestParam("userId") String userId,
                                                @RequestParam("newRole") String newRole) {
-        boolean success = userService.changeUserRole(userId, newRole);
+        boolean success = userService.changeUserRoleAndRecordChanges(userId, newRole);
         return success ? ResultCreator.okResult()
                 : ResultCreator.result(ResultCode.PERMISSION_DENIED);
     }

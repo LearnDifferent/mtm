@@ -115,12 +115,12 @@ public interface UserService {
     List<UserDTO> getUsers(PageInfoDTO pageInfo);
 
     /**
-     * Change User Role
+     * Change user role and record the changes
      *
      * @param userId  ID of the user
      * @param newRole the new role of the user
      * @return true if success
      * <p>false if failure, or the user role is neither {@code admin} nor {@code user}</p>
      */
-    boolean changeUserRole(String userId, String newRole);
+    boolean changeUserRoleAndRecordChanges(String userId, String newRole);
 }

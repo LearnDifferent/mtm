@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.entity.UserDO.UserDOBuilder;
 import com.github.learndifferent.mtm.manager.CdUserManager;
+import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
@@ -34,12 +35,15 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final CdUserManager cdUserManager;
+    private final NotificationManager notificationManager;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper,
-                           CdUserManager cdUserManager) {
+                           CdUserManager cdUserManager,
+                           NotificationManager notificationManager) {
         this.userMapper = userMapper;
         this.cdUserManager = cdUserManager;
+        this.notificationManager = notificationManager;
     }
 
     @Override
@@ -122,12 +126,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changeUserRole(String userId, String newRole) {
+    public boolean changeUserRoleAndRecordChanges(String userId, String newRole) {
         String curRole = userMapper.getUserRoleById(userId);
         try {
             RoleType currentRole = RoleType.valueOf(curRole.toUpperCase());
             RoleType newUserRole = RoleType.valueOf(newRole.toUpperCase());
-            return changeUserRole(userId, currentRole, newUserRole);
+            boolean success = changeUserRole(userId, currentRole, newUserRole);
+            if (success) {
+                notificationManager.recordRoleChanges(userId, currentRole, newUserRole);
+            }
+            return success;
         } catch (IllegalArgumentException | NullPointerException e) {
             e.printStackTrace();
             // if can't get the role, return false

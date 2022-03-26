@@ -40,4 +40,19 @@ public final class KeyConstant {
      * The key of website data's views is "view:" + {@code webId}
      */
     public static final String WEB_VIEW_COUNT_PREFIX = "view:";
+
+    /**
+     * The key of user role's change record is "change:record:" + {@code userId}
+     */
+    public static final String ROLE_CHANGE_RECORD_PREFIX = "change:record:";
+
+    /**
+     * The hash key of {@link #ROLE_CHANGE_RECORD_PREFIX}
+     */
+    public static final String FORMER_ROLE_CHANGE_RECORD_HASH_KEY = "former";
+
+    /**
+     * The hash key of {@link #ROLE_CHANGE_RECORD_PREFIX}
+     */
+    public static final String NEW_ROLE_CHANGE_RECORD_HASH_KEY = "new";
 }
