@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
+import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
@@ -150,7 +151,8 @@ public class WebsiteDataController {
      */
     @GetMapping("/get/{username}")
     public ResultVO<UserPublicWebInfoDTO> getWebsiteDataInfoByUsername(@PathVariable("username") String username,
-                                                                       @PageInfo(size = 8) PageInfoDTO pageInfo) {
+                                                                       @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
+                                                                               PageInfoDTO pageInfo) {
         UserPublicWebInfoDTO info = websiteService.getUserPublicWebInfoDTO(username, pageInfo);
         return ResultCreator.okResult(info);
     }

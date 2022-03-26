@@ -2,6 +2,8 @@ package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.VisitedBookmarksDTO;
@@ -51,7 +53,7 @@ public class AdminController {
      */
     @GetMapping
     @AdminValidation
-    public ResultVO<?> checkAdmin() {
+    public ResultVO<ResultCode> checkAdmin() {
         return ResultCreator.okResult();
     }
 
@@ -67,7 +69,8 @@ public class AdminController {
      */
     @GetMapping("/logs")
     @AdminValidation
-    public ResultVO<List<SysLog>> getSystemLogs(@PageInfo(size = 20) PageInfoDTO pageInfo) {
+    public ResultVO<List<SysLog>> getSystemLogs(
+            @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         List<SysLog> logs = logService.getSystemLogs(pageInfo);
         return ResultCreator.okResult(logs);
     }
@@ -84,7 +87,8 @@ public class AdminController {
      */
     @GetMapping("/users")
     @AdminValidation
-    public ResultVO<List<UserDTO>> getUsers(@PageInfo(size = 20) PageInfoDTO pageInfo) {
+    public ResultVO<List<UserDTO>> getUsers(
+            @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         List<UserDTO> users = userService.getUsers(pageInfo);
         return ResultCreator.okResult(users);
     }
@@ -101,7 +105,8 @@ public class AdminController {
      */
     @GetMapping("/visited-bookmarks")
     @AdminValidation
-    public ResultVO<List<VisitedBookmarksDTO>> getVisitedBookmarks(@PageInfo(size = 20) PageInfoDTO pageInfo) {
+    public ResultVO<List<VisitedBookmarksDTO>> getVisitedBookmarks(
+            @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         List<VisitedBookmarksDTO> bookmarks = viewCounterService.getVisitedBookmarks(pageInfo);
         return ResultCreator.okResult(bookmarks);
     }

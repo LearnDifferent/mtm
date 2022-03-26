@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
+import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
@@ -79,7 +80,7 @@ public class HomeController {
     public HomePageVO getHomePageData(
             @RequestParam("pattern") ShowPattern pattern,
             @RequestParam(value = "userName", required = false) String userName,
-            @PageInfo(size = 7) PageInfoDTO pageInfo) {
+            @PageInfo(size = 12, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
         WebDataAndTotalPagesDTO websiteDataInfo = websiteService.getWebsitesByPattern(pattern,
                 userName, pageInfo);

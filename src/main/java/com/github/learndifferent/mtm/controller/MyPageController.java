@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
@@ -70,7 +71,8 @@ public class MyPageController {
      * @return {@link MyWebsiteDataVO} My paginated website data and total pages
      */
     @GetMapping("/webs")
-    public MyWebsiteDataVO getMyWebsiteDataInfo(@PageInfo PageInfoDTO pageInfo) {
+    public MyWebsiteDataVO getMyWebsiteDataInfo(
+            @PageInfo(size = 7, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         String userName = (String) StpUtil.getLoginId();
 
         int from = pageInfo.getFrom();

@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
+import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
@@ -108,7 +109,8 @@ public class FindController {
     @GetMapping("/search")
     public ResultVO<SearchResultsDTO> search(@RequestParam("mode") SearchMode mode,
                                              @RequestParam("keyword") String keyword,
-                                             @PageInfo PageInfoDTO pageInfo) {
+                                             @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
+                                                     PageInfoDTO pageInfo) {
 
         SearchResultsDTO results = searchService.search(mode, keyword, pageInfo);
         return ResultCreator.okResult(results);

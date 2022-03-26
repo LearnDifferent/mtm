@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.annotation.general.page;
 
-import com.github.learndifferent.mtm.constant.enums.PageInfoMode;
+import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.utils.PageUtil;
@@ -16,7 +16,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
- * Generate {@link PageInfoDTO} according to {@link PageInfoMode}.
+ * Generate {@link PageInfoDTO} according to {@link PageInfo}.
  *
  * @author zhou
  * @date 2021/09/05
@@ -41,30 +41,28 @@ public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentReso
 
         ThrowExceptionUtils.throwIfNull(annotation, ResultCode.FAILED);
 
-        // "from" mode or "current page" mode
-        PageInfoMode mode = annotation.pageInfoMode();
         // page size
         int size = annotation.size();
 
-        // use the name of mode as parameter name
-        String paramName = mode.paramName();
-        // Get value from request
+        // get parameter name
+        PageInfoParam param = annotation.paramName();
+        String paramName = param.paramName();
+        // get the value from request
         String paramValue = webRequest.getParameter(paramName);
 
-        // Get the number from value.
-        // If the value is empty, null or not even a number,
-        // use 0 as default value
+        // get the number from value
+        // use 0 as default value if the value is empty, null or not even a number
         int num = getNumberFromParamValue(paramValue);
 
         int from;
-        switch (mode) {
+        switch (param) {
+            // "num" stands for "from"
             case FROM:
-                // "num" stands for "from" on "from" mode
                 from = num;
                 break;
+            // "num" stands for "current page"
             case CURRENT_PAGE:
             default:
-                // "num" stands for "current page" on "current page" mode
                 // num must be greater than 0
                 int currentPage = PageUtil.constrainGreaterThanZero(num);
                 // get "from" according to current page
