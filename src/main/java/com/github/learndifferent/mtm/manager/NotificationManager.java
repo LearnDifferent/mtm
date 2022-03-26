@@ -272,4 +272,39 @@ public class NotificationManager {
         redisTemplate.opsForHash().putIfAbsent(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY, formerRole.role());
     }
 
+    /**
+     * Generate a User Role Change Notification
+     *
+     * @param userId ID of the user
+     * @return notification (it will be empty if the user role is not changed
+     */
+    public String generateRoleChangeNotification(String userId) {
+        String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
+
+        Object newRoleObject = redisTemplate.opsForHash().get(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY);
+        if (newRoleObject == null) {
+            return "";
+        }
+
+        Object formerRoleObject =
+                redisTemplate.opsForHash().get(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY);
+        if (formerRoleObject == null) {
+            return "";
+        }
+
+        String newRole = String.valueOf(newRoleObject);
+        String formerRole = String.valueOf(formerRoleObject);
+
+        String notification = "";
+
+        boolean isRoleChanged = !newRole.equals(formerRole);
+        if (isRoleChanged && RoleType.USER.role().equalsIgnoreCase(formerRole)) {
+            notification = "You account has been upgraded to Admin by Administer";
+        }
+        if (isRoleChanged && RoleType.ADMIN.role().equalsIgnoreCase(formerRole)) {
+            notification = "You account has been downgraded to Standard User by Administer";
+        }
+
+        return notification;
+    }
 }

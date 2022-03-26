@@ -83,4 +83,13 @@ public interface NotificationService {
      * <p>false if user has not read the latest notification</p>
      */
     boolean checkIfReadLatestSysNotification(String username);
+
+    /**
+     * Generate a User Role Change Notification
+     *
+     * @param userId ID of the user
+     * @return User Role Change Notification
+     * (It will be an empty string if the user role is not changed)
+     */
+    String generateRoleChangeNotification(String userId);
 }

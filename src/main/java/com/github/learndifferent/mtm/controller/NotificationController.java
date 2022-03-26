@@ -12,6 +12,7 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -131,5 +132,23 @@ public class NotificationController {
         String currentUsername = (String) StpUtil.getLoginId();
         boolean hasRead = notificationService.checkIfReadLatestSysNotification(currentUsername);
         return ResultCreator.okResult(hasRead);
+    }
+
+    /**
+     * Get User Role Change Notification
+     *
+     * @param userId ID of the user
+     * @return Return {@link ResultCreator#okResult(Object)} with the notification.
+     * Return {@link ResultVO} with the result code of {@link ResultCode#UPDATE_FAILED}
+     * <p>
+     * If the notification is empty, which means the user role is not changed,
+     * return {@link ResultVO} with the result code of {@link ResultCode#UPDATE_FAILED}.
+     * </p>
+     */
+    @GetMapping("role-changed")
+    public ResultVO<String> getRoleChangeNotification(@RequestParam("userId") String userId) {
+        String notification = notificationService.generateRoleChangeNotification(userId);
+        return StringUtils.isEmpty(notification) ? ResultCreator.result(ResultCode.UPDATE_FAILED)
+                : ResultCreator.okResult(notification);
     }
 }

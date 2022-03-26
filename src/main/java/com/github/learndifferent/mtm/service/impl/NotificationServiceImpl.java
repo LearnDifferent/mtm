@@ -94,4 +94,9 @@ public class NotificationServiceImpl implements NotificationService {
     public boolean checkIfReadLatestSysNotification(String username) {
         return notificationManager.checkIfReadLatestSysNotification(username);
     }
+
+    @Override
+    public String generateRoleChangeNotification(String userId) {
+        return notificationManager.generateRoleChangeNotification(userId);
+    }
 }
