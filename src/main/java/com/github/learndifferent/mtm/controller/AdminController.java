@@ -11,7 +11,6 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.ViewCounterService;
-import com.github.learndifferent.mtm.vo.AdminPageVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +38,21 @@ public class AdminController {
         this.userService = userService;
         this.logService = logService;
         this.viewCounterService = viewCounterService;
+    }
+
+    /**
+     * Check whether the current user is an admin
+     *
+     * @return {@link ResultCreator#okResult()} if the current user is admin
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
+     */
+    @GetMapping
+    @AdminValidation
+    public ResultVO<?> checkAdmin() {
+        return ResultCreator.okResult();
     }
 
     /**
@@ -85,25 +99,10 @@ public class AdminController {
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the user is not admin
      */
-    @AdminValidation
     @GetMapping("/visited-bookmarks")
+    @AdminValidation
     public ResultVO<List<VisitedBookmarksDTO>> getVisitedBookmarks(@PageInfo(size = 20) PageInfoDTO pageInfo) {
         List<VisitedBookmarksDTO> bookmarks = viewCounterService.getVisitedBookmarks(pageInfo);
         return ResultCreator.okResult(bookmarks);
-    }
-
-    /**
-     * Get logs, all users' information and whether the current user is admin for admin page
-     *
-     * @return {@link AdminPageVO} logs, all users' information and whether the current user is admin
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
-     *                                                                  if the user is not admin
-     */
-    @AdminValidation
-    @GetMapping
-    public AdminPageVO load() {
-        return AdminPageVO.builder().admin(true).build();
     }
 }
