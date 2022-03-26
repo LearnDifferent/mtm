@@ -31,11 +31,13 @@ public interface WebDataViewMapper {
     boolean clearAll();
 
     /**
-     * Get all visited bookmarks from database
+     * Get visited bookmarks from database
      *
+     * @param from from
+     * @param size size
      * @return all visited bookmarks
      */
-    List<VisitedBookmarksDTO> getAllVisitedWebData();
+    List<VisitedBookmarksDTO> getVisitedWebData(@Param("from") int from, @Param("size") int size);
 
     /**
      * Delete views data by {@code webId}

@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.VisitedBookmarksDTO;
 import com.github.learndifferent.mtm.entity.WebDataViewDO;
 import com.github.learndifferent.mtm.mapper.WebDataViewMapper;
@@ -136,8 +137,10 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     }
 
     @Override
-    public List<VisitedBookmarksDTO> getAllVisitedBookmarks() {
-        List<VisitedBookmarksDTO> data = webDataViewMapper.getAllVisitedWebData();
+    public List<VisitedBookmarksDTO> getVisitedBookmarks(PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+        List<VisitedBookmarksDTO> data = webDataViewMapper.getVisitedWebData(from, size);
         return DozerUtils.convertList(data, VisitedBookmarksDTO.class);
     }
 }

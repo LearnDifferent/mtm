@@ -16,11 +16,12 @@
         delete
         from website_views;
     </delete>
-    <select id="getAllVisitedWebData" resultType="com.github.learndifferent.mtm.dto.VisitedBookmarksDTO">
+    <select id="getVisitedWebData" resultType="com.github.learndifferent.mtm.dto.VisitedBookmarksDTO">
         select w.user_name, w.title, w.url, w.public isPublic, v.web_id, v.views
         from website_views v
                  left join website w on v.web_id = w.web_id
-        order by v.views desc;
+        order by v.views desc
+        limit #{from},#{size};
     </select>
     <delete id="deleteViewData">
         delete

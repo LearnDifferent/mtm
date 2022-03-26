@@ -1,7 +1,5 @@
 package com.github.learndifferent.mtm.controller;
 
-import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
-import com.github.learndifferent.mtm.dto.VisitedBookmarksDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.ViewCounterService;
@@ -64,21 +62,5 @@ public class ViewCounterController {
     public ResultVO<List<String>> saveViewsToDbAndReturnFailKeys() {
         List<String> failKeys = viewCounterService.saveViewsToDbAndReturnFailKeys();
         return ResultCreator.okResult(failKeys);
-    }
-
-    /**
-     * Get all visited bookmarks from database
-     *
-     * @return all visited bookmarks
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
-     *                                                                  if the user is not admin
-     */
-    @AdminValidation
-    @GetMapping("/visited-bookmarks")
-    public ResultVO<List<VisitedBookmarksDTO>> getAllVisitedBookmarks() {
-        List<VisitedBookmarksDTO> bookmarks = viewCounterService.getAllVisitedBookmarks();
-        return ResultCreator.okResult(bookmarks);
     }
 }
