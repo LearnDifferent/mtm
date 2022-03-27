@@ -1,10 +1,8 @@
 package com.github.learndifferent.mtm.manager;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.validation.user.create.NewUserCheck;
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -12,7 +10,6 @@ import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -68,7 +65,6 @@ public class CdUserManager {
     public boolean deleteAllDataRelatedToUser(String username, String notEncryptedPassword) {
 
         String userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
-        checkDeletePermission(username);
 
         // Delete website data related to the user
         websiteMapper.deleteWebsiteDataByUsername(username);
@@ -85,25 +81,6 @@ public class CdUserManager {
 
         // Remove user data from database (false if the user does not exist)
         return userMapper.deleteUserByUserId(userId);
-    }
-
-    /**
-     * Check whether current user has permission to delete the account.
-     * <p>Current user has permission to delete itself as long as the user is not the role of guest.</p>
-     *
-     * @param userName name of the user to delete
-     * @throws com.github.learndifferent.mtm.exception.ServiceException If the current user does not have permission,
-     *                                                                  an exception will be thrown with the result code
-     *                                                                  of {@link ResultCode#PERMISSION_DENIED}
-     */
-    private void checkDeletePermission(String userName) {
-
-        String currentUsername = (String) StpUtil.getLoginId();
-
-        boolean hasNoPermission = StpUtil.hasRole(RoleType.GUEST.role())
-                || CompareStringUtil.notEqualsIgnoreCase(currentUsername, userName);
-
-        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     /**

@@ -14,6 +14,7 @@ import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -110,9 +111,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Caching(evict = {
             @CacheEvict("usernamesAndTheirWebs"),
-            @CacheEvict(value = {"getUserByName"}, key = "#userName")
-    })
-    public boolean deleteUserAndWebAndCommentData(String userName, String notEncryptedPassword) {
+            @CacheEvict(value = {"getUserByName"}, key = "#userName")})
+    public boolean deleteUserAndAssociatedData(String currentUsername,
+                                               String userName,
+                                               String notEncryptedPassword) {
+        boolean hasNoPermission = CompareStringUtil.notEqualsIgnoreCase(currentUsername, userName);
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
         return cdUserManager.deleteAllDataRelatedToUser(userName, notEncryptedPassword);
     }
 

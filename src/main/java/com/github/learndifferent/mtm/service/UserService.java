@@ -92,18 +92,26 @@ public interface UserService {
     UserDTO getUserByName(String userName);
 
     /**
-     * Delete all data related to the user
+     * Delete a user and all of the data associated with that user
      *
-     * @param userName             username
-     * @param notEncryptedPassword not encrypted password
-     * @return false if deletion unsuccessful, which means the user does not exist
-     * @throws com.github.learndifferent.mtm.exception.ServiceException If there is any mismatch while verifying user's
-     *                                                                  name, password and permission to delete, it
-     *                                                                  will throw an exception with the result code of
+     * @param currentUsername      The username of the user that is currently logged in
+     * @param userName             The username of the user to be deleted
+     * @param notEncryptedPassword The password that the user entered
+     * @return true if success
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This method will throw an exception
+     *                                                                  with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user that is currently logged in is not
+     *                                                                  the user to delete, because only current user
+     *                                                                  has permission to delete itself.
+     *                                                                  <p>
+     *                                                                  This method will also verify user's name and
+     *                                                                  password, and if there is any mismatch, it will
+     *                                                                  throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST}
-     *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  </p>
      */
-    boolean deleteUserAndWebAndCommentData(String userName, String notEncryptedPassword);
+    boolean deleteUserAndAssociatedData(String currentUsername, String userName, String notEncryptedPassword);
 
     /**
      * Get users.

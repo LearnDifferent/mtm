@@ -114,28 +114,41 @@ public class UserController {
     }
 
     /**
-     * Delete user as well as his comments and website data
+     * Delete a user and all of the data associated with that user
      *
-     * @param userName Username
-     * @param password Password
-     * @return Success or failure
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link UserService#deleteUserAndWebAndCommentData(String,
-     *                                                                  String)} will verify user's name, password and
-     *                                                                  permission to delete. If there is any mismatch,
-     *                                                                  it will throw exceptions.
-     *                                                                  The result code will be {@link ResultCode#USER_NOT_EXIST}
-     *                                                                  or {@link ResultCode#PERMISSION_DENIED}
+     * @param userName The username of the user to be deleted
+     * @param password The password that the user entered
+     * @return The result code will be {@link ResultCode#SUCCESS} if success and {@link ResultCode#USER_NOT_EXIST} if failure
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} annotation will throw an
+     *                                                                  exception with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user role is 'guest' for the reason
+     *                                                                  that the 'guest' account can't be deleted.
+     *                                                                  <p>
+     *                                                                  {@link UserService#deleteUserAndAssociatedData(String,
+     *                                                                  String, String)} method will throw an exception
+     *                                                                  with the result code of {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user that is currently logged in is not
+     *                                                                  the user to delete, because only current user
+     *                                                                  has permission to delete itself.
+     *                                                                  </p>
+     *                                                                  <p>
+     *                                                                  The method will also verify user's name and
+     *                                                                  password, and if there is any mismatch, it will
+     *                                                                  throw an exception with the result code of
+     *                                                                  {@link ResultCode#USER_NOT_EXIST}
+     *                                                                  </p>
      */
     @DeleteMapping
-    public ResultVO<String> deleteUser(@RequestParam("userName") String userName,
-                                       @RequestParam("password") String password) {
+    @NotGuest
+    public ResultVO<ResultCode> deleteUser(@RequestParam("userName") String userName,
+                                           @RequestParam("password") String password) {
 
-        boolean success = userService.deleteUserAndWebAndCommentData(userName, password);
-
-        // Logout
+        String currentUsername = StpUtil.getLoginIdAsString();
+        boolean success = userService.deleteUserAndAssociatedData(currentUsername, userName, password);
+        // Logout after deletion
         StpUtil.logout();
-
-        return success ? ResultCreator.okResult() : ResultCreator.failResult("User does not exist.");
+        return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.USER_NOT_EXIST);
     }
 
     /**
@@ -155,8 +168,8 @@ public class UserController {
     @AdminValidation
     public ResultVO<ResultCode> changeUserRole(@RequestParam("userId") String userId,
                                                @RequestParam("newRole") String newRole) {
+
         boolean success = userService.changeUserRoleAndRecordChanges(userId, newRole);
-        return success ? ResultCreator.okResult()
-                : ResultCreator.result(ResultCode.PERMISSION_DENIED);
+        return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.PERMISSION_DENIED);
     }
 }
