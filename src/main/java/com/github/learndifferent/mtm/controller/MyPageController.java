@@ -52,10 +52,10 @@ public class MyPageController {
     @GetMapping
     public PersonalInfoVO getPersonalInfo(HttpServletRequest request) {
 
-        String userName = (String) StpUtil.getLoginId();
-        UserDTO user = userService.getUserByName(userName);
+        String username = getCurrentUsername();
+        UserDTO user = userService.getUserByName(username);
         String ip = IpUtils.getIp(request);
-        long totalReplyNotifications = notificationService.countReplyNotifications(userName);
+        long totalReplyNotifications = notificationService.countReplyNotifications(username);
 
         return PersonalInfoVO.builder()
                 .user(user)
@@ -73,17 +73,21 @@ public class MyPageController {
     @GetMapping("/webs")
     public MyWebsiteDataVO getMyWebsiteDataInfo(
             @PageInfo(size = 7, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
-        String userName = (String) StpUtil.getLoginId();
+        String username = getCurrentUsername();
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        int totalCount = websiteService.countUserPost(userName, true);
+        int totalCount = websiteService.countUserPost(username, true);
         int totalPages = PageUtil.getAllPages(totalCount, size);
 
         List<WebWithPrivacyCommentCountDTO> myWebsiteData =
-                websiteService.getWebsDataAndCommentCountByUser(userName, from, size, true);
+                websiteService.getWebsDataAndCommentCountByUser(username, from, size, true);
 
         return MyWebsiteDataVO.builder().myWebsiteData(myWebsiteData).totalPages(totalPages).build();
+    }
+
+    private String getCurrentUsername() {
+        return StpUtil.getLoginIdAsString();
     }
 }

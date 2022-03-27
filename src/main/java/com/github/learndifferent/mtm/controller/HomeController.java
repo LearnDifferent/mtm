@@ -85,7 +85,7 @@ public class HomeController {
         WebDataAndTotalPagesDTO websiteDataInfo = websiteService.getWebsitesByPattern(pattern,
                 userName, pageInfo);
 
-        String currentUser = (String) StpUtil.getLoginId();
+        String currentUser = StpUtil.getLoginIdAsString();
 
         return HomePageVO.builder()
                 .currentUser(currentUser)

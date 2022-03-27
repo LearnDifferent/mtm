@@ -68,6 +68,6 @@ public class HtmlFileController {
     }
 
     private String getCurrentUser() {
-        return (String) StpUtil.getLoginId();
+        return StpUtil.getLoginIdAsString();
     }
 }

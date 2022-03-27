@@ -81,7 +81,7 @@ public class ModifyCommentCheckAspect {
         // comment does not exists
         ThrowExceptionUtils.throwIfNull(comment, ResultCode.COMMENT_NOT_EXISTS);
 
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = StpUtil.getLoginIdAsString();
         String commentUsername = comment.getUsername();
 
         // No permissions：username is not current user's name or the comment owner's name

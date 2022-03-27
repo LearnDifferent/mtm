@@ -142,7 +142,7 @@ public class AddCommentCheckAspect {
     }
 
     private void checkUsername(String username) {
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = StpUtil.getLoginIdAsString();
 
         boolean hasNoPermission = StringUtils.isEmpty(username)
                 || CompareStringUtil.notEqualsIgnoreCase(username, currentUsername);

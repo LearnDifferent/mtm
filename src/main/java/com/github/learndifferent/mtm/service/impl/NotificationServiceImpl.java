@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements NotificationService {
      * @return true if the username is not current user's username
      */
     private boolean checkIfNotCurrentUser(String username) {
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = StpUtil.getLoginIdAsString();
         return CompareStringUtil.notEqualsIgnoreCase(currentUsername, username);
     }
 

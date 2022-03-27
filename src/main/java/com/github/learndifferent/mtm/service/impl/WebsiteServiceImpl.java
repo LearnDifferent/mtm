@@ -308,7 +308,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         int size = pageInfo.getSize();
 
         // Current Username
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = StpUtil.getLoginIdAsString();
         // 判断一下传入的用户名是不是当前用户的用户名
         // 如果是，在需要的时候，就要囊括所有数据；如果不是，就只囊括公开的数据
         boolean isCurrentUser = currentUsername.equalsIgnoreCase(username);

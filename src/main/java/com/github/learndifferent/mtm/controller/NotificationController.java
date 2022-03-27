@@ -47,7 +47,7 @@ public class NotificationController {
     @SystemLog(title = "Notification", optsType = OptsType.READ)
     @GetMapping
     public ResultVO<String> getSystemNotifications() {
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = getCurrentUsername();
         String notifications = notificationService.getSysNotHtmlAndRecordName(currentUsername);
         return ResultCreator.okResult(notifications);
     }
@@ -78,7 +78,7 @@ public class NotificationController {
      */
     @GetMapping("/reply/new")
     public ResultVO<Integer> countNewReplyNotifications() {
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = getCurrentUsername();
         return ResultCreator.okResult(notificationService.countNewReplyNotifications(currentUsername));
     }
 
@@ -129,7 +129,7 @@ public class NotificationController {
      */
     @GetMapping("/read")
     public ResultVO<Boolean> checkIfReadLatestSysNotification() {
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = getCurrentUsername();
         boolean hasRead = notificationService.checkIfReadLatestSysNotification(currentUsername);
         return ResultCreator.okResult(hasRead);
     }
@@ -145,7 +145,7 @@ public class NotificationController {
      */
     @GetMapping("/role-changed")
     public ResultVO<String> getRoleChangeNotification() {
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = getCurrentUsername();
         String notification = notificationService.generateRoleChangeNotification(currentUsername);
         return StringUtils.isEmpty(notification) ? ResultCreator.result(ResultCode.UPDATE_FAILED)
                 : ResultCreator.okResult(notification);
@@ -156,7 +156,11 @@ public class NotificationController {
      */
     @DeleteMapping("/role-changed")
     public void deleteRoleChangeNotification() {
-        String currentUsername = (String) StpUtil.getLoginId();
+        String currentUsername = getCurrentUsername();
         notificationService.deleteRoleChangeNotification(currentUsername);
+    }
+
+    private String getCurrentUsername() {
+        return StpUtil.getLoginIdAsString();
     }
 }
