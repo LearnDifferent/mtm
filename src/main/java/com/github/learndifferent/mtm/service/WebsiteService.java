@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
@@ -35,53 +35,46 @@ public interface WebsiteService {
     List<WebsiteDTO> findPublicWebDataByFilter(WebDataFilterRequest filterRequest);
 
     /**
-     * 计算某个用户收藏的网页的总数（可以选择是否包含私有的网页数据）
+     * Count number of the user's bookmarks
      *
-     * @param userName       某个用户
-     * @param includePrivate 是否包含私有的网页数据
-     * @return 一共有多少条数据
+     * @param userName       username of the user
+     * @param includePrivate true if including the private bookmarks
+     * @return number of the user's bookmarks
      */
     int countUserPost(String userName, boolean includePrivate);
 
     /**
-     * 通过 id 找到网页数据。用于 {@link ModifyWebsitePermissionCheck}
-     * 注解查看该用户是否有删除网页的权限，所以不需要 privacy settings 信息
+     * Find website data by ID
      *
-     * @param webId id
-     * @return {@code WebsiteDTO} 网页数据（不包括 privacy settings 信息）
+     * @param webId ID
+     * @return {@link WebsiteDTO}
      */
     WebsiteDTO findWebsiteDataById(int webId);
 
     /**
-     * 通过 id 找到网页数据（包括 privacy settings 信息）
+     * Find website data with privacy settings by ID
      *
-     * @param webId id
-     * @return {@link WebsiteWithPrivacyDTO} 网页数据（包括 privacy settings 信息）
+     * @param webId ID
+     * @return {@link WebsiteWithPrivacyDTO}
      */
     WebsiteWithPrivacyDTO findWebsiteDataWithPrivacyById(int webId);
 
     /**
-     * 保存没有 ID、用户名和创建时间的网页数据，并添加用户信息，生成时间（ID 会在数据库中生成）以及隐私设置。
-     * <p>如果已经收藏过了，就不能收藏第二次，{@link com.github.learndifferent.mtm.annotation.validation.website.marked.MarkCheck}
-     * 注解会抛出异常。
-     * 如果传入的用户名不是当前用户名，也会抛出异常。</p>
-     * <p>还会使用 {@link com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean} 注解
-     * 会清理 Website 数据中 title 和 desc 的长度，判断 url 格式是否正确，以及清理 url</p>
+     * Complete the website data and save it to database.
+     * This implementation method is annotated with
+     * {@link com.github.learndifferent.mtm.annotation.validation.website.marked.MarkCheck MarkCheck}
+     * and {@link com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean WebsiteDataClean}.
      *
-     * @param rawWebsite 没有 ID、用户名和创建时间的网页数据
-     * @param userName   保存该网页的用户
-     * @param isPublic   隐私设置：是否公开
-     * @return 是否成功
-     * @throws ServiceException 如果已经收藏了，会抛出 ServiceException，
-     *                          代码为：ResultCode.ALREADY_MARKED；
-     *                          如果传入的用户名不是当前的用户名，也会抛出这个异常，
-     *                          代码为：ResultCode.PERMISSION_DENIED；
-     *                          如果 URL 格式出错，也会抛出这个异常，
-     *                          代码为：ResultCode.URL_MALFORMED
+     * @param webWithNoIdentity Website data that has no web ID, username and creation time,
+     *                          which only contains title, url, image and description
+     * @param userName          Username
+     * @param isPublic          True if this is a public bookmark
+     * @return true if success
+     * @throws ServiceException The result code will be {@link ResultCode#ALREADY_MARKED},
+     *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
+     *                          if something goes wrong
      */
-    boolean saveWebsiteData(WebWithNoIdentityDTO rawWebsite,
-                            String userName,
-                            boolean isPublic);
+    boolean saveWebsiteData(WebWithNoIdentityDTO webWithNoIdentity, String userName, boolean isPublic);
 
     /**
      * Save New Website Data
@@ -94,14 +87,19 @@ public interface WebsiteService {
     SaveWebDataResultDTO saveNewWebsiteData(SaveNewWebDataRequest newWebsiteData);
 
     /**
-     * 获取该 pattern 下，分页后需要的网页数据和总页数
+     * Get website data and total pages
      *
-     * @param showPattern 展示的模式
-     * @param username    如果需要用户名，就传入用户名；如果不需要，就传入空字符串；
-     * @param pageInfo    分页相关信息
-     * @return 该 pattern 下，分页后需要的网页数据和总页数
+     * @param currentUsername   username of the user that is currently logged in
+     * @param showPattern       pattern of the website data to be shown
+     * @param requestedUsername username of the user whose data is being requested
+     *                          <p>{@code requestedUsername} is not is required</p>
+     * @param pageInfo          pagination info
+     * @return {@link WebDataAndTotalPagesDTO}
      */
-    WebDataAndTotalPagesDTO getWebsitesByPattern(ShowPattern showPattern, String username, PageInfoDTO pageInfo);
+    WebDataAndTotalPagesDTO getWebDataInfo(String currentUsername,
+                                           ShowPattern showPattern,
+                                           String requestedUsername,
+                                           PageInfoDTO pageInfo);
 
     /**
      * Get all public website data and the count of their comments, of user the with name of {@code username}.
@@ -111,7 +109,7 @@ public interface WebsiteService {
      * @param from           from
      * @param size           size
      * @param includePrivate true if include private website data
-     * @return 某个用户的所有收藏
+     * @return A list of {@link WebWithPrivacyCommentCountDTO}
      */
     List<WebWithPrivacyCommentCountDTO> getWebsDataAndCommentCountByUser(String username,
                                                                          Integer from,
@@ -128,24 +126,23 @@ public interface WebsiteService {
     UserPublicWebInfoDTO getUserPublicWebInfoDTO(String username, PageInfoDTO pageInfo);
 
     /**
-     * 通过 url 找到所有网页的数据，包括私有的。
-     * 用于 {@link com.github.learndifferent.mtm.annotation.validation.website.marked.MarkCheck}
-     * 和 {@link com.github.learndifferent.mtm.annotation.modify.marked.MarkCheckReturn}
+     * Find website data by URL
      *
-     * @param url url
-     * @return {@code List<WebsiteDTO>}
+     * @param url URL
+     * @return A list of {@link WebsiteDTO}
      */
     List<WebsiteDTO> findWebsitesDataByUrl(String url);
 
     /**
-     * 通过 id 删除网页数据
+     * Delete website data by ID
      *
-     * @param webId    id
-     * @param userName 用户名
-     * @return 是否成功
-     * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck}
-     *                          注解会检查删除权限。如果没有删除权限，则代码为：
-     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
+     * @param webId    ID
+     * @param userName username
+     * @return true if success
+     * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
+     *                          ModifyWebsitePermissionCheck} annotation will check the permissions and throw
+     *                          an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
+     *                          if there is no permissions
      */
     boolean delWebsiteDataById(int webId, String userName);
 
@@ -158,9 +155,9 @@ public interface WebsiteService {
      * @param userName name of user who trying to change the privacy settings
      * @return success or failure
      * @throws ServiceException If the website data does not exists, the result code will be
-     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}.
+     *                          {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}.
      *                          And {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck}
-     *                          will throw exception with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                          will throw exception with {@link ResultCode#PERMISSION_DENIED}
      *                          if the user has no permission to change the website privacy settings.
      */
     boolean changeWebPrivacySettings(int webId, String userName);
@@ -174,19 +171,20 @@ public interface WebsiteService {
      * @throws ServiceException If the user has no permission to get the website data,
      *                          or the website data doesn't exist, a {@link ServiceException}
      *                          will be thrown with the result code of
-     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
-     *                          or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
+     *                          {@link ResultCode#PERMISSION_DENIED}
+     *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
     WebsiteDTO getWebsiteDataByIdAndUsername(int webId, String userName);
 
     /**
-     * 以 HTML 格式，导出该用户的所有网页数据。如果该用户没有数据，直接输出无数据的提示。
-     * 如果该用户是当前用户，就导出所有网页数据；如果不是当前用户，只导出公开的网页数据。
+     * Export requested user's bookmarks to a HTML file.
+     * If the requested user is not current user, only the public bookmarks
+     * will be exported.
      *
-     * @param username        需要导出数据的用户的用户名
-     * @param currentUsername 当前用户的用户名
+     * @param username        username of the requested user
+     * @param currentUsername username of the user that is currently logged in
      * @param response        response
-     * @throws ServiceException ResultCode.CONNECTION_ERROR
+     * @throws ServiceException Connection exception with the result code of {@link ResultCode#CONNECTION_ERROR}
      */
     void exportWebsDataByUserToHtmlFile(String username,
                                         String currentUsername,
@@ -197,7 +195,7 @@ public interface WebsiteService {
      *
      * @param htmlFile html file
      * @param username username
-     * @return {@link ResultVO}<{@link String}> ResultVO
+     * @return {@link ResultVO}<{@link String}>
      */
     ResultVO<String> importWebsDataFromHtmlFile(MultipartFile htmlFile, String username);
 }

@@ -30,9 +30,9 @@ public class HomePageVO implements Serializable {
      */
     private WebDataAndTotalPagesDTO websiteDataInfo;
     /**
-     * Username for further operation
+     * Username of the user whose data is being requested
      */
-    private String optUsername;
+    private String requestedUsername;
 
     private static final long serialVersionUID = 1L;
 }

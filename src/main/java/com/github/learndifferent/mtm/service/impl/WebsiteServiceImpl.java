@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
@@ -186,11 +185,10 @@ public class WebsiteServiceImpl implements WebsiteService {
     @MarkCheck(usernameParamName = "userName",
                paramClassContainsUrl = WebWithNoIdentityDTO.class,
                urlFieldNameInParamClass = "url")
-    public boolean saveWebsiteData(WebWithNoIdentityDTO rawWebsite,
-                                   String userName,
-                                   boolean isPublic) {
+    public boolean saveWebsiteData(
+            WebWithNoIdentityDTO webWithNoIdentity, String userName, boolean isPublic) {
         // 添加信息后，放入数据库
-        WebsiteDO websiteDO = DozerUtils.convert(rawWebsite, WebsiteDO.class);
+        WebsiteDO websiteDO = DozerUtils.convert(webWithNoIdentity, WebsiteDO.class);
         return websiteMapper.addWebsiteData(websiteDO
                 .setUserName(userName)
                 .setCreateTime(Instant.now())
@@ -300,58 +298,72 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     @EmptyStringCheck
-    public WebDataAndTotalPagesDTO getWebsitesByPattern(ShowPattern showPattern,
-                                                        @DefaultValueIfEmpty String username,
-                                                        PageInfoDTO pageInfo) {
-
+    public WebDataAndTotalPagesDTO getWebDataInfo(String currentUsername,
+                                                  ShowPattern showPattern,
+                                                  @DefaultValueIfEmpty String requestedUsername,
+                                                  PageInfoDTO pageInfo) {
+        // get pagination info
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        // Current Username
-        String currentUsername = StpUtil.getLoginIdAsString();
-        // 判断一下传入的用户名是不是当前用户的用户名
-        // 如果是，在需要的时候，就要囊括所有数据；如果不是，就只囊括公开的数据
-        boolean isCurrentUser = currentUsername.equalsIgnoreCase(username);
-
-        WebDataAndTotalPagesDTO.WebDataAndTotalPagesDTOBuilder builder = WebDataAndTotalPagesDTO.builder();
+        // check whether the current user is requested user
+        boolean isCurrentUser = currentUsername.equalsIgnoreCase(requestedUsername);
 
         switch (showPattern) {
             case MARKED:
-                // 最多收藏的情况
-                List<WebsiteWithCountDTO> markedWebs = mostPublicMarkedWebs(from, size);
-                int markedTotalCount = countDistinctPublicUrl();
-                int markedTotalPage = PageUtil.getAllPages(markedTotalCount, size);
-                return builder.webs(markedWebs).totalPage(markedTotalPage).build();
+                // most bookmarked website data
+                return getMostBookmarkedWebData(from, size);
             case USER_PAGE:
-                // 查看某个用户所有收藏的情况
-                // 注意，这里是包含了公开和私有数据，及评论数的 WebWithPrivacyCommentCountDTO
-                List<WebWithPrivacyCommentCountDTO> userPageWebs =
-                        getWebsDataAndCommentCountByUser(username, from, size, isCurrentUser);
-                // 如果是当前用户，就需要包括私有数据
-                int userPageTotalCount = countUserPost(username, isCurrentUser);
-                int userPageTotalPage = PageUtil.getAllPages(userPageTotalCount, size);
-                return builder.webs(userPageWebs).totalPage(userPageTotalPage).build();
+                // check out public bookmarks of the requested user's
+                // this will include private bookmarks if the requested user is current user
+                return getRequestedUserBookmarks(requestedUsername, from, size, isCurrentUser);
             case WITHOUT_USER_PAGE:
-                // 查看除去某个用户的所有收藏的情况
-                // 注意，这里是包含了公开和私有数据，及评论数的 WebWithPrivacyCommentCountDTO
-                // 如果是排除的用户不是当前用户，就需要包括私有数据
-                List<WebWithPrivacyCommentCountDTO> withoutUserPageWebs =
-                        getAllPubSpecUserPriWebsAndCommentCountExcUser(username, from, size, currentUsername);
-                int withoutUserPageTotalCount = countExcludeUserPost(username, currentUsername);
-                int withoutUserPageTotalPage = PageUtil.getAllPages(withoutUserPageTotalCount, size);
-                return builder.webs(withoutUserPageWebs).totalPage(withoutUserPageTotalPage).build();
+                // check out all public bookmarks except the requested user's
+                // this will include current user's private bookmarks if the requested user is not current user
+                return getBookmarksExceptRequestedUser(currentUsername, requestedUsername, from, size);
             case DEFAULT:
             default:
-                // 默认查看全部的情况（如果 pattern 不是以上的情况，也是按照默认情况处理）
-                // 如果不是当前用户，就需要显示所有数据
-                // 注意，这里是包含了公开和私有数据，及评论数的 WebWithPrivacyCommentCountDTO
-                List<WebWithPrivacyCommentCountDTO> webs =
-                        getAllPubSpecUserPriWebsAndCommentCount(from, size, currentUsername);
-
-                int totalCount = countAllPubAndSpecUserPriWebs(currentUsername);
-                int totalPage = PageUtil.getAllPages(totalCount, size);
-                return builder.webs(webs).totalPage(totalPage).build();
+                // get all public bookmarks and current user's private bookmarks
+                return getBookmarksDefault(currentUsername, from, size);
         }
+    }
+
+    private WebDataAndTotalPagesDTO getMostBookmarkedWebData(int from, int size) {
+        List<WebsiteWithCountDTO> markedWebs = mostPublicMarkedWebs(from, size);
+        int markedTotalCount = countDistinctPublicUrl();
+        int markedTotalPage = PageUtil.getAllPages(markedTotalCount, size);
+        return WebDataAndTotalPagesDTO.builder().webs(markedWebs).totalPage(markedTotalPage).build();
+    }
+
+    private WebDataAndTotalPagesDTO getRequestedUserBookmarks(
+            String requestedUsername, int from, int size, boolean isCurrentUser) {
+
+        List<WebWithPrivacyCommentCountDTO> userPageWebs =
+                getWebsDataAndCommentCountByUser(requestedUsername, from, size, isCurrentUser);
+
+        int userPageTotalCount = countUserPost(requestedUsername, isCurrentUser);
+        int userPageTotalPage = PageUtil.getAllPages(userPageTotalCount, size);
+        return WebDataAndTotalPagesDTO.builder().webs(userPageWebs).totalPage(userPageTotalPage).build();
+    }
+
+    private WebDataAndTotalPagesDTO getBookmarksExceptRequestedUser(
+            String currentUsername, String requestedUsername, int from, int size) {
+
+        List<WebWithPrivacyCommentCountDTO> withoutUserPageWebs =
+                getAllPubSpecUserPriWebsAndCommentCountExcUser(requestedUsername, from, size, currentUsername);
+
+        int withoutUserPageTotalCount = countExcludeUserPost(requestedUsername, currentUsername);
+        int withoutUserPageTotalPage = PageUtil.getAllPages(withoutUserPageTotalCount, size);
+        return WebDataAndTotalPagesDTO.builder().webs(withoutUserPageWebs).totalPage(withoutUserPageTotalPage).build();
+    }
+
+    private WebDataAndTotalPagesDTO getBookmarksDefault(String currentUsername, int from, int size) {
+        List<WebWithPrivacyCommentCountDTO> webs =
+                getAllPubSpecUserPriWebsAndCommentCount(from, size, currentUsername);
+
+        int totalCount = countAllPubAndSpecUserPriWebs(currentUsername);
+        int totalPage = PageUtil.getAllPages(totalCount, size);
+        return WebDataAndTotalPagesDTO.builder().webs(webs).totalPage(totalPage).build();
     }
 
     /**

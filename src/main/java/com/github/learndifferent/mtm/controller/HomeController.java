@@ -69,28 +69,28 @@ public class HomeController {
     }
 
     /**
-     * Load data
+     * Get {@link HomePageVO} Data
      *
-     * @param pattern  website data presentation pattern
-     * @param userName username
-     * @param pageInfo pagination info
+     * @param pattern           the pattern of the website data to be shown
+     * @param requestedUsername username of the user whose data is being requested
+     *                          <p>{@code requestedUsername} is not is required</p>
+     * @param pageInfo          pagination info
      * @return {@link HomePageVO} Data
      */
-    @GetMapping("/load")
+    @GetMapping
     public HomePageVO getHomePageData(
             @RequestParam("pattern") ShowPattern pattern,
-            @RequestParam(value = "userName", required = false) String userName,
+            @RequestParam(value = "requestedUsername", required = false) String requestedUsername,
             @PageInfo(size = 12, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
-        WebDataAndTotalPagesDTO websiteDataInfo = websiteService.getWebsitesByPattern(pattern,
-                userName, pageInfo);
-
         String currentUser = StpUtil.getLoginIdAsString();
+        WebDataAndTotalPagesDTO data =
+                websiteService.getWebDataInfo(currentUser, pattern, requestedUsername, pageInfo);
 
         return HomePageVO.builder()
                 .currentUser(currentUser)
-                .websiteDataInfo(websiteDataInfo)
-                .optUsername(userName)
+                .websiteDataInfo(data)
+                .requestedUsername(requestedUsername)
                 .build();
     }
 }
