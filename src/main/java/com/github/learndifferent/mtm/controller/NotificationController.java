@@ -150,4 +150,13 @@ public class NotificationController {
         return StringUtils.isEmpty(notification) ? ResultCreator.result(ResultCode.UPDATE_FAILED)
                 : ResultCreator.okResult(notification);
     }
+
+    /**
+     * Delete Role Change Notification for Current User
+     */
+    @DeleteMapping("/role-changed")
+    public void deleteRoleChangeNotification() {
+        String currentUsername = (String) StpUtil.getLoginId();
+        notificationService.deleteRoleChangeNotification(currentUsername);
+    }
 }

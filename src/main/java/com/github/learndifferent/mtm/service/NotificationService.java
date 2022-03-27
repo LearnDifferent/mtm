@@ -92,4 +92,11 @@ public interface NotificationService {
      * (It will be an empty string if the user role is not changed)
      */
     String generateRoleChangeNotification(String username);
+
+    /**
+     * Delete Role Change Notification for the User
+     *
+     * @param username Username of the user
+     */
+    void deleteRoleChangeNotification(String username);
 }

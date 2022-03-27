@@ -109,4 +109,13 @@ public class NotificationServiceImpl implements NotificationService {
         }
         return notificationManager.generateRoleChangeNotification(userId);
     }
+
+    @Override
+    public void deleteRoleChangeNotification(String username) {
+        String userId = userMapper.getUserIdByName(username);
+        if (userId == null) {
+            return;
+        }
+        notificationManager.deleteRoleChangeNotification(userId);
+    }
 }

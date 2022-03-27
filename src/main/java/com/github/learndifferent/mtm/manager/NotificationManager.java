@@ -316,4 +316,14 @@ public class NotificationManager {
         }
         return notification;
     }
+
+    /**
+     * Delete Role Change Notification for the User
+     *
+     * @param userId ID of the user
+     */
+    public void deleteRoleChangeNotification(String userId) {
+        String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
+        deleteByKey(key);
+    }
 }
