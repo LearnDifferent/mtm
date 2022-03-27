@@ -81,6 +81,11 @@
         where user_name = #{userName}
           and password = #{password};
     </select>
+    <select id="getUserIdByName" resultType="java.lang.String">
+        select user_id
+        from user
+        where user_name = #{username};
+    </select>
 
     <update id="updateUser" parameterType="com.github.learndifferent.mtm.entity.UserDO">
         update user

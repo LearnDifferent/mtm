@@ -107,4 +107,12 @@ public interface UserMapper {
      * @return true if success
      */
     boolean updateUser(UserDO user);
+
+    /**
+     * Get User ID by Username
+     *
+     * @param username username
+     * @return User ID or null if there is no user with that username
+     */
+    String getUserIdByName(String username);
 }
