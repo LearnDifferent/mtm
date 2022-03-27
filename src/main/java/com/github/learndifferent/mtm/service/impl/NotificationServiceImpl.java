@@ -1,17 +1,13 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
-import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import com.github.learndifferent.mtm.service.NotificationService;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,23 +48,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void deleteReplyNotification(DelReNotificationRequest data) {
-        String receiveUsername = data.getReceiveUsername();
-        boolean notCurrentUser = checkIfNotCurrentUser(receiveUsername);
-        ThrowExceptionUtils.throwIfTrue(notCurrentUser, ResultCode.PERMISSION_DENIED);
-
         ReplyNotificationDTO replyNotificationDTO = DozerUtils.convert(data, ReplyNotificationDTO.class);
         notificationManager.deleteReplyNotification(replyNotificationDTO);
-    }
-
-    /**
-     * Check if the {@code username} is not current user's username
-     *
-     * @param username username
-     * @return true if the username is not current user's username
-     */
-    private boolean checkIfNotCurrentUser(String username) {
-        String currentUsername = StpUtil.getLoginIdAsString();
-        return CompareStringUtil.notEqualsIgnoreCase(currentUsername, username);
     }
 
     @Override

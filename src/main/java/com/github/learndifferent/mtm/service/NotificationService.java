@@ -45,7 +45,6 @@ public interface NotificationService {
      * Delete reply notification
      *
      * @param data notification data to delete
-     * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception if failure
      */
     void deleteReplyNotification(DelReNotificationRequest data);
 

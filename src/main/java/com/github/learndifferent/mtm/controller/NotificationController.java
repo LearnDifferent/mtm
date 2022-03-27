@@ -5,11 +5,12 @@ import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
+import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -58,15 +59,16 @@ public class NotificationController {
      * @param lastIndex index of the last element of the reply / comment notification list
      * @return {@link ResultVO}<{@link List}<{@link ReplyNotificationWithMsgDTO}>> reply / comment notification list
      * with the result code of {@link ResultCode#SUCCESS}
-     * @throws ServiceException {@link NotificationService#getReplyNotifications(String, int)}
-     *                          will throw an exception with {@link ResultCode#NO_RESULTS_FOUND}
-     *                          if there is no notifications found
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotificationService#getReplyNotifications(String,
+     *                                                                  int)} will throw an exception with
+     *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
+     *                                                                  if there is no notifications found
      */
     @GetMapping("/reply")
     public ResultVO<List<ReplyNotificationWithMsgDTO>> getReplyNotifications(
             @RequestParam(value = "lastIndex", defaultValue = "10") int lastIndex) {
 
-        String username = StpUtil.getLoginIdAsString();
+        String username = getCurrentUsername();
         List<ReplyNotificationWithMsgDTO> n = notificationService.getReplyNotifications(username, lastIndex);
         return ResultCreator.okResult(n);
     }
@@ -79,21 +81,32 @@ public class NotificationController {
     @GetMapping("/reply/new")
     public ResultVO<Integer> countNewReplyNotifications() {
         String currentUsername = getCurrentUsername();
-        return ResultCreator.okResult(notificationService.countNewReplyNotifications(currentUsername));
+        int count = notificationService.countNewReplyNotifications(currentUsername);
+        return ResultCreator.okResult(count);
     }
 
     /**
      * Delete a reply notification
      *
-     * @param requestBody the data of notification to delete
-     * @throws ServiceException {@link NotificationService#deleteReplyNotification(DelReNotificationRequest)}
-     *                          will throw an exception if the current user has no permission to
-     *                          delete the reply notification with the result code of {@link
-     *                          ResultCode#PERMISSION_DENIED}
+     * @param data the data of notification to delete
+     * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED} if
+     *                                                                  the user that is currently logged in is not
+     *                                                                  the owner of the notification to delete
      */
     @PostMapping("/reply/delete")
-    public void deleteReplyNotification(@RequestBody DelReNotificationRequest requestBody) {
-        notificationService.deleteReplyNotification(requestBody);
+    public void deleteReplyNotification(@RequestBody DelReNotificationRequest data) {
+        // check the permission
+        checkPermission(data);
+        // delete notification
+        notificationService.deleteReplyNotification(data);
+    }
+
+    private void checkPermission(DelReNotificationRequest data) {
+        String receiveUsername = data.getReceiveUsername();
+        String currentUsername = getCurrentUsername();
+        boolean notCurrentUser = CompareStringUtil.notEqualsIgnoreCase(receiveUsername, currentUsername);
+        ThrowExceptionUtils.throwIfTrue(notCurrentUser, ResultCode.PERMISSION_DENIED);
     }
 
     /**
