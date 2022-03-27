@@ -32,15 +32,13 @@ public interface NotificationService {
      * Get reply / comment notifications and clear notification count
      *
      * @param receiveUsername user's name who is about to receive notifications
-     * @param to              index of the last element of the reply notification list
+     * @param lastIndex       index of the last element of the reply notification list
      * @return {@link List}<{@link ReplyNotificationWithMsgDTO}> reply / comment notification list
-     * @throws com.github.learndifferent.mtm.exception.ServiceException If the user is not current user, this method
-     *                                                                  will throw an exception with
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
-     *                                                                  and if no results found, the result code will
-     *                                                                  be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
+     *                                                                  exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
      */
-    List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int to);
+    List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int lastIndex);
 
 
     /**

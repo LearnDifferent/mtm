@@ -46,10 +46,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int to) {
-        boolean notCurrentUser = checkIfNotCurrentUser(receiveUsername);
-        ThrowExceptionUtils.throwIfTrue(notCurrentUser, ResultCode.PERMISSION_DENIED);
-        return notificationManager.getReplyNotifications(receiveUsername, 0, to);
+    public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int lastIndex) {
+        return notificationManager.getReplyNotifications(receiveUsername, 0, lastIndex);
     }
 
     @Override

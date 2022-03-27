@@ -55,20 +55,20 @@ public class NotificationController {
     /**
      * Get reply / comment notifications
      *
-     * @param username user's name who is about to receive notifications
-     * @param to       index of the last element of the reply / comment notification list
+     * @param lastIndex index of the last element of the reply / comment notification list
      * @return {@link ResultVO}<{@link List}<{@link ReplyNotificationWithMsgDTO}>> reply / comment notification list
      * with the result code of {@link ResultCode#SUCCESS}
      * @throws ServiceException {@link NotificationService#getReplyNotifications(String, int)}
      *                          will throw an exception with {@link ResultCode#NO_RESULTS_FOUND}
-     *                          if there is no notifications found. If the user is not current user,
-     *                          the result code will be {@link ResultCode#PERMISSION_DENIED}
+     *                          if there is no notifications found
      */
     @GetMapping("/reply")
-    public ResultVO<List<ReplyNotificationWithMsgDTO>> getReplyNotifications(@RequestParam("username") String username,
-                                                                             @RequestParam(value = "to", defaultValue = "10")
-                                                                                     int to) {
-        return ResultCreator.okResult(notificationService.getReplyNotifications(username, to));
+    public ResultVO<List<ReplyNotificationWithMsgDTO>> getReplyNotifications(
+            @RequestParam(value = "lastIndex", defaultValue = "10") int lastIndex) {
+
+        String username = StpUtil.getLoginIdAsString();
+        List<ReplyNotificationWithMsgDTO> n = notificationService.getReplyNotifications(username, lastIndex);
+        return ResultCreator.okResult(n);
     }
 
     /**

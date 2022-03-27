@@ -73,12 +73,12 @@ public class NotificationManager {
      *
      * @param receiveUsername username
      * @param from            from
-     * @param to              to
+     * @param lastIndex       to
      * @return reply notifications
      */
-    public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int from, int to) {
+    public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int from, int lastIndex) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
-        List<String> notifications = redisTemplate.opsForList().range(key, from, to);
+        List<String> notifications = redisTemplate.opsForList().range(key, from, lastIndex);
 
         boolean hasNoNotifications = CollectionUtils.isEmpty(notifications);
         ThrowExceptionUtils.throwIfTrue(hasNoNotifications, ResultCode.NO_RESULTS_FOUND);
