@@ -87,9 +87,9 @@ public interface NotificationService {
     /**
      * Generate a User Role Change Notification
      *
-     * @param userId ID of the user
+     * @param username Username of the user
      * @return User Role Change Notification
      * (It will be an empty string if the user role is not changed)
      */
-    String generateRoleChangeNotification(String userId);
+    String generateRoleChangeNotification(String username);
 }

@@ -6,6 +6,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
+import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
@@ -25,10 +26,13 @@ import org.springframework.stereotype.Service;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationManager notificationManager;
+    private final UserMapper userMapper;
 
     @Autowired
-    public NotificationServiceImpl(NotificationManager notificationManager) {
+    public NotificationServiceImpl(NotificationManager notificationManager,
+                                   UserMapper userMapper) {
         this.notificationManager = notificationManager;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -96,7 +100,13 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public String generateRoleChangeNotification(String userId) {
+    public String generateRoleChangeNotification(String username) {
+        String userId = userMapper.getUserIdByName(username);
+
+        if (userId == null) {
+            // return empty string if there is no user with that username
+            return "";
+        }
         return notificationManager.generateRoleChangeNotification(userId);
     }
 }

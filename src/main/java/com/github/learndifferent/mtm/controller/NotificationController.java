@@ -135,19 +135,18 @@ public class NotificationController {
     }
 
     /**
-     * Get User Role Change Notification
+     * Get Current User's Role Change Notification
      *
-     * @param userId ID of the user
      * @return Return {@link ResultCreator#okResult(Object)} with the notification.
-     * Return {@link ResultVO} with the result code of {@link ResultCode#UPDATE_FAILED}
      * <p>
-     * If the notification is empty, which means the user role is not changed,
-     * return {@link ResultVO} with the result code of {@link ResultCode#UPDATE_FAILED}.
+     * Return {@link ResultVO} with the result code of {@link ResultCode#UPDATE_FAILED}
+     * if the notification is empty, which means the user role is not changed.
      * </p>
      */
-    @GetMapping("role-changed")
-    public ResultVO<String> getRoleChangeNotification(@RequestParam("userId") String userId) {
-        String notification = notificationService.generateRoleChangeNotification(userId);
+    @GetMapping("/role-changed")
+    public ResultVO<String> getRoleChangeNotification() {
+        String currentUsername = (String) StpUtil.getLoginId();
+        String notification = notificationService.generateRoleChangeNotification(currentUsername);
         return StringUtils.isEmpty(notification) ? ResultCreator.result(ResultCode.UPDATE_FAILED)
                 : ResultCreator.okResult(notification);
     }

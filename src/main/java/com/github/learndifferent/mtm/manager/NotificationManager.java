@@ -292,19 +292,28 @@ public class NotificationManager {
             return "";
         }
 
-        String newRole = String.valueOf(newRoleObject);
-        String formerRole = String.valueOf(formerRoleObject);
+        String newRoleString = String.valueOf(newRoleObject);
+        String formerRoleString = String.valueOf(formerRoleObject);
 
+        try {
+            RoleType newRole = RoleType.valueOf(newRoleString.toUpperCase());
+            RoleType formerRole = RoleType.valueOf(formerRoleString.toUpperCase());
+            return compareAndReturnNotification(newRole, formerRole);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            // return empty string if the role is illegal
+            return "";
+        }
+    }
+
+    private String compareAndReturnNotification(RoleType newRole, RoleType formerRole) {
         String notification = "";
-
-        boolean isRoleChanged = !newRole.equals(formerRole);
-        if (isRoleChanged && RoleType.USER.role().equalsIgnoreCase(formerRole)) {
-            notification = "You account has been upgraded to Admin by Administer";
+        if (RoleType.USER.equals(formerRole) && RoleType.ADMIN.equals(newRole)) {
+            notification = "Your account has been upgraded to Admin by Administer";
         }
-        if (isRoleChanged && RoleType.ADMIN.role().equalsIgnoreCase(formerRole)) {
-            notification = "You account has been downgraded to Standard User by Administer";
+        if (RoleType.ADMIN.equals(formerRole) && RoleType.USER.equals(newRole)) {
+            notification = "Your account has been downgraded to Standard User by Administer";
         }
-
         return notification;
     }
 }
