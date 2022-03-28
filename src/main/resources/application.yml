@@ -1,14 +1,12 @@
 spring:
+  profiles:
+    active: dev
   application:
     name: web
   datasource:
     #  driver-class-name: com.mysql.cj.jdbc.Driver # MySQL Version 8
     driver-class-name: com.mysql.jdbc.Driver # MySQL Version 5
     type: com.alibaba.druid.pool.DruidDataSource
-    # "db" is the host of MySQL. It can be replace by "localhost"
-    url: jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
-    username: root
-    password: rootroot
   mail:
     username: # Your Email. For Instance: abc@email.com
     password: # Your Email Password.
@@ -19,18 +17,11 @@ spring:
 server:
   port: 80
 mybatis:
-  type-aliases-package: com.github.learndifferent.mtm.pojo
+  type-aliases-package: com.github.learndifferent.mtm.entity
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
-logging:
-  level:
-    com:
-      github:
-        learndifferent:
-          mtm:
-            mapper: debug
-# Elasticsearch
+# Elasticsearch Config
 elasticsearch:
   host: es
   port: 9200
@@ -40,3 +31,25 @@ custom-async:
   core-pool-size: 3
   alive-seconds: 30
   queue-capacity: 50
+---
+spring:
+  profiles: prod
+  datasource:
+    # "db" is the host of MySQL
+    url: jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: LearnDifferent
+---
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: rootroot
+logging:
+  level:
+    com:
+      github:
+        learndifferent:
+          mtm:
+            mapper: debug
