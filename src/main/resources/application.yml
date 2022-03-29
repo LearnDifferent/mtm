@@ -21,11 +21,11 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
-# Elasticsearch Config
+# Elasticsearch Configuration
 elasticsearch:
   host: es
   port: 9200
-  isHttps: false
+  scheme-name: http
 # Async Configuration
 custom-async:
   core-pool-size: 3
