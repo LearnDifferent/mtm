@@ -3,12 +3,12 @@ package com.github.learndifferent.mtm.config;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * elasticsearch 配置
+ * Elasticsearch Configuration
  *
  * @author zhou
  * @date 2021/09/05
@@ -16,14 +16,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchConfig {
 
-    @Value("${elasticsearch.host}")
-    private String host;
+    private final ElasticsearchConfigProperties elasticsearchConfigProperties;
 
-    @Value("${elasticsearch.port}")
-    private Integer port;
-
-    @Value("${elasticsearch.isHttps}")
-    private Boolean isHttps;
+    @Autowired
+    public ElasticsearchConfig(ElasticsearchConfigProperties elasticsearchConfigProperties) {
+        this.elasticsearchConfigProperties = elasticsearchConfigProperties;
+    }
 
     @Bean(name = "restHighLevelClient", destroyMethod = "close")
     RestHighLevelClient client() {
@@ -31,8 +29,12 @@ public class ElasticsearchConfig {
     }
 
     private RestHighLevelClient getClient() {
+        String host = elasticsearchConfigProperties.getHost();
+        int port = elasticsearchConfigProperties.getPort();
+        String schemeName = elasticsearchConfigProperties.getSchemeName();
+
         return new RestHighLevelClient(
-                RestClient.builder(new HttpHost(host, port, isHttps ? "https" : "http"))
+                RestClient.builder(new HttpHost(host, port, schemeName))
                         .setHttpClientConfigCallback(httpAsyncClientBuilder -> httpAsyncClientBuilder)
                         .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder)
         );
