@@ -17,6 +17,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -60,7 +61,9 @@ public class AdminController {
     /**
      * Get system logs
      *
-     * @param pageInfo pagination info
+     * @param isReadFromDb True if data is read from database directly.
+     *                     <p>False or null if data is read from database and cache memory.</p>
+     * @param pageInfo     Pagination information
      * @return system logs
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
      *                                                                  will throw an exception with the result code of
@@ -70,15 +73,17 @@ public class AdminController {
     @GetMapping("/logs")
     @AdminValidation
     public ResultVO<List<SysLog>> getSystemLogs(
+            @RequestParam(value = "isReadFromDb", required = false) Boolean isReadFromDb,
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
-        List<SysLog> logs = logService.getSystemLogs(pageInfo);
+
+        List<SysLog> logs = logService.getSystemLogs(pageInfo, isReadFromDb);
         return ResultCreator.okResult(logs);
     }
 
     /**
      * Get users
      *
-     * @param pageInfo pagination info
+     * @param pageInfo Pagination information
      * @return users
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
      *                                                                  will throw an exception with the result code of
@@ -96,7 +101,7 @@ public class AdminController {
     /**
      * Get visited bookmarks from database
      *
-     * @param pageInfo pagination info
+     * @param pageInfo Pagination information
      * @return visited bookmarks
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
      *                                                                  will throw an exception with the result code of

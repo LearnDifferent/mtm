@@ -16,11 +16,13 @@ public interface SystemLogService {
      * Get System Logs.
      * The result will be cached for 40 seconds.
      *
-     * @param pageInfo pagination info
+     * @param isReadFromDb True if data is read from database directly.
+     *                     <p>False or null if data is read from database and cache memory.</p>
+     * @param pageInfo     Pagination information
      * @return {@link List}<{@link SysLog}> system logs
      * @see com.github.learndifferent.mtm.config.RedisConfig
      */
-    List<SysLog> getSystemLogs(PageInfoDTO pageInfo);
+    List<SysLog> getSystemLogs(PageInfoDTO pageInfo, Boolean isReadFromDb);
 
     /**
      * Save System Log Asynchronously
