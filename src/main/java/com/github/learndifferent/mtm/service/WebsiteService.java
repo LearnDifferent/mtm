@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
@@ -30,7 +30,7 @@ public interface WebsiteService {
      * Filter public website data by {@link WebDataFilterRequest}
      *
      * @param filterRequest Filter Public Website Data Request
-     * @return Filtered Paginated Website Data
+     * @return Filtered Website Data
      */
     List<WebsiteDTO> findPublicWebDataByFilter(WebDataFilterRequest filterRequest);
 
@@ -87,19 +87,19 @@ public interface WebsiteService {
     SaveWebDataResultDTO saveNewWebsiteData(SaveNewWebDataRequest newWebsiteData);
 
     /**
-     * Get website data and total pages
+     * Get bookmarks (website data) and total pages for the current user on the home page
      *
      * @param currentUsername   username of the user that is currently logged in
-     * @param showPattern       pattern of the website data to be shown
+     * @param homeTimeline      how to displays the stream of bookmarks on the home page
      * @param requestedUsername username of the user whose data is being requested
      *                          <p>{@code requestedUsername} is not is required</p>
      * @param pageInfo          pagination info
      * @return {@link WebDataAndTotalPagesDTO}
      */
-    WebDataAndTotalPagesDTO getWebDataInfo(String currentUsername,
-                                           ShowPattern showPattern,
-                                           String requestedUsername,
-                                           PageInfoDTO pageInfo);
+    WebDataAndTotalPagesDTO getHomeTimeline(String currentUsername,
+                                            HomeTimeline homeTimeline,
+                                            String requestedUsername,
+                                            PageInfoDTO pageInfo);
 
     /**
      * Get all public website data and the count of their comments, of user the with name of {@code username}.

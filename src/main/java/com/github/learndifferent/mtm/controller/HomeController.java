@@ -3,9 +3,9 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
-import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
@@ -45,21 +45,23 @@ public class HomeController {
     }
 
     /**
-     * Get users' name and the number of their marked public websites
+     * Get all usernames of the users
+     * and the total number of their public bookmarks sorted by the total number
      *
-     * @return {@link List}<{@link UserWithWebCountDTO}> Users' name and the amount of their websites
+     * @return all usernames of the users and the total number of their public bookmarks sorted by the total number
      */
     @SystemLog(title = "Filter", optsType = OptsType.READ)
     @GetMapping("/filter")
-    public List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs() {
-        return userService.getNamesAndCountTheirPublicWebs();
+    public ResultVO<List<UserWithWebCountDTO>> getUsernamesAndCountPublicBookmarks() {
+        List<UserWithWebCountDTO> data = userService.getUsernamesAndCountPublicBookmarks();
+        return ResultCreator.okResult(data);
     }
 
     /**
-     * Filter website data
+     * Filter bookmarked sites
      *
      * @param filter filter request
-     * @return {@link ResultVO}<{@link List}<{@link WebsiteDTO}>> Filtered Paginated Website Data
+     * @return {@link ResultVO}<{@link List}<{@link WebsiteDTO}>> Filtered bookmarked sites
      */
     @PostMapping("/filter")
     public ResultVO<List<WebsiteDTO>> filter(@RequestBody WebDataFilterRequest filter) {
@@ -71,21 +73,21 @@ public class HomeController {
     /**
      * Get {@link HomePageVO} Data
      *
-     * @param pattern           the pattern of the website data to be shown
+     * @param timeline          how to display the stream of bookmarks on the home page
      * @param requestedUsername username of the user whose data is being requested
-     *                          <p>{@code requestedUsername} is not is required</p>
-     * @param pageInfo          pagination info
+     *                          <p>{@code requestedUsername} is not required</p>
+     * @param pageInfo          pagination information
      * @return {@link HomePageVO} Data
      */
     @GetMapping
     public HomePageVO getHomePageData(
-            @RequestParam("pattern") ShowPattern pattern,
+            @RequestParam("timeline") HomeTimeline timeline,
             @RequestParam(value = "requestedUsername", required = false) String requestedUsername,
             @PageInfo(size = 12, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
         String currentUser = StpUtil.getLoginIdAsString();
         WebDataAndTotalPagesDTO data =
-                websiteService.getWebDataInfo(currentUser, pattern, requestedUsername, pageInfo);
+                websiteService.getHomeTimeline(currentUser, timeline, requestedUsername, pageInfo);
 
         return HomePageVO.builder()
                 .currentUser(currentUser)

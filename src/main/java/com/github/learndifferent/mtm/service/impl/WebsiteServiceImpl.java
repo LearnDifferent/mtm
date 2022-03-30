@@ -11,8 +11,8 @@ import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.website.marked.MarkCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
+import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.ShowPattern;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
@@ -298,10 +298,10 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     @EmptyStringCheck
-    public WebDataAndTotalPagesDTO getWebDataInfo(String currentUsername,
-                                                  ShowPattern showPattern,
-                                                  @DefaultValueIfEmpty String requestedUsername,
-                                                  PageInfoDTO pageInfo) {
+    public WebDataAndTotalPagesDTO getHomeTimeline(String currentUsername,
+                                                   HomeTimeline homeTimeline,
+                                                   @DefaultValueIfEmpty String requestedUsername,
+                                                   PageInfoDTO pageInfo) {
         // get pagination info
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
@@ -309,30 +309,41 @@ public class WebsiteServiceImpl implements WebsiteService {
         // check whether the current user is requested user
         boolean isCurrentUser = currentUsername.equalsIgnoreCase(requestedUsername);
 
-        switch (showPattern) {
-            case MARKED:
-                // most bookmarked website data
-                return getMostBookmarkedWebData(from, size);
-            case USER_PAGE:
+        switch (homeTimeline) {
+            case POPULAR:
+                // most popular bookmarks
+                return getPopularBookmarks(from, size);
+            case USER:
                 // check out public bookmarks of the requested user's
                 // this will include private bookmarks if the requested user is current user
                 return getRequestedUserBookmarks(requestedUsername, from, size, isCurrentUser);
-            case WITHOUT_USER_PAGE:
+            case BLOCK:
                 // check out all public bookmarks except the requested user's
                 // this will include current user's private bookmarks if the requested user is not current user
                 return getBookmarksExceptRequestedUser(currentUsername, requestedUsername, from, size);
-            case DEFAULT:
+            case LATEST:
             default:
                 // get all public bookmarks and current user's private bookmarks
-                return getBookmarksDefault(currentUsername, from, size);
+                return getLatestBookmarks(currentUsername, from, size);
         }
     }
 
-    private WebDataAndTotalPagesDTO getMostBookmarkedWebData(int from, int size) {
-        List<WebsiteWithCountDTO> markedWebs = mostPublicMarkedWebs(from, size);
+    private WebDataAndTotalPagesDTO getPopularBookmarks(int from, int size) {
+        List<WebsiteWithCountDTO> markedWebs = getMostBookmarkedPublicWebs(from, size);
         int markedTotalCount = countDistinctPublicUrl();
         int markedTotalPage = PageUtil.getAllPages(markedTotalCount, size);
         return WebDataAndTotalPagesDTO.builder().webs(markedWebs).totalPage(markedTotalPage).build();
+    }
+
+    /**
+     * Get the most saved public website data
+     *
+     * @param from from
+     * @param size size
+     * @return most saved public website data
+     */
+    private List<WebsiteWithCountDTO> getMostBookmarkedPublicWebs(int from, int size) {
+        return websiteMapper.mostPublicMarkedWebs(from, size);
     }
 
     private WebDataAndTotalPagesDTO getRequestedUserBookmarks(
@@ -357,7 +368,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         return WebDataAndTotalPagesDTO.builder().webs(withoutUserPageWebs).totalPage(withoutUserPageTotalPage).build();
     }
 
-    private WebDataAndTotalPagesDTO getBookmarksDefault(String currentUsername, int from, int size) {
+    private WebDataAndTotalPagesDTO getLatestBookmarks(String currentUsername, int from, int size) {
         List<WebWithPrivacyCommentCountDTO> webs =
                 getAllPubSpecUserPriWebsAndCommentCount(from, size, currentUsername);
 
@@ -367,20 +378,9 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     /**
-     * 获取最多用户收藏的公开 URL 及其网页信息
+     * Get the number of unique public URLs
      *
-     * @param from 分页起始
-     * @param size 页面大小
-     * @return 最多用户收藏的网页及其信息
-     */
-    private List<WebsiteWithCountDTO> mostPublicMarkedWebs(int from, int size) {
-        return websiteMapper.mostPublicMarkedWebs(from, size);
-    }
-
-    /**
-     * 计算公开的 URL 出现的次数，并剔除重复
-     *
-     * @return 一共有多少条数据
+     * @return number of unique public URLs
      */
     private int countDistinctPublicUrl() {
         return websiteMapper.countDistinctPublicUrl();
