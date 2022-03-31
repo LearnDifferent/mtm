@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.learndifferent.mtm.mapper.TagMapper">
+    <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.TagDO">
+        <result column="tag" jdbcType="VARCHAR" property="tag"/>
+        <result column="web_id" jdbcType="INTEGER" property="webId"/>
+    </resultMap>
+    <insert id="addTag" parameterType="com.github.learndifferent.mtm.entity.TagDO">
+        insert into tag (tag, web_id)
+        values (#{tag,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER})
+    </insert>
+    <select id="getSpecificTagByTagTextAndWebId" resultType="com.github.learndifferent.mtm.entity.TagDO">
+        select *
+        from tag
+        where tag = #{tagText,jdbcType=VARCHAR}
+          and web_id = #{webId,jdbcType=INTEGER};
+    </select>
+</mapper>
