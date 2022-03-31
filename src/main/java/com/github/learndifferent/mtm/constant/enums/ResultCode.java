@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.constant.enums;
 
 /**
- * 响应码
+ * Result Code
  *
  * @author zhou
  * @date 2021/09/05
@@ -17,9 +17,9 @@ public enum ResultCode {
      */
     FAILED(500, "Fail"),
     /**
-     * Website data does not exists
+     * Website data does not exist
      */
-    WEBSITE_DATA_NOT_EXISTS(2001, "The website data does not exists"),
+    WEBSITE_DATA_NOT_EXISTS(2001, "The website data does not exist"),
     /**
      * Fail to update
      */
@@ -53,7 +53,7 @@ public enum ResultCode {
      */
     PERMISSION_DENIED(2009, "You don't have permission to do it."),
     /**
-     * already marked it
+     * Has already bookmarked
      */
     ALREADY_MARKED(2010, "You have already saved it. Can't do it twice."),
     /**
@@ -69,7 +69,7 @@ public enum ResultCode {
      */
     NO_RESULTS_FOUND(2013, "There are no results that match your search"),
     /**
-     * 成功修改密码
+     * Successfully reset the password
      */
     PASSWORD_CHANGED(2014, "Successfully reset your password!"),
     /**
@@ -81,45 +81,45 @@ public enum ResultCode {
      */
     PASSWORD_INCORRECT(3002, "Incorrect Password"),
     /**
-     * 用户名只能为英文字母和数字
+     * Username must contain only letters and numbers
      */
     USERNAME_ONLY_LETTERS_NUMBERS(3003, "Username must contain ONLY letters and numbers"),
     /**
-     * 用户名太长
+     * Username is too long
      */
     USERNAME_TOO_LONG(3004, "Username must be less than 30 characters"),
     /**
-     * 用户名太长
+     * Password is too long
      */
     PASSWORD_TOO_LONG(3005, "Password must be less than 50 characters"),
     /**
-     * 用户名为空
+     * Username is empty
      */
     USERNAME_EMPTY(3006, "Please Enter Username"),
     /**
-     * 密码为空
+     * Password is empty
      */
     PASSWORD_EMPTY(3007, "Please Enter Password"),
     /**
-     * 电子邮件设置错误
+     * Email not set up properly
      */
     EMAIL_SET_UP_ERROR(3008, "Email not set up properly"),
     /**
-     * 评论已经存在
+     * Duplicate comment
      */
     COMMENT_EXISTS(3009, "Duplicate comment detected: The comment has already been sent by you."),
     /**
-     * 评论为空
+     * Comment is empty
      */
     COMMENT_EMPTY(3010, "Please enter a comment."),
     /**
-     * 评论太长
+     * Comment is too long
      */
     COMMENT_TOO_LONG(3011, "Comment should not be longer than 140 characters."),
     /**
-     * 评论不存在
+     * Comment does not exist
      */
-    COMMENT_NOT_EXISTS(3012, "The comment does not exists."),
+    COMMENT_NOT_EXISTS(3012, "The comment does not exist."),
     /**
      * Error related to Json
      */
@@ -128,6 +128,18 @@ public enum ResultCode {
      * Can't find the user role
      */
     USER_ROLE_NOT_FOUND(3014, "Can't find the user role"),
+    /**
+     * Tag is too long
+     */
+    TAG_TOO_LONG(3015, "Tag should not be longer than 16 characters"),
+    /**
+     * Tag does not exist
+     */
+    TAG_NOT_EXISTS(3016, "Please apply a tag."),
+    /**
+     * Tag already existed
+     */
+    TAG_EXISTS(3017, "The tag has already been applied"),
     /**
      * Unable to connect to the server
      */
