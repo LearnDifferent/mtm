@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
@@ -63,4 +64,13 @@ public interface TagMapper {
      * @return True if success. False if failure or the tag does not exist.
      */
     boolean deleteTag(@Param("tagName") String tagName, @Param("webId") int webId);
+
+    /**
+     * Get popular tags
+     *
+     * @param from from
+     * @param size size
+     * @return a list of popular tags
+     */
+    List<PopularTagDTO> getPopularTags(@Param("from") int from, @Param("size") int size);
 }

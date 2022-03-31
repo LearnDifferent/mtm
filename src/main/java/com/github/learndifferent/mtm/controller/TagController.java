@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -126,8 +127,21 @@ public class TagController {
         return ResultCreator.okResult(bookmarks);
     }
 
-    private String getCurrentUsername() {
-        return StpUtil.getLoginIdAsString();
+    /**
+     * Get popular tags
+     *
+     * @param pageInfo pagination information
+     * @return a list of paginated popular tags
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getPopularTags(PageInfoDTO)}
+     *                                                                  will throw an exception
+     *                                                                  with the result code of {@link ResultCode#NO_RESULTS_FOUND}
+     *                                                                  if no results found
+     */
+    @GetMapping("/popular")
+    public ResultVO<List<PopularTagDTO>> getPopularTags(@PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
+                                                                PageInfoDTO pageInfo) {
+        List<PopularTagDTO> popularTags = tagService.getPopularTags(pageInfo);
+        return ResultCreator.okResult(popularTags);
     }
 
     /**
@@ -155,5 +169,9 @@ public class TagController {
         String currentUsername = getCurrentUsername();
         boolean success = tagService.deleteTag(currentUsername, webId, tagName);
         return success ? ResultCreator.okResult() : ResultCreator.defaultFailResult();
+    }
+
+    private String getCurrentUsername() {
+        return StpUtil.getLoginIdAsString();
     }
 }

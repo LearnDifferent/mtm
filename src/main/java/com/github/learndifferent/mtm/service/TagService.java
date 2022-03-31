@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import java.util.List;
 
@@ -116,4 +117,15 @@ public interface TagService {
      *                                                                  </p>
      */
     boolean deleteTag(String username, Integer webId, String tagName);
+
+    /**
+     * Get popular tags
+     *
+     * @param pageInfo pagination information
+     * @return a list of paginated popular tags
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception
+     *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
+     *                                                                  NO_RESULTS_FOUND} if no results found
+     */
+    List<PopularTagDTO> getPopularTags(PageInfoDTO pageInfo);
 }

@@ -7,6 +7,7 @@ import com.github.learndifferent.mtm.annotation.validation.tag.TagCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
@@ -17,6 +18,7 @@ import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,6 @@ import org.springframework.util.CollectionUtils;
  * @date 2022/3/31
  */
 @Service
-
 public class TagServiceImpl implements TagService {
 
     private final TagMapper tagMapper;
@@ -84,10 +85,14 @@ public class TagServiceImpl implements TagService {
         int size = pageInfo.getSize();
 
         List<Integer> ids = tagMapper.getWebIdByTagName(tagName, from, size);
-        boolean isEmpty = CollectionUtils.isEmpty(ids);
-        ThrowExceptionUtils.throwIfTrue(isEmpty, ResultCode.NO_RESULTS_FOUND);
+        throwExceptionIfEmpty(ids);
 
         return getBookmarks(username, ids);
+    }
+
+    private void throwExceptionIfEmpty(Collection<?> collection) {
+        boolean isEmpty = CollectionUtils.isEmpty(collection);
+        ThrowExceptionUtils.throwIfTrue(isEmpty, ResultCode.NO_RESULTS_FOUND);
     }
 
     private List<WebsiteDTO> getBookmarks(String username, List<Integer> ids) {
@@ -114,5 +119,16 @@ public class TagServiceImpl implements TagService {
     @ModifyWebsitePermissionCheck
     public boolean deleteTag(@Username String username, @WebId Integer webId, String tagName) {
         return tagMapper.deleteTag(tagName, webId);
+    }
+
+    @Override
+    public List<PopularTagDTO> getPopularTags(PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+
+        List<PopularTagDTO> tags = tagMapper.getPopularTags(from, size);
+        throwExceptionIfEmpty(tags);
+
+        return tags;
     }
 }
