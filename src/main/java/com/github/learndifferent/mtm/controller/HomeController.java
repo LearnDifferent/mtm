@@ -53,7 +53,7 @@ public class HomeController {
     @SystemLog(title = "Filter", optsType = OptsType.READ)
     @GetMapping("/filter")
     public ResultVO<List<UserWithWebCountDTO>> getUsernamesAndCountPublicBookmarks() {
-        List<UserWithWebCountDTO> data = userService.getUsernamesAndCountPublicBookmarks();
+        List<UserWithWebCountDTO> data = userService.getNamesAndCountTheirPubBookmarks();
         return ResultCreator.okResult(data);
     }
 

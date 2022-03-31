@@ -16,19 +16,21 @@ import java.util.List;
 public interface UserService {
 
     /**
-     * Get all users' name and the number of websites that user owns, sorted by the number
+     * Get all usernames of the users
+     * and the total number of their public bookmarks sorted by the total number
      *
      * @return {@link List}<{@link UserWithWebCountDTO}>
      */
-    List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs();
+    List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks();
 
     /**
-     * Get users' name and the number of websites that user owns, sorted by the number
+     * Get all usernames of the users that are requested
+     * and the total number of their public bookmarks sorted by the total number
      *
-     * @param usernames users' name
+     * @param usernames requested usernames
      * @return {@link List}<{@link UserWithWebCountDTO}>
      */
-    List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs(List<String> usernames);
+    List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks(List<String> usernames);
 
     /**
      * Change password

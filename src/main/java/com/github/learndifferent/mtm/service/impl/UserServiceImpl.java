@@ -49,13 +49,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(value = "usernamesAndTheirWebs")
-    public List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs() {
+    public List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks() {
         // null means get all user's
         return userMapper.getNamesAndCountTheirPublicWebs(null);
     }
 
     @Override
-    public List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs(List<String> usernames) {
+    public List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks(List<String> usernames) {
         return userMapper.getNamesAndCountTheirPublicWebs(usernames);
     }
 
