@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.TagService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -92,7 +93,7 @@ public class TagController {
      *                                                                  be {@link ResultCode#NO_RESULTS_FOUND}.
      *                                                                  </p>
      */
-    @GetMapping("/show")
+    @GetMapping
     public ResultVO<List<String>> getTags(@RequestParam(value = "webId", required = false) Integer webId) {
         String currentUsername = getCurrentUsername();
         List<String> tags = tagService.getTags(currentUsername, webId);
@@ -127,5 +128,32 @@ public class TagController {
 
     private String getCurrentUsername() {
         return StpUtil.getLoginIdAsString();
+    }
+
+    /**
+     * Delete a tag
+     *
+     * @param webId   ID of the bookmarked website data that the tag applied to
+     * @param tagName name of the tag to be deleted
+     * @return {@link ResultCreator#okResult()} if success.
+     * {@link ResultCreator#defaultFailResult()} if failure or the tag does not exist.
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#deleteTag(String, Integer,
+     *                                                                  String)}
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS} if
+     *                                                                  the bookmarked website data does not exist or
+     *                                                                  the {@code webId} is null.
+     *                                                                  <p>
+     *                                                                  If the user has no permission to delete the
+     *                                                                  tag of this bookmark, the result code will be
+     *                                                                  {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  </p>
+     */
+    @DeleteMapping
+    public ResultVO<ResultCode> deleteTag(@RequestParam("webId") Integer webId,
+                                          @RequestParam("tagName") String tagName) {
+        String currentUsername = getCurrentUsername();
+        boolean success = tagService.deleteTag(currentUsername, webId, tagName);
+        return success ? ResultCreator.okResult() : ResultCreator.defaultFailResult();
     }
 }

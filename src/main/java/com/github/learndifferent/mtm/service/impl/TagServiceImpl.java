@@ -109,4 +109,10 @@ public class TagServiceImpl implements TagService {
             bookmarks.add(w);
         }
     }
+
+    @Override
+    @ModifyWebsitePermissionCheck
+    public boolean deleteTag(@Username String username, @WebId Integer webId, String tagName) {
+        return tagMapper.deleteTag(tagName, webId);
+    }
 }

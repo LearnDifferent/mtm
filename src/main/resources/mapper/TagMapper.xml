@@ -30,4 +30,10 @@
         where tag = #{tagName,jdbcType=VARCHAR}
         limit #{from}, #{size};
     </select>
+    <delete id="deleteTag">
+        delete
+        from tag
+        where tag = #{tagName,jdbcType=VARCHAR}
+          and web_id = #{webId,jdbcType=INTEGER};
+    </delete>
 </mapper>

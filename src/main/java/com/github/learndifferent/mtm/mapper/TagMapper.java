@@ -26,7 +26,7 @@ public interface TagMapper {
      * Get a specific tag by name of the tag and Web ID
      *
      * @param tagName name of the tag
-     * @param webId   ID of the bookmarked website data that tag applied to
+     * @param webId   ID of the bookmarked website data that the tag applied to
      * @return tag
      */
     TagDO getSpecificTagByTagTextAndWebId(@Param("tagName") String tagName, @Param("webId") int webId);
@@ -53,4 +53,14 @@ public interface TagMapper {
     List<Integer> getWebIdByTagName(@Param("tagName") String tagName,
                                     @Param("from") int from,
                                     @Param("size") int size);
+
+
+    /**
+     * Delete a tag
+     *
+     * @param tagName name of the tag to be deleted
+     * @param webId   ID of the bookmarked website data that the tag applied to
+     * @return True if success. False if failure or the tag does not exist.
+     */
+    boolean deleteTag(@Param("tagName") String tagName, @Param("webId") int webId);
 }

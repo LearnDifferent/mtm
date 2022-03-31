@@ -92,4 +92,28 @@ public interface TagService {
      *                                                                  NO_RESULTS_FOUND} if no results found
      */
     List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo);
+
+    /**
+     * Delete a tag
+     *
+     * @param username username of the user who is deleting the tag
+     * @param webId    ID of the bookmarked website data that the tag applied to
+     * @param tagName  name of the tag to be deleted
+     * @return True if success. False if failure or the tag does not exist.
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This method is annotated with
+     *                                                                  {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
+     *                                                                  ModifyWebsitePermissionCheck} annotation, so it
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
+     *                                                                  WEBSITE_DATA_NOT_EXISTS} if the bookmarked
+     *                                                                  website data does not exist or the {@code
+     *                                                                  webId} is null.
+     *                                                                  <p>
+     *                                                                  And if the user has no permission to delete the
+     *                                                                  tag of this bookmark, the result code will be
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED}
+     *                                                                  </p>
+     */
+    boolean deleteTag(String username, Integer webId, String tagName);
 }
