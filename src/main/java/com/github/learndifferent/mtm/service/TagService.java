@@ -1,5 +1,9 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import java.util.List;
+
 /**
  * Tag Service
  *
@@ -48,4 +52,44 @@ public interface TagService {
      *                                                                  </p>
      */
     boolean applyTag(String username, Integer webId, String tag);
+
+    /**
+     * Get tags by Username and Web ID.
+     * <p>
+     * Get all tags if the ID is null.
+     * </p>
+     *
+     * @param username username of the user who request the tags
+     * @param webId    ID of the bookmarked website data
+     * @return tags
+     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED} will be thrown if the
+     *                                                                  website data is private and the user is not the
+     *                                                                  owner of the bookmarked website data.
+     *                                                                  <p>
+     *                                                                  If the bookmarked website data is NOT
+     *                                                                  associated with any tags, the result code will
+     *                                                                  be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
+     *                                                                  NO_RESULTS_FOUND}.
+     *                                                                  </p>
+     */
+    List<String> getTags(String username, Integer webId);
+
+    /**
+     * Search bookmarks by a certain tag.
+     * <p>
+     * If some bookmarks is not public and the user who sent the request
+     * is not the owner, then those bookmarks will not be shown.
+     * </p>
+     *
+     * @param username username of the user who sent the request
+     * @param tagName  name of the tag to search for
+     * @param pageInfo a PageInfoDTO object that contains the page number and page size
+     * @return paginated bookmarks associated with the chosen tag
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception
+     *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
+     *                                                                  NO_RESULTS_FOUND} if no results found
+     */
+    List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo);
 }

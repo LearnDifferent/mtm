@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.mapper;
 
 import com.github.learndifferent.mtm.entity.TagDO;
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -22,11 +23,34 @@ public interface TagMapper {
     boolean addTag(TagDO tag);
 
     /**
-     * Get a specific tag by its tag text and Web ID
+     * Get a specific tag by name of the tag and Web ID
      *
-     * @param tagText text of the tag
+     * @param tagName name of the tag
      * @param webId   ID of the bookmarked website data that tag applied to
      * @return tag
      */
-    TagDO getSpecificTagByTagTextAndWebId(@Param("tagText") String tagText, @Param("webId") int webId);
+    TagDO getSpecificTagByTagTextAndWebId(@Param("tagName") String tagName, @Param("webId") int webId);
+
+    /**
+     * Get the tags by Web ID
+     * <p>
+     * Get all tags if the ID is null.
+     * </p>
+     *
+     * @param webId Web ID
+     * @return tags
+     */
+    List<String> getTagsByWebId(Integer webId);
+
+    /**
+     * Get Web ID by Tag Name
+     *
+     * @param tagName name of the tag
+     * @param from    from
+     * @param size    size
+     * @return Web IDs
+     */
+    List<Integer> getWebIdByTagName(@Param("tagName") String tagName,
+                                    @Param("from") int from,
+                                    @Param("size") int size);
 }

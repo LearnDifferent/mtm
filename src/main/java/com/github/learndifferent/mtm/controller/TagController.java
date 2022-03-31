@@ -1,10 +1,15 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.TagService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,8 +67,65 @@ public class TagController {
      */
     @GetMapping("/apply")
     public ResultVO<ResultCode> applyTag(@RequestParam("webId") Integer webId, @RequestParam("tag") String tag) {
-        String currentUsername = StpUtil.getLoginIdAsString();
+        String currentUsername = getCurrentUsername();
         boolean success = tagService.applyTag(currentUsername, webId, tag);
         return success ? ResultCreator.okResult() : ResultCreator.defaultFailResult();
+    }
+
+    /**
+     * Get tags by the ID of the bookmarked website data.
+     * <p>
+     * Get all tags if the parameter is missing.
+     * </p>
+     *
+     * @param webId ID of the bookmarked website data
+     * @return tags
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(String, Integer)}
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  if the website data is private and
+     *                                                                  the user is not the owner of the bookmarked
+     *                                                                  website data.
+     *                                                                  <p>
+     *                                                                  If the bookmarked website data is NOT
+     *                                                                  associated with any tags, the result code will
+     *                                                                  be {@link ResultCode#NO_RESULTS_FOUND}.
+     *                                                                  </p>
+     */
+    @GetMapping("/show")
+    public ResultVO<List<String>> getTags(@RequestParam(value = "webId", required = false) Integer webId) {
+        String currentUsername = getCurrentUsername();
+        List<String> tags = tagService.getTags(currentUsername, webId);
+        return ResultCreator.okResult(tags);
+    }
+
+    /**
+     * Search bookmarks by a certain tag.
+     * <p>
+     * If some bookmarks is not public and the user currently logged in
+     * is not the owner, then those bookmarks will not be shown.
+     * </p>
+     *
+     * @param tagName  name of the tag to search for
+     * @param pageInfo a PageInfoDTO object that contains the page number and page size
+     * @return paginated bookmarks associated with the chosen tag
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getBookmarksByUsernameAndTag(String,
+     *                                                                  String, PageInfoDTO)}
+     *                                                                  will throw an exception
+     *                                                                  with the result code of {@link ResultCode#NO_RESULTS_FOUND}
+     *                                                                  if no results found
+     */
+    @GetMapping("/search")
+    public ResultVO<List<WebsiteDTO>> getBookmarksByTagName(@RequestParam("tagName") String tagName,
+                                                            @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
+                                                                    PageInfoDTO pageInfo) {
+        String currentUsername = getCurrentUsername();
+        List<WebsiteDTO> bookmarks =
+                tagService.getBookmarksByUsernameAndTag(currentUsername, tagName, pageInfo);
+        return ResultCreator.okResult(bookmarks);
+    }
+
+    private String getCurrentUsername() {
+        return StpUtil.getLoginIdAsString();
     }
 }

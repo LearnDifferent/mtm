@@ -12,7 +12,22 @@
     <select id="getSpecificTagByTagTextAndWebId" resultType="com.github.learndifferent.mtm.entity.TagDO">
         select *
         from tag
-        where tag = #{tagText,jdbcType=VARCHAR}
+        where tag = #{tagName,jdbcType=VARCHAR}
           and web_id = #{webId,jdbcType=INTEGER};
+    </select>
+    <select id="getTagsByWebId" resultType="java.lang.String">
+        select tag
+        from tag
+        <where>
+            <if test="webId != null">
+                web_id = #{webId,jdbcType=INTEGER};
+            </if>
+        </where>
+    </select>
+    <select id="getWebIdByTagName" resultType="java.lang.Integer">
+        select web_id
+        from tag
+        where tag = #{tagName,jdbcType=VARCHAR}
+        limit #{from}, #{size};
     </select>
 </mapper>
