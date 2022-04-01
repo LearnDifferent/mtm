@@ -16,7 +16,7 @@
           and web_id = #{webId,jdbcType=INTEGER};
     </select>
     <select id="getTagsByWebId" resultType="java.lang.String">
-        select tag
+        select distinct tag
         from tag
         <where>
             <if test="webId != null">
@@ -41,6 +41,7 @@
         select count(web_id) as number, tag
         from tag
         group by tag
+        having number > 1
         order by number desc
         limit #{from}, #{size};
     </select>
