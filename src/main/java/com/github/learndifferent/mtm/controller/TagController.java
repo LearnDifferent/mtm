@@ -77,12 +77,14 @@ public class TagController {
     /**
      * Get tags by the ID of the bookmarked website data.
      * <p>
-     * Get all tags if the parameter is missing.
+     * Get all tags if the parameter {@code webId} is missing.
      * </p>
      *
-     * @param webId ID of the bookmarked website data
-     * @return tags
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(String, Integer)}
+     * @param webId    ID of the bookmarked website data
+     * @param pageInfo pagination information
+     * @return paginated tags
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(String,
+     *                                                                  Integer, PageInfoDTO)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED}
      *                                                                  if the website data is private and
@@ -95,9 +97,11 @@ public class TagController {
      *                                                                  </p>
      */
     @GetMapping
-    public ResultVO<List<String>> getTags(@RequestParam(value = "webId", required = false) Integer webId) {
+    public ResultVO<List<String>> getTags(@RequestParam(value = "webId", required = false) Integer webId,
+                                          @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
+                                                  PageInfoDTO pageInfo) {
         String currentUsername = getCurrentUsername();
-        List<String> tags = tagService.getTags(currentUsername, webId);
+        List<String> tags = tagService.getTags(currentUsername, webId, pageInfo);
         return ResultCreator.okResult(tags);
     }
 

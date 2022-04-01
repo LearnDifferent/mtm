@@ -20,9 +20,10 @@
         from tag
         <where>
             <if test="webId != null">
-                web_id = #{webId,jdbcType=INTEGER};
+                web_id = #{webId,jdbcType=INTEGER}
             </if>
         </where>
+        limit #{from}, #{size};
     </select>
     <select id="getWebIdByTagName" resultType="java.lang.Integer">
         select web_id

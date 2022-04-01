@@ -39,9 +39,11 @@ public interface TagMapper {
      * </p>
      *
      * @param webId Web ID
+     * @param from  from
+     * @param size  size
      * @return tags
      */
-    List<String> getTagsByWebId(Integer webId);
+    List<String> getTagsByWebId(@Param("webId") Integer webId, @Param("from") int from, @Param("size") int size);
 
     /**
      * Get Web ID by Tag Name

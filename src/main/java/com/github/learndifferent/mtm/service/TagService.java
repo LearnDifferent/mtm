@@ -62,6 +62,7 @@ public interface TagService {
      *
      * @param username username of the user who request the tags
      * @param webId    ID of the bookmarked website data
+     * @param pageInfo pagination information
      * @return tags
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
@@ -75,7 +76,7 @@ public interface TagService {
      *                                                                  NO_RESULTS_FOUND}.
      *                                                                  </p>
      */
-    List<String> getTags(String username, Integer webId);
+    List<String> getTags(String username, Integer webId, PageInfoDTO pageInfo);
 
     /**
      * Search bookmarks by a certain tag.

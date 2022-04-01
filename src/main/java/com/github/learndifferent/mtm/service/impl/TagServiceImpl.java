@@ -46,18 +46,21 @@ public class TagServiceImpl implements TagService {
     @ModifyWebsitePermissionCheck
     @TagCheck
     public boolean applyTag(@Username String username, @WebId Integer webId, @Tag String tag) {
-        TagDO tagDO = TagDO.builder().tag(tag).webId(webId).build();
+        TagDO tagDO = TagDO.builder().tag(tag.trim()).webId(webId).build();
         return tagMapper.addTag(tagDO);
     }
 
     @Override
-    public List<String> getTags(String username, Integer webId) {
+    public List<String> getTags(String username, Integer webId, PageInfoDTO pageInfo) {
 
         if (webId != null) {
             verifyWebPermission(username, webId);
         }
 
-        List<String> tags = tagMapper.getTagsByWebId(webId);
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+
+        List<String> tags = tagMapper.getTagsByWebId(webId, from, size);
         boolean isEmpty = CollectionUtils.isEmpty(tags);
         ThrowExceptionUtils.throwIfTrue(isEmpty, ResultCode.NO_RESULTS_FOUND);
 
