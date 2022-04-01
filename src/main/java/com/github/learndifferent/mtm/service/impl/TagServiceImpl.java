@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.service.TagService;
@@ -20,6 +21,7 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -79,6 +81,41 @@ public class TagServiceImpl implements TagService {
         String owner = web.getUserName();
         boolean notOwner = CompareStringUtil.notEqualsIgnoreCase(username, owner);
         ThrowExceptionUtils.throwIfTrue(notOwner, ResultCode.PERMISSION_DENIED);
+    }
+
+    @Override
+    public String getFirstTagOrReturnEmpty(String username, Integer webId) {
+        if (cantNotGetFirstTag(username, webId)) {
+            return "";
+        }
+        List<String> tags = tagMapper.getTagsByWebId(webId, 0, 1);
+        return CollectionUtils.isEmpty(tags) ? "" : getFirstTagOrReturnEmpty(tags);
+    }
+
+    /**
+     * If the user can't get the first tag, return true
+     *
+     * @param username username
+     * @param webId    ID
+     * @return If the user can't get the first tag, the method returns
+     * true. Otherwise, it returns false.
+     */
+    private boolean cantNotGetFirstTag(String username, Integer webId) {
+        if (webId == null) {
+            return true;
+        }
+        try {
+            verifyWebPermission(username, webId);
+        } catch (ServiceException e) {
+            // return true if doesn't have permission
+            return true;
+        }
+        return false;
+    }
+
+    private String getFirstTagOrReturnEmpty(List<String> tags) {
+        String firstTag = tags.get(0);
+        return Optional.ofNullable(firstTag).orElse("");
     }
 
     @Override

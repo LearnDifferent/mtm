@@ -38,7 +38,7 @@ public class TagController {
     /**
      * Apply a tag
      *
-     * @param webId ID of the bookmarked website data that the user wants to apply the tag to
+     * @param webId ID of the bookmarked website data that the user currently logged in wants to apply the tag to
      * @param tag   the tag to apply
      * @return {@link ResultCreator#okResult()} if success. {@link ResultCreator#defaultFailResult()} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#applyTag(String, Integer,
@@ -106,6 +106,19 @@ public class TagController {
     }
 
     /**
+     * Get the first tag, or return empty string if the the user currently logged in can't get the tag
+     *
+     * @param webId ID of the bookmarked website data
+     * @return the first tag, or return empty string if the user can't get the tag
+     */
+    @GetMapping("/first")
+    public ResultVO<String> getFirstTag(@RequestParam(value = "webId", required = false) Integer webId) {
+        String currentUsername = getCurrentUsername();
+        String firstTag = tagService.getFirstTagOrReturnEmpty(currentUsername, webId);
+        return ResultCreator.okResult(firstTag);
+    }
+
+    /**
      * Search bookmarks by a certain tag.
      * <p>
      * If some bookmarks is not public and the user currently logged in
@@ -142,7 +155,7 @@ public class TagController {
      *                                                                  if no results found
      */
     @GetMapping("/popular")
-    public ResultVO<List<PopularTagDTO>> getPopularTags(@PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
+    public ResultVO<List<PopularTagDTO>> getPopularTags(@PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
                                                                 PageInfoDTO pageInfo) {
         List<PopularTagDTO> popularTags = tagService.getPopularTags(pageInfo);
         return ResultCreator.okResult(popularTags);

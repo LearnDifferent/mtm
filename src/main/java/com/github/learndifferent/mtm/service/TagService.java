@@ -79,6 +79,15 @@ public interface TagService {
     List<String> getTags(String username, Integer webId, PageInfoDTO pageInfo);
 
     /**
+     * Get the first tag, or return empty string if the user can't get the tag
+     *
+     * @param username username of the user who is requesting the first tag
+     * @param webId    ID of the bookmarked website data
+     * @return the first tag, or return empty string if the user can't get the tag
+     */
+    String getFirstTagOrReturnEmpty(String username, Integer webId);
+
+    /**
      * Search bookmarks by a certain tag.
      * <p>
      * If some bookmarks is not public and the user who sent the request
