@@ -138,7 +138,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     }
 
     @Override
-    @Cacheable(value = "getVisitedBookmarks", unless = "#result != null and #result.size() > 0")
+    @Cacheable(value = "bookmarks:visited", unless = "#result != null and #result.size() > 0")
     public List<VisitedBookmarksDTO> getVisitedBookmarks(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();

@@ -60,15 +60,15 @@ public class RedisConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return builder -> builder
-                .withCacheConfiguration("getUserByName",
+                .withCacheConfiguration("user:name",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
                 .withCacheConfiguration("tag:all",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
                 .withCacheConfiguration("tag:popular",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
-                .withCacheConfiguration("getUsers",
+                .withCacheConfiguration("user:all",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(20L)))
-                .withCacheConfiguration("getVisitedBookmarks",
+                .withCacheConfiguration("bookmarks:visited",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30L)))
                 .withCacheConfiguration("system-log",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(40L)))

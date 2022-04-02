@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "usernamesAndTheirWebs")
+    @Cacheable(value = "user:names-and-bookmarks")
     public List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks() {
         // null means get all user's
         return userMapper.getNamesAndCountTheirPublicWebs(null);
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "getUserByName", key = "#userName")
+    @Cacheable(value = "user:name", key = "#userName")
     public UserDTO getUserByName(String userName) {
         UserDO userDO = userMapper.getUserByName(userName);
         return DozerUtils.convert(userDO, UserDTO.class);
@@ -110,8 +110,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict("usernamesAndTheirWebs"),
-            @CacheEvict(value = {"getUserByName"}, key = "#userName")})
+            @CacheEvict("user:names-and-bookmarks"),
+            @CacheEvict(value = {"user:name"}, key = "#userName")})
     public boolean deleteUserAndAssociatedData(String currentUsername,
                                                String userName,
                                                String notEncryptedPassword) {
@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "getUsers", unless = "#result != null and #result.size() > 0")
+    @Cacheable(value = "user:all", unless = "#result != null and #result.size() > 0")
     public List<UserDTO> getUsers(PageInfoDTO pageInfo) {
         Integer from = pageInfo.getFrom();
         Integer size = pageInfo.getSize();
