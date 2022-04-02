@@ -57,7 +57,6 @@ public interface TagMapper {
                                     @Param("from") int from,
                                     @Param("size") int size);
 
-
     /**
      * Delete a tag
      *
@@ -66,6 +65,13 @@ public interface TagMapper {
      * @return True if success. False if failure or the tag does not exist.
      */
     boolean deleteTag(@Param("tagName") String tagName, @Param("webId") int webId);
+
+    /**
+     * Delete all tags of a bookmarked website
+     *
+     * @param webId ID of the bookmarked website data
+     */
+    void deleteAllTags(int webId);
 
     /**
      * Get popular tags

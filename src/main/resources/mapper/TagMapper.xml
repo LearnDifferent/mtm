@@ -37,6 +37,11 @@
         where tag = #{tagName,jdbcType=VARCHAR}
           and web_id = #{webId,jdbcType=INTEGER};
     </delete>
+    <delete id="deleteAllTags">
+        delete
+        from tag
+        where web_id = #{webId,jdbcType=INTEGER};
+    </delete>
     <select id="getPopularTags" resultType="com.github.learndifferent.mtm.dto.PopularTagDTO">
         select count(web_id) as number, tag
         from tag
