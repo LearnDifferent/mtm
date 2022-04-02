@@ -1,0 +1,57 @@
+version: "3"
+services:
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - mtm-net
+    depends_on:
+      - db
+      - es
+      - mid
+  db:
+    image: mysql:5.7.33
+    container_name: db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - dbdata:/var/lib/mysql
+    env_file:
+      - ./mysqlconfig.env
+    networks:
+      - mtm-net
+  mid:
+    image: redis:5.0.5
+    container_name: mid
+    volumes:
+      - redisdata:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - mtm-net
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    container_name: es
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - esconf:/usr/share/elasticsearch/config
+      - esdata:/usr/share/elasticsearch/data
+      - ./esplugins:/usr/share/elasticsearch/plugins
+    networks:
+      - mtm-net
+volumes:
+  dbdata:
+  redisdata:
+  esdata:
+  esconf:
+networks:
+  mtm-net:
