@@ -57,5 +57,12 @@ CREATE TABLE IF NOT EXISTS `website_views`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `tag`
+(
+    `tag`    varchar(1024) not null,
+    `web_id` int(11)       not null
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 insert into user
 values ('first_user', 'Guest', '0bb2b8178920142d4598bd4b61924a2c', CURRENT_DATE(), 'guest');
