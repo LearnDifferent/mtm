@@ -26,6 +26,7 @@ import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.CountCommentManager;
+import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
@@ -78,16 +79,19 @@ public class WebsiteServiceImpl implements WebsiteService {
     private final ElasticsearchManager elasticsearchManager;
     private final CountCommentManager countCommentManager;
     private final DeleteViewManager deleteViewManager;
+    private final DeleteTagManager deleteTagManager;
 
     @Autowired
     public WebsiteServiceImpl(WebsiteMapper websiteMapper,
                               ElasticsearchManager elasticsearchManager,
                               CountCommentManager countCommentManager,
-                              DeleteViewManager deleteViewManager) {
+                              DeleteViewManager deleteViewManager,
+                              DeleteTagManager deleteTagManager) {
         this.websiteMapper = websiteMapper;
         this.elasticsearchManager = elasticsearchManager;
         this.countCommentManager = countCommentManager;
         this.deleteViewManager = deleteViewManager;
+        this.deleteTagManager = deleteTagManager;
     }
 
     @Override
@@ -498,9 +502,13 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     @ModifyWebsitePermissionCheck
     public boolean delWebsiteDataById(@WebId int webId, @Username String userName) {
+        // Web Id will not be null after checking by @ModifyWebsitePermissionCheck
         boolean success = websiteMapper.deleteWebsiteDataById(webId);
         if (success) {
+            // delete views
             deleteViewManager.deleteWebView(webId);
+            // delete tags
+            deleteTagManager.deleteAllTagsByWebId(webId);
         }
         return success;
     }

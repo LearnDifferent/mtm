@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.service.TagService;
@@ -39,11 +40,15 @@ public class TagServiceImpl implements TagService {
 
     private final TagMapper tagMapper;
     private final WebsiteMapper websiteMapper;
+    private final DeleteTagManager deleteTagManager;
 
     @Autowired
-    public TagServiceImpl(TagMapper tagMapper, WebsiteMapper websiteMapper) {
+    public TagServiceImpl(TagMapper tagMapper,
+                          WebsiteMapper websiteMapper,
+                          DeleteTagManager deleteTagManager) {
         this.tagMapper = tagMapper;
         this.websiteMapper = websiteMapper;
+        this.deleteTagManager = deleteTagManager;
     }
 
     @Override
@@ -170,9 +175,11 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @ModifyWebsitePermissionCheck
-    @CacheEvict(value = "tag:a", key = "#webId")
     public boolean deleteTag(@Username String username, @WebId Integer webId, String tagName) {
-        return tagMapper.deleteTag(tagName, webId);
+        // Web Id will not be null after checking by @ModifyWebsitePermissionCheck.
+        // This will delete the tag (the key is "tag:a") of the bookmarked site stored in the cache
+        // if no exception is thrown.
+        return deleteTagManager.deleteTag(tagName, webId);
     }
 
     @Override

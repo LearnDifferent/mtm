@@ -46,7 +46,7 @@ public interface WebsiteService {
     /**
      * Find website data by ID
      *
-     * @param webId ID
+     * @param webId ID of the bookmarked website data
      * @return {@link WebsiteDTO}
      */
     WebsiteDTO findWebsiteDataById(int webId);
@@ -54,7 +54,7 @@ public interface WebsiteService {
     /**
      * Find website data with privacy settings by ID
      *
-     * @param webId ID
+     * @param webId ID of the bookmarked website data
      * @return {@link WebsiteWithPrivacyDTO}
      */
     WebsiteWithPrivacyDTO findWebsiteDataWithPrivacyById(int webId);
@@ -134,9 +134,9 @@ public interface WebsiteService {
     List<WebsiteDTO> findWebsitesDataByUrl(String url);
 
     /**
-     * Delete website data by ID
+     * Delete bookmarked website and associated data by ID
      *
-     * @param webId    ID
+     * @param webId    ID of the bookmarked website data
      * @param userName username
      * @return true if success
      * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
@@ -147,14 +147,13 @@ public interface WebsiteService {
     boolean delWebsiteDataById(int webId, String userName);
 
     /**
-     * Change the saved website privacy settings.
-     * If the website is public, then make it private.
-     * If the website is private, then make it public.
+     * Make the bookmarked website private if it's public
+     * and make it public if it's private.
      *
-     * @param webId    web id
+     * @param webId    ID of the bookmarked website data
      * @param userName name of user who trying to change the privacy settings
      * @return success or failure
-     * @throws ServiceException If the website data does not exists, the result code will be
+     * @throws ServiceException If the website data does not exist, the result code will be
      *                          {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}.
      *                          And {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck}
      *                          will throw exception with {@link ResultCode#PERMISSION_DENIED}
@@ -165,7 +164,7 @@ public interface WebsiteService {
     /**
      * Get website data by {@code webId} and {@code userName}
      *
-     * @param webId    web id
+     * @param webId    ID of the bookmarked website data
      * @param userName username
      * @return {@link WebsiteDTO} website data
      * @throws ServiceException If the user has no permission to get the website data,
