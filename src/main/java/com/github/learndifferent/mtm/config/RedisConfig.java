@@ -15,7 +15,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
- * Redis 配置
+ * Redis Configuration
  *
  * @author zhou
  * @date 2021/09/05
@@ -30,20 +30,15 @@ public class RedisConfig {
 //        return ConfigureRedisAction.NO_OP;
 //    }
 
-    /**
-     * 连接工厂
-     *
-     * @return {@code LettuceConnectionFactory} 连接工厂
-     */
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration("mid", 6379));
     }
 
     /**
-     * 默认序列化器
+     * Use {@link GenericJackson2JsonRedisSerializer} as serializer
      *
-     * @return {@code RedisSerializer<Object>} 默认序列化器
+     * @return {@code RedisSerializer<Object>} serializer
      */
     @Bean(name = "springSessionDefaultRedisSerializer")
     public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
@@ -66,13 +61,18 @@ public class RedisConfig {
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return builder -> builder
                 .withCacheConfiguration("getUserByName",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10)))
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
+                .withCacheConfiguration("tag:all",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
+                .withCacheConfiguration("tag:popular",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
                 .withCacheConfiguration("getUsers",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(20)))
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(20L)))
                 .withCacheConfiguration("getVisitedBookmarks",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30)))
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30L)))
                 .withCacheConfiguration("system-log",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(40)));
-
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(40L)))
+                .withCacheConfiguration("tag:a",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ZERO));
     }
 }

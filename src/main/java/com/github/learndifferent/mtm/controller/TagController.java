@@ -106,15 +106,15 @@ public class TagController {
     }
 
     /**
-     * Get the first tag, or return empty string if the the user currently logged in can't get the tag
+     * Get a tag of a bookmarked site, or return empty string if the user currently logged in can't get the tag.
      *
      * @param webId ID of the bookmarked website data
-     * @return the first tag, or return empty string if the user can't get the tag
+     * @return tag of the bookmarked sit, or return empty string if the user can't get the tag
      */
-    @GetMapping("/first")
-    public ResultVO<String> getFirstTag(@RequestParam(value = "webId", required = false) Integer webId) {
+    @GetMapping("/one")
+    public ResultVO<String> getTag(@RequestParam(value = "webId", required = false) Integer webId) {
         String currentUsername = getCurrentUsername();
-        String firstTag = tagService.getFirstTagOrReturnEmpty(currentUsername, webId);
+        String firstTag = tagService.getTagOrReturnEmpty(currentUsername, webId);
         return ResultCreator.okResult(firstTag);
     }
 

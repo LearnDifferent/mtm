@@ -14,7 +14,11 @@ import java.util.List;
 public interface TagService {
 
     /**
-     * Apply a tag
+     * Apply a tag.
+     * <p>
+     * This will delete the tag (the key is "tag:a") of the bookmarked site stored in the cache
+     * if no exception is thrown.
+     * </p>
      *
      * @param username username of the user who wants to apply the tag
      * @param webId    ID of the bookmarked website data that the user wants to apply the tag to
@@ -57,7 +61,9 @@ public interface TagService {
     /**
      * Get tags by Username and Web ID.
      * <p>
-     * Get all tags if the ID is null.
+     * Get all tags if the ID is null and store the result in cache for 10 seconds by
+     * {@link com.github.learndifferent.mtm.service.impl.TagServiceImpl#getTags(Integer, int, int)
+     * a method in TagServiceImpl}.
      * </p>
      *
      * @param username username of the user who request the tags
@@ -79,13 +85,18 @@ public interface TagService {
     List<String> getTags(String username, Integer webId, PageInfoDTO pageInfo);
 
     /**
-     * Get the first tag, or return empty string if the user can't get the tag
+     * Get a tag of a bookmarked site, or return empty string if the user can't get the tag.
+     * <p>
+     * The result will be stored in the cache forever as the tag (the key is "tag:a") of the bookmarked site
+     * by {@link com.github.learndifferent.mtm.service.impl.TagServiceImpl#getTagOrReturnEmptyCaching(Integer)
+     * a method in TagServiceImpl} if the user can get the tag.
+     * </p>
      *
      * @param username username of the user who is requesting the first tag
      * @param webId    ID of the bookmarked website data
      * @return the first tag, or return empty string if the user can't get the tag
      */
-    String getFirstTagOrReturnEmpty(String username, Integer webId);
+    String getTagOrReturnEmpty(String username, Integer webId);
 
     /**
      * Search bookmarks by a certain tag.
@@ -105,7 +116,11 @@ public interface TagService {
     List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo);
 
     /**
-     * Delete a tag
+     * Delete a tag.
+     * <p>
+     * This will delete the tag (the key is "tag:a") of the bookmarked site stored in the cache
+     * if no exception is thrown.
+     * </p>
      *
      * @param username username of the user who is deleting the tag
      * @param webId    ID of the bookmarked website data that the tag applied to
@@ -129,7 +144,10 @@ public interface TagService {
     boolean deleteTag(String username, Integer webId, String tagName);
 
     /**
-     * Get popular tags
+     * Get popular tags.
+     * <p>
+     * The result will be cached for 10 seconds if no exception is thrown.
+     * </p>
      *
      * @param pageInfo pagination information
      * @return a list of paginated popular tags
