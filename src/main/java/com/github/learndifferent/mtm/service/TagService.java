@@ -16,8 +16,8 @@ public interface TagService {
     /**
      * Apply a tag.
      * <p>
-     * This will delete the tag (the key is "tag:a") of the bookmarked site stored in the cache
-     * if no exception is thrown.
+     * This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
+     * stored in the cache if no exception is thrown.
      * </p>
      *
      * @param username username of the user who wants to apply the tag
@@ -85,20 +85,6 @@ public interface TagService {
     List<String> getTags(String username, Integer webId, PageInfoDTO pageInfo);
 
     /**
-     * Get a tag of a bookmarked site, or return empty string if the user can't get the tag.
-     * <p>
-     * The result will be stored in the cache forever as the tag (the key is "tag:a") of the bookmarked site
-     * by {@link com.github.learndifferent.mtm.service.impl.TagServiceImpl#getTagOrReturnEmptyCaching(Integer)
-     * a method in TagServiceImpl} if the user can get the tag.
-     * </p>
-     *
-     * @param username username of the user who is requesting the first tag
-     * @param webId    ID of the bookmarked website data
-     * @return the first tag, or return empty string if the user can't get the tag
-     */
-    String getTagOrReturnEmpty(String username, Integer webId);
-
-    /**
      * Search bookmarks by a certain tag.
      * <p>
      * If some bookmarks is not public and the user who sent the request
@@ -118,8 +104,8 @@ public interface TagService {
     /**
      * Delete a tag.
      * <p>
-     * This will delete the tag (the key is "tag:a") of the bookmarked site stored in the cache
-     * if no exception is thrown.
+     * This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
+     * stored in the cache if no exception is thrown.
      * </p>
      *
      * @param username username of the user who is deleting the tag

@@ -22,7 +22,6 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -109,39 +108,6 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public String getTagOrReturnEmpty(String username, Integer webId) {
-        return canNotGetTag(username, webId) ? ""
-                : getTagServiceBean().getTagOrReturnEmptyCaching(webId);
-    }
-
-    /**
-     * If the user cannot get the tag, return true
-     *
-     * @param username username
-     * @param webId    ID
-     * @return If the user cannot get the tag, the method returns
-     * true. Otherwise, it returns false.
-     */
-    private boolean canNotGetTag(String username, Integer webId) {
-        if (webId == null) {
-            return false;
-        }
-        TagServiceImpl bean = getTagServiceBean();
-        return bean.hasNoPermission(username, webId);
-    }
-
-    @Cacheable(value = "tag:a", key = "#webId")
-    public String getTagOrReturnEmptyCaching(Integer webId) {
-        List<String> tags = tagMapper.getTagsByWebId(webId, 0, 1);
-        return CollectionUtils.isEmpty(tags) ? "" : getFirstFromListOrReturnEmpty(tags);
-    }
-
-    private String getFirstFromListOrReturnEmpty(List<String> collection) {
-        String first = collection.get(0);
-        return Optional.ofNullable(first).orElse("");
-    }
-
-    @Override
     public List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo) {
 
         int from = pageInfo.getFrom();
@@ -177,8 +143,8 @@ public class TagServiceImpl implements TagService {
     @ModifyWebsitePermissionCheck
     public boolean deleteTag(@Username String username, @WebId Integer webId, String tagName) {
         // Web Id will not be null after checking by @ModifyWebsitePermissionCheck.
-        // This will delete the tag (the key is "tag:a") of the bookmarked site stored in the cache
-        // if no exception is thrown.
+        // This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
+        // stored in the cache if no exception is thrown.
         return deleteTagManager.deleteTag(tagName, webId);
     }
 
