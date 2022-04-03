@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.annotation.validation.website.marked;
+package com.github.learndifferent.mtm.annotation.validation.website.bookmarked;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
@@ -31,17 +31,17 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @Order(4)
-public class MarkCheckAspect {
+public class BookmarkCheckAspect {
 
     private final WebsiteService websiteService;
 
     @Autowired
-    public MarkCheckAspect(WebsiteService websiteService) {
+    public BookmarkCheckAspect(WebsiteService websiteService) {
         this.websiteService = websiteService;
     }
 
     @Before("@annotation(annotation)")
-    public void check(JoinPoint joinPoint, MarkCheck annotation) {
+    public void check(JoinPoint joinPoint, BookmarkCheck annotation) {
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String[] parameterNames = signature.getParameterNames();
@@ -81,7 +81,7 @@ public class MarkCheckAspect {
         }
 
         testUserPermission(username);
-        testIfUserMarkedWeb(username, url);
+        testIfUserAlreadyBookmarked(username, url);
     }
 
     private String getUrl(String urlFieldName, Object arg) {
@@ -112,12 +112,12 @@ public class MarkCheckAspect {
         ThrowExceptionUtils.throwIfTrue(notCurrentUser, ResultCode.PERMISSION_DENIED);
     }
 
-    private void testIfUserMarkedWeb(String userName, String url) {
+    private void testIfUserAlreadyBookmarked(String userName, String url) {
 
         WebsiteDTO web = websiteService.findWebsitesDataByUrl(url).stream()
                 .filter(w -> w.getUserName().equals(userName))
                 .findFirst().orElse(null);
 
-        ThrowExceptionUtils.throwIfNotNull(web, ResultCode.ALREADY_MARKED);
+        ThrowExceptionUtils.throwIfNotNull(web, ResultCode.ALREADY_SAVED);
     }
 }

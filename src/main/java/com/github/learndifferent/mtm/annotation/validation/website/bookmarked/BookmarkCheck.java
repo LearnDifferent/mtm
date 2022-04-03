@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.annotation.validation.website.marked;
+package com.github.learndifferent.mtm.annotation.validation.website.bookmarked;
 
 import java.io.Serializable;
 import java.lang.annotation.ElementType;
@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MarkCheck {
+public @interface BookmarkCheck {
 
     /**
      * Name of the parameter that contains username

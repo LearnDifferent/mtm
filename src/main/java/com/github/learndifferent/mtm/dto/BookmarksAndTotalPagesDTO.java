@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Website Data and Total Pages (Data Transfer Object)
+ * Bookmarks and Total Pages Data Transfer Object
  *
  * @author zhou
  * @date 2021/09/05
@@ -19,16 +19,16 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class WebDataAndTotalPagesDTO implements Serializable {
+public class BookmarksAndTotalPagesDTO implements Serializable {
 
     /**
-     * Paginated website data
+     * Paginated bookmarks
      */
-    private List<? extends WebsiteDTO> webs;
+    private List<? extends WebsiteDTO> bookmarks;
     /**
      * Total pages
      */
-    Integer totalPage;
+    Integer totalPages;
 
     private static final long serialVersionUID = 1L;
 }

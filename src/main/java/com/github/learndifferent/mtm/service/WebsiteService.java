@@ -2,18 +2,18 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.BookmarksAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
-import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
-import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.WebMoreInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
 import com.github.learndifferent.mtm.query.WebDataFilterRequest;
 import com.github.learndifferent.mtm.response.ResultVO;
+import com.github.learndifferent.mtm.vo.BookmarkResultVO;
+import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
+import com.github.learndifferent.mtm.vo.UserBookmarksVO;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,10 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 public interface WebsiteService {
 
     /**
-     * Filter public website data by {@link WebDataFilterRequest}
+     * Filter public bookmarked websites
      *
      * @param filterRequest Filter Public Website Data Request
-     * @return Filtered Website Data
+     * @return filtered bookmarked websites
      */
     List<WebsiteDTO> findPublicWebDataByFilter(WebDataFilterRequest filterRequest);
 
@@ -44,7 +44,7 @@ public interface WebsiteService {
     int countUserPost(String userName, boolean includePrivate);
 
     /**
-     * Find website data by ID
+     * Find the bookmark by ID
      *
      * @param webId ID of the bookmarked website data
      * @return {@link WebsiteDTO}
@@ -52,7 +52,7 @@ public interface WebsiteService {
     WebsiteDTO findWebsiteDataById(int webId);
 
     /**
-     * Find website data with privacy settings by ID
+     * Find the bookmark with privacy settings by ID
      *
      * @param webId ID of the bookmarked website data
      * @return {@link WebsiteWithPrivacyDTO}
@@ -60,50 +60,63 @@ public interface WebsiteService {
     WebsiteWithPrivacyDTO findWebsiteDataWithPrivacyById(int webId);
 
     /**
-     * Complete the website data and save it to database.
-     * This implementation method is annotated with
-     * {@link com.github.learndifferent.mtm.annotation.validation.website.marked.MarkCheck MarkCheck}
-     * and {@link com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean WebsiteDataClean}.
+     * Complete the website data and add it to bookmarks
      *
      * @param webWithNoIdentity Website data that has no web ID, username and creation time,
      *                          which only contains title, url, image and description
-     * @param userName          Username
+     * @param userName          Username of the user who is bookmarking
      * @param isPublic          True if this is a public bookmark
      * @return true if success
-     * @throws ServiceException The result code will be {@link ResultCode#ALREADY_MARKED},
+     * @throws ServiceException This implementation method is annotated with
+     *                          {@link com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck
+     *                          BookmarkCheck} annotation
+     *                          and {@link com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean
+     *                          WebsiteDataClean} annotation, which will throw exceptions with
+     *                          the result code will of {@link ResultCode#ALREADY_SAVED},
      *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
-     *                          if something goes wrong
+     *                          if something goes wrong.
      */
-    boolean saveWebsiteData(WebWithNoIdentityDTO webWithNoIdentity, String userName, boolean isPublic);
+    boolean bookmarkWithExistingData(WebWithNoIdentityDTO webWithNoIdentity, String userName, boolean isPublic);
 
     /**
-     * Save New Website Data
+     * Bookmark a new web page
      *
-     * @param newWebsiteData URL, username, a boolean value named {@code isPublic} related to privacy settings
-     *                       and a boolean value named {@code syncToElasticsearch} related to whether the data
-     *                       will be synchronized to Elasticsearch or not
-     * @return {@link SaveWebDataResultDTO} The result of saving website data
+     * @param url      URL of the web page to bookmark
+     * @param username Username of the user who is bookmarking
+     * @param isPublic True or null if this is a public bookmark
+     * @param beInEs   True or null if the data should be added to Elasticsearch
+     * @return {@link ResultVO}<{@link BookmarkResultVO}> The result of bookmarking a new web page
+     * @throws ServiceException Exception will be thrown with the result code of {@link ResultCode#URL_MALFORMED},
+     *                          {@link ResultCode#URL_ACCESS_DENIED} and {@link ResultCode#CONNECTION_ERROR}
+     *                          when an error occurred during an IO operation
      */
-    SaveWebDataResultDTO saveNewWebsiteData(SaveNewWebDataRequest newWebsiteData);
+    BookmarkResultVO bookmark(String url, String username, Boolean isPublic, Boolean beInEs);
 
     /**
-     * Get bookmarks (website data) and total pages for the current user on the home page
+     * Get bookmarked websites and total pages for the current user on the home page
      *
      * @param currentUsername   username of the user that is currently logged in
      * @param homeTimeline      how to displays the stream of bookmarks on the home page
      * @param requestedUsername username of the user whose data is being requested
      *                          <p>{@code requestedUsername} is not is required</p>
      * @param pageInfo          pagination info
-     * @return {@link WebDataAndTotalPagesDTO}
+     * @return {@link BookmarksAndTotalPagesDTO}
      */
-    WebDataAndTotalPagesDTO getHomeTimeline(String currentUsername,
-                                            HomeTimeline homeTimeline,
-                                            String requestedUsername,
-                                            PageInfoDTO pageInfo);
+    BookmarksAndTotalPagesDTO getHomeTimeline(String currentUsername,
+                                              HomeTimeline homeTimeline,
+                                              String requestedUsername,
+                                              PageInfoDTO pageInfo);
 
     /**
-     * Get all public bookmarks.
-     * If {@code includePrivate} is true, then include all private bookmarks too.
+     * Get popular bookmarks and total pages
+     *
+     * @param pageInfo pagination information
+     * @return popular bookmarks and total pages
+     */
+    PopularBookmarksVO getPopularBookmarksAndTotalPages(PageInfoDTO pageInfo);
+
+    /**
+     * Get all public bookmarks, and if {@code includePrivate} is true, then include all private bookmarks too.
      *
      * @param username       username
      * @param from           from
@@ -114,16 +127,16 @@ public interface WebsiteService {
     List<WebsiteWithPrivacyDTO> getBookmarksByUser(String username, Integer from, Integer size, boolean includePrivate);
 
     /**
-     * Get paginated website data and total pages by username
+     * Get paginated public bookmarks of a user
      *
-     * @param username username
+     * @param username username of the user whose public bookmarks is being requested
      * @param pageInfo pagination info
-     * @return {@link UserPublicWebInfoDTO}
+     * @return {@link UserBookmarksVO}
      */
-    UserPublicWebInfoDTO getUserPublicWebInfoDTO(String username, PageInfoDTO pageInfo);
+    UserBookmarksVO getUserPublicBookmarks(String username, PageInfoDTO pageInfo);
 
     /**
-     * Find website data by URL
+     * Find a bookmarked website by URL
      *
      * @param url URL
      * @return A list of {@link WebsiteDTO}
@@ -131,17 +144,17 @@ public interface WebsiteService {
     List<WebsiteDTO> findWebsitesDataByUrl(String url);
 
     /**
-     * Delete bookmarked website and associated data by ID
+     * Delete a bookmarked website and its associated data
      *
      * @param webId    ID of the bookmarked website data
-     * @param userName username
+     * @param userName username of the user who is deleting the bookmark
      * @return true if success
      * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
      *                          ModifyWebsitePermissionCheck} annotation will check the permissions and throw
      *                          an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if there is no permissions
      */
-    boolean delWebsiteDataById(int webId, String userName);
+    boolean deleteBookmark(Integer webId, String userName);
 
     /**
      * Make the bookmarked website private if it's public
@@ -152,25 +165,26 @@ public interface WebsiteService {
      * @return success or failure
      * @throws ServiceException If the website data does not exist, the result code will be
      *                          {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}.
-     *                          And {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck}
+     *                          And {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
+     *                          ModifyWebsitePermissionCheck} annotation
      *                          will throw exception with {@link ResultCode#PERMISSION_DENIED}
      *                          if the user has no permission to change the website privacy settings.
      */
-    boolean changeWebPrivacySettings(int webId, String userName);
+    boolean changePrivacySettings(Integer webId, String userName);
 
     /**
-     * Get website data by {@code webId} and {@code userName}
+     * Get a bookmark
      *
      * @param webId    ID of the bookmarked website data
-     * @param userName username
-     * @return {@link WebsiteDTO} website data
-     * @throws ServiceException If the user has no permission to get the website data,
-     *                          or the website data doesn't exist, a {@link ServiceException}
+     * @param userName username of the user
+     * @return bookmark
+     * @throws ServiceException If the user has no permission to get the bookmark,
+     *                          or the bookmark doesn't exist, a {@link ServiceException}
      *                          will be thrown with the result code of
      *                          {@link ResultCode#PERMISSION_DENIED}
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
-    WebsiteDTO getWebsiteDataByIdAndUsername(int webId, String userName);
+    WebsiteDTO getBookmark(int webId, String userName);
 
     /**
      * Get additional information of a bookmarked website

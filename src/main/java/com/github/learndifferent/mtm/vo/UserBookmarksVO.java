@@ -1,5 +1,6 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.vo;
 
+import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Paginated public website data and total pages belonging to the user
+ * Paginated public bookmarks of the user and the total pages
  *
  * @author zhou
  * @date 2021/10/21
@@ -19,12 +20,12 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class UserPublicWebInfoDTO implements Serializable {
+public class UserBookmarksVO implements Serializable {
 
     /**
-     * Paginated website data
+     * Paginated public bookmarks
      */
-    private List<WebsiteDTO> websiteData;
+    private List<WebsiteDTO> bookmarks;
 
     /**
      * Total pages

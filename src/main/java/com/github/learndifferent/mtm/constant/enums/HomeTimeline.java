@@ -17,10 +17,6 @@ public enum HomeTimeline {
      */
     LATEST("latest"),
     /**
-     * Most popular bookmarks
-     */
-    POPULAR("popular"),
-    /**
      * Bookmarked by the user
      */
     USER("user"),

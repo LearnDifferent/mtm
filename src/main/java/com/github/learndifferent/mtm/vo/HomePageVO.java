@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.vo;
 
-import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
+import com.github.learndifferent.mtm.dto.BookmarksAndTotalPagesDTO;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Home 页面需要展示的数据
+ * Home Page
  *
  * @author zhou
  * @date 2021/09/05
@@ -22,13 +22,13 @@ import lombok.experimental.Accessors;
 public class HomePageVO implements Serializable {
 
     /**
-     * Current user
+     * Username of the user that is currently logged in
      */
     private String currentUser;
     /**
-     * Paginated website data and total pages
+     * Paginated bookmarks and total pages
      */
-    private WebDataAndTotalPagesDTO websiteDataInfo;
+    private BookmarksAndTotalPagesDTO bookmarksAndTotalPages;
     /**
      * Username of the user whose data is being requested
      */

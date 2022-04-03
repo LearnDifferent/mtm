@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDataFilterDTO;
-import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import java.util.List;
@@ -18,33 +18,28 @@ import org.springframework.stereotype.Repository;
 public interface WebsiteMapper {
 
     /**
-     * 根据用户和日期筛选公开的网页数据
+     * Filter public bookmarked websites
      *
-     * @param filter 其中 load 表示加载多少数据
-     *               ，usernames 表示选中的用户
-     *               ，fromDate 和 toDate 表示筛选的日期
-     *               ，order 表示根据哪个字段来排序
-     *               ，desc 为 false 或 null 时，不按照 desc 排序
-     * @return 符合条件的网页数据
+     * @param filter the filter
+     * @return filtered bookmarked websites
      */
     List<WebsiteDO> findPublicWebDataByFilter(WebsiteDataFilterDTO filter);
 
-
     /**
-     * 计算单独出现的公开的 url
+     * Get the number of unique public URLs
      *
-     * @return int
+     * @return number of unique public URLs
      */
     int countDistinctPublicUrl();
 
     /**
-     * 展示被收藏最多的公开网页
+     * Get popular bookmarks
      *
-     * @param from 从
-     * @param size 大小
-     * @return {@code List<WebsiteWithCountDTO>}
+     * @param from from
+     * @param size size
+     * @return {@code List<PopularBookmarkDTO>}
      */
-    List<WebsiteWithCountDTO> mostPublicMarkedWebs(@Param("from") int from, @Param("size") int size);
+    List<PopularBookmarkDTO> getPopularPublicBookmarks(@Param("from") int from, @Param("size") int size);
 
     /**
      * 获取所有用于搜索的公开网页数据
@@ -84,15 +79,14 @@ public interface WebsiteMapper {
                              @Param("userNameToShowAll") String userNameToShowAll);
 
     /**
-     * 根据用户名，获取网页数据。
-     * <p>如果 {@code includePrivate} 参数为 true，会查所有数据；如果为 false，就只查找公开的数据。</p>
-     * <p>如果 from 和 size 不为 null，则分页。</p>
+     * Get all public bookmarks, and if {@code includePrivate} is true, then include all private bookmarks too.
+     * If {@code from} or {@code size} is null, then the result will not be paginated.
      *
-     * @param userName       用户名
+     * @param userName       username
      * @param from           from
      * @param size           size
-     * @param includePrivate 是否包含私有数据
-     * @return {@code List<WebsiteDO>}
+     * @param includePrivate true if include private website data
+     * @return A list of {@link WebsiteDO}
      */
     List<WebsiteDO> findWebsitesDataByUser(@Param("userName") String userName,
                                            @Param("from") Integer from,
@@ -118,7 +112,7 @@ public interface WebsiteMapper {
                                                 @Param("userNameToShowAll") String userNameToShowAll);
 
     /**
-     * 通过 url 找到所有的网页数据，包括私有的）
+     * Find a bookmarked website by URL
      *
      * @param url url
      * @return {@code List<WebsiteDO>}
@@ -154,18 +148,18 @@ public interface WebsiteMapper {
     void deleteWebsiteDataByUsername(String userName);
 
     /**
-     * 添加网页数据
+     * Add the website to bookmarks
      *
-     * @param websiteDO 网页数据
-     * @return boolean
+     * @param websiteDO website
+     * @return true if success
      */
     boolean addWebsiteData(WebsiteDO websiteDO);
 
     /**
-     * 通过 id 获取网页数据（包括公开和私有）
+     * Find the bookmark by ID
      *
-     * @param webId id
-     * @return {@code WebsiteDO}
+     * @param webId ID of the bookmarked website data
+     * @return {@link WebsiteDO}
      */
     WebsiteDO getWebsiteDataById(Integer webId);
 

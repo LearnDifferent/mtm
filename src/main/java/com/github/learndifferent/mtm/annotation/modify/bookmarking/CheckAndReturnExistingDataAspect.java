@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.annotation.modify.marked;
+package com.github.learndifferent.mtm.annotation.modify.bookmarking;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Url;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
  * Check if the website is bookmarked by the user
  * and the website data is stored in database according to {@link Username} and {@link Url}.
  * If the user has already bookmarked the website, then throw an exception
- * with the result code of {@link ResultCode#ALREADY_MARKED}.
+ * with the result code of {@link ResultCode#ALREADY_SAVED}.
  * If the user didn't bookmark the website and the website data is stored in database, then return the data in database.
  * If the user didn't bookmark the website and website data is not stored in database, then do nothing.
  *
@@ -35,12 +35,12 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @Order(2)
-public class MarkCheckReturnAspect {
+public class CheckAndReturnExistingDataAspect {
 
     private final WebsiteService websiteService;
 
     @Autowired
-    public MarkCheckReturnAspect(WebsiteService websiteService) {
+    public CheckAndReturnExistingDataAspect(WebsiteService websiteService) {
         this.websiteService = websiteService;
     }
 
@@ -48,14 +48,15 @@ public class MarkCheckReturnAspect {
      * Check if the website is bookmarked by the user
      * and the website data is stored in database according to username and url.
      *
-     * @param pjp             Proceeding Join Point
-     * @param markCheckReturn IfMarkedThenReturn annotation
+     * @param pjp                        Proceeding Join Point
+     * @param checkAndReturnExistingData IfMarkedThenReturn annotation
      * @return {@code Object}
-     * @throws Throwable Throw an exception with the result code of {@link ResultCode#ALREADY_MARKED}
+     * @throws Throwable Throw an exception with the result code of {@link ResultCode#ALREADY_SAVED}
      *                   if the user has already bookmarked the website
      */
-    @Around("@annotation(markCheckReturn)")
-    public Object around(ProceedingJoinPoint pjp, MarkCheckReturn markCheckReturn) throws Throwable {
+    @Around("@annotation(checkAndReturnExistingData)")
+    public Object around(ProceedingJoinPoint pjp, CheckAndReturnExistingData checkAndReturnExistingData)
+            throws Throwable {
 
         MethodSignature signature = (MethodSignature) pjp.getSignature();
         Method method = signature.getMethod();
@@ -112,7 +113,7 @@ public class MarkCheckReturnAspect {
      *
      * @param username Username
      * @param websInDb Website data in database
-     * @throws ServiceException Throw an exception with the result code of {@link ResultCode#ALREADY_MARKED}
+     * @throws ServiceException Throw an exception with the result code of {@link ResultCode#ALREADY_SAVED}
      *                          if the user has already bookmarked the website
      */
     private void checkIfMarked(String username, List<WebsiteDTO> websInDb) {
@@ -120,7 +121,7 @@ public class MarkCheckReturnAspect {
                 .filter(w -> w.getUserName().equals(username))
                 .findFirst().orElse(null);
 
-        ThrowExceptionUtils.throwIfNotNull(userMarkedWeb, ResultCode.ALREADY_MARKED);
+        ThrowExceptionUtils.throwIfNotNull(userMarkedWeb, ResultCode.ALREADY_SAVED);
     }
 
 }

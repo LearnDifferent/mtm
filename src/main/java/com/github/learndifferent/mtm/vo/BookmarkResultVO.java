@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.vo;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * The result of saving website data
+ * The result of bookmarking a new web page
  *
  * @author zhou
  * @date 2021/10/19
@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class SaveWebDataResultDTO implements Serializable {
+public class BookmarkResultVO implements Serializable {
 
     /**
      * True if the data was successfully saved to Database
@@ -27,6 +27,7 @@ public class SaveWebDataResultDTO implements Serializable {
 
     /**
      * True if Elasticsearch saved the data successfully.
+     * False if Elasticsearch can't save the data.
      * Null if the data does not need to be saved to Elasticsearch.
      */
     private Boolean hasSavedToElasticsearch;

@@ -58,7 +58,7 @@
         </if>
     </select>
 
-    <select id="mostPublicMarkedWebs" resultType="com.github.learndifferent.mtm.dto.WebsiteWithCountDTO">
+    <select id="getPopularPublicBookmarks" resultType="com.github.learndifferent.mtm.dto.PopularBookmarkDTO">
         select count(url) as count, url, title, `desc`, img
         from website
         where `public` is true

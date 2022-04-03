@@ -1,24 +1,22 @@
-package com.github.learndifferent.mtm.query;
+package com.github.learndifferent.mtm.dto;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+import lombok.ToString;
 
 /**
- * Request body of existing website data that contains title, url, image and description.
+ * Popular Bookmark
  *
  * @author zhou
- * @date 2021/9/21
+ * @date 2021/09/05
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Accessors(chain = true)
-public class SaveWebDataRequest implements Serializable {
+public class PopularBookmarkDTO implements Serializable {
 
     /**
      * Title
@@ -32,10 +30,16 @@ public class SaveWebDataRequest implements Serializable {
      * Image
      */
     private String img;
+
     /**
      * Description
      */
     private String desc;
+
+    /**
+     * The number of users who bookmarked the website
+     */
+    private Integer count;
 
     private static final long serialVersionUID = 1L;
 }
