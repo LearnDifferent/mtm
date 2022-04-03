@@ -6,7 +6,8 @@
     <artifactId>mtm</artifactId>
     <version>1.0</version>
     <name>mtm</name>
-    <description>More Than Mark</description>
+    <description>A social bookmarking site</description>
+    <url>https://github.com/LearnDifferent/mtm</url>
 
     <properties>
         <java.version>1.8</java.version>
@@ -16,7 +17,7 @@
     </properties>
 
     <dependencies>
-        <!-- elasticsearch 相关 -->
+        <!-- Elasticsearch -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
@@ -65,7 +66,8 @@
             <artifactId>elasticsearch</artifactId>
             <version>7.8.0</version>
         </dependency>
-        <!-- ORM 相关 -->
+        <!-- Elasticsearch -->
+        <!-- ORM -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
@@ -81,7 +83,8 @@
             <artifactId>druid</artifactId>
             <version>1.2.3</version>
         </dependency>
-        <!-- Redis 相关 -->
+        <!-- ORM -->
+        <!-- Redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -94,7 +97,8 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-redis</artifactId>
         </dependency>
-        <!-- 安全相关 -->
+        <!-- Redis -->
+        <!-- Security -->
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot-starter</artifactId>
@@ -105,15 +109,20 @@
             <artifactId>sa-token-dao-redis</artifactId>
             <version>1.12.1</version>
         </dependency>
-        <!-- 发送邮件相关 -->
+        <!-- Security -->
+        <!-- Email Service -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
+        <!-- Email Service -->
+        <!-- Lettuce -->
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
         </dependency>
+        <!-- Lettuce -->
+        <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -122,6 +131,8 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+        <!-- Jackson -->
+        <!-- Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -136,6 +147,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Web -->
+        <!-- log4j -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -146,17 +159,23 @@
             <artifactId>log4j-to-slf4j</artifactId>
             <version>2.17.0</version>
         </dependency>
+        <!-- log4j -->
+        <!-- Develop tools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+        <!-- Develop tools -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- Lombok -->
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -168,20 +187,27 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Test -->
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+        <!-- Spring Boot -->
+        <!-- Commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.10</version>
         </dependency>
+        <!-- Commons -->
+        <!-- Jsoup -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.10.2</version>
         </dependency>
+        <!-- Jsoup -->
         <!-- 检测语言 -->
         <dependency>
             <groupId>com.github.pemistahl</groupId>
