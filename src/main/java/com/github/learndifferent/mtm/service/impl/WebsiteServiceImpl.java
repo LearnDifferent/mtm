@@ -18,7 +18,6 @@ import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
 import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
-import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDataFilterDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
@@ -353,28 +352,28 @@ public class WebsiteServiceImpl implements WebsiteService {
     private WebDataAndTotalPagesDTO getRequestedUserBookmarks(
             String requestedUsername, int from, int size, boolean isCurrentUser) {
 
-        List<WebWithPrivacyCommentCountDTO> userPageWebs =
-                getWebsDataAndCommentCountByUser(requestedUsername, from, size, isCurrentUser);
+        List<WebsiteWithPrivacyDTO> userPageBookmarks =
+                getBookmarksByUser(requestedUsername, from, size, isCurrentUser);
 
         int userPageTotalCount = countUserPost(requestedUsername, isCurrentUser);
         int userPageTotalPage = PageUtil.getAllPages(userPageTotalCount, size);
-        return WebDataAndTotalPagesDTO.builder().webs(userPageWebs).totalPage(userPageTotalPage).build();
+        return WebDataAndTotalPagesDTO.builder().webs(userPageBookmarks).totalPage(userPageTotalPage).build();
     }
 
     private WebDataAndTotalPagesDTO getBookmarksExceptRequestedUser(
             String currentUsername, String requestedUsername, int from, int size) {
 
-        List<WebWithPrivacyCommentCountDTO> withoutUserPageWebs =
-                getAllPubSpecUserPriWebsAndCommentCountExcUser(requestedUsername, from, size, currentUsername);
+        List<WebsiteWithPrivacyDTO> withoutUserPageBookmarks =
+                getAllPubSpecUserPriWebsExcludeUser(requestedUsername, from, size, currentUsername);
 
         int withoutUserPageTotalCount = countExcludeUserPost(requestedUsername, currentUsername);
         int withoutUserPageTotalPage = PageUtil.getAllPages(withoutUserPageTotalCount, size);
-        return WebDataAndTotalPagesDTO.builder().webs(withoutUserPageWebs).totalPage(withoutUserPageTotalPage).build();
+        return WebDataAndTotalPagesDTO.builder().webs(withoutUserPageBookmarks).totalPage(withoutUserPageTotalPage).build();
     }
 
     private WebDataAndTotalPagesDTO getLatestBookmarks(String currentUsername, int from, int size) {
-        List<WebWithPrivacyCommentCountDTO> webs =
-                getAllPubSpecUserPriWebsAndCommentCount(from, size, currentUsername);
+        List<WebsiteWithPrivacyDTO> webs =
+                getAllPubSpecUserPriWebs(from, size, currentUsername);
 
         int totalCount = countAllPubAndSpecUserPriWebs(currentUsername);
         int totalPage = PageUtil.getAllPages(totalCount, size);
@@ -392,15 +391,15 @@ public class WebsiteServiceImpl implements WebsiteService {
 
 
     @Override
-    public List<WebWithPrivacyCommentCountDTO> getWebsDataAndCommentCountByUser(String username,
-                                                                                Integer from,
-                                                                                Integer size,
-                                                                                boolean includePrivate) {
+    public List<WebsiteWithPrivacyDTO> getBookmarksByUser(String username,
+                                                          Integer from,
+                                                          Integer size,
+                                                          boolean includePrivate) {
 
         List<WebsiteDO> websites =
                 websiteMapper.findWebsitesDataByUser(username, from, size, includePrivate);
 
-        return getWebsWithPrivacyCommentCount(websites);
+        return getBookmarks(websites);
     }
 
     /**
@@ -427,9 +426,8 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     /**
-     * Get user with the name of {@code userNameToShowAll}'s private and all user's public website data,
-     * excluding the user with the name of with {@code excludeUsername}'s website data
-     * and get count of website post comments
+     * Get user with the name of {@code userNameToShowAll}'s private and all user's public bookmarks,
+     * excluding the user with the name of with {@code excludeUsername}'s bookmarks.
      *
      * @param excludeUsername   不查找该用户 / 某个用户
      * @param from              from
@@ -437,43 +435,34 @@ public class WebsiteServiceImpl implements WebsiteService {
      * @param userNameToShowAll 该用户名的用户的所有数据都要展示
      * @return {@link List}<{@link WebsiteWithPrivacyDTO}> 除去某个用户的所有网页
      */
-    private List<WebWithPrivacyCommentCountDTO> getAllPubSpecUserPriWebsAndCommentCountExcUser(
+    private List<WebsiteWithPrivacyDTO> getAllPubSpecUserPriWebsExcludeUser(
             String excludeUsername, int from, int size, String userNameToShowAll) {
 
         List<WebsiteDO> websites = websiteMapper.findWebsitesDataExcludeUser(
                 excludeUsername, from, size, userNameToShowAll);
 
-        return getWebsWithPrivacyCommentCount(websites);
+        return getBookmarks(websites);
     }
 
     /**
-     * Get all public and specific user's private website data and count of their comments
+     * Get all public and specific user's private bookmarks
      *
      * @param from         from
      * @param size         size
      * @param specUsername specific user's name
-     * @return {@link List}<{@link WebWithPrivacyCommentCountDTO}>
+     * @return {@link List}<{@link WebsiteWithPrivacyDTO}>
      */
-    private List<WebWithPrivacyCommentCountDTO> getAllPubSpecUserPriWebsAndCommentCount(Integer from,
-                                                                                        Integer size,
-                                                                                        String specUsername) {
+    private List<WebsiteWithPrivacyDTO> getAllPubSpecUserPriWebs(Integer from,
+                                                                 Integer size,
+                                                                 String specUsername) {
         List<WebsiteDO> websites =
                 websiteMapper.getAllPubAndSpecUserPriWebs(from, size, specUsername);
 
-        return getWebsWithPrivacyCommentCount(websites);
+        return getBookmarks(websites);
     }
 
-    private List<WebWithPrivacyCommentCountDTO> getWebsWithPrivacyCommentCount(List<WebsiteDO> websites) {
-        List<WebWithPrivacyCommentCountDTO> webs =
-                DozerUtils.convertList(websites, WebWithPrivacyCommentCountDTO.class);
-
-        // Get count of website post comments
-        webs.forEach(w -> {
-            Integer webId = w.getWebId();
-            int commentCount = countCommentManager.countCommentByWebId(webId);
-            w.setCommentCount(commentCount);
-        });
-        return webs;
+    private List<WebsiteWithPrivacyDTO> getBookmarks(List<WebsiteDO> websites) {
+        return DozerUtils.convertList(websites, WebsiteWithPrivacyDTO.class);
     }
 
     @Override

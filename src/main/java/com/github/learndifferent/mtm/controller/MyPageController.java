@@ -5,13 +5,13 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
+import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.IpUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
-import com.github.learndifferent.mtm.vo.MyWebsiteDataVO;
+import com.github.learndifferent.mtm.vo.MyBookmarksVO;
 import com.github.learndifferent.mtm.vo.PersonalInfoVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -65,13 +65,13 @@ public class MyPageController {
     }
 
     /**
-     * Get my website data
+     * Get my bookmarks
      *
      * @param pageInfo Pagination info
-     * @return {@link MyWebsiteDataVO} My paginated website data and total pages
+     * @return {@link MyBookmarksVO} My paginated bookmarks and total pages
      */
-    @GetMapping("/webs")
-    public MyWebsiteDataVO getMyWebsiteDataInfo(
+    @GetMapping("/bookmarks")
+    public MyBookmarksVO getMyBookmarks(
             @PageInfo(size = 7, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         String username = getCurrentUsername();
 
@@ -81,10 +81,10 @@ public class MyPageController {
         int totalCount = websiteService.countUserPost(username, true);
         int totalPages = PageUtil.getAllPages(totalCount, size);
 
-        List<WebWithPrivacyCommentCountDTO> myWebsiteData =
-                websiteService.getWebsDataAndCommentCountByUser(username, from, size, true);
+        List<WebsiteWithPrivacyDTO> myWebsiteData =
+                websiteService.getBookmarksByUser(username, from, size, true);
 
-        return MyWebsiteDataVO.builder().myWebsiteData(myWebsiteData).totalPages(totalPages).build();
+        return MyBookmarksVO.builder().myBookmarks(myWebsiteData).totalPages(totalPages).build();
     }
 
     private String getCurrentUsername() {

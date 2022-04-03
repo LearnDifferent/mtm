@@ -7,7 +7,6 @@ import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
 import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
-import com.github.learndifferent.mtm.dto.WebWithPrivacyCommentCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -102,19 +101,16 @@ public interface WebsiteService {
                                             PageInfoDTO pageInfo);
 
     /**
-     * Get all public website data and the count of their comments, of user the with name of {@code username}.
-     * If {@code includePrivate} is true, then include all private website data too.
+     * Get all public bookmarks.
+     * If {@code includePrivate} is true, then include all private bookmarks too.
      *
      * @param username       username
      * @param from           from
      * @param size           size
      * @param includePrivate true if include private website data
-     * @return A list of {@link WebWithPrivacyCommentCountDTO}
+     * @return A list of {@link WebsiteWithPrivacyDTO}
      */
-    List<WebWithPrivacyCommentCountDTO> getWebsDataAndCommentCountByUser(String username,
-                                                                         Integer from,
-                                                                         Integer size,
-                                                                         boolean includePrivate);
+    List<WebsiteWithPrivacyDTO> getBookmarksByUser(String username, Integer from, Integer size, boolean includePrivate);
 
     /**
      * Get paginated website data and total pages by username
