@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
@@ -8,6 +9,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
+import com.github.learndifferent.mtm.dto.WebMoreInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -94,7 +96,7 @@ public class WebsiteDataController {
      *                       will be synchronized to Elasticsearch or not
      * @return {@link ResultVO}<{@link SaveWebDataResultDTO}> The result of saving website data
      */
-    @SystemLog(title = "Mark", optsType = OptsType.CREATE)
+    @SystemLog(title = "New", optsType = OptsType.CREATE)
     @PostMapping("/new")
     public ResultVO<SaveWebDataResultDTO> saveNewWebsiteData(@RequestBody SaveNewWebDataRequest newWebsiteData) {
         SaveWebDataResultDTO results = websiteService.saveNewWebsiteData(newWebsiteData);
@@ -102,17 +104,16 @@ public class WebsiteDataController {
     }
 
     /**
-     * Change the saved website privacy settings.
-     * If the website is public, then make it private.
-     * If the website is private, then make it public.
+     * Make the bookmarked website private if it's public
+     * and make it public if it's private.
      *
-     * @param webId    web id
+     * @param webId    ID of the bookmarked website data
      * @param userName name of user who trying to change the privacy settings
-     * @return success or failure
+     * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#UPDATE_FAILED} if failure.
      * @throws ServiceException {@link WebsiteService#changeWebPrivacySettings(int, String)}
      *                          will throw an exception with
      *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
-     *                          if the website data does not exists
+     *                          if the website data does not exist
      *                          and with {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                          if the user has no permission to change the website privacy settings.
      */
@@ -155,5 +156,21 @@ public class WebsiteDataController {
                                                                                PageInfoDTO pageInfo) {
         UserPublicWebInfoDTO info = websiteService.getUserPublicWebInfoDTO(username, pageInfo);
         return ResultCreator.okResult(info);
+    }
+
+    /**
+     * Get additional information of the bookmarked website
+     *
+     * @param webId ID of the bookmarked website data
+     * @return additional information of the bookmarked website
+     */
+    @GetMapping("/additional")
+    public ResultVO<WebMoreInfoDTO> getAdditionalInfo(@RequestParam("webId") Integer webId) {
+        WebMoreInfoDTO info = websiteService.getAdditionalInfo(webId);
+        return ResultCreator.okResult(info);
+    }
+
+    private String getCurrentUsername() {
+        return StpUtil.getLoginIdAsString();
     }
 }

@@ -34,7 +34,7 @@ public interface CommentMapper {
      * Get comment by web id, username and comment
      *
      * @param comment  comment
-     * @param webId    web id
+     * @param webId    ID of the bookmarked website data
      * @param username username
      * @return {@link CommentDO} comment data object
      */
@@ -51,9 +51,10 @@ public interface CommentMapper {
     String getCommentTextById(int commentId);
 
     /**
-     * Get comments by {@code webId} and {@code replyToCommentId}
+     * Get comments by {@code webId} and {@code replyToCommentId}.
+     * If the {@code webId} is null, get all.
      *
-     * @param webId            Web ID (null if all website data)
+     * @param webId            ID of the bookmarked website data
      * @param replyToCommentId Reply to the comment (null if it's not a reply)
      * @param load             Amount of data to load
      * @param isDesc           True if descending order
@@ -114,10 +115,10 @@ public interface CommentMapper {
     boolean updateComment(@Param("commentId") int commentId, @Param("comment") String comment);
 
     /**
-     * Get count of website comments (exclude replies)
+     * Get the number of comments (exclude replies) of a bookmarked website
      *
-     * @param webId web id
-     * @return count of website comments
+     * @param webId ID of the bookmarked website data
+     * @return number of comments of the bookmarked website
      */
-    int countCommentByWebId(Integer webId);
+    int countCommentByWebId(int webId);
 }

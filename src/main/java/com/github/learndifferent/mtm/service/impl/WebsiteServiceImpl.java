@@ -17,6 +17,7 @@ import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.SaveWebDataResultDTO;
 import com.github.learndifferent.mtm.dto.UserPublicWebInfoDTO;
 import com.github.learndifferent.mtm.dto.WebDataAndTotalPagesDTO;
+import com.github.learndifferent.mtm.dto.WebMoreInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDataFilterDTO;
@@ -24,10 +25,10 @@ import com.github.learndifferent.mtm.dto.WebsiteWithCountDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.CountCommentManager;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.MoreInfoManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.query.SaveNewWebDataRequest;
 import com.github.learndifferent.mtm.query.WebDataFilterRequest;
@@ -76,19 +77,19 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     private final WebsiteMapper websiteMapper;
     private final ElasticsearchManager elasticsearchManager;
-    private final CountCommentManager countCommentManager;
+    private final MoreInfoManager moreInfoManager;
     private final DeleteViewManager deleteViewManager;
     private final DeleteTagManager deleteTagManager;
 
     @Autowired
     public WebsiteServiceImpl(WebsiteMapper websiteMapper,
                               ElasticsearchManager elasticsearchManager,
-                              CountCommentManager countCommentManager,
+                              MoreInfoManager moreInfoManager,
                               DeleteViewManager deleteViewManager,
                               DeleteTagManager deleteTagManager) {
         this.websiteMapper = websiteMapper;
         this.elasticsearchManager = elasticsearchManager;
-        this.countCommentManager = countCommentManager;
+        this.moreInfoManager = moreInfoManager;
         this.deleteViewManager = deleteViewManager;
         this.deleteTagManager = deleteTagManager;
     }
@@ -368,7 +369,8 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         int withoutUserPageTotalCount = countExcludeUserPost(requestedUsername, currentUsername);
         int withoutUserPageTotalPage = PageUtil.getAllPages(withoutUserPageTotalCount, size);
-        return WebDataAndTotalPagesDTO.builder().webs(withoutUserPageBookmarks).totalPage(withoutUserPageTotalPage).build();
+        return WebDataAndTotalPagesDTO.builder().webs(withoutUserPageBookmarks).totalPage(withoutUserPageTotalPage)
+                .build();
     }
 
     private WebDataAndTotalPagesDTO getLatestBookmarks(String currentUsername, int from, int size) {
@@ -529,6 +531,13 @@ public class WebsiteServiceImpl implements WebsiteService {
         return DozerUtils.convert(web, WebsiteDTO.class);
     }
 
+    @Override
+    public WebMoreInfoDTO getAdditionalInfo(int webId) {
+        int num = moreInfoManager.countCommentByWebId(webId);
+        String tag = moreInfoManager.getTagOrReturnEmpty(webId);
+        return WebMoreInfoDTO.builder().commentCount(num).tag(tag).build();
+    }
+
     /**
      * 以 HTML 格式，导出该用户的所有网页数据。如果该用户没有数据，直接输出无数据的提示。
      *
@@ -599,7 +608,6 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         return sb.toString();
     }
-
 
     /**
      * 根据用户获取该用户的所有网页数据（包括私有数据）

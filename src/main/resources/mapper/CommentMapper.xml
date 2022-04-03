@@ -99,12 +99,7 @@
     <select id="countCommentByWebId" resultType="java.lang.Integer">
         select count(web_id)
         from comment
-        <where>
-            reply_to_comment_id is null
-            <if test="webId != null">
-                and web_id = #{webId}
-            </if>
-        </where>
-        ;
+        where reply_to_comment_id is null
+          and web_id = #{webId};
     </select>
 </mapper>
