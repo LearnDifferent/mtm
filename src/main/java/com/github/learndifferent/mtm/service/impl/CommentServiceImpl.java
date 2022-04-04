@@ -137,4 +137,12 @@ public class CommentServiceImpl implements CommentService {
                                  @WebId Integer webId) {
         return commentMapper.updateComment(commentId, comment);
     }
+
+    @Override
+    public int countCommentByWebId(Integer webId) {
+        if (webId == null) {
+            return 0;
+        }
+        return commentMapper.countCommentByWebId(webId);
+    }
 }

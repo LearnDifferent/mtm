@@ -130,4 +130,12 @@ public interface CommentService {
      *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}
      */
     boolean updateComment(UpdateCommentRequest commentInfo);
+
+    /**
+     * Get the number of comments (exclude replies) of a bookmarked website
+     *
+     * @param webId ID of the bookmarked website data
+     * @return number of comments of the bookmarked website
+     */
+    int countCommentByWebId(Integer webId);
 }

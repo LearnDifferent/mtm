@@ -38,9 +38,9 @@ public class TagController {
     /**
      * Apply a tag
      *
-     * @param webId ID of the bookmarked website data that the user currently logged in wants to apply the tag to
-     * @param tag   the tag to apply
-     * @return {@link ResultCreator#okResult()} if success. {@link ResultCreator#defaultFailResult()} if failure.
+     * @param webId   ID of the bookmarked website data that the user currently logged in wants to apply the tag to
+     * @param tagName the tag to apply
+     * @return Return the tag if applied successfully, or empty string if failed to apply
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#applyTag(String, Integer,
      *                                                                  String)}
      *                                                                  will throw an exception with the result code of
@@ -68,10 +68,10 @@ public class TagController {
      *                                                                  </p>
      */
     @GetMapping("/apply")
-    public ResultVO<ResultCode> applyTag(@RequestParam("webId") Integer webId, @RequestParam("tag") String tag) {
+    public ResultVO<String> applyTag(@RequestParam("webId") Integer webId, @RequestParam("tag") String tagName) {
         String currentUsername = getCurrentUsername();
-        boolean success = tagService.applyTag(currentUsername, webId, tag);
-        return success ? ResultCreator.okResult() : ResultCreator.defaultFailResult();
+        String tag = tagService.applyTag(currentUsername, webId, tagName);
+        return ResultCreator.okResult(tag);
     }
 
     /**
@@ -83,26 +83,30 @@ public class TagController {
      * @param webId    ID of the bookmarked website data
      * @param pageInfo pagination information
      * @return paginated tags
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(String,
-     *                                                                  Integer, PageInfoDTO)}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(Integer, PageInfoDTO)}
      *                                                                  will throw an exception with the result code of
-     *                                                                  {@link ResultCode#PERMISSION_DENIED}
-     *                                                                  if the website data is private and
-     *                                                                  the user is not the owner of the bookmarked
-     *                                                                  website data.
-     *                                                                  <p>
-     *                                                                  If the bookmarked website data is NOT
-     *                                                                  associated with any tags, the result code will
-     *                                                                  be {@link ResultCode#NO_RESULTS_FOUND}.
-     *                                                                  </p>
+     *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
+     *                                                                  if the bookmarked website data is NOT
+     *                                                                  associated with any tags
      */
     @GetMapping
     public ResultVO<List<String>> getTags(@RequestParam(value = "webId", required = false) Integer webId,
                                           @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
                                                   PageInfoDTO pageInfo) {
-        String currentUsername = getCurrentUsername();
-        List<String> tags = tagService.getTags(currentUsername, webId, pageInfo);
+        List<String> tags = tagService.getTags(webId, pageInfo);
         return ResultCreator.okResult(tags);
+    }
+
+    /**
+     * Get a tag of a bookmark, or return empty string if the bookmark has no tags
+     *
+     * @param webId ID of the bookmarked website data
+     * @return a tag of the bookmark, or empty string if the bookmark has no tags
+     */
+    @GetMapping("/one")
+    public ResultVO<String> getTag(@RequestParam(value = "webId") Integer webId) {
+        String tag = tagService.getTagOrReturnEmpty(webId);
+        return ResultCreator.okResult(tag);
     }
 
     /**

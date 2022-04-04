@@ -15,15 +15,14 @@ import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.service.TagService;
-import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -53,58 +52,40 @@ public class TagServiceImpl implements TagService {
     @Override
     @ModifyWebsitePermissionCheck
     @TagCheck
-    @CacheEvict(value = "tag:a", key = "#webId")
-    public boolean applyTag(@Username String username, @WebId Integer webId, @Tag String tag) {
-        TagDO tagDO = TagDO.builder().tag(tag.trim()).webId(webId).build();
-        return tagMapper.addTag(tagDO);
+    @CachePut(value = "tag:a", key = "#webId", unless = "''.equals(#result)")
+    public String applyTag(@Username String username, @WebId Integer webId, @Tag String tagName) {
+        String tag = tagName.trim();
+        TagDO tagDO = TagDO.builder().tag(tag).webId(webId).build();
+        boolean success = tagMapper.addTag(tagDO);
+        return success ? tag : "";
     }
 
     @Override
-    public List<String> getTags(String username, Integer webId, PageInfoDTO pageInfo) {
-
-        TagServiceImpl bean = getTagServiceBean();
-
-        if (webId != null) {
-            boolean hasNoPermission = bean.hasNoPermission(username, webId);
-            ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
-        }
+    @Cacheable(value = "tag:all", condition = "#webId == null")
+    public List<String> getTags(Integer webId, PageInfoDTO pageInfo) {
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<String> tags = bean.getTags(webId, from, size);
-
+        List<String> tags = tagMapper.getTagsByWebId(webId, from, size);
         throwExceptionIfEmpty(tags);
+
         return tags;
     }
 
-    @Cacheable(value = "tag:all", condition = "#webId == null")
-    public List<String> getTags(Integer webId, int from, int size) {
-        return tagMapper.getTagsByWebId(webId, from, size);
+    @Override
+    @Cacheable(value = "tag:a", key = "#webId")
+    public String getTagOrReturnEmpty(Integer webId) {
+        if (webId == null) {
+            return "";
+        }
+        List<String> tags = tagMapper.getTagsByWebId(webId, 0, 1);
+        return CollectionUtils.isEmpty(tags) ? "" : getFirstFromListOrReturnEmpty(tags);
     }
 
-    /**
-     * True if the user has no permissions
-     *
-     * @param username username of the user who is trying to access the data
-     * @param webId    ID
-     * @return True if the user has no permissions
-     */
-    @Cacheable(value = "tag:permission")
-    public boolean hasNoPermission(String username, Integer webId) {
-        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
-        if (web == null) {
-            return true;
-        }
-
-        boolean isPublic = web.getIsPublic();
-        if (isPublic) {
-            return false;
-        }
-
-        String owner = web.getUserName();
-        // no permissions if not the owner
-        return CompareStringUtil.notEqualsIgnoreCase(username, owner);
+    private String getFirstFromListOrReturnEmpty(List<String> collection) {
+        String first = collection.get(0);
+        return Optional.ofNullable(first).orElse("");
     }
 
     @Override
@@ -163,9 +144,5 @@ public class TagServiceImpl implements TagService {
     private void throwExceptionIfEmpty(Collection<?> collection) {
         boolean isEmpty = CollectionUtils.isEmpty(collection);
         ThrowExceptionUtils.throwIfTrue(isEmpty, ResultCode.NO_RESULTS_FOUND);
-    }
-
-    private TagServiceImpl getTagServiceBean() {
-        return ApplicationContextUtils.getBean(TagServiceImpl.class);
     }
 }

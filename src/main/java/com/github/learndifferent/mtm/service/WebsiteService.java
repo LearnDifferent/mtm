@@ -4,7 +4,6 @@ import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BookmarksAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.WebMoreInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
@@ -185,14 +184,6 @@ public interface WebsiteService {
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
     WebsiteDTO getBookmark(int webId, String userName);
-
-    /**
-     * Get additional information of a bookmarked website
-     *
-     * @param webId ID of the bookmarked website data
-     * @return additional information of the bookmarked website
-     */
-    WebMoreInfoDTO getAdditionalInfo(int webId);
 
     /**
      * Export requested user's bookmarks to a HTML file.

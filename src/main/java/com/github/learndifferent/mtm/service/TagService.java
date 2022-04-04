@@ -16,14 +16,14 @@ public interface TagService {
     /**
      * Apply a tag.
      * <p>
-     * This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
-     * stored in the cache if no exception is thrown.
+     * This will also update the tag (prefix of the key is "tag:a") of the bookmarked site
+     * stored in the cache if no exception is thrown and the result is not empty.
      * </p>
      *
      * @param username username of the user who wants to apply the tag
      * @param webId    ID of the bookmarked website data that the user wants to apply the tag to
-     * @param tag      the tag to apply
-     * @return True if success
+     * @param tagName  the tag to apply
+     * @return Return the tag if applied successfully, or empty string if failed to apply
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method is annotated with
      *                                                                  {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
      *                                                                  ModifyWebsitePermissionCheck} annotation, so it
@@ -56,33 +56,42 @@ public interface TagService {
      *                                                                  applied.
      *                                                                  </p>
      */
-    boolean applyTag(String username, Integer webId, String tag);
+    String applyTag(String username, Integer webId, String tagName);
 
     /**
-     * Get tags by Username and Web ID.
+     * Get tags by the ID of the bookmarked website data
      * <p>
-     * Get all tags if the ID is null and store the result in cache for 10 seconds by
-     * {@link com.github.learndifferent.mtm.service.impl.TagServiceImpl#getTags(Integer, int, int)
-     * a method in TagServiceImpl}.
+     * Get all tags if the ID is null and store the result in cache for 10 seconds.
      * </p>
+     * <li>
+     * Note that every user can get tags without permissions.
+     * </li>
      *
-     * @param username username of the user who request the tags
      * @param webId    ID of the bookmarked website data
      * @param pageInfo pagination information
      * @return tags
-     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
-     *                                                                  PERMISSION_DENIED} will be thrown if the
-     *                                                                  website data is private and the user is not the
-     *                                                                  owner of the bookmarked website data.
-     *                                                                  <p>
-     *                                                                  If the bookmarked website data is NOT
-     *                                                                  associated with any tags, the result code will
-     *                                                                  be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
-     *                                                                  NO_RESULTS_FOUND}.
-     *                                                                  </p>
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
+     *                                                                  code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
+     *                                                                  if the bookmarked website data is NOT
+     *                                                                  associated with any tags
      */
-    List<String> getTags(String username, Integer webId, PageInfoDTO pageInfo);
+    List<String> getTags(Integer webId, PageInfoDTO pageInfo);
+
+    /**
+     * Get a tag of a bookmarked site
+     * <p>
+     * The result will be stored in the cache
+     * as the tag (prefix of the key is "tag:a") of the bookmarked site
+     * </p>
+     * <li>
+     * Note that every user can get tags without permissions.
+     * </li>
+     *
+     * @param webId ID of the bookmarked website data
+     * @return a tag, or return empty string if there is no tag
+     */
+    String getTagOrReturnEmpty(Integer webId);
 
     /**
      * Search bookmarks by a certain tag.

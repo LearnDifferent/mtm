@@ -5,7 +5,6 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.WebMoreInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -147,18 +146,6 @@ public class BookmarkController {
                                                   @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                           PageInfoDTO pageInfo) {
         return websiteService.getUserPublicBookmarks(username, pageInfo);
-    }
-
-    /**
-     * Get additional information of the bookmarked website
-     *
-     * @param webId ID of the bookmarked website data
-     * @return additional information of the bookmarked website
-     */
-    @GetMapping("/additional")
-    public ResultVO<WebMoreInfoDTO> getAdditionalInfo(@RequestParam("webId") Integer webId) {
-        WebMoreInfoDTO info = websiteService.getAdditionalInfo(webId);
-        return ResultCreator.okResult(info);
     }
 
     private String getCurrentUsername() {

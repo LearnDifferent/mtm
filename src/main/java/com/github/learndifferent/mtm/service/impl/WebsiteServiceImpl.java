@@ -16,7 +16,6 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BookmarksAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
-import com.github.learndifferent.mtm.dto.WebMoreInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDataFilterDTO;
@@ -26,7 +25,6 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
-import com.github.learndifferent.mtm.manager.MoreInfoManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.query.WebDataFilterRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -77,19 +75,16 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     private final WebsiteMapper websiteMapper;
     private final ElasticsearchManager elasticsearchManager;
-    private final MoreInfoManager moreInfoManager;
     private final DeleteViewManager deleteViewManager;
     private final DeleteTagManager deleteTagManager;
 
     @Autowired
     public WebsiteServiceImpl(WebsiteMapper websiteMapper,
                               ElasticsearchManager elasticsearchManager,
-                              MoreInfoManager moreInfoManager,
                               DeleteViewManager deleteViewManager,
                               DeleteTagManager deleteTagManager) {
         this.websiteMapper = websiteMapper;
         this.elasticsearchManager = elasticsearchManager;
-        this.moreInfoManager = moreInfoManager;
         this.deleteViewManager = deleteViewManager;
         this.deleteTagManager = deleteTagManager;
     }
@@ -512,13 +507,6 @@ public class WebsiteServiceImpl implements WebsiteService {
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
         return DozerUtils.convert(web, WebsiteDTO.class);
-    }
-
-    @Override
-    public WebMoreInfoDTO getAdditionalInfo(int webId) {
-        int num = moreInfoManager.countCommentByWebId(webId);
-        String tag = moreInfoManager.getTagOrReturnEmpty(webId);
-        return WebMoreInfoDTO.builder().commentCount(num).tag(tag).build();
     }
 
     /**

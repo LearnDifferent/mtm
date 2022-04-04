@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,9 +68,9 @@ public class CommentController {
      * Get a comment by Comment ID
      *
      * @param commentId Comment ID
-     * @return {@link ResultVO}<{@link CommentDTO}> Returns result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#SUCCESS}
+     * @return {@link ResultVO}<{@link CommentDTO}> Return result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#SUCCESS}
      * with the comment as data if the comment exists. If the comment does not exist, returns the result code of {@link
-     * com.github.learndifferent.mtm.constant.enums.ResultCode#FAILED
+     * com.github.learndifferent.mtm.constant.enums.ResultCode#FAILED}
      */
     @GetMapping("/get")
     public ResultVO<CommentDTO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId) {
@@ -158,5 +159,17 @@ public class CommentController {
                                            @RequestParam("username") String username) {
         boolean success = commentService.deleteCommentById(commentId, username);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
+    }
+
+    /**
+     * Get the number of comments (exclude replies) of a bookmarked website
+     *
+     * @param webId ID of the bookmarked website data
+     * @return number of comments of the bookmarked website
+     */
+    @GetMapping("/get/{webId}")
+    public ResultVO<Integer> countComment(@PathVariable("webId") Integer webId) {
+        int number = commentService.countCommentByWebId(webId);
+        return ResultCreator.okResult(number);
     }
 }
