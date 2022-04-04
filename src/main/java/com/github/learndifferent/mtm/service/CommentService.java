@@ -133,6 +133,7 @@ public interface CommentService {
 
     /**
      * Get the number of comments (exclude replies) of a bookmarked website
+     * and the result will be stored in the cache
      *
      * @param webId ID of the bookmarked website data
      * @return number of comments of the bookmarked website

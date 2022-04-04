@@ -20,6 +20,7 @@ import com.github.learndifferent.mtm.utils.DozerUtils;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -139,6 +140,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Cacheable(value = "comment:count", key = "#webId")
     public int countCommentByWebId(Integer webId) {
         if (webId == null) {
             return 0;

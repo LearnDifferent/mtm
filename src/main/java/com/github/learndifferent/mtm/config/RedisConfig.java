@@ -60,6 +60,8 @@ public class RedisConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return builder -> builder
+                .withCacheConfiguration("comment:count",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
                 .withCacheConfiguration("user:name",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
                 .withCacheConfiguration("tag:all",
