@@ -27,8 +27,6 @@ import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.query.WebDataFilterRequest;
-import com.github.learndifferent.mtm.response.ResultCreator;
-import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
@@ -61,6 +59,7 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -509,18 +508,12 @@ public class WebsiteServiceImpl implements WebsiteService {
         return DozerUtils.convert(web, WebsiteDTO.class);
     }
 
-    /**
-     * 以 HTML 格式，导出该用户的所有网页数据。如果该用户没有数据，直接输出无数据的提示。
-     *
-     * @param username        需要导出数据的用户的用户名
-     * @param currentUsername 当前用户的用户名
-     * @param response        response
-     * @throws ServiceException ResultCode.CONNECTION_ERROR
-     */
     @Override
-    public void exportWebsDataByUserToHtmlFile(String username,
-                                               String currentUsername,
-                                               HttpServletResponse response) {
+    public void exportBookmarksToHtmlFile(String username,
+                                          String currentUsername,
+                                          HttpServletResponse response) {
+
+        username = StringUtils.isEmpty(username) ? currentUsername : username;
 
         Instant now = Instant.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss_SSS")
@@ -530,7 +523,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         String filename = username + "_" + time + ".html";
 
         boolean includePrivate = username.equalsIgnoreCase(currentUsername);
-        String html = getWebsDataByUserInHtml(username, includePrivate);
+        String html = getBookmarksByUserInHtml(username, includePrivate);
 
         try {
             response.setCharacterEncoding("UTF-8");
@@ -541,29 +534,22 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
     }
 
-    /**
-     * 根据用户名，生成该用户保存的所有网页数据，并返回 html 格式的字符串。
-     *
-     * @param username       用户名
-     * @param includePrivate 是否包含隐私数据
-     * @return {@code String}
-     */
-    private String getWebsDataByUserInHtml(String username, boolean includePrivate) {
+    private String getBookmarksByUserInHtml(String username, boolean includePrivate) {
 
-        List<WebsiteDTO> webs = findAllWebDataByUser(username, includePrivate);
+        List<WebsiteDTO> bookmarks = findAllWebDataByUser(username, includePrivate);
 
         StringBuilder sb = new StringBuilder();
-
         sb.append(HtmlFileConstant.FILE_START);
 
-        // 如果没有内容的情况
-        if (CollectionUtils.isEmpty(webs)) {
-            sb.append(username).append(" doesn't have any data.")
-                    .append(HtmlFileConstant.FILE_END);
-            return sb.toString();
+        // Return this message if no data available
+        if (CollectionUtils.isEmpty(bookmarks)) {
+            return sb.append(username)
+                    .append(" doesn't have any data.")
+                    .append(HtmlFileConstant.FILE_END)
+                    .toString();
         }
 
-        webs.forEach(w -> {
+        bookmarks.forEach(w -> {
             sb.append(HtmlFileConstant.BEFORE_IMG);
             sb.append(w.getImg());
             sb.append(HtmlFileConstant.AFTER_IMG_BEFORE_URL);
@@ -575,18 +561,9 @@ public class WebsiteServiceImpl implements WebsiteService {
             sb.append(HtmlFileConstant.AFTER_DESC);
         });
 
-        sb.append(HtmlFileConstant.FILE_END);
-
-        return sb.toString();
+        return sb.append(HtmlFileConstant.FILE_END).toString();
     }
 
-    /**
-     * 根据用户获取该用户的所有网页数据（包括私有数据）
-     *
-     * @param userName       用户名
-     * @param includePrivate 是否包含隐私数据
-     * @return {@code List<WebsiteDO>}
-     */
     private List<WebsiteDTO> findAllWebDataByUser(String userName, boolean includePrivate) {
         // from 和 size 为 null 的时候，表示不分页，直接获取全部
         List<WebsiteDO> webs = websiteMapper.findWebsitesDataByUser(userName,
@@ -595,69 +572,37 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
-    public ResultVO<String> importWebsDataFromHtmlFile(MultipartFile htmlFile, String username) {
-        // [Success][Failure][Already Exists]
+    public String importBookmarksFromHtmlFile(MultipartFile htmlFile, String username) {
+        // [Success][Failure][Existing]
         int[] result = new int[3];
 
-        // 默认的回复
-        ResultVO<String> defaultFailResult =
-                ResultCreator.failResult("No Data Available. Please Upload the Correct HTML file.");
-
         try (InputStream in = htmlFile.getInputStream()) {
-
-            Document document = Jsoup.parse(in, "UTF-8", "");
-            Elements dts = document.getElementsByTag("dt");
-
-            dts.forEach(dt -> {
-                WebWithNoIdentityDTO web = getWebFromElement(dt);
-                try {
-                    WebsiteServiceImpl websiteService =
-                            ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
-                    // 导入的时候，网页全部视为公开的数据
-                    boolean success = websiteService.bookmarkWithExistingData(web, username, true);
-                    if (success) {
-                        result[0]++;
-                    } else {
-                        result[1]++;
-                    }
-                } catch (ServiceException e) {
-                    switch (e.getResultCode()) {
-                        case ALREADY_SAVED:
-                            // 如果抛出的是已经收藏过了的异常，就将 Already Exists 结果加一
-                            result[2]++;
-                            break;
-                        case URL_MALFORMED:
-                            // 如果是 URL 格式异常，就按失败来处理
-                            result[1]++;
-                            break;
-                        default:
-                            // 如果是其他情况，就继续抛出
-                            throw new ServiceException(e.getResultCode(), e.getMessage());
-                    }
-                }
-            });
-
+            importBookmarksAndUpdateResult(username, result, in);
         } catch (IOException e) {
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         } catch (IllegalArgumentException e) {
-            // Jsoup 如果抛出了 IllegalArgumentException，说明传入的 HTML 文件有问题
-            return defaultFailResult;
+            // The HTML file is not valid if Jsoup throws an IllegalArgumentException
+            throw new ServiceException(ResultCode.HTML_FILE_NO_BOOKMARKS);
         }
+        throwExceptionIfFailToImport(result);
 
-        boolean hasData =
-                result[0] + result[1] + result[2] != 0;
-
-        if (hasData) {
-            String responseMsg = "Success: " + result[0]
-                    + ", Failure: " + result[1]
-                    + ", Already Exists: " + result[2];
-            return ResultCreator.okResult(responseMsg);
-        }
-
-        return defaultFailResult;
+        return "Success: " + result[0]
+                + ", Failure: " + result[1]
+                + ", Existing : " + result[2];
     }
 
-    private WebWithNoIdentityDTO getWebFromElement(org.jsoup.nodes.Element dt) {
+    private void importBookmarksAndUpdateResult(String username, int[] result, InputStream in) throws IOException {
+
+        Document document = Jsoup.parse(in, "UTF-8", "");
+        Elements dts = document.getElementsByTag("dt");
+
+        dts.forEach(dt -> {
+            WebWithNoIdentityDTO bookmark = getBookmarkFromElement(dt);
+            bookmarkAndUpdateResult(username, result, bookmark);
+        });
+    }
+
+    private WebWithNoIdentityDTO getBookmarkFromElement(org.jsoup.nodes.Element dt) {
 
         WebWithNoIdentityDTO.WebWithNoIdentityDTOBuilder webBuilder =
                 WebWithNoIdentityDTO.builder();
@@ -676,5 +621,52 @@ public class WebsiteServiceImpl implements WebsiteService {
         webBuilder.desc(desc);
 
         return webBuilder.build();
+    }
+
+    private void bookmarkAndUpdateResult(String username, int[] result, WebWithNoIdentityDTO web) {
+        try {
+            boolean success = bookmarkAndGetResult(username, web);
+            updateImportingResult(result, success);
+        } catch (ServiceException e) {
+            ResultCode resultCode = e.getResultCode();
+            updateImportingResult(result, e, resultCode);
+        }
+    }
+
+    private boolean bookmarkAndGetResult(String username, WebWithNoIdentityDTO web) {
+        WebsiteServiceImpl websiteService =
+                ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+        // the imported bookmarks are public
+        return websiteService.bookmarkWithExistingData(web, username, true);
+    }
+
+    private void updateImportingResult(int[] result, boolean success) {
+        if (success) {
+            result[0]++;
+        } else {
+            result[1]++;
+        }
+    }
+
+    private void updateImportingResult(int[] result, ServiceException e, ResultCode resultCode) {
+        switch (resultCode) {
+            case ALREADY_SAVED:
+                // Existing: has already saved it
+                result[2]++;
+                break;
+            case URL_MALFORMED:
+                // Failure: Not a valid URL
+                result[1]++;
+                break;
+            default:
+                // Others
+                throw new ServiceException(resultCode, e.getMessage());
+        }
+    }
+
+    private void throwExceptionIfFailToImport(int[] result) {
+        boolean hasNoData =
+                result[0] + result[1] + result[2] == 0;
+        ThrowExceptionUtils.throwIfTrue(hasNoData, ResultCode.HTML_FILE_NO_BOOKMARKS);
     }
 }

@@ -137,9 +137,13 @@ public enum ResultCode {
      */
     TAG_NOT_EXISTS(3016, "Please apply a tag."),
     /**
-     * Tag already existed
+     * Tag has already been applied
      */
     TAG_EXISTS(3017, "The tag has already been applied"),
+    /**
+     * Not a valid HTML file that contains bookmarks
+     */
+    HTML_FILE_NO_BOOKMARKS(3018, "No Data Available. Please Upload the Correct HTML file."),
     /**
      * Unable to connect to the server
      */

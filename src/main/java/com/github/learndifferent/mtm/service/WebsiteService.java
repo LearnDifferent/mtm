@@ -186,25 +186,32 @@ public interface WebsiteService {
     WebsiteDTO getBookmark(int webId, String userName);
 
     /**
-     * Export requested user's bookmarks to a HTML file.
-     * If the requested user is not current user, only the public bookmarks
-     * will be exported.
+     * Export user's bookmarks to a HTML file.
+     * <p>
+     * Export bookmarks belonging to the user that is currently logged in
+     * if the username is null or empty.
+     * </p>
+     * <p>
+     * Only the public bookmarks will be exported
+     * if the user whose data is being exported is not
+     * the user that is currently logged in.
+     * </p>
      *
-     * @param username        username of the requested user
+     * @param username        username of the user whose data is being exported
      * @param currentUsername username of the user that is currently logged in
      * @param response        response
      * @throws ServiceException Connection exception with the result code of {@link ResultCode#CONNECTION_ERROR}
      */
-    void exportWebsDataByUserToHtmlFile(String username,
-                                        String currentUsername,
-                                        HttpServletResponse response);
+    void exportBookmarksToHtmlFile(String username, String currentUsername, HttpServletResponse response);
 
     /**
-     * Import website data from html file and return ResultVO as result.
+     * Import bookmarks from HTML file
      *
-     * @param htmlFile html file
-     * @param username username
-     * @return {@link ResultVO}<{@link String}>
+     * @param htmlFile a file that contains the bookmarks in HTML format
+     * @param username username of the user who is importing the bookmarks
+     * @return the message of the result
+     * @throws ServiceException Throw an exception with the result code of {@link ResultCode#HTML_FILE_NO_BOOKMARKS}
+     *                          if it's not a valid HTML file that contains bookmarks
      */
-    ResultVO<String> importWebsDataFromHtmlFile(MultipartFile htmlFile, String username);
+    String importBookmarksFromHtmlFile(MultipartFile htmlFile, String username);
 }
