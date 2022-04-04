@@ -31,6 +31,9 @@ custom-async:
   core-pool-size: 3
   alive-seconds: 30
   queue-capacity: 50
+# Redis Configuration
+custom-redis:
+  port: 6379
 ---
 spring:
   profiles: prod
@@ -39,6 +42,9 @@ spring:
     url: jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
     username: root
     password: LearnDifferent
+# Redis Configuration
+custom-redis:
+  host: mid
 ---
 spring:
   profiles: dev
@@ -46,6 +52,9 @@ spring:
     url: jdbc:mysql://localhost:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
     username: root
     password: rootroot
+# Redis Configuration
+custom-redis:
+  host: localhost
 logging:
   level:
     com:
