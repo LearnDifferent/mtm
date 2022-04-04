@@ -75,18 +75,10 @@ public interface CommentMapper {
     int countRepliesFromComment(int countRepliesFromCommentId);
 
     /**
-     * Gets comments by username
-     *
-     * @param username username
-     * @return the comments
-     */
-    List<CommentDO> getCommentsByUsername(String username);
-
-    /**
      * Delete a comment by id
      *
      * @param commentId comment id
-     * @return success or failure
+     * @return true if success
      */
     boolean deleteCommentById(int commentId);
 
@@ -101,7 +93,7 @@ public interface CommentMapper {
      * Add a comment and get new {@link CommentDO} with the ID
      *
      * @param comment comment
-     * @return success or failure (the id will set to {@link CommentDO} automatically)
+     * @return true if success (the id will set to {@link CommentDO} automatically)
      */
     boolean addCommentAndGetId(CommentDO comment);
 
@@ -110,7 +102,7 @@ public interface CommentMapper {
      *
      * @param commentId comment id
      * @param comment   comment
-     * @return success or failure
+     * @return true if success
      */
     boolean updateComment(@Param("commentId") int commentId, @Param("comment") String comment);
 

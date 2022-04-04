@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.annotation.validation.comment.modify;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
@@ -78,15 +77,11 @@ public class ModifyCommentCheckAspect {
 
     private void check(String username, int commentId) {
         CommentDTO comment = commentService.getCommentById(commentId);
-        // comment does not exists
+        // comment does not exist
         ThrowExceptionUtils.throwIfNull(comment, ResultCode.COMMENT_NOT_EXISTS);
 
-        String currentUsername = StpUtil.getLoginIdAsString();
-        String commentUsername = comment.getUsername();
-
-        // No permissions：username is not current user's name or the comment owner's name
-        boolean hasNoPermission = CompareStringUtil.notEqualsIgnoreCase(currentUsername, username)
-                || CompareStringUtil.notEqualsIgnoreCase(username, commentUsername);
+        String owner = comment.getUsername();
+        boolean hasNoPermission = CompareStringUtil.notEqualsIgnoreCase(username, owner);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 }

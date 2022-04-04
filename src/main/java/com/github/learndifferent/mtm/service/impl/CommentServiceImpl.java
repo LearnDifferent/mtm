@@ -8,8 +8,8 @@ import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
+import com.github.learndifferent.mtm.dto.BookmarkCommentDTO;
 import com.github.learndifferent.mtm.dto.CommentDTO;
-import com.github.learndifferent.mtm.dto.CommentOfWebsiteDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
@@ -51,21 +51,21 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDTO getCommentByWebIdAndUsernameAndComment(String comment, int webId, String username) {
+    public CommentDTO getComment(String comment, int webId, String username) {
         CommentDO commentDO = commentMapper.getCommentByWebIdAndUsernameAndComment(comment, webId, username);
         return DozerUtils.convert(commentDO, CommentDTO.class);
     }
 
     @Override
     @GetCommentsCheck
-    public List<CommentOfWebsiteDTO> getCommentsByWebReplyIdAndCountReplies(@WebId Integer webId,
-                                                                            Integer replyToCommentId,
-                                                                            Integer load,
-                                                                            @Username String username,
-                                                                            Boolean isDesc) {
+    public List<BookmarkCommentDTO> getBookmarkComments(@WebId Integer webId,
+                                                        Integer replyToCommentId,
+                                                        Integer load,
+                                                        @Username String username,
+                                                        Boolean isDesc) {
         List<CommentDO> commentList = commentMapper.getCommentsByWebAndReplyCommentId(
                 webId, replyToCommentId, load, isDesc);
-        List<CommentOfWebsiteDTO> comments = DozerUtils.convertList(commentList, CommentOfWebsiteDTO.class);
+        List<BookmarkCommentDTO> comments = DozerUtils.convertList(commentList, BookmarkCommentDTO.class);
 
         comments.forEach(comment -> {
             // Get a count of the replies from this comment (comment id won't be null)
@@ -78,22 +78,19 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDTO> getCommentsByUsername(String username) {
-        List<CommentDO> comments = commentMapper.getCommentsByUsername(username);
-        return DozerUtils.convertList(comments, CommentDTO.class);
-    }
-
-    @Override
     @ModifyCommentCheck
-    public boolean deleteCommentById(@CommentId int commentId, @Username String username) {
+    public boolean deleteCommentById(@CommentId Integer commentId, @Username String username) {
+        // commentId will not be null after checking by @ModifyCommentCheck
         return commentMapper.deleteCommentById(commentId);
     }
 
     @Override
     @AddCommentCheck
-    public boolean addCommentAndSendNotification(@Comment String comment, @WebId int webId, @Username String username,
+    public boolean addCommentAndSendNotification(@Comment String comment,
+                                                 @WebId Integer webId,
+                                                 @Username String username,
                                                  @ReplyToCommentId Integer replyToCommentId) {
-
+        // webId will not be null after checking by @AddCommentCheck
         CommentDO commentDO = CommentDO.builder()
                 .comment(comment).webId(webId).username(username)
                 .replyToCommentId(replyToCommentId)
@@ -111,25 +108,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public boolean updateComment(UpdateCommentRequest commentInfo) {
+    public boolean updateComment(UpdateCommentRequest commentInfo, String username) {
         Integer commentId = commentInfo.getCommentId();
         String comment = commentInfo.getComment();
-        String username = commentInfo.getUsername();
         Integer webId = commentInfo.getWebId();
+
         CommentServiceImpl commentServiceImpl =
                 ApplicationContextUtils.getBean(CommentServiceImpl.class);
         return commentServiceImpl.updateComment(commentId, comment, username, webId);
     }
 
-    /**
-     * 更新评论
-     *
-     * @param commentId 评论 id：用于识别评论
-     * @param comment   评论内容：更新的内容
-     * @param username  用户名：用于检验
-     * @param webId     网页 ID：用于检验
-     * @return boolean 是否成功
-     */
     @AddCommentCheck
     @ModifyCommentCheck
     public boolean updateComment(@CommentId Integer commentId,

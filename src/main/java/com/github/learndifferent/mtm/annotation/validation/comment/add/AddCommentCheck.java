@@ -12,13 +12,13 @@ import java.lang.annotation.Target;
  * and {@link com.github.learndifferent.mtm.annotation.common.ReplyToCommentId}.
  * <p>
  * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
- * if the username is not the current user's name or the user has no permissions to comment on this website.
+ * if the user has no permissions to comment on this bookmark.
  * <p>
  * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EXISTS}
  * if the comment existed .
  * <p>
  * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}
- * if the website does not exist.
+ * if the bookmark does not exist.
  * <p>
  * Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EMPTY}
  * if the comment is empty.

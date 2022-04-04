@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * 更新评论的 Request Body
+ * Request body containing the comment information to update
  *
  * @author zhou
  * @date 2021/9/29
@@ -31,14 +31,9 @@ public class UpdateCommentRequest implements Serializable {
     private String comment;
 
     /**
-     * Website ID
+     * ID of the bookmarked website data
      */
     private Integer webId;
-
-    /**
-     * Username
-     */
-    private String username;
 
     private static final long serialVersionUID = 1L;
 }

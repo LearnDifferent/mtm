@@ -51,12 +51,6 @@
         </if>;
     </select>
 
-    <select id="getCommentsByUsername" resultMap="BaseResultMap">
-        select *
-        from comment
-        where username = #{username,jdbcType=VARCHAR};
-    </select>
-
     <select id="getCommentByWebIdAndUsernameAndComment" resultMap="BaseResultMap">
         select *
         from comment

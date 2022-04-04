@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Comment of the website
+ * Comment data of a bookmark
  *
  * @author zhou
  * @date 2021/9/29
@@ -19,15 +19,15 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class CommentOfWebsiteDTO implements Serializable {
+public class BookmarkCommentDTO implements Serializable {
 
     /**
-     * Comment id
+     * Comment ID
      */
     private Integer commentId;
 
     /**
-     * content
+     * Content
      */
     private String comment;
 

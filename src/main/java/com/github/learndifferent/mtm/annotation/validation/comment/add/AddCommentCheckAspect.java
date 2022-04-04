@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.annotation.validation.comment.add;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Comment;
 import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
@@ -27,13 +26,13 @@ import org.springframework.util.StringUtils;
 
 /**
  * Throw an exception with the result code of {@link ResultCode#PERMISSION_DENIED}
- * if the username is not the current user's name or the user has no permissions to comment on this website.
+ * if the user has no permissions to comment on this bookmark.
  * <p>
  * Throw an exception with the result code of {@link ResultCode#COMMENT_EXISTS}
  * if the comment existed .
  * <p>
  * Throw an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
- * if the website does not exist.
+ * if the bookmark does not exist.
  * <p>
  * Throw an exception with the result code of {@link ResultCode#COMMENT_EMPTY}
  * if the comment is empty.
@@ -122,8 +121,6 @@ public class AddCommentCheckAspect {
 
         // 评论是否小于等于 140 字符且不为空
         checkComment(comment);
-        // 用户名是否为当前用户的用户名（并判断是否空）
-        checkUsername(username);
         // 该 Web ID 的网页是否存在，以及该用户是否有权限评论该网页
         // 公开的网页，及该用户所有的网页才有权限评论
         checkWebsiteExistsAndPermission(webId, username);
@@ -141,29 +138,24 @@ public class AddCommentCheckAspect {
         ThrowExceptionUtils.throwIfTrue(tooLong, ResultCode.COMMENT_TOO_LONG);
     }
 
-    private void checkUsername(String username) {
-        String currentUsername = StpUtil.getLoginIdAsString();
-
-        boolean hasNoPermission = StringUtils.isEmpty(username)
-                || CompareStringUtil.notEqualsIgnoreCase(username, currentUsername);
-        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
-    }
-
     private void checkWebsiteExistsAndPermission(int webId, String username) {
+        // username cannot be empty
+        ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
+
         WebsiteWithPrivacyDTO web = websiteService.findWebsiteDataWithPrivacyById(webId);
 
         ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = web.getIsPublic();
         boolean isPrivate = BooleanUtils.isFalse(isPublic);
-        String user = web.getUserName();
+        String owner = web.getUserName();
 
-        boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, user);
+        boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, owner);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     private void checkCommentContentExists(String comment, int webId, String username) {
-        CommentDTO exist = commentService.getCommentByWebIdAndUsernameAndComment(
+        CommentDTO exist = commentService.getComment(
                 comment, webId, username);
         ThrowExceptionUtils.throwIfNotNull(exist, ResultCode.COMMENT_EXISTS);
     }
