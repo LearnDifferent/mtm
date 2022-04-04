@@ -1,6 +1,9 @@
 package com.github.learndifferent.mtm.config;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -25,14 +28,18 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1200)
 public class RedisConfig {
 
-//    @Bean
-//    public static ConfigureRedisAction configureRedisAction() {
-//        return ConfigureRedisAction.NO_OP;
-//    }
+    private final RedisConfigProperties redisConfigProperties;
+
+    @Autowired
+    public RedisConfig(RedisConfigProperties redisConfigProperties) {
+        this.redisConfigProperties = redisConfigProperties;
+    }
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration("mid", 6379));
+        String host = redisConfigProperties.getHost();
+        int port = redisConfigProperties.getPort();
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 
     /**
@@ -59,22 +66,37 @@ public class RedisConfig {
 
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
-        return builder -> builder
-                .withCacheConfiguration("comment:count",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
-                .withCacheConfiguration("user:name",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
-                .withCacheConfiguration("tag:all",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
-                .withCacheConfiguration("tag:popular",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10L)))
-                .withCacheConfiguration("user:all",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(20L)))
-                .withCacheConfiguration("bookmarks:visited",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(30L)))
-                .withCacheConfiguration("system-log",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(40L)))
-                .withCacheConfiguration("tag:a",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ZERO));
+        return builder -> builder.withInitialCacheConfigurations(getCustomCacheConfigurations());
     }
+
+    private Map<String, RedisCacheConfiguration> getCustomCacheConfigurations() {
+        float expectedSize = 8;
+        int initialCapacity = (int) (expectedSize / 0.75F + 1.0F);
+
+        Map<String, Long> configs = new HashMap<>(initialCapacity);
+        configs.put("comment:count", 10L);
+        configs.put("user:name", 10L);
+        configs.put("tag:all", 10L);
+        configs.put("tag:popular", 10L);
+        configs.put("user:all", 20L);
+        configs.put("bookmarks:visited", 30L);
+        configs.put("system-log", 40L);
+        configs.put("tag:a", 0L);
+        return getCustomCacheConfigurations(configs);
+    }
+
+    Map<String, RedisCacheConfiguration> getCustomCacheConfigurations(Map<String, Long> configs) {
+        int expectedSize = configs.size();
+        int initialCapacity = (int) ((float) expectedSize / 0.75F + 1.0F);
+
+        Map<String, RedisCacheConfiguration> result = new HashMap<>(initialCapacity);
+        configs.forEach((name, ttl) ->
+                result.put(name, RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(ttl))));
+        return result;
+    }
+
+//    @Bean
+//    public static ConfigureRedisAction configureRedisAction() {
+//        return ConfigureRedisAction.NO_OP;
+//    }
 }
