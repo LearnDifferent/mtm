@@ -34,6 +34,15 @@ custom-async:
 # Redis Configuration
 custom-redis:
   port: 6379
+  cache-configs:
+    "[comment:count]": 10
+    "[user:name]": 10
+    "[tag:all]": 10
+    "[tag:popular]": 10
+    "[user:all]": 20
+    "[bookmarks:visited]": 30
+    "system-log": 40
+    "[tag:a]": 0
 ---
 spring:
   profiles: prod
