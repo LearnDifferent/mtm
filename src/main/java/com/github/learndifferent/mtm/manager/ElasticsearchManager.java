@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
+import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
@@ -68,6 +69,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
@@ -419,11 +421,61 @@ public class ElasticsearchManager {
     }
 
     @EmptyStringCheck
-    public SearchResultsDTO searchUserData(
+    public SearchResultsDTO searchTagData(
             @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
             int from, int size) {
 
+        WildcardQueryBuilder wildcardQuery =
+                QueryBuilders.wildcardQuery(EsConstant.TAG_NAME, keyword + "*");
+        BoolQueryBuilder boolQuery = new BoolQueryBuilder()
+                .should(wildcardQuery)
+                .minimumShouldMatch(1);
+
         SearchSourceBuilder source = new SearchSourceBuilder();
+        source.query(boolQuery)
+                .timeout(new TimeValue(1, TimeUnit.MINUTES))
+                .from(from)
+                .size(size)
+                .sort(EsConstant.TAG_NUMBER, SortOrder.DESC);
+
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(EsConstant.INDEX_TAG).source(source);
+
+        try {
+            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits hits = response.getHits();
+            // 总数
+            long totalCount = hits.getTotalHits().value;
+            // 如果总数小于等于 0，说明没有结果，就抛出异常
+            ThrowExceptionUtils.throwIfTrue(totalCount <= 0, ResultCode.NO_RESULTS_FOUND);
+            // 总页数
+            int totalPages = PageUtil.getAllPages((int) totalCount, size);
+
+            List<TagForSearchDTO> paginatedResults = new ArrayList<>();
+
+            hits.forEach(h -> {
+                Map<String, Object> map = h.getSourceAsMap();
+                String tagName = String.valueOf(map.get(EsConstant.TAG_NAME));
+                String tagNum = String.valueOf(map.get(EsConstant.TAG_NUMBER));
+                Integer number = Integer.valueOf(tagNum);
+                TagForSearchDTO tag = TagForSearchDTO.builder().tag(tagName).number(number).build();
+                paginatedResults.add(tag);
+            });
+            return SearchResultsDTO.builder()
+                    .paginatedResults(paginatedResults)
+                    .totalCount(totalCount)
+                    .totalPage(totalPages)
+                    .build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.CONNECTION_ERROR);
+        }
+    }
+
+    @EmptyStringCheck
+    public SearchResultsDTO searchUserData(
+            @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
+            int from, int size) {
 
         // 模糊查询
         WildcardQueryBuilder wildcardQueryUsername = QueryBuilders
@@ -439,6 +491,7 @@ public class ElasticsearchManager {
                 .should(wildcardQueryUserId)
                 .minimumShouldMatch(1);
 
+        SearchSourceBuilder source = new SearchSourceBuilder();
         // 放入 queryBuilder 后，再添加 timeout、分页和高亮
         source.query(boolQueryBuilder)
                 .highlighter(new HighlightBuilder()

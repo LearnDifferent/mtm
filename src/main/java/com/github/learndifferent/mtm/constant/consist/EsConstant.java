@@ -17,9 +17,9 @@ public final class EsConstant {
 
     public static final String INDEX_TAG = "tag";
 
-    public static final String TAG_NAME = "tagName";
+    public static final String TAG_NAME = "tag";
 
-    public static final String TAG_NUMBER = "tagNumber";
+    public static final String TAG_NUMBER = "number";
 
     public static final String USER_ID = "userId";
 
