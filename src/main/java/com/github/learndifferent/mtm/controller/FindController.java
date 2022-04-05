@@ -41,9 +41,9 @@ public class FindController {
     }
 
     /**
-     * Get trending searches, existent of website data for search and the update information.
+     * Get trending searches, existent of bookmark data for search and the update information.
      *
-     * @return {@link FindPageVO} trending searches, existent of data for search and update information
+     * @return {@link FindPageVO} trending searches, existent of bookmark data for search and update information
      */
     @SystemLog(optsType = OptsType.READ)
     @GetMapping("/load")
@@ -51,7 +51,7 @@ public class FindController {
 
         // trending searches
         Set<String> trendingList = searchService.getTrends();
-        // existent of website data for search
+        // existent of bookmark data for search
         boolean exist = searchService.existsData(SearchMode.WEB);
         // update information
         boolean hasNewUpdate = searchService.dataInDatabaseDiffFromElasticsearch(SearchMode.WEB, exist);
@@ -67,10 +67,11 @@ public class FindController {
      * Delete specific trending keyword (Guest does not have the permission)
      *
      * @param word keyword to delete
-     * @return success or failure
+     * @return true if success
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
      *                                                                  user is a guest with the result code of {@link
-     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED}
      */
     @NotGuest
     @SystemLog(optsType = OptsType.DELETE)
@@ -82,7 +83,7 @@ public class FindController {
     /**
      * Delete all trending keyword (Guest does not have the permission)
      *
-     * @return success or failure
+     * @return true if success
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
      *                                                                  user is a guest with the result code of {@link
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
@@ -104,8 +105,8 @@ public class FindController {
      * @param pageInfo pagination information
      * @return {@link ResultVO}<{@link SearchResultsDTO}> Search results
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
-     *                                                                  will be thrown if there are no results that
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
+     *                                                                  NO_RESULTS_FOUND} will be thrown if there are no results that
      *                                                                  match the keyword
      */
     @GetMapping("/search")
@@ -147,19 +148,22 @@ public class FindController {
     }
 
     /**
-     * Check and delete all website data in Elasticsearch
+     * Check and delete data in Elasticsearch
      *
-     * @param mode Delete user data if {@link SearchMode#USER} and delete website data if {@link SearchMode#WEB}
-     * @return success or failure.
+     * @param mode delete user data if {@link SearchMode#USER},
+     *             bookmark data if {@link SearchMode#WEB}
+     *             and tag data if {@link SearchMode#TAG}
+     * @return true if deleted
      * @throws com.github.learndifferent.mtm.exception.ServiceException Only admin can delete all website data, and
      *                                                                  if the current user is not admin,
      *                                                                  {@link AdminValidation} annotation
      *                                                                  will throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED}
      */
     @DeleteMapping("/delete")
     @AdminValidation
-    public boolean deleteWebsiteDataSearch(@RequestParam("mode") SearchMode mode) {
+    public boolean deleteDataForSearch(@RequestParam("mode") SearchMode mode) {
         return searchService.checkAndDeleteIndex(mode);
     }
 

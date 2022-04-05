@@ -51,7 +51,9 @@ public interface SearchService {
      * If not exists, return true.
      * If exists, delete the index and return whether the deletion is success.
      *
-     * @param mode Delete user data if {@link SearchMode#USER} and delete website data if {@link SearchMode#WEB}
+     * @param mode delete user data if {@link SearchMode#USER},
+     *             bookmark data if {@link SearchMode#WEB}
+     *             and tag data if {@link SearchMode#TAG}
      * @return true if deleted
      */
     boolean checkAndDeleteIndex(SearchMode mode);
@@ -59,16 +61,19 @@ public interface SearchService {
     /**
      * Data generation for Elasticsearch based on database
      *
-     * @param mode If the value is {@link SearchMode#USER}, generate user data.
-     *             If the value is {@link SearchMode#WEB}, generate bookmark data.
-     *             If the value is {@link SearchMode#TAG}, generate tag data.
+     * @param mode generate user data if {@link SearchMode#USER},
+     *             generate bookmark data   if t{@link SearchMode#WEB},
+     *             and generate tag data if {@link SearchMode#TAG}.
      *             The default mode is {@link SearchMode#WEB}.
      * @return true if success
      */
     boolean generateDataForSearch(SearchMode mode);
 
     /**
-     * Search and add the keyword to trending list if the search mode is {@link SearchMode#WEB}
+     * Search
+     * <p>
+     * add the keyword to trending list if the search mode is {@link SearchMode#WEB}
+     * </p>
      *
      * @param mode     Search users if the search mode is {@link SearchMode#USER},
      *                 search bookmarks if the search mode is {@link SearchMode#WEB}
