@@ -1,8 +1,10 @@
 package com.github.learndifferent.mtm.config;
 
+import com.github.learndifferent.mtm.exception.ServiceException;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -42,11 +44,6 @@ public class RedisConfig {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 
-    /**
-     * Use {@link GenericJackson2JsonRedisSerializer} as serializer
-     *
-     * @return {@code RedisSerializer<Object>} serializer
-     */
     @Bean(name = "springSessionDefaultRedisSerializer")
     public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
         return RedisSerializer.json();
@@ -66,37 +63,21 @@ public class RedisConfig {
 
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
-        return builder -> builder.withInitialCacheConfigurations(getCustomCacheConfigurations());
+        Map<String, Long> configs = redisConfigProperties.getCacheConfigs();
+        Map<String, RedisCacheConfiguration> cacheConfigs = transferToCacheConfigs(configs);
+
+        return builder -> builder.withInitialCacheConfigurations(cacheConfigs);
     }
 
-    private Map<String, RedisCacheConfiguration> getCustomCacheConfigurations() {
-        float expectedSize = 8;
-        int initialCapacity = (int) (expectedSize / 0.75F + 1.0F);
-
-        Map<String, Long> configs = new HashMap<>(initialCapacity);
-        configs.put("comment:count", 10L);
-        configs.put("user:name", 10L);
-        configs.put("tag:all", 10L);
-        configs.put("tag:popular", 10L);
-        configs.put("user:all", 20L);
-        configs.put("bookmarks:visited", 30L);
-        configs.put("system-log", 40L);
-        configs.put("tag:a", 0L);
-        return getCustomCacheConfigurations(configs);
+    private Map<String, RedisCacheConfiguration> transferToCacheConfigs(Map<String, Long> configs) {
+        return configs.entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        entry -> RedisCacheConfiguration.defaultCacheConfig()
+                                .entryTtl(Duration.ofSeconds(entry.getValue())),
+                        (a, b) -> {
+                            throw new ServiceException("Key Conflicts");
+                        }));
     }
-
-    Map<String, RedisCacheConfiguration> getCustomCacheConfigurations(Map<String, Long> configs) {
-        int expectedSize = configs.size();
-        int initialCapacity = (int) ((float) expectedSize / 0.75F + 1.0F);
-
-        Map<String, RedisCacheConfiguration> result = new HashMap<>(initialCapacity);
-        configs.forEach((name, ttl) ->
-                result.put(name, RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(ttl))));
-        return result;
-    }
-
-//    @Bean
-//    public static ConfigureRedisAction configureRedisAction() {
-//        return ConfigureRedisAction.NO_OP;
-//    }
 }
