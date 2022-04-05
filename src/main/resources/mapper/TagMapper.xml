@@ -54,4 +54,8 @@
             limit #{from}, #{size};
         </if>
     </select>
+    <select id="countDistinctTags" resultType="java.lang.Integer">
+        select count(distinct tag)
+        from tag;
+    </select>
 </mapper>

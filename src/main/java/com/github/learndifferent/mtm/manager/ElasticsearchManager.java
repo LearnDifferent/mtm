@@ -170,6 +170,10 @@ public class ElasticsearchManager {
                 countEsDocsResult = countDocsAsync(EsConstant.INDEX_USER);
                 databaseCount = userMapper.countUsers();
                 break;
+            case TAG:
+                countEsDocsResult = countDocsAsync(EsConstant.INDEX_TAG);
+                databaseCount = tagMapper.countDistinctTags();
+                break;
             case WEB:
                 countEsDocsResult = countDocsAsync(EsConstant.INDEX_WEB);
                 // 数据库中的 distinct url 的数量
@@ -209,9 +213,9 @@ public class ElasticsearchManager {
         } catch (IOException | ElasticsearchStatusException e) {
             if (e instanceof ElasticsearchStatusException) {
                 log.warn("ElasticsearchStatusException while counting, "
-                        + "which means the Index has been deleted. Returned 0.");
+                        + "which means the Index has been deleted. Return 0.");
             } else {
-                log.error("IOException while counting. Returned 0.");
+                log.error("IOException while counting. Return 0.");
                 e.printStackTrace();
             }
             return AsyncResult.forValue(0L);

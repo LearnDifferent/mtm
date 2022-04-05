@@ -26,7 +26,9 @@ public interface SearchService {
     /**
      * Check the existent of data
      *
-     * @param mode Check user data if {@link SearchMode#USER} and check website data if {@link SearchMode#WEB}
+     * @param mode Check user data if {@link SearchMode#USER},
+     *             tag data if {@link SearchMode#TAG}
+     *             and bookmark data if {@link SearchMode#WEB}
      * @return true if exists
      */
     boolean existsData(SearchMode mode);
@@ -34,7 +36,9 @@ public interface SearchService {
     /**
      * Check if data in database is different from data in Elasticsearch.
      *
-     * @param mode       Check user data if {@link SearchMode#USER} and check website data if {@link SearchMode#WEB}
+     * @param mode       Check user data if {@link SearchMode#USER},
+     *                   bookmark data if {@link SearchMode#WEB}
+     *                   and tag data if {@link SearchMode#TAG}
      * @param existIndex Index exists or not
      * @return Returns true if detect a difference.
      * <p>If the index does not exist, returns true. If the {@link SearchMode} is not {@link SearchMode#USER} or

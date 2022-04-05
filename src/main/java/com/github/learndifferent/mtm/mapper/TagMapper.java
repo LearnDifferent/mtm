@@ -85,4 +85,11 @@ public interface TagMapper {
     List<TagAndCountDO> getTagAndCount(@Param("from") int from,
                                        @Param("size") int size,
                                        @Param("beMoreThanOne") boolean beMoreThanOne);
+
+    /**
+     * Get the number of unique tags
+     *
+     * @return number of unique tags
+     */
+    int countDistinctTags();
 }

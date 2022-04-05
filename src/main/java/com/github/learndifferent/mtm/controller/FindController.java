@@ -121,7 +121,9 @@ public class FindController {
     /**
      * Check the existent and changes of data
      *
-     * @param mode Check user data if {@link SearchMode#USER} and check website data if {@link SearchMode#WEB}
+     * @param mode Check user data if {@link SearchMode#USER},
+     *             bookmark data if {@link SearchMode#WEB}
+     *             and tag data if {@link SearchMode#TAG}
      * @return data status
      */
     @GetMapping("/status")

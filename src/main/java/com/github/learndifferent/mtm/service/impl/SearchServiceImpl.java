@@ -39,6 +39,8 @@ public class SearchServiceImpl implements SearchService {
         switch (mode) {
             case USER:
                 return elasticsearchManager.existsIndex(EsConstant.INDEX_USER);
+            case TAG:
+                return elasticsearchManager.existsIndex(EsConstant.INDEX_TAG);
             case WEB:
             default:
                 return elasticsearchManager.existsIndex(EsConstant.INDEX_WEB);
