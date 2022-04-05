@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.controller;
 
+import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.ViewCounterService;
@@ -28,19 +29,19 @@ public class ViewCounterController {
     }
 
     /**
-     * Increase the number of views of a website data
+     * Increase the number of views of a bookmark
      *
-     * @param webId ID of the website data
+     * @param webId ID of the bookmarked website data
      */
-    @GetMapping("/incr")
+    @GetMapping
     public void increaseViews(@RequestParam("webId") Integer webId) {
         viewCounterService.increaseViewsAndAddToSet(webId);
     }
 
     /**
-     * Count the number of views of a website data
+     * Count the number of views of a bookmark
      *
-     * @param webId ID of the website data
+     * @param webId ID of the bookmarked website data
      * @return views
      */
     @GetMapping("/count")
@@ -50,17 +51,19 @@ public class ViewCounterController {
     }
 
     /**
-     * Save the numbers of views to the database
-     * and return a list of the keys that failed to save
+     * Save the numbers of views from Redis to the database,
+     * or add the view data from database to Redis if the Redis has no view data
      *
-     * @return the list of the keys that failed to save
-     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
-     *                                                                  will be thrown if no data available
+     * @return Return a list of keys that failed to save
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED} if the user is not admin
      */
-    @GetMapping("/update-db")
-    public ResultVO<List<String>> saveViewsToDbAndReturnFailKeys() {
-        List<String> failKeys = viewCounterService.saveViewsToDbAndReturnFailKeys();
+    @GetMapping("/update")
+    @AdminValidation
+    public ResultVO<List<String>> updateViews() {
+        List<String> failKeys = viewCounterService.updateViewsAndReturnFailKeys();
         return ResultCreator.okResult(failKeys);
     }
 }

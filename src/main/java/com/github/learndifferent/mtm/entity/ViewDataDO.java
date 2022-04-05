@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Website Data View Data Object
+ * View Data Object
  *
  * @author zhou
  * @date 2022/3/24
@@ -18,15 +18,15 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Builder
-public class WebDataViewDO implements Serializable {
+public class ViewDataDO implements Serializable {
 
     /**
-     * ID of the website data
+     * ID of the bookmarked website data
      */
     private Integer webId;
 
     /**
-     * The number of views of the website data
+     * The number of views of the bookmark
      */
     private Integer views;
 

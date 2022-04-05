@@ -13,43 +13,42 @@ import java.util.List;
 public interface ViewCounterService {
 
     /**
-     * Increase the number of views of a website data.
-     * This will increment the number stored at the key of views in Redis
-     * and will add the key to a set that stores all the keys of views as well.
+     * Increase the number of views of a bookmark.
+     * <p>
+     * This will increment the number of views of the bookmark that stores in Redis
+     * and will add the key that stores this view data to a set in Redis.
+     * </p>
      *
-     * @param webId ID of the website data
+     * @param webId ID of the bookmarked website data
      */
     void increaseViewsAndAddToSet(Integer webId);
 
     /**
-     * Count the number of views of a website data
+     * Count the number of views of a bookmark stored in Redis
      *
-     * @param webId ID of the website data
+     * @param webId ID of the bookmarked website data
      * @return views
      */
     int countViews(Integer webId);
 
     /**
-     * Save the numbers of views to the database
-     * and return a list of the keys that failed to save
+     * Save the numbers of views from Redis to the database,
+     * or add the view data from database to Redis if the Redis has no view data
      *
-     * @return the list of the keys that failed to save
-     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
-     *                                                                  will be thrown if no data available
+     * @return Return a list of keys that failed to save
      */
-    List<String> saveViewsToDbAndReturnFailKeys();
+    List<String> updateViewsAndReturnFailKeys();
 
     /**
-     * A scheduled task to run {@link #saveViewsToDbAndReturnFailKeys()} every 12 hours
+     * A scheduled task to run {@link #updateViewsAndReturnFailKeys()} every 12 hours
      */
-    void saveViewsToDatabaseScheduledTask();
+    void updateViewsScheduledTask();
 
     /**
      * Get visited bookmarks from database.
      * If no data available, the empty result will be cached for 30 seconds.
      *
-     * @param pageInfo pagination info
+     * @param pageInfo pagination information
      * @return visited bookmarks
      */
     List<VisitedBookmarksDTO> getVisitedBookmarks(PageInfoDTO pageInfo);

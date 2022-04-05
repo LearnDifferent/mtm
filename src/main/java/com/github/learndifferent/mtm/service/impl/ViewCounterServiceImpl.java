@@ -1,19 +1,20 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
-import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.VisitedBookmarksDTO;
-import com.github.learndifferent.mtm.entity.WebDataViewDO;
+import com.github.learndifferent.mtm.entity.ViewDataDO;
 import com.github.learndifferent.mtm.mapper.WebDataViewMapper;
 import com.github.learndifferent.mtm.service.ViewCounterService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -77,15 +78,43 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         }
     }
 
+    private ViewCounterServiceImpl getBean() {
+        return ApplicationContextUtils.getBean(ViewCounterServiceImpl.class);
+    }
+
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public List<String> saveViewsToDbAndReturnFailKeys() {
-        // get all keys
+    public List<String> updateViewsAndReturnFailKeys() {
+        // get all keys containing view data in Redis
         Set<String> keys = redisTemplate.opsForSet().members(KeyConstant.VIEW_KEY_SET);
 
-        // throw an exception if no keys are found
-        boolean empty = CollectionUtils.isEmpty(keys);
-        ThrowExceptionUtils.throwIfTrue(empty, ResultCode.UPDATE_FAILED);
+        // save the view data from database to Redis if no keys are found
+        // save them from Redis to database if found
+        boolean isEmpty = CollectionUtils.isEmpty(keys);
+        return isEmpty ? saveViewsToRedisAndReturnEmptyList()
+                : getBean().saveViewsToDbAndReturnFailKeys(keys);
+    }
+
+    private List<String> saveViewsToRedisAndReturnEmptyList() {
+        // get data from database
+        List<ViewDataDO> data = webDataViewMapper.getAllViewData();
+
+        // save to Redis
+        Map<String, String> kv = data.stream().collect(Collectors.toMap(
+                d -> KeyConstant.WEB_VIEW_COUNT_PREFIX + d.getWebId(),
+                d -> String.valueOf(d.getViews())));
+        redisTemplate.opsForValue().multiSet(kv);
+
+        // add the keys to set in Redis
+        Set<String> keySet = kv.keySet();
+        int size = keySet.size();
+        String[] keys = keySet.toArray(new String[size]);
+        redisTemplate.opsForSet().add(KeyConstant.VIEW_KEY_SET, keys);
+
+        return Collections.emptyList();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public List<String> saveViewsToDbAndReturnFailKeys(Set<String> keys) {
 
         // clear all data before adding new data
         webDataViewMapper.clearAll();
@@ -94,7 +123,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         List<String> failKeys = new ArrayList<>();
 
         // get all values by keys and create a new set to store every web id and its views
-        Set<WebDataViewDO> set = new HashSet<>();
+        Set<ViewDataDO> set = new HashSet<>();
         keys.forEach(key -> updateViewsCollections(set, failKeys, key));
 
         // save all data to database
@@ -104,24 +133,16 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         return failKeys;
     }
 
-    private void updateViewsCollections(Set<WebDataViewDO> set, List<String> failKeys, String key) {
+    private void updateViewsCollections(Set<ViewDataDO> set, List<String> failKeys, String key) {
         String val = redisTemplate.opsForValue().get(key);
         if (val == null) {
-            // add the key to list if no value available
+            // add the key to fail list if no value available
             failKeys.add(key);
             return;
         }
 
         try {
-            // get views
-            int views = Integer.parseInt(val);
-            // get web id
-            String webIdString = key.substring(LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX);
-            int webId = Integer.parseInt(webIdString);
-            // create data
-            WebDataViewDO data = WebDataViewDO.builder().views(views).webId(webId).build();
-            // add data to set
-            set.add(data);
+            updateViewsCollections(set, key, val);
         } catch (Exception e) {
             e.printStackTrace();
             // add the key to list if failure
@@ -129,12 +150,22 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         }
     }
 
+    private void updateViewsCollections(Set<ViewDataDO> set, String key, String val) {
+        // get views
+        int views = Integer.parseInt(val);
+        // get web id
+        String webIdString = key.substring(LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX);
+        int webId = Integer.parseInt(webIdString);
+        // create data
+        ViewDataDO data = ViewDataDO.builder().views(views).webId(webId).build();
+        // add data to set
+        set.add(data);
+    }
+
     @Override
     @Scheduled(fixedRate = 43_200_000)
-    public void saveViewsToDatabaseScheduledTask() {
-        ViewCounterServiceImpl viewCounterService =
-                ApplicationContextUtils.getBean(ViewCounterServiceImpl.class);
-        viewCounterService.saveViewsToDbAndReturnFailKeys();
+    public void updateViewsScheduledTask() {
+        getBean().updateViewsAndReturnFailKeys();
     }
 
     @Override
