@@ -11,8 +11,10 @@ import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
+import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
@@ -88,18 +90,21 @@ public class ElasticsearchManager {
     private final TrendsManager trendsManager;
     private final UserMapper userMapper;
     private final LanguageDetector languageDetector;
+    private final TagMapper tagMapper;
 
     @Autowired
     public ElasticsearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
                                 WebsiteMapper websiteMapper,
                                 TrendsManager trendsManager,
                                 UserMapper userMapper,
-                                LanguageDetector languageDetector) {
+                                LanguageDetector languageDetector,
+                                TagMapper tagMapper) {
         this.client = client;
         this.websiteMapper = websiteMapper;
         this.trendsManager = trendsManager;
         this.userMapper = userMapper;
         this.languageDetector = languageDetector;
+        this.tagMapper = tagMapper;
     }
 
     /**
@@ -276,9 +281,38 @@ public class ElasticsearchManager {
     }
 
     /**
+     * Tag Data generation for Elasticsearch based on database
+     *
+     * @return true if success
+     */
+    public boolean generateTagDataForSearch() {
+        boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_TAG);
+        ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
+
+        List<TagAndCountDO> allTagsAndCount = tagMapper.getTagAndCount(0, -1, false);
+
+        BulkRequest bulkRequest = new BulkRequest();
+        allTagsAndCount.forEach(tc -> {
+            IndexRequest request = new IndexRequest(EsConstant.INDEX_TAG);
+            request.id(tc.getTag());
+            String json = JsonUtils.toJson(tc);
+            request.source(json, XContentType.JSON);
+            bulkRequest.add(request);
+        });
+
+        try {
+            BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
+            return !response.hasFailures();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.CONNECTION_ERROR);
+        }
+    }
+
+    /**
      * User Data generation for Elasticsearch based on database
      *
-     * @return success or failure
+     * @return true if success
      */
     public boolean generateUserDataForSearch() {
 

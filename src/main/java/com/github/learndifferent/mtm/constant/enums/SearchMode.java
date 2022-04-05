@@ -11,11 +11,15 @@ import com.github.learndifferent.mtm.constant.consist.EsConstant;
 public enum SearchMode {
 
     /**
-     * Search for website data
+     * Search for bookmarked websites
      */
     WEB(EsConstant.INDEX_WEB),
     /**
-     * Search for user data
+     * Search for tags
+     */
+    TAG(EsConstant.INDEX_TAG),
+    /**
+     * Search for users
      */
     USER(EsConstant.INDEX_USER);
 

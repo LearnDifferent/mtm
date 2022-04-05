@@ -97,9 +97,11 @@ public class FindController {
     /**
      * Search
      *
-     * @param mode     Search user data if {@link SearchMode#USER} and search website data if {@link SearchMode#WEB}
+     * @param mode     Search users if the search mode is {@link SearchMode#USER},
+     *                 search bookmarks if the search mode is {@link SearchMode#WEB}
+     *                 and search tags if the search mode is {@link SearchMode#TAG}
      * @param keyword  keyword (accept empty string and null)
-     * @param pageInfo pagination info
+     * @param pageInfo pagination information
      * @return {@link ResultVO}<{@link SearchResultsDTO}> Search results
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
@@ -132,9 +134,10 @@ public class FindController {
     /**
      * Data generation for Elasticsearch based on database
      *
-     * @param mode Generate user data if {@link SearchMode#USER}
-     *             and generate website data if {@link SearchMode#WEB}.
-     * @return success or failure
+     * @param mode Generate user data if {@link SearchMode#USER},
+     *             generate tag data if {@link SearchMode#TAG}
+     *             and generate bookmark data if {@link SearchMode#WEB}.
+     * @return true if success
      */
     @GetMapping("/build")
     public boolean generateSearchDataBasedOnDatabase(@RequestParam("mode") SearchMode mode) {

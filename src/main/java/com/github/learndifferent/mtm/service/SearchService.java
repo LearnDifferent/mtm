@@ -56,18 +56,21 @@ public interface SearchService {
      * Data generation for Elasticsearch based on database
      *
      * @param mode If the value is {@link SearchMode#USER}, generate user data.
-     *             If the value is {@link SearchMode#WEB}, generate website data.
+     *             If the value is {@link SearchMode#WEB}, generate bookmark data.
+     *             If the value is {@link SearchMode#TAG}, generate tag data.
      *             The default mode is {@link SearchMode#WEB}.
-     * @return success or failure
+     * @return true if success
      */
     boolean generateDataForSearch(SearchMode mode);
 
     /**
-     * Search and add the keyword to trending list
+     * Search and add the keyword to trending list if the search mode is {@link SearchMode#WEB}
      *
-     * @param mode     Search user data if {@link SearchMode#USER} and search website data if {@link SearchMode#WEB}
+     * @param mode     Search users if the search mode is {@link SearchMode#USER},
+     *                 search bookmarks if the search mode is {@link SearchMode#WEB}
+     *                 and search tags if the search mode is {@link SearchMode#TAG}
      * @param keyword  keyword
-     * @param pageInfo pagination info
+     * @param pageInfo pagination information
      * @return {@link SearchResultsDTO} Search results
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}

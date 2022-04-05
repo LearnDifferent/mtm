@@ -42,12 +42,16 @@
         from tag
         where web_id = #{webId,jdbcType=INTEGER};
     </delete>
-    <select id="getPopularTags" resultType="com.github.learndifferent.mtm.dto.PopularTagDTO">
+    <select id="getTagAndCount" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
         select count(web_id) as number, tag
         from tag
         group by tag
-        having number > 1
+        <if test="beMoreThanOne == true">
+            having number > 1
+        </if>
         order by number desc
-        limit #{from}, #{size};
+        <if test="size gte 0">
+            limit #{from}, #{size};
+        </if>
     </select>
 </mapper>

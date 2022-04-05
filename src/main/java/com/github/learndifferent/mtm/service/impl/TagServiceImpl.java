@@ -9,6 +9,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
@@ -135,10 +136,10 @@ public class TagServiceImpl implements TagService {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<PopularTagDTO> tags = tagMapper.getPopularTags(from, size);
+        List<TagAndCountDO> tags = tagMapper.getTagAndCount(from, size, true);
         throwExceptionIfEmpty(tags);
 
-        return tags;
+        return DozerUtils.convertList(tags, PopularTagDTO.class);
     }
 
     private void throwExceptionIfEmpty(Collection<?> collection) {

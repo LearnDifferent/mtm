@@ -66,6 +66,8 @@ public class SearchServiceImpl implements SearchService {
         switch (mode) {
             case USER:
                 return elasticsearchManager.generateUserDataForSearch();
+            case TAG:
+                return elasticsearchManager.generateTagDataForSearch();
             case WEB:
             default:
                 return elasticsearchManager.generateWebsiteDataForSearch();

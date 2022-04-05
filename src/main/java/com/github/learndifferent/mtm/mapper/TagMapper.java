@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
-import com.github.learndifferent.mtm.dto.PopularTagDTO;
+import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
@@ -33,7 +33,7 @@ public interface TagMapper {
     TagDO getSpecificTagByTagTextAndWebId(@Param("tagName") String tagName, @Param("webId") int webId);
 
     /**
-     * Get the tags by Web ID
+     * Get the tags by {@code webId}.
      * <p>
      * Get all tags if the ID is null.
      * </p>
@@ -74,11 +74,15 @@ public interface TagMapper {
     void deleteAllTags(int webId);
 
     /**
-     * Get popular tags
+     * Get tags and count the numbers of bookmarks of tags.
+     * The result will not be paginated if the {@code size} is less than 0.
      *
-     * @param from from
-     * @param size size
+     * @param from          from
+     * @param size          size
+     * @param beMoreThanOne true if the numbers should be greater than 1
      * @return a list of popular tags
      */
-    List<PopularTagDTO> getPopularTags(@Param("from") int from, @Param("size") int size);
+    List<TagAndCountDO> getTagAndCount(@Param("from") int from,
+                                       @Param("size") int size,
+                                       @Param("beMoreThanOne") boolean beMoreThanOne);
 }
