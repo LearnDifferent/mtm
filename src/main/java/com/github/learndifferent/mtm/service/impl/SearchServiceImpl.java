@@ -64,12 +64,12 @@ public class SearchServiceImpl implements SearchService {
     public boolean generateDataForSearch(SearchMode mode) {
         switch (mode) {
             case USER:
-                return elasticsearchManager.generateUserDataForSearch();
+                return elasticsearchManager.generateUserData();
             case TAG:
-                return elasticsearchManager.generateTagDataForSearch();
+                return elasticsearchManager.generateTagData();
             case WEB:
             default:
-                return elasticsearchManager.generateWebsiteDataForSearch();
+                return elasticsearchManager.generateBookmarkData();
         }
     }
 
@@ -77,15 +77,7 @@ public class SearchServiceImpl implements SearchService {
     public SearchResultsDTO search(SearchMode mode, String keyword, PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        switch (mode) {
-            case USER:
-                return elasticsearchManager.searchUserData(keyword, from, size);
-            case TAG:
-                return elasticsearchManager.searchTagData(keyword, from, size);
-            case WEB:
-            default:
-                return elasticsearchManager.searchWebsiteData(keyword, from, size);
-        }
+        return elasticsearchManager.search(keyword, from, size, mode);
     }
 
     @Override

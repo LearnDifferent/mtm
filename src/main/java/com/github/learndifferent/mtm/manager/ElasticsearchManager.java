@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +37,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -53,6 +55,7 @@ import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.AnalyzeRequest;
 import org.elasticsearch.client.indices.AnalyzeResponse;
+import org.elasticsearch.client.indices.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -76,6 +79,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.util.concurrent.ListenableFuture;
 
 /**
  * Elasticsearch Manager
@@ -164,6 +168,10 @@ public class ElasticsearchManager {
                 return false;
         }
 
+        return getAndCompare(countEsDocsResult, databaseCount);
+    }
+
+    private boolean getAndCompare(Future<Long> countEsDocsResult, long databaseCount) {
         Long elasticsearchDocCount = null;
         try {
             elasticsearchDocCount = countEsDocsResult.get();
@@ -185,29 +193,26 @@ public class ElasticsearchManager {
             long count = countResponse.getCount();
             return AsyncResult.forValue(count);
         } catch (IOException | ElasticsearchStatusException e) {
-            if (e instanceof ElasticsearchStatusException) {
-                log.warn("ElasticsearchStatusException while counting, "
-                        + "which means the Index has been deleted. Return 0.");
-            } else {
-                log.error("IOException while counting. Return 0.");
-                e.printStackTrace();
-            }
-            return AsyncResult.forValue(0L);
+            return analyzeAndReturnZero(e);
         }
+    }
+
+    private ListenableFuture<Long> analyzeAndReturnZero(Exception e) {
+        if (e instanceof ElasticsearchStatusException) {
+            log.warn("ElasticsearchStatusException while counting, "
+                    + "which means the Index has been deleted. Return 0.");
+        } else {
+            log.error("IOException while counting. Return 0.");
+            e.printStackTrace();
+        }
+        return AsyncResult.forValue(0L);
     }
 
     @Async("asyncTaskExecutor")
     @WebsiteDataClean
     public Future<Boolean> saveBookmarkToElasticsearchAsync(WebWithNoIdentityDTO bookmark) {
 
-        WebForSearchDTO web = DozerUtils.convert(bookmark, WebForSearchDTO.class);
-
-        String json = JsonUtils.toJson(web);
-        IndexRequest request = new IndexRequest(EsConstant.INDEX_WEB);
-        request.id(web.getUrl());
-        request.timeout(new TimeValue(8, TimeUnit.SECONDS));
-        request.source(json, XContentType.JSON);
-
+        IndexRequest request = getIndexRequest(bookmark);
         boolean success = false;
 
         try {
@@ -228,13 +233,42 @@ public class ElasticsearchManager {
         return AsyncResult.forValue(success);
     }
 
+    private IndexRequest getIndexRequest(WebWithNoIdentityDTO bookmark) {
+
+        WebForSearchDTO data = DozerUtils.convert(bookmark, WebForSearchDTO.class);
+        String json = JsonUtils.toJson(data);
+        IndexRequest request = new IndexRequest(EsConstant.INDEX_WEB);
+        request.id(data.getUrl());
+        request.timeout(new TimeValue(8, TimeUnit.SECONDS));
+        request.source(json, XContentType.JSON);
+        return request;
+    }
+
+    @Async("asyncTaskExecutor")
+    public void addUserDataToElasticsearchAsync(UserForSearchDTO user) {
+
+        IndexRequest request = getIndexRequest(user);
+        try {
+            client.index(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private IndexRequest getIndexRequest(UserForSearchDTO user) {
+        IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
+        String userId = user.getUserId();
+        String json = JsonUtils.toJson(user);
+        request.id(userId).source(json, XContentType.JSON);
+        return request;
+    }
+
     /**
-     * 删除步骤：先检查该 index 是否存在，
-     * <p>如果不存在，返回 true 表示已经删除；</p>
-     * <p>如果存在该 index，就执行删除</p>
+     * Check whether the index exists.
+     * If not exists, return true.
+     * If exists, delete the index and return whether the deletion is success.
      *
-     * @param indexName name of the index
-     * @return 是否删除成功
+     * @return true if deleted
      */
     public boolean checkAndDeleteIndex(String indexName) {
 
@@ -244,8 +278,7 @@ public class ElasticsearchManager {
     private boolean deleteIndex(String indexName) {
         DeleteIndexRequest request = new DeleteIndexRequest(indexName);
         try {
-            AcknowledgedResponse response = client.indices()
-                    .delete(request, RequestOptions.DEFAULT);
+            AcknowledgedResponse response = client.indices().delete(request, RequestOptions.DEFAULT);
             return response.isAcknowledged();
         } catch (IOException e) {
             e.printStackTrace();
@@ -254,32 +287,21 @@ public class ElasticsearchManager {
     }
 
     /**
-     * Tag Data generation for Elasticsearch based on database
+     * Tag Data generation for Elasticsearch based on database.
+     * Remember to clear all tag data before generation.
      *
      * @return true if success
      */
-    public boolean generateTagDataForSearch() {
-        boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_TAG);
-        ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
+    public boolean generateTagData() {
+        throwIfNotClear(EsConstant.INDEX_TAG);
 
-        List<TagAndCountDO> allTagsAndCount = tagMapper.getTagAndCount(0, -1, false);
+        List<TagAndCountDO> data = tagMapper.getTagAndCount(0, -1, false);
+        List<TagForSearchDTO> tcs = DozerUtils.convertList(data, TagForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
-        allTagsAndCount.forEach(tc -> {
-            IndexRequest request = new IndexRequest(EsConstant.INDEX_TAG);
-            request.id(tc.getTag());
-            String json = JsonUtils.toJson(tc);
-            request.source(json, XContentType.JSON);
-            bulkRequest.add(request);
-        });
+        tcs.forEach(tc -> updateBulkRequest(bulkRequest, EsConstant.INDEX_TAG, tc.getTag(), JsonUtils.toJson(tc)));
 
-        try {
-            BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
-            return !response.hasFailures();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
+        return sendBulkRequest(bulkRequest);
     }
 
     /**
@@ -287,54 +309,49 @@ public class ElasticsearchManager {
      *
      * @return true if success
      */
-    public boolean generateUserDataForSearch() {
+    public boolean generateUserData() {
 
-        boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_USER);
-        // 如果无法清空之前的数据，抛出异常
-        ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
+        throwIfNotClear(EsConstant.INDEX_USER);
 
-        List<UserDO> users = userMapper.getUsers(null, null);
-        List<UserForSearchDTO> usersForSearch = DozerUtils.convertList(users, UserForSearchDTO.class);
+        List<UserDO> us = userMapper.getUsers(null, null);
+        List<UserForSearchDTO> users = DozerUtils.convertList(us, UserForSearchDTO.class);
 
-        return bulkAddUserDataForSearch(usersForSearch);
+        BulkRequest bulkRequest = new BulkRequest();
+        users.forEach(u -> updateBulkRequest(bulkRequest, EsConstant.INDEX_USER, u.getUserId(), JsonUtils.toJson(u)));
+
+        return sendBulkRequest(bulkRequest);
     }
 
-    private boolean bulkAddUserDataForSearch(List<UserForSearchDTO> users) {
+    public boolean generateBookmarkData() {
+
+        throwIfNotClear(EsConstant.INDEX_WEB);
+
+        List<WebForSearchDTO> bookmarks = websiteMapper.getAllPublicWebDataForSearch();
+
         BulkRequest bulkRequest = new BulkRequest();
+        bookmarks.forEach(b -> updateBulkRequest(bulkRequest, EsConstant.INDEX_WEB, b.getUrl(), JsonUtils.toJson(b)));
+        return sendBulkRequest(bulkRequest);
+    }
 
-        users.forEach(u -> {
-            IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
+    private void throwIfNotClear(String indexTag) {
+        boolean notClear = !checkAndDeleteIndex(indexTag);
+        ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
+    }
 
-            String userId = u.getUserId();
-            request.id(userId);
+    private void updateBulkRequest(BulkRequest bulkRequest, String index, String id, String json) {
+        IndexRequest request = new IndexRequest(index);
+        request.id(id);
+        request.source(json, XContentType.JSON);
+        bulkRequest.add(request);
+    }
 
-            String json = JsonUtils.toJson(u);
-            request.source(json, XContentType.JSON);
-
-            bulkRequest.add(request);
-        });
-
+    private boolean sendBulkRequest(BulkRequest bulkRequest) {
         try {
-            BulkResponse responses = client.bulk(bulkRequest, RequestOptions.DEFAULT);
-            // 没问题返回 true，出现问题返回 false
-            return !responses.hasFailures();
+            BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
+            return !response.hasFailures();
         } catch (IOException e) {
             e.printStackTrace();
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
-    }
-
-    @Async("asyncTaskExecutor")
-    public void addUserDataToElasticsearchAsync(UserForSearchDTO user) {
-
-        IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
-        String userId = user.getUserId();
-        String json = JsonUtils.toJson(user);
-        request.id(userId).source(json, XContentType.JSON);
-        try {
-            client.index(request, RequestOptions.DEFAULT);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -349,53 +366,62 @@ public class ElasticsearchManager {
         }
     }
 
-    /**
-     * 重新生成用于搜索的网页数据。
-     * <p>确保之前的数据已经清空，再根据数据库中的数据生成 Elasticsearch 的数据。</p>
-     *
-     * @return 是否成功
-     */
-    public boolean generateWebsiteDataForSearch() {
-
-        boolean notClear = !checkAndDeleteIndex(EsConstant.INDEX_WEB);
-        // 如果无法清空之前的数据，抛出未知异常
-        ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
-
-        // 获取所有网页数据，包装为 Elasticsearch 需要的数据结构
-        List<WebForSearchDTO> webs = websiteMapper.getAllPublicWebDataForSearch();
-        // 清空之前的数据后，开始进行批量生成数据的操作
-        return bulkAddWebsiteDataForSearch(webs);
+    private SearchHits searchAndGetHits(SearchRequest searchRequest) throws IOException {
+        SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
+        return response.getHits();
     }
 
-    private boolean bulkAddWebsiteDataForSearch(List<WebForSearchDTO> webs) {
+    private long getTotalCount(SearchHits hits) {
+        long totalCount = hits.getTotalHits().value;
+        // check total number
+        ThrowExceptionUtils.throwIfTrue(totalCount <= 0, ResultCode.NO_RESULTS_FOUND);
+        return totalCount;
+    }
 
-        BulkRequest bulkRequest = new BulkRequest();
-
-        for (WebForSearchDTO web : webs) {
-            IndexRequest indexRequest = new IndexRequest(EsConstant.INDEX_WEB);
-            indexRequest.id(web.getUrl());
-
-            String json = JsonUtils.toJson(web);
-            indexRequest.source(json, XContentType.JSON);
-
-            bulkRequest.add(indexRequest);
-        }
-
+    @EmptyStringCheck
+    public SearchResultsDTO search(@ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
+                                   int from,
+                                   int size,
+                                   SearchMode mode) {
         try {
-            BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
-            // 没问题返回 true，出现问题返回 false
-            return !response.hasFailures();
+            return searchData(keyword, from, size, mode);
         } catch (IOException e) {
             e.printStackTrace();
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
 
-    @EmptyStringCheck
-    public SearchResultsDTO searchTagData(
-            @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
-            int from, int size) {
+    private SearchResultsDTO searchData(String keyword, int from, int size, SearchMode mode)
+            throws IOException {
 
+        switch (mode) {
+            case USER:
+                return searchUsers(keyword, from, size);
+            case TAG:
+                return searchTags(keyword, from, size);
+            case WEB:
+            default:
+                return searchBookmarks(keyword, from, size);
+        }
+    }
+
+    private SearchResultsDTO searchTags(String keyword, int from, int size) throws IOException {
+        SearchRequest searchRequest = getTagSearchRequest(keyword, from, size);
+        SearchHits hits = searchAndGetHits(searchRequest);
+        // get total number of hits
+        long totalCount = getTotalCount(hits);
+        // get total pages
+        int totalPages = PageUtil.getAllPages((int) totalCount, size);
+        // get results
+        List<TagForSearchDTO> paginatedResults = getTagResults(hits);
+        return SearchResultsDTO.builder()
+                .paginatedResults(paginatedResults)
+                .totalCount(totalCount)
+                .totalPage(totalPages)
+                .build();
+    }
+
+    private SearchRequest getTagSearchRequest(String keyword, int from, int size) {
         WildcardQueryBuilder wildcardQuery =
                 QueryBuilders.wildcardQuery(EsConstant.TAG_NAME, keyword + "*");
         BoolQueryBuilder boolQuery = new BoolQueryBuilder()
@@ -411,43 +437,36 @@ public class ElasticsearchManager {
 
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(EsConstant.INDEX_TAG).source(source);
-
-        try {
-            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-            SearchHits hits = response.getHits();
-            // 总数
-            long totalCount = hits.getTotalHits().value;
-            // 如果总数小于等于 0，说明没有结果，就抛出异常
-            ThrowExceptionUtils.throwIfTrue(totalCount <= 0, ResultCode.NO_RESULTS_FOUND);
-            // 总页数
-            int totalPages = PageUtil.getAllPages((int) totalCount, size);
-
-            List<TagForSearchDTO> paginatedResults = new ArrayList<>();
-
-            hits.forEach(h -> {
-                Map<String, Object> map = h.getSourceAsMap();
-                String tagName = String.valueOf(map.get(EsConstant.TAG_NAME));
-                String tagNum = String.valueOf(map.get(EsConstant.TAG_NUMBER));
-                Integer number = Integer.valueOf(tagNum);
-                TagForSearchDTO tag = TagForSearchDTO.builder().tag(tagName).number(number).build();
-                paginatedResults.add(tag);
-            });
-            return SearchResultsDTO.builder()
-                    .paginatedResults(paginatedResults)
-                    .totalCount(totalCount)
-                    .totalPage(totalPages)
-                    .build();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
+        return searchRequest;
     }
 
-    @EmptyStringCheck
-    public SearchResultsDTO searchUserData(
-            @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
-            int from, int size) {
+    private List<TagForSearchDTO> getTagResults(SearchHits hits) {
+        SearchHit[] hitsArray = hits.getHits();
+        return Arrays.stream(hitsArray).map(h -> {
+            Map<String, Object> map = h.getSourceAsMap();
+            String tagName = String.valueOf(map.get(EsConstant.TAG_NAME));
+            String tagNum = String.valueOf(map.get(EsConstant.TAG_NUMBER));
+            Integer number = Integer.valueOf(tagNum);
+            return TagForSearchDTO.builder().tag(tagName).number(number).build();
+        }).collect(Collectors.toList());
+    }
 
+    private SearchResultsDTO searchUsers(String keyword, int from, int size) throws IOException {
+        SearchRequest searchRequest = getUserSearchRequest(keyword, from, size);
+
+        SearchHits hits = searchAndGetHits(searchRequest);
+        long totalCount = getTotalCount(hits);
+        int totalPages = PageUtil.getAllPages((int) totalCount, size);
+        List<UserForSearchWithMoreInfo> paginatedResults = getUserResults(hits);
+
+        return SearchResultsDTO.builder()
+                .paginatedResults(paginatedResults)
+                .totalCount(totalCount)
+                .totalPage(totalPages)
+                .build();
+    }
+
+    private SearchRequest getUserSearchRequest(String keyword, int from, int size) {
         // 模糊查询
         WildcardQueryBuilder wildcardQueryUsername = QueryBuilders
                 .wildcardQuery(EsConstant.USER_NAME, keyword + "*")
@@ -463,7 +482,6 @@ public class ElasticsearchManager {
                 .minimumShouldMatch(1);
 
         SearchSourceBuilder source = new SearchSourceBuilder();
-        // 放入 queryBuilder 后，再添加 timeout、分页和高亮
         source.query(boolQueryBuilder)
                 .highlighter(new HighlightBuilder()
                         .field(EsConstant.USER_NAME)
@@ -476,59 +494,31 @@ public class ElasticsearchManager {
         // search request
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(EsConstant.INDEX_USER).source(source);
-
-        try {
-            SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
-            SearchHits hits = response.getHits();
-            // 总数
-            long totalCount = hits.getTotalHits().value;
-            // 如果总数小于等于 0，说明没有结果，就抛出异常
-            ThrowExceptionUtils.throwIfTrue(totalCount <= 0, ResultCode.NO_RESULTS_FOUND);
-            // 总页数
-            int totalPages = PageUtil.getAllPages((int) totalCount, size);
-            // 分页后的结果
-            List<UserForSearchWithMoreInfo> paginatedResults = getUsersWithWebCountByHits(hits);
-
-            return SearchResultsDTO.builder()
-                    .paginatedResults(paginatedResults)
-                    .totalCount(totalCount)
-                    .totalPage(totalPages)
-                    .build();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
+        return searchRequest;
     }
 
-    private List<UserForSearchWithMoreInfo> getUsersWithWebCountByHits(SearchHits hits) {
-        List<UserForSearchWithMoreInfo> userList = new ArrayList<>();
-        hits.forEach(h -> {
-            // get user basic info
+    private List<UserForSearchWithMoreInfo> getUserResults(SearchHits hits) {
+        SearchHit[] hitsArray = hits.getHits();
+        return Arrays.stream(hitsArray).map(h -> {
+            // get user
             Map<String, Object> sourceAsMap = h.getSourceAsMap();
             UserForSearchWithMoreInfo user = convertToUser(sourceAsMap);
 
-            // highlighted fields
+            // set highlighted fields
             Map<String, HighlightField> highlightFields = h.getHighlightFields();
             Set<String> fields = highlightFields.keySet();
             user.setHighlightedFields(new ArrayList<>(fields));
 
-            // the number of websites bookmarked by the user
-            int webCount = websiteMapper.countUserPost(user.getUserName(), false);
-            user.setWebCount(webCount);
-
-            // add to list
-            userList.add(user);
-        });
-
-        return userList;
+            return user;
+        }).collect(Collectors.toList());
     }
 
-    private UserForSearchWithMoreInfo convertToUser(Map<String, Object> map) {
-        String userId = (String) map.get(EsConstant.USER_ID);
-        String userName = (String) map.get(EsConstant.USER_NAME);
-        String role = (String) map.get(EsConstant.ROLE);
+    private UserForSearchWithMoreInfo convertToUser(Map<String, Object> source) {
+        String userId = String.valueOf(source.get(EsConstant.USER_ID));
+        String userName = String.valueOf(source.get(EsConstant.USER_NAME));
+        String role = String.valueOf(source.get(EsConstant.ROLE));
 
-        String time = (String) map.get(EsConstant.CREATION_TIME);
+        String time = String.valueOf(source.get(EsConstant.CREATION_TIME));
 
         Instant creationTime;
         try {
@@ -540,38 +530,39 @@ public class ElasticsearchManager {
 
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
+        // the number of websites bookmarked by the user
+        int webCount = websiteMapper.countUserPost(userName, false);
+
         return UserForSearchWithMoreInfo.builder()
                 .userId(userId)
                 .userName(userName)
                 .role(role)
                 .createTime(creationTime)
+                .webCount(webCount)
                 .build();
     }
 
-    /**
-     * 根据关键词搜索（还要统计关键词的次数来做热搜）
-     *
-     * @param keyword 关键词
-     * @param from    from
-     * @param size    size
-     * @return 结果（搜索结果，总页数，错误信息等）
-     * @throws ServiceException 关键词为空的情况， {@link EmptyStringCheck} 注解会抛出无匹配结果异常。
-     *                          如果搜索结果为 0，也会抛出无结果异常。
-     *                          如果出现网络异常，也会抛出异常。
-     */
-    @EmptyStringCheck
-    public SearchResultsDTO searchWebsiteData(
-            @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
-            int from, int size) {
+    private SearchResultsDTO searchBookmarks(String keyword, int from, int size)
+            throws IOException {
 
-        // 检测 keyword 的语言并选择合适的分词器
-        String analyzer = detectLanguageAndGetAnalyzer(keyword);
+        addToTrendingList(keyword);
 
-        ElasticsearchManager elasticsearchManager =
-                ApplicationContextUtils.getBean(ElasticsearchManager.class);
-        // 将搜索词分词后放入热搜统计
-        elasticsearchManager.analyzeKeywordAndPutToTrendsListAsync(keyword, analyzer);
+        SearchRequest searchRequest = getBookmarkSearchRequest(keyword, from, size);
 
+        SearchHits hits = searchAndGetHits(searchRequest);
+        long totalCount = getTotalCount(hits);
+        int totalPage = PageUtil.getAllPages((int) totalCount, size);
+
+        List<WebForSearchDTO> paginatedResults = getBookmarkResults(hits);
+
+        return SearchResultsDTO.builder()
+                .paginatedResults(paginatedResults)
+                .totalCount(totalCount)
+                .totalPage(totalPage)
+                .build();
+    }
+
+    private SearchRequest getBookmarkSearchRequest(String keyword, int from, int size) {
         // 多字段匹配，title 的权限提高，设置分词器
         MultiMatchQueryBuilder multiMatchQuery = QueryBuilders
                 .multiMatchQuery(keyword, EsConstant.DESC, EsConstant.TITLE)
@@ -588,35 +579,15 @@ public class ElasticsearchManager {
                         .numOfFragments(0))
                 .from(from).size(size);
 
-        SearchRequest request = new SearchRequest(EsConstant.INDEX_WEB).source(sourceBuilder);
+        return new SearchRequest(EsConstant.INDEX_WEB).source(sourceBuilder);
+    }
 
-        SearchHits hits;
-
-        try {
-            hits = client.search(request, RequestOptions.DEFAULT).getHits();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
-
-        // 查询到的总数
-        long totalCount = hits.getTotalHits().value;
-        // 没有结果的时候，抛出无结果异常
-        ThrowExceptionUtils.throwIfTrue(totalCount <= 0, ResultCode.NO_RESULTS_FOUND);
-
-        // 总页数
-        int totalPage = PageUtil.getAllPages((int) totalCount, size);
-
-        // 获取需要的网页数据
-        List<WebForSearchDTO> webs = elasticsearchManager
-                .getWebsitesDataForSearchByHits(hits);
-
-        return SearchResultsDTO.builder()
-                .paginatedResults(webs)
-                .totalCount(totalCount)
-                .totalPage(totalPage)
-                .build();
-
+    private void addToTrendingList(String keyword) {
+        // 检测 keyword 的语言并选择合适的分词器
+        String analyzer = detectLanguageAndGetAnalyzer(keyword);
+        // 将搜索词分词后放入热搜统计
+        ElasticsearchManager elasticsearchManager = ApplicationContextUtils.getBean(ElasticsearchManager.class);
+        elasticsearchManager.analyzeAndAddTrendingAsync(keyword, analyzer);
     }
 
     /**
@@ -652,25 +623,17 @@ public class ElasticsearchManager {
      * @param analyzer 分词器
      */
     @Async("asyncTaskExecutor")
-    public void analyzeKeywordAndPutToTrendsListAsync(String keyword, String analyzer) {
+    public void analyzeAndAddTrendingAsync(String keyword, String analyzer) {
 
         if (StringUtils.isEmpty(keyword)) {
             return;
         }
 
-        AnalyzeRequest request = AnalyzeRequest
-                .withIndexAnalyzer(EsConstant.INDEX_WEB, analyzer, keyword);
+        AnalyzeRequest request = AnalyzeRequest.withIndexAnalyzer(EsConstant.INDEX_WEB, analyzer, keyword);
         try {
-            AnalyzeResponse analyze = client.indices()
-                    .analyze(request, RequestOptions.DEFAULT);
+            AnalyzeResponse analyze = client.indices().analyze(request, RequestOptions.DEFAULT);
             List<AnalyzeResponse.AnalyzeToken> tokens = analyze.getTokens();
-            for (AnalyzeResponse.AnalyzeToken token : tokens) {
-                String val = token.getTerm();
-                if (val.length() > 1) {
-                    // 统计字节数大于 1 的关键词，出现一次就加 1 个 score
-                    trendingManager.addToTrendingList(val);
-                }
-            }
+            tokens.forEach(this::addTrending);
         } catch (IOException e) {
             log.info("IOException while adding data to trending list. "
                     + "Dropped this data because it's not important.");
@@ -678,67 +641,29 @@ public class ElasticsearchManager {
         }
     }
 
-    /**
-     * 根据 SearchHits 获取网页数据
-     *
-     * @param hits hits
-     * @return 需要的网页数据
-     */
-    private List<WebForSearchDTO> getWebsitesDataForSearchByHits(SearchHits hits) {
-
-        List<WebForSearchDTO> webs = new ArrayList<>();
-        for (SearchHit hit : hits) {
-            Map<String, Object> source = hitHighlightAndGetSource(hit,
-                    EsConstant.DESC,
-                    EsConstant.TITLE);
-            WebForSearchDTO web = convertToWeb(source);
-            webs.add(web);
+    private void addTrending(AnalyzeToken token) {
+        String val = token.getTerm();
+        if (val.length() > 1) {
+            // 统计字节数大于 1 的关键词，出现一次就加 1 个 score
+            trendingManager.addToTrendingList(val);
         }
-
-        return webs;
     }
 
-    /**
-     * 实现高亮
-     *
-     * @param hit   搜索结果
-     * @param field 需要高亮的字段
-     * @return 高亮后的结果
-     */
-    private Map<String, Object> hitHighlightAndGetSource(SearchHit hit, String... field) {
+    private List<WebForSearchDTO> getBookmarkResults(SearchHits hits) {
 
-        Map<String, Object> source = hit.getSourceAsMap();
-        Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-
-        for (String f : field) {
-            HighlightField highlightField = highlightFields.get(f);
-            if (highlightField != null) {
-                Text[] texts = highlightField.fragments();
-
-                StringBuilder sb = new StringBuilder();
-                for (Text text : texts) {
-                    sb.append(text);
-                }
-
-                source.put(f, sb.toString());
-            }
-        }
-
-        return source;
+        SearchHit[] hitsArray = hits.getHits();
+        return Arrays.stream(hitsArray)
+                .map(this::convertToBookmark)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * 转化为实体类
-     *
-     * @param source 待转化
-     * @return 实体类
-     */
-    private WebForSearchDTO convertToWeb(Map<String, Object> source) {
+    private WebForSearchDTO convertToBookmark(SearchHit hit) {
+        Map<String, Object> source = hitHighlightAndGetSource(hit, EsConstant.DESC, EsConstant.TITLE);
 
-        String title = (String) source.get(EsConstant.TITLE);
-        String url = (String) source.get(EsConstant.URL);
-        String img = (String) source.get(EsConstant.IMG);
-        String desc = (String) source.get(EsConstant.DESC);
+        String title = String.valueOf(source.get(EsConstant.TITLE));
+        String url = String.valueOf(source.get(EsConstant.URL));
+        String img = String.valueOf(source.get(EsConstant.IMG));
+        String desc = String.valueOf(source.get(EsConstant.DESC));
 
         return WebForSearchDTO.builder()
                 .title(title)
@@ -746,6 +671,33 @@ public class ElasticsearchManager {
                 .img(img)
                 .desc(desc)
                 .build();
+    }
+
+    /**
+     * 实现高亮
+     *
+     * @param hit    搜索结果
+     * @param fields 需要高亮的字段
+     * @return 高亮后的结果
+     */
+    private Map<String, Object> hitHighlightAndGetSource(SearchHit hit, String... fields) {
+
+        Map<String, Object> source = hit.getSourceAsMap();
+        Map<String, HighlightField> highlightFields = hit.getHighlightFields();
+        Arrays.stream(fields).forEach(f -> updateSource(source, highlightFields, f));
+        return source;
+    }
+
+    private void updateSource(Map<String, Object> source, Map<String, HighlightField> highlightFields, String field) {
+        HighlightField highlightField = highlightFields.get(field);
+        if (highlightField == null) {
+            return;
+        }
+
+        Text[] texts = highlightField.fragments();
+        StringBuilder sb = new StringBuilder();
+        Arrays.stream(texts).forEach(sb::append);
+        source.put(field, sb.toString());
     }
 
     /**
@@ -762,8 +714,7 @@ public class ElasticsearchManager {
     private boolean createIndex(String indexName) {
         CreateIndexRequest request = new CreateIndexRequest(indexName);
         try {
-            CreateIndexResponse response = client.indices()
-                    .create(request, RequestOptions.DEFAULT);
+            CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
             return response.isAcknowledged();
         } catch (IOException e) {
             e.printStackTrace();

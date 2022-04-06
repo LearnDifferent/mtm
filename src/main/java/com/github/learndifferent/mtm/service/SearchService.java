@@ -62,7 +62,7 @@ public interface SearchService {
     /**
      * Search
      * <p>
-     * add the keyword to trending list if the search mode is {@link SearchMode#WEB}
+     * Add the keyword to trending list if the search mode is {@link SearchMode#WEB}
      * </p>
      *
      * @param mode     Search users if the search mode is {@link SearchMode#USER},
