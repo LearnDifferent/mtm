@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2021/09/05
  */
 @RestController
-@RequestMapping("/mypage")
+@RequestMapping("/my-page")
 public class MyPageController {
 
     private final WebsiteService websiteService;

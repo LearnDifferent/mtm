@@ -37,7 +37,7 @@ public class CustomWebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new SaRouteInterceptor())
-                .addPathPatterns("/mypage", "/find/load", "/home/load", "/admin");
+                .addPathPatterns("/my-page", "/search/load", "/home", "/admin");
     }
 
     @Override

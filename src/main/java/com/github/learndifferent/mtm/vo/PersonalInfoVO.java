@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * 专门返回 MyPage 页面需要展示的数据
+ * Personal information
  *
  * @author zhou
  * @date 2021/09/05
@@ -22,7 +22,7 @@ import lombok.experimental.Accessors;
 public class PersonalInfoVO implements Serializable {
 
     /**
-     * Personal info
+     * User information
      */
     private UserDTO user;
 
