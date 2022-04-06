@@ -14,16 +14,6 @@ import java.util.Set;
 public interface SearchService {
 
     /**
-     * Check whether the index exists.
-     * If not exists, create a new index.
-     *
-     * @param indexName name of the index
-     * @return whether the index exists
-     * @throws com.github.learndifferent.mtm.exception.ServiceException Connection exception
-     */
-    boolean hasIndexOrCreate(String indexName);
-
-    /**
      * Check the existent of data
      *
      * @param mode Check user data if {@link SearchMode#USER},
@@ -39,10 +29,10 @@ public interface SearchService {
      * @param mode       Check user data if {@link SearchMode#USER},
      *                   bookmark data if {@link SearchMode#WEB}
      *                   and tag data if {@link SearchMode#TAG}
-     * @param existIndex Index exists or not
-     * @return Returns true if detect a difference.
-     * <p>If the index does not exist, returns true. If the {@link SearchMode} is not {@link SearchMode#USER} or
-     * {@link SearchMode#WEB}, or it's null, returns false.</p>
+     * @param existIndex true if the index do exist
+     * @return Return true if detect a difference.
+     * <p>If the index does not exist, return true. If can't find the {@link SearchMode} ,
+     * or it's null, return false.</p>
      */
     boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean existIndex);
 
@@ -89,25 +79,38 @@ public interface SearchService {
     SearchResultsDTO search(SearchMode mode, String keyword, PageInfoDTO pageInfo);
 
     /**
-     * Get Top 20 Trends
+     * Get top 20 trending keywords
      *
-     * @return Top 20 Trends
+     * @return Top 20 trending keywords
      */
-    Set<String> getTrends();
+    Set<String> getTop20Trending();
 
     /**
-     * Delete a Trending Word
+     * Delete a specific trending keyword
      *
-     * @param word Trending Word to Delete
+     * @param word Trending keyword to delete
      * @return true if success
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the {@code word} is empty, throw an exception
      */
-    boolean deleteTrendsByWord(String word);
+    boolean deleteTrendingWord(String word);
 
     /**
-     * Delete All Trending Words
+     * Delete all trending keywords
      *
      * @return true if success
      */
-    boolean deleteAllTrends();
+    boolean deleteTrending();
+
+
+    /**
+     * Check whether the index exists. If not, create the index
+     *
+     * @param indexName name of the index
+     * @return whether the index exists
+     * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#CONNECTION_ERROR}
+     *                                                                  if there is an error occurred while creating
+     *                                                                  the index.
+     */
+    boolean hasIndexOrCreate(String indexName);
 }

@@ -4,6 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * Elasticsearch Configuration Properties
+ *
  * @author zhou
  * @date 2022/3/28
  */

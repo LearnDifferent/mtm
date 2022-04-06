@@ -89,7 +89,7 @@ public class ElasticsearchManager {
 
     private final RestHighLevelClient client;
     private final WebsiteMapper websiteMapper;
-    private final TrendsManager trendsManager;
+    private final TrendingManager trendingManager;
     private final UserMapper userMapper;
     private final LanguageDetector languageDetector;
     private final TagMapper tagMapper;
@@ -97,46 +97,23 @@ public class ElasticsearchManager {
     @Autowired
     public ElasticsearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
                                 WebsiteMapper websiteMapper,
-                                TrendsManager trendsManager,
+                                TrendingManager trendingManager,
                                 UserMapper userMapper,
                                 LanguageDetector languageDetector,
                                 TagMapper tagMapper) {
         this.client = client;
         this.websiteMapper = websiteMapper;
-        this.trendsManager = trendsManager;
+        this.trendingManager = trendingManager;
         this.userMapper = userMapper;
         this.languageDetector = languageDetector;
         this.tagMapper = tagMapper;
     }
 
     /**
-     * 是否存在该 Index，如果没有就创建 Index
+     * Check the existent of data
      *
      * @param indexName name of the index
-     * @return 是否存在 Index，没有该 Index 的话返回是否创建成功
-     */
-    public boolean hasIndexOrCreate(String indexName) {
-
-        return existsIndex(indexName) || createIndex(indexName);
-    }
-
-    private boolean createIndex(String indexName) {
-        CreateIndexRequest request = new CreateIndexRequest(indexName);
-        try {
-            CreateIndexResponse response = client.indices()
-                    .create(request, RequestOptions.DEFAULT);
-            return response.isAcknowledged();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
-    }
-
-    /**
-     * 是否存在该 Index
-     *
-     * @param indexName name of the index
-     * @return true 表示存在，false 表示不存在
+     * @return true if exists
      */
     public boolean existsIndex(String indexName) {
         try {
@@ -149,16 +126,20 @@ public class ElasticsearchManager {
     }
 
     /**
-     * Elasticsearch 和数据库中的数据是否不同步。
+     * Check if data in database is different from data in Elasticsearch.
      *
-     * @param mode          search mode：如果不是指定的模式，直接返回 false，表示数据相同
-     * @param notExistIndex 是否不存在该 index：如果不存在该 index，直接返回 true，表示 Elasticsearch 中的数据和数据库中的数据不同
-     * @return true 表示 Elasticsearch 中的数据和数据库中的数据条数不同
+     * @param mode          Check user data if {@link SearchMode#USER},
+     *                      bookmark data if {@link SearchMode#WEB}
+     *                      and tag data if {@link SearchMode#TAG}
+     * @param notExistIndex true if the index does not exist
+     * @return Return true if detect a difference.
+     * <p>If the index does not exist, return true. If can't find the {@link SearchMode} ,
+     * or it's null, return false.</p>
      */
     public boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean notExistIndex) {
 
         if (notExistIndex) {
-            // 如果不存在该 index，直接返回 true，表示不同
+            // if the index does not exist, return true, which means it has changes
             return true;
         }
 
@@ -176,11 +157,10 @@ public class ElasticsearchManager {
                 break;
             case WEB:
                 countEsDocsResult = countDocsAsync(EsConstant.INDEX_WEB);
-                // 数据库中的 distinct url 的数量
                 databaseCount = websiteMapper.countDistinctPublicUrl();
                 break;
             default:
-                // 没有模式的情况下，直接返回 false，表示数据相同
+                // return false if can't find the search mode, which means no changes
                 return false;
         }
 
@@ -197,12 +177,6 @@ public class ElasticsearchManager {
         return databaseCount != esCount;
     }
 
-    /**
-     * 统计该 Index 的文档条数
-     *
-     * @param index index
-     * @return 数据条数
-     */
     @Async("asyncTaskExecutor")
     public Future<Long> countDocsAsync(String index) {
         CountRequest request = new CountRequest(index);
@@ -222,17 +196,11 @@ public class ElasticsearchManager {
         }
     }
 
-    /**
-     * 异步存放文档
-     *
-     * @param websiteData 需要存放的网页原始数据
-     * @return {@code Future<Boolean>} true 表示成功；false 表示存放失败
-     */
     @Async("asyncTaskExecutor")
     @WebsiteDataClean
-    public Future<Boolean> saveDocAsync(WebWithNoIdentityDTO websiteData) {
+    public Future<Boolean> saveBookmarkToElasticsearchAsync(WebWithNoIdentityDTO bookmark) {
 
-        WebForSearchDTO web = DozerUtils.convert(websiteData, WebForSearchDTO.class);
+        WebForSearchDTO web = DozerUtils.convert(bookmark, WebForSearchDTO.class);
 
         String json = JsonUtils.toJson(web);
         IndexRequest request = new IndexRequest(EsConstant.INDEX_WEB);
@@ -243,7 +211,6 @@ public class ElasticsearchManager {
         boolean success = false;
 
         try {
-            // 发送请求并返回结果
             IndexResponse response = client.index(request, RequestOptions.DEFAULT);
             int status = response.status().getStatus();
             if (RestStatus.OK.getStatus() <= status
@@ -701,7 +668,7 @@ public class ElasticsearchManager {
                 String val = token.getTerm();
                 if (val.length() > 1) {
                     // 统计字节数大于 1 的关键词，出现一次就加 1 个 score
-                    trendsManager.addToTrendingList(val);
+                    trendingManager.addToTrendingList(val);
                 }
             }
         } catch (IOException e) {
@@ -781,4 +748,26 @@ public class ElasticsearchManager {
                 .build();
     }
 
+    /**
+     * Check whether the index exists. If not, create the index
+     *
+     * @param indexName name of the index
+     * @return 是否存在 Index，没有该 Index 的话返回是否创建成功
+     */
+    public boolean hasIndexOrCreate(String indexName) {
+
+        return existsIndex(indexName) || createIndex(indexName);
+    }
+
+    private boolean createIndex(String indexName) {
+        CreateIndexRequest request = new CreateIndexRequest(indexName);
+        try {
+            CreateIndexResponse response = client.indices()
+                    .create(request, RequestOptions.DEFAULT);
+            return response.isAcknowledged();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.CONNECTION_ERROR);
+        }
+    }
 }

@@ -202,31 +202,32 @@ public class WebsiteServiceImpl implements WebsiteService {
         // Only public data can be added to Elasticsearch
         boolean syncToElasticsearch = bePublic && syncToElasticsearchValue;
 
-        // 获取网页数据
-        WebsiteServiceImpl websiteService =
-                ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
-        WebWithNoIdentityDTO rawWebsite = websiteService.scrapeWebDataFromUrl(url, username);
+        // get the basic data
+        WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+        WebWithNoIdentityDTO basic = bean.scrapeWebDataFromUrl(url, username);
 
-        // 默认 Future Result 为 null
+        // Default Future Result
         Future<Boolean> resultOfElasticsearch = null;
 
         if (syncToElasticsearch) {
             // 如果选择同步到 Elasticsearch 中，就异步执行保存方法并返回结果
-            // 如果选择不同步，也就是 syncToEs 为 false 或 null 的情况：直接返回 true 作为结果，表示无需异步存放
+            // 如果选择不同步，也就是 syncToEs 为 false 或 null 的情况：
+            // 直接返回 true 作为结果，表示无需异步存放
             // 此时 resultOfElasticsearch 会从 null 转化为 FutureTask 类型的值
-            resultOfElasticsearch = elasticsearchManager.saveDocAsync(rawWebsite);
+            resultOfElasticsearch = elasticsearchManager.
+                    saveBookmarkToElasticsearchAsync(basic);
         }
 
-        // 将网页数据放入数据库，返回是否成功放入
-        boolean hasSavedToDatabase = websiteService.bookmarkWithExistingData(rawWebsite, username, bePublic);
+        // save to database
+        boolean hasSavedToDatabase = bean.bookmarkWithExistingData(basic, username, bePublic);
 
         // 如果 Future Result 为 null，说明无需放入 Elasticsearch 中
         if (resultOfElasticsearch == null) {
-            // 只返回数据库的保存结果即可
+            // return the result of saving to database
             return BookmarkResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
         }
 
-        // 获取异步存放数据到 Elasticsearch 的结果
+        // get the result of saving to Elasticsearch
         boolean hasSavedToElasticsearch = false;
         try {
             hasSavedToElasticsearch = resultOfElasticsearch.get(10L, TimeUnit.SECONDS);

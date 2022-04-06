@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
-import com.github.learndifferent.mtm.manager.TrendsManager;
+import com.github.learndifferent.mtm.manager.TrendingManager;
 import com.github.learndifferent.mtm.service.SearchService;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +21,12 @@ import org.springframework.stereotype.Service;
 public class SearchServiceImpl implements SearchService {
 
     private final ElasticsearchManager elasticsearchManager;
-    private final TrendsManager trendsManager;
+    private final TrendingManager trendingManager;
 
     @Autowired
-    public SearchServiceImpl(ElasticsearchManager elasticsearchManager, TrendsManager trendsManager) {
+    public SearchServiceImpl(ElasticsearchManager elasticsearchManager, TrendingManager trendingManager) {
         this.elasticsearchManager = elasticsearchManager;
-        this.trendsManager = trendsManager;
-    }
-
-    @Override
-    public boolean hasIndexOrCreate(String indexName) {
-        return elasticsearchManager.hasIndexOrCreate(indexName);
+        this.trendingManager = trendingManager;
     }
 
     @Override
@@ -94,17 +89,23 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public Set<String> getTrends() {
-        return trendsManager.getTrends();
+    public Set<String> getTop20Trending() {
+        return trendingManager.getTop20Trending();
     }
 
     @Override
-    public boolean deleteTrendsByWord(String word) {
-        return trendsManager.deleteTrendsByWord(word);
+    public boolean deleteTrendingWord(String word) {
+        return trendingManager.deleteTrendingWord(word);
     }
 
     @Override
-    public boolean deleteAllTrends() {
-        return trendsManager.deleteAllTrends();
+    public boolean deleteTrending() {
+        return trendingManager.deleteTrending();
+    }
+
+
+    @Override
+    public boolean hasIndexOrCreate(String indexName) {
+        return elasticsearchManager.hasIndexOrCreate(indexName);
     }
 }

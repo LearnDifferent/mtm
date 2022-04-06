@@ -30,69 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2021/09/05
  */
 @RestController
-@RequestMapping("/find")
-public class FindController {
+@RequestMapping("/search")
+public class SearchController {
 
     private final SearchService searchService;
 
     @Autowired
-    public FindController(SearchService searchService) {
+    public SearchController(SearchService searchService) {
         this.searchService = searchService;
-    }
-
-    /**
-     * Get trending searches, existent of bookmark data for search and the update information.
-     *
-     * @return {@link FindPageVO} trending searches, existent of bookmark data for search and update information
-     */
-    @SystemLog(optsType = OptsType.READ)
-    @GetMapping("/load")
-    public FindPageVO load() {
-
-        // trending searches
-        Set<String> trendingList = searchService.getTrends();
-        // existent of bookmark data for search
-        boolean exist = searchService.existsData(SearchMode.WEB);
-        // update information
-        boolean hasNewUpdate = searchService.dataInDatabaseDiffFromElasticsearch(SearchMode.WEB, exist);
-
-        return FindPageVO.builder()
-                .trendingList(trendingList)
-                .dataStatus(exist)
-                .hasNewUpdate(hasNewUpdate)
-                .build();
-    }
-
-    /**
-     * Delete specific trending keyword (Guest does not have the permission)
-     *
-     * @param word keyword to delete
-     * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
-     *                                                                  user is a guest with the result code of {@link
-     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
-     *                                                                  PERMISSION_DENIED}
-     */
-    @NotGuest
-    @SystemLog(optsType = OptsType.DELETE)
-    @DeleteMapping("/trends/{word}")
-    public boolean deleteTrendsByWord(@PathVariable("word") String word) {
-        return searchService.deleteTrendsByWord(word);
-    }
-
-    /**
-     * Delete all trending keyword (Guest does not have the permission)
-     *
-     * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
-     *                                                                  user is a guest with the result code of {@link
-     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
-     */
-    @NotGuest
-    @SystemLog(optsType = OptsType.DELETE)
-    @DeleteMapping("/trends")
-    public boolean deleteAllTrends() {
-        return searchService.deleteAllTrends();
     }
 
     /**
@@ -106,10 +51,12 @@ public class FindController {
      * @return {@link ResultVO}<{@link SearchResultsDTO}> Search results
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
-     *                                                                  NO_RESULTS_FOUND} will be thrown if there are no results that
+     *                                                                  NO_RESULTS_FOUND} will be thrown if there are
+     *                                                                  no
+     *                                                                  results that
      *                                                                  match the keyword
      */
-    @GetMapping("/search")
+    @GetMapping
     public ResultVO<SearchResultsDTO> search(@RequestParam("mode") SearchMode mode,
                                              @RequestParam("keyword") String keyword,
                                              @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
@@ -117,6 +64,50 @@ public class FindController {
 
         SearchResultsDTO results = searchService.search(mode, keyword, pageInfo);
         return ResultCreator.okResult(results);
+    }
+
+    /**
+     * Check and delete data in Elasticsearch
+     *
+     * @param mode delete user data if {@link SearchMode#USER},
+     *             bookmark data if {@link SearchMode#WEB}
+     *             and tag data if {@link SearchMode#TAG}
+     * @return true if deleted
+     * @throws com.github.learndifferent.mtm.exception.ServiceException Only admin can delete all website data, and
+     *                                                                  if the current user is not admin,
+     *                                                                  {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED}
+     */
+    @DeleteMapping
+    @AdminValidation
+    public ResultVO<Boolean> deleteDataForSearch(@RequestParam("mode") SearchMode mode) {
+        boolean isDeleted = searchService.checkAndDeleteIndex(mode);
+        return ResultCreator.okResult(isDeleted);
+    }
+
+    /**
+     * Get trending searches, existent of bookmark data for search and the update information.
+     *
+     * @return {@link FindPageVO} trending searches, existent of bookmark data for search and update information
+     */
+    @SystemLog(optsType = OptsType.READ)
+    @GetMapping("/load")
+    public FindPageVO load() {
+
+        // trending searches
+        Set<String> trendingList = searchService.getTop20Trending();
+        // existent of bookmark data for search
+        boolean exist = searchService.existsData(SearchMode.WEB);
+        // update information
+        boolean hasNewUpdate = searchService.dataInDatabaseDiffFromElasticsearch(SearchMode.WEB, exist);
+
+        return FindPageVO.builder()
+                .trendingList(trendingList)
+                .dataStatus(exist)
+                .hasNewUpdate(hasNewUpdate)
+                .build();
     }
 
     /**
@@ -143,44 +134,61 @@ public class FindController {
      * @return true if success
      */
     @GetMapping("/build")
-    public boolean generateSearchDataBasedOnDatabase(@RequestParam("mode") SearchMode mode) {
-        return searchService.generateDataForSearch(mode);
+    public ResultVO<Boolean> generateSearchDataBasedOnDatabase(@RequestParam("mode") SearchMode mode) {
+        boolean success = searchService.generateDataForSearch(mode);
+        return ResultCreator.okResult(success);
     }
 
     /**
-     * Check and delete data in Elasticsearch
+     * Delete a specific trending keyword (Guest does not have the permission)
      *
-     * @param mode delete user data if {@link SearchMode#USER},
-     *             bookmark data if {@link SearchMode#WEB}
-     *             and tag data if {@link SearchMode#TAG}
-     * @return true if deleted
-     * @throws com.github.learndifferent.mtm.exception.ServiceException Only admin can delete all website data, and
-     *                                                                  if the current user is not admin,
-     *                                                                  {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     * @param word keyword to delete
+     * @return true if success
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
+     *                                                                  user is a guest with the result code of {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    @DeleteMapping("/delete")
-    @AdminValidation
-    public boolean deleteDataForSearch(@RequestParam("mode") SearchMode mode) {
-        return searchService.checkAndDeleteIndex(mode);
+    @NotGuest
+    @SystemLog(optsType = OptsType.DELETE)
+    @DeleteMapping("/trending/{word}")
+    public ResultVO<Boolean> deleteTrendingWord(@PathVariable("word") String word) {
+        boolean success = searchService.deleteTrendingWord(word);
+        return ResultCreator.okResult(success);
+    }
+
+    /**
+     * Delete all trending keywords (Guest does not have the permission)
+     *
+     * @return true if success
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw exception if the
+     *                                                                  user is a guest with the result code of {@link
+     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED}
+     */
+    @NotGuest
+    @SystemLog(optsType = OptsType.DELETE)
+    @DeleteMapping("/trending")
+    public ResultVO<Boolean> deleteTrending() {
+        boolean success = searchService.deleteTrending();
+        return ResultCreator.okResult(success);
     }
 
     /**
      * Initialize Elasticsearch: Check whether the index exists. If not, create the index.
      *
      * @param indexName name of the index
-     * @return success or failure.
+     * @return true if success
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link SearchService#hasIndexOrCreate(String)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#CONNECTION_ERROR}
      *                                                                  if there is an error occurred while creating
-     *                                                                  the index.
+     *                                                                  the index
      */
     @SystemLog(optsType = OptsType.CREATE)
-    @GetMapping("/createIndex")
-    public boolean hasIndexOrCreate(@RequestParam("indexName") String indexName) {
-        return searchService.hasIndexOrCreate(indexName);
+    @GetMapping("/create-index")
+    public ResultVO<Boolean> hasIndexOrCreate(@RequestParam("indexName") String indexName) {
+        boolean success = searchService.hasIndexOrCreate(indexName);
+        return ResultCreator.okResult(success);
     }
 }

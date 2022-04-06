@@ -12,40 +12,40 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Trending Words Manager
+ * Trending Manager
  *
  * @author zhou
  * @date 2021/09/05
  */
 @Component
-public class TrendsManager {
+public class TrendingManager {
 
     private final StringRedisTemplate redisTemplate;
 
     @Autowired
-    public TrendsManager(StringRedisTemplate redisTemplate) {
+    public TrendingManager(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     /**
-     * Get Top 20 Trends
+     * Get top 20 trending keywords
      *
-     * @return Top 20 Trends
+     * @return Top 20 trending keywords
      */
-    public Set<String> getTrends() {
+    public Set<String> getTop20Trending() {
 
         return redisTemplate.opsForZSet().reverseRange(EsConstant.TRENDING, 0, 19);
     }
 
     /**
-     * Delete a Trending Words
+     * Delete a specific trending keyword
      *
      * @param word Trending Word to Delete
      * @return true if success
      * @throws ServiceException If the {@code word} is empty, throw an exception
      */
     @EmptyStringCheck
-    public boolean deleteTrendsByWord(
+    public boolean deleteTrendingWord(
             @ExceptionIfEmpty(errorMessage = "Please choose a word to delete") String word) {
 
         Long success = redisTemplate.opsForZSet().remove(EsConstant.TRENDING, word);
@@ -54,19 +54,19 @@ public class TrendsManager {
     }
 
     /**
-     * Delete All Trending Words
+     * Delete all trending keywords
      *
      * @return true if success
      */
-    public boolean deleteAllTrends() {
+    public boolean deleteTrending() {
         Boolean success = redisTemplate.delete(EsConstant.TRENDING);
         return Optional.ofNullable(success).orElse(false);
     }
 
     /**
-     * Put the {@code word} in Trending List and increment the score of it
+     * Put the {@code word} in trending list and increment the score of it
      *
-     * @param word the word to put in Trending List
+     * @param word the word to put in trending list
      */
     @EmptyStringCheck
     public void addToTrendingList(
