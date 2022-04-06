@@ -10,10 +10,12 @@ import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.TagService;
+import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -117,7 +119,7 @@ public class TagController {
      * </p>
      *
      * @param tagName  name of the tag to search for
-     * @param pageInfo a PageInfoDTO object that contains the page number and page size
+     * @param pageInfo pagination information
      * @return paginated bookmarks associated with the chosen tag
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getBookmarksByUsernameAndTag(String,
      *                                                                  String, PageInfoDTO)}
@@ -133,6 +135,30 @@ public class TagController {
         List<WebsiteDTO> bookmarks =
                 tagService.getBookmarksByUsernameAndTag(currentUsername, tagName, pageInfo);
         return ResultCreator.okResult(bookmarks);
+    }
+
+    /**
+     * Search bookmarks by a certain tag and get total pages.
+     * <p>
+     * If some bookmarks is not public and the user currently logged in
+     * is not the owner, then those bookmarks will not be shown.
+     * </p>
+     *
+     * @param tagName  name of the tag to search for
+     * @param pageInfo pagination information
+     * @return paginated bookmarks associated with the chosen tag and total pages
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getBookmarksByUsernameAndTag(String,
+     *                                                                  String, PageInfoDTO)}
+     *                                                                  will throw an exception
+     *                                                                  with the result code of {@link ResultCode#NO_RESULTS_FOUND}
+     *                                                                  if no results found
+     */
+    @GetMapping("/search/{tagName}")
+    public SearchByTagResultVO searchBookmarksByTagName(@PathVariable("tagName") String tagName,
+                                                        @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
+                                                                PageInfoDTO pageInfo) {
+        String currentUsername = getCurrentUsername();
+        return tagService.getSearchResultsByUsernameAndTag(currentUsername, tagName, pageInfo);
     }
 
     /**

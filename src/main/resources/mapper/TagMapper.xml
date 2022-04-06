@@ -58,4 +58,9 @@
         select count(distinct tag)
         from tag;
     </select>
+    <select id="countTags" resultType="java.lang.Integer">
+        select count(tag)
+        from tag
+        where tag = #{tagName};
+    </select>
 </mapper>

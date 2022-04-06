@@ -17,7 +17,9 @@ import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.PageUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -94,11 +96,37 @@ public class TagServiceImpl implements TagService {
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
+        return getBookmarksByUsernameAndTag(username, tagName, from, size);
+    }
 
+    private List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, int from, int size) {
         List<Integer> ids = tagMapper.getWebIdByTagName(tagName, from, size);
         throwExceptionIfEmpty(ids);
 
         return getBookmarks(username, ids);
+    }
+
+    @Override
+    public SearchByTagResultVO getSearchResultsByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+
+        List<WebsiteDTO> bookmarks = getBookmarksByUsernameAndTag(username, tagName, from, size);
+
+        int totalCount = countTags(tagName);
+        int totalPages = PageUtil.getAllPages(totalCount, size);
+
+        return SearchByTagResultVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
+    }
+
+    /**
+     * Given a tag name, return the number of times that tag appears in the database
+     *
+     * @param tagName The name of the tag to count
+     * @return The number of times the tag appears in database
+     */
+    private int countTags(String tagName) {
+        return tagMapper.countTags(tagName);
     }
 
     private List<WebsiteDTO> getBookmarks(String username, List<Integer> ids) {

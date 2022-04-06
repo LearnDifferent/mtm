@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.service;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
 
 /**
@@ -102,13 +103,30 @@ public interface TagService {
      *
      * @param username username of the user who sent the request
      * @param tagName  name of the tag to search for
-     * @param pageInfo a PageInfoDTO object that contains the page number and page size
+     * @param pageInfo pagination information
      * @return paginated bookmarks associated with the chosen tag
      * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception
      *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
      *                                                                  NO_RESULTS_FOUND} if no results found
      */
     List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo);
+
+    /**
+     * Search bookmarks by a certain tag and get total pages.
+     * <p>
+     * If some bookmarks is not public and the user who sent the request
+     * is not the owner, then those bookmarks will not be shown.
+     * </p>
+     *
+     * @param username username of the user who sent the request
+     * @param tagName  name of the tag to search for
+     * @param pageInfo pagination information
+     * @return paginated bookmarks associated with the chosen tag and total pages
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception
+     *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
+     *                                                                  NO_RESULTS_FOUND} if no results found
+     */
+    SearchByTagResultVO getSearchResultsByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo);
 
     /**
      * Delete a tag.

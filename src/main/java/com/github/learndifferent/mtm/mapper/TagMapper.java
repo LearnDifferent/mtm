@@ -92,4 +92,12 @@ public interface TagMapper {
      * @return number of unique tags
      */
     int countDistinctTags();
+
+    /**
+     * Count the number of times a tag appears in database
+     *
+     * @param tagName The name of the tag to count.
+     * @return The number of times the tag appears in database
+     */
+    int countTags(String tagName);
 }
