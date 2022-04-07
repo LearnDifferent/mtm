@@ -74,10 +74,14 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public SearchResultsDTO search(SearchMode mode, String keyword, PageInfoDTO pageInfo) {
+    public SearchResultsDTO search(SearchMode mode,
+                                   String keyword,
+                                   PageInfoDTO pageInfo,
+                                   Integer rangeFrom,
+                                   Integer rangeTo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        return elasticsearchManager.search(keyword, from, size, mode);
+        return elasticsearchManager.search(keyword, from, size, mode, rangeFrom, rangeTo);
     }
 
     @Override
@@ -93,11 +97,5 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public boolean deleteTrending() {
         return trendingManager.deleteTrending();
-    }
-
-
-    @Override
-    public boolean hasIndexOrCreate(String indexName) {
-        return elasticsearchManager.hasIndexOrCreate(indexName);
     }
 }

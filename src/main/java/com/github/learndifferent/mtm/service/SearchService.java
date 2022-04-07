@@ -65,18 +65,22 @@ public interface SearchService {
      * Add the keyword to trending list if the search mode is {@link SearchMode#WEB}
      * </p>
      *
-     * @param mode     Search users if the search mode is {@link SearchMode#USER},
-     *                 search bookmarks if the search mode is {@link SearchMode#WEB}
-     *                 and search tags if the search mode is {@link SearchMode#TAG}
-     * @param keyword  keyword
-     * @param pageInfo pagination information
+     * @param mode      search users if the search mode is {@link SearchMode#USER},
+     *                  search bookmarks if the search mode is {@link SearchMode#WEB}
+     *                  and search tags if the search mode is {@link SearchMode#TAG}
+     * @param keyword   keyword
+     * @param pageInfo  pagination information
+     * @param rangeFrom lower range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
+     *                  unbounded.
+     * @param rangeTo   upper range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
+     *                  unbounded.
      * @return {@link SearchResultsDTO} Search results
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}
      *                                                                  will be thrown if there are no results that
      *                                                                  match the keyword
      */
-    SearchResultsDTO search(SearchMode mode, String keyword, PageInfoDTO pageInfo);
+    SearchResultsDTO search(SearchMode mode, String keyword, PageInfoDTO pageInfo, Integer rangeFrom, Integer rangeTo);
 
     /**
      * Get top 20 trending keywords
@@ -100,17 +104,4 @@ public interface SearchService {
      * @return true if success
      */
     boolean deleteTrending();
-
-
-    /**
-     * Check whether the index exists. If not, create the index
-     *
-     * @param indexName name of the index
-     * @return whether the index exists
-     * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#CONNECTION_ERROR}
-     *                                                                  if there is an error occurred while creating
-     *                                                                  the index.
-     */
-    boolean hasIndexOrCreate(String indexName);
 }

@@ -56,8 +56,6 @@ import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.client.indices.AnalyzeRequest;
 import org.elasticsearch.client.indices.AnalyzeResponse;
 import org.elasticsearch.client.indices.AnalyzeResponse.AnalyzeToken;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
@@ -65,6 +63,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
@@ -382,31 +381,42 @@ public class ElasticsearchManager {
     public SearchResultsDTO search(@ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
                                    int from,
                                    int size,
-                                   SearchMode mode) {
+                                   SearchMode mode,
+                                   Integer rangeFrom,
+                                   Integer rangeTo) {
         try {
-            return searchData(keyword, from, size, mode);
+            return searchData(keyword.trim(), from, size, mode, rangeFrom, rangeTo);
         } catch (IOException e) {
             e.printStackTrace();
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
 
-    private SearchResultsDTO searchData(String keyword, int from, int size, SearchMode mode)
-            throws IOException {
+    private SearchResultsDTO searchData(String keyword,
+                                        int from,
+                                        int size,
+                                        SearchMode mode,
+                                        Integer rangeFrom,
+                                        Integer rangeTo) throws IOException {
 
         switch (mode) {
+            case TAG:
+                return searchTags(keyword, from, size, rangeFrom, rangeTo);
             case USER:
                 return searchUsers(keyword, from, size);
-            case TAG:
-                return searchTags(keyword, from, size);
             case WEB:
             default:
                 return searchBookmarks(keyword, from, size);
         }
     }
 
-    private SearchResultsDTO searchTags(String keyword, int from, int size) throws IOException {
-        SearchRequest searchRequest = getTagSearchRequest(keyword, from, size);
+    private SearchResultsDTO searchTags(String keyword,
+                                        int from,
+                                        int size,
+                                        Integer rangeFrom,
+                                        Integer rangeTo) throws IOException {
+
+        SearchRequest searchRequest = getTagSearchRequest(keyword, from, size, rangeFrom, rangeTo);
         SearchHits hits = searchAndGetHits(searchRequest);
         // get total number of hits
         long totalCount = getTotalCount(hits);
@@ -421,12 +431,25 @@ public class ElasticsearchManager {
                 .build();
     }
 
-    private SearchRequest getTagSearchRequest(String keyword, int from, int size) {
+    private SearchRequest getTagSearchRequest(String keyword, int from, int size, Integer rangeFrom, Integer rangeTo) {
+
+        // wildcard search query
         WildcardQueryBuilder wildcardQuery =
                 QueryBuilders.wildcardQuery(EsConstant.TAG_NAME, keyword + "*");
+
+        if (rangeFrom != null && rangeTo != null && rangeFrom > rangeTo) {
+            // swap
+            Integer tmp = rangeFrom;
+            rangeFrom = rangeTo;
+            rangeTo = tmp;
+        }
+        // range query
+        RangeQueryBuilder rangeQuery =
+                QueryBuilders.rangeQuery(EsConstant.TAG_NUMBER).gte(rangeFrom).lte(rangeTo);
+
         BoolQueryBuilder boolQuery = new BoolQueryBuilder()
-                .should(wildcardQuery)
-                .minimumShouldMatch(1);
+                .must(wildcardQuery)
+                .must(rangeQuery);
 
         SearchSourceBuilder source = new SearchSourceBuilder();
         source.query(boolQuery)
@@ -436,8 +459,7 @@ public class ElasticsearchManager {
                 .sort(EsConstant.TAG_NUMBER, SortOrder.DESC);
 
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices(EsConstant.INDEX_TAG).source(source);
-        return searchRequest;
+        return searchRequest.indices(EsConstant.INDEX_TAG).source(source);
     }
 
     private List<TagForSearchDTO> getTagResults(SearchHits hits) {
@@ -698,27 +720,5 @@ public class ElasticsearchManager {
         StringBuilder sb = new StringBuilder();
         Arrays.stream(texts).forEach(sb::append);
         source.put(field, sb.toString());
-    }
-
-    /**
-     * Check whether the index exists. If not, create the index
-     *
-     * @param indexName name of the index
-     * @return 是否存在 Index，没有该 Index 的话返回是否创建成功
-     */
-    public boolean hasIndexOrCreate(String indexName) {
-
-        return existsIndex(indexName) || createIndex(indexName);
-    }
-
-    private boolean createIndex(String indexName) {
-        CreateIndexRequest request = new CreateIndexRequest(indexName);
-        try {
-            CreateIndexResponse response = client.indices().create(request, RequestOptions.DEFAULT);
-            return response.isAcknowledged();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
     }
 }

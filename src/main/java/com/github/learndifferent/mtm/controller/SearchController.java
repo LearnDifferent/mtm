@@ -43,11 +43,15 @@ public class SearchController {
     /**
      * Search
      *
-     * @param mode     Search users if the search mode is {@link SearchMode#USER},
-     *                 search bookmarks if the search mode is {@link SearchMode#WEB}
-     *                 and search tags if the search mode is {@link SearchMode#TAG}
-     * @param keyword  keyword (accept empty string and null)
-     * @param pageInfo pagination information
+     * @param mode      search users if the search mode is {@link SearchMode#USER},
+     *                  search bookmarks if the search mode is {@link SearchMode#WEB}
+     *                  and search tags if the search mode is {@link SearchMode#TAG}
+     * @param keyword   keyword (accept empty string and null)
+     * @param pageInfo  pagination information
+     * @param rangeFrom lower range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
+     *                  unbounded.
+     * @param rangeTo   upper range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
+     *                  unbounded.
      * @return {@link ResultVO}<{@link SearchResultsDTO}> Search results
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
@@ -60,9 +64,11 @@ public class SearchController {
     public ResultVO<SearchResultsDTO> search(@RequestParam("mode") SearchMode mode,
                                              @RequestParam("keyword") String keyword,
                                              @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
-                                                     PageInfoDTO pageInfo) {
+                                                     PageInfoDTO pageInfo,
+                                             @RequestParam(required = false, value = "rangeFrom") Integer rangeFrom,
+                                             @RequestParam(required = false, value = "rangeTo") Integer rangeTo) {
 
-        SearchResultsDTO results = searchService.search(mode, keyword, pageInfo);
+        SearchResultsDTO results = searchService.search(mode, keyword, pageInfo, rangeFrom, rangeTo);
         return ResultCreator.okResult(results);
     }
 
@@ -171,24 +177,6 @@ public class SearchController {
     @DeleteMapping("/trending")
     public ResultVO<Boolean> deleteTrending() {
         boolean success = searchService.deleteTrending();
-        return ResultCreator.okResult(success);
-    }
-
-    /**
-     * Initialize Elasticsearch: Check whether the index exists. If not, create the index.
-     *
-     * @param indexName name of the index
-     * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link SearchService#hasIndexOrCreate(String)}
-     *                                                                  will throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#CONNECTION_ERROR}
-     *                                                                  if there is an error occurred while creating
-     *                                                                  the index
-     */
-    @SystemLog(optsType = OptsType.CREATE)
-    @GetMapping("/create-index")
-    public ResultVO<Boolean> hasIndexOrCreate(@RequestParam("indexName") String indexName) {
-        boolean success = searchService.hasIndexOrCreate(indexName);
         return ResultCreator.okResult(success);
     }
 }
