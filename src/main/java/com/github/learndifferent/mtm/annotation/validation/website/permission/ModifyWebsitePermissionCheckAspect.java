@@ -4,8 +4,8 @@ import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -30,11 +30,11 @@ import org.springframework.util.StringUtils;
 @Component
 public class ModifyWebsitePermissionCheckAspect {
 
-    private final WebsiteService websiteService;
+    private final WebsiteMapper websiteMapper;
 
     @Autowired
-    public ModifyWebsitePermissionCheckAspect(WebsiteService websiteService) {
-        this.websiteService = websiteService;
+    public ModifyWebsitePermissionCheckAspect(WebsiteMapper websiteMapper) {
+        this.websiteMapper = websiteMapper;
     }
 
     @Before("@annotation(websitePermission)")
@@ -78,13 +78,13 @@ public class ModifyWebsitePermissionCheckAspect {
 
         ThrowExceptionUtils.throwIfTrue(webId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        WebsiteDTO web = websiteService.findWebsiteDataById(webId);
-        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
+        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean emptyUsername = StringUtils.isEmpty(username);
         ThrowExceptionUtils.throwIfTrue(emptyUsername, ResultCode.USER_NOT_EXIST);
 
-        boolean notTheOwner = CompareStringUtil.notEqualsIgnoreCase(username, web.getUserName());
+        boolean notTheOwner = CompareStringUtil.notEqualsIgnoreCase(username, bookmark.getUserName());
         ThrowExceptionUtils.throwIfTrue(notTheOwner, ResultCode.PERMISSION_DENIED);
     }
 }

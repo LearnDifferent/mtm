@@ -1,23 +1,19 @@
-package com.github.learndifferent.mtm.entity;
+package com.github.learndifferent.mtm.vo;
 
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
 /**
- * Website Data Object
- *
  * @author zhou
- * @date 2021/09/05
+ * @date 2022/4/7
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Accessors(chain = true)
-public class WebsiteDO implements Serializable {
+public class BookmarkVO implements Serializable {
 
     /**
      * ID of the bookmarked website data

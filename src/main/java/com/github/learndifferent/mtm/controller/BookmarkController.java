@@ -14,7 +14,7 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.vo.BookmarkResultVO;
-import com.github.learndifferent.mtm.vo.UserBookmarksVO;
+import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -135,17 +135,30 @@ public class BookmarkController {
     }
 
     /**
+     * Get paginated bookmarks of the user currently logged in
+     *
+     * @param pageInfo pagination information
+     * @return paginated bookmarks of the user currently logged in and the total pages
+     */
+    @GetMapping("/get/user")
+    public BookmarksAndTotalPagesVO getCurrentUserBookmarks(@PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
+                                                                    PageInfoDTO pageInfo) {
+        String currentUsername = getCurrentUsername();
+        return websiteService.getUserBookmarks(currentUsername, pageInfo, true);
+    }
+
+    /**
      * Get paginated public bookmarks of a user
      *
      * @param username username of the user whose public bookmarks is being requested
      * @param pageInfo pagination info
-     * @return {@link UserBookmarksVO paginated public bookmarks of the user and the total pages}
+     * @return paginated public bookmarks of the user and the total pages
      */
-    @GetMapping("/get/{username}")
-    public UserBookmarksVO getUserPublicBookmarks(@PathVariable("username") String username,
-                                                  @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
-                                                          PageInfoDTO pageInfo) {
-        return websiteService.getUserPublicBookmarks(username, pageInfo);
+    @GetMapping("/get/user/{username}")
+    public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("username") String username,
+                                                           @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
+                                                                   PageInfoDTO pageInfo) {
+        return websiteService.getUserBookmarks(username, pageInfo, false);
     }
 
     private String getCurrentUsername() {

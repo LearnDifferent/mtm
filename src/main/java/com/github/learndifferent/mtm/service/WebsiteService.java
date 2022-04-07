@@ -2,17 +2,17 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.BookmarksAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.query.WebDataFilterRequest;
+import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.vo.BookmarkResultVO;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
+import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
-import com.github.learndifferent.mtm.vo.UserBookmarksVO;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,24 +31,7 @@ public interface WebsiteService {
      * @param filterRequest Filter Public Website Data Request
      * @return filtered bookmarked websites
      */
-    List<WebsiteDTO> findPublicWebDataByFilter(WebDataFilterRequest filterRequest);
-
-    /**
-     * Count number of the user's bookmarks
-     *
-     * @param userName       username of the user
-     * @param includePrivate true if including the private bookmarks
-     * @return number of the user's bookmarks
-     */
-    int countUserPost(String userName, boolean includePrivate);
-
-    /**
-     * Find the bookmark by ID
-     *
-     * @param webId ID of the bookmarked website data
-     * @return {@link WebsiteDTO}
-     */
-    WebsiteDTO findWebsiteDataById(int webId);
+    List<BookmarkVO> filterPublicBookmarks(FilterBookmarksRequest filterRequest);
 
     /**
      * Find the bookmark with privacy settings by ID
@@ -99,12 +82,12 @@ public interface WebsiteService {
      * @param requestedUsername username of the user whose data is being requested
      *                          <p>{@code requestedUsername} is not is required</p>
      * @param pageInfo          pagination info
-     * @return {@link BookmarksAndTotalPagesDTO}
+     * @return {@link BookmarksAndTotalPagesVO}
      */
-    BookmarksAndTotalPagesDTO getHomeTimeline(String currentUsername,
-                                              HomeTimeline homeTimeline,
-                                              String requestedUsername,
-                                              PageInfoDTO pageInfo);
+    BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername,
+                                             HomeTimeline homeTimeline,
+                                             String requestedUsername,
+                                             PageInfoDTO pageInfo);
 
     /**
      * Get popular bookmarks and total pages
@@ -115,24 +98,17 @@ public interface WebsiteService {
     PopularBookmarksVO getPopularBookmarksAndTotalPages(PageInfoDTO pageInfo);
 
     /**
-     * Get all public bookmarks, and if {@code includePrivate} is true, then include all private bookmarks too.
-     *
-     * @param username       username
-     * @param from           from
-     * @param size           size
-     * @param includePrivate true if include private website data
-     * @return A list of {@link WebsiteWithPrivacyDTO}
-     */
-    List<WebsiteWithPrivacyDTO> getBookmarksByUser(String username, Integer from, Integer size, boolean includePrivate);
-
-    /**
      * Get paginated public bookmarks of a user
+     * <p>
+     * Include all private bookmarks if {@code includePrivate} is true
+     * </p>
      *
-     * @param username username of the user whose public bookmarks is being requested
-     * @param pageInfo pagination info
-     * @return {@link UserBookmarksVO}
+     * @param username       username of the user whose bookmarks is being requested
+     * @param pageInfo       pagination info
+     * @param includePrivate true if include private bookmarks
+     * @return {@link BookmarksAndTotalPagesVO}
      */
-    UserBookmarksVO getUserPublicBookmarks(String username, PageInfoDTO pageInfo);
+    BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, Boolean includePrivate);
 
     /**
      * Find a bookmarked website by URL

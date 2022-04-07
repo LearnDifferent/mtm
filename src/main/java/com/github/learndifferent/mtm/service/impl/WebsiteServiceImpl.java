@@ -13,12 +13,11 @@ import com.github.learndifferent.mtm.annotation.validation.website.permission.Mo
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.BookmarksAndTotalPagesDTO;
+import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDataFilterDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -26,7 +25,7 @@ import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
-import com.github.learndifferent.mtm.query.WebDataFilterRequest;
+import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
@@ -34,8 +33,9 @@ import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkResultVO;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
+import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
-import com.github.learndifferent.mtm.vo.UserBookmarksVO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -44,7 +44,6 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -89,87 +88,22 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
-    public List<WebsiteDTO> findPublicWebDataByFilter(WebDataFilterRequest filterRequest) {
+    public List<BookmarkVO> filterPublicBookmarks(FilterBookmarksRequest filterRequest) {
 
-        WebsiteDataFilterDTO filter = getFilterFromRequest(filterRequest);
-        List<WebsiteDO> webs = websiteMapper.findPublicWebDataByFilter(filter);
-        return DozerUtils.convertList(webs, WebsiteDTO.class);
+        BookmarkFilterDTO filter = BookmarkFilterDTO.of(filterRequest);
+        List<WebsiteDO> bookmarks = websiteMapper.filterPublicBookmarks(filter);
+        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
-    private WebsiteDataFilterDTO getFilterFromRequest(WebDataFilterRequest filterRequest) {
-
-        WebsiteDataFilterDTO filter = DozerUtils.convert(filterRequest, WebsiteDataFilterDTO.class);
-
-        // set datetime
-        List<String> datetimeList = filterRequest.getDatetimeList();
-        setTimes(filter, datetimeList);
-
-        return filter;
-    }
-
-    private void setTimes(WebsiteDataFilterDTO filter, List<String> datetimeList) {
-        if (CollectionUtils.isEmpty(datetimeList)) {
-            // Don't filter by datetime if no datetime is selected
-            return;
-        }
-
-        int len = datetimeList.size();
-        Instant fromDatetime;
-        Instant toDatetime;
-
-        switch (len) {
-            case 1:
-                // Select the particular datetime till current datetime
-                // if only one datetime is selected
-                fromDatetime = getDatetime(datetimeList.get(0));
-                toDatetime = Instant.now();
-                break;
-            case 2:
-                // Select between two datetime ranges
-                fromDatetime = getDatetime(datetimeList.get(0));
-                toDatetime = getDatetime(datetimeList.get(1));
-                break;
-            default:
-                throw new ServiceException("Can't set " + len + " datetime ranges");
-        }
-
-        // set datetime
-        filter.setFromDatetime(fromDatetime).setToDatetime(toDatetime);
-        // check and change the datetime order if necessary
-        checkAndOrderDatetime(filter);
-    }
-
-    private Instant getDatetime(String datetime) {
-        try {
-            return Instant.parse(datetime);
-        } catch (NullPointerException | DateTimeParseException e) {
-            // Make it be the current datetime if exception
-            e.printStackTrace();
-            log.warn("Can't get the datetime, change to current datetime instead.");
-            return Instant.now();
-        }
-    }
-
-    private void checkAndOrderDatetime(WebsiteDataFilterDTO filter) {
-        Instant fromDatetime = filter.getFromDatetime();
-        Instant toDatetime = filter.getToDatetime();
-
-        // Change datetime order if necessary
-        if (toDatetime.isBefore(fromDatetime)) {
-            filter.setToDatetime(fromDatetime);
-            filter.setFromDatetime(toDatetime);
-        }
-    }
-
-    @Override
-    public int countUserPost(String userName, boolean includePrivate) {
+    /**
+     * Count number of the user's bookmarks
+     *
+     * @param userName       username of the user
+     * @param includePrivate true if including the private bookmarks
+     * @return number of the user's bookmarks
+     */
+    private int countUserPost(String userName, boolean includePrivate) {
         return websiteMapper.countUserPost(userName, includePrivate);
-    }
-
-    @Override
-    public WebsiteDTO findWebsiteDataById(int webId) {
-        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
-        return DozerUtils.convert(web, WebsiteDTO.class);
     }
 
     @Override
@@ -300,10 +234,10 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     @EmptyStringCheck
-    public BookmarksAndTotalPagesDTO getHomeTimeline(String currentUsername,
-                                                     HomeTimeline homeTimeline,
-                                                     @DefaultValueIfEmpty String requestedUsername,
-                                                     PageInfoDTO pageInfo) {
+    public BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername,
+                                                    HomeTimeline homeTimeline,
+                                                    @DefaultValueIfEmpty String requestedUsername,
+                                                    PageInfoDTO pageInfo) {
         // get pagination information
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
@@ -315,7 +249,7 @@ public class WebsiteServiceImpl implements WebsiteService {
             case USER:
                 // check out public bookmarks of the requested user's
                 // this will include private bookmarks if the requested user is current user
-                return getRequestedUserBookmarks(requestedUsername, from, size, isCurrentUser);
+                return getUserBookmarks(requestedUsername, from, size, isCurrentUser);
             case BLOCK:
                 // check out all public bookmarks except the requested user's
                 // this will include current user's private bookmarks if the requested user is not current user
@@ -327,18 +261,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
     }
 
-    private BookmarksAndTotalPagesDTO getRequestedUserBookmarks(
-            String requestedUsername, int from, int size, boolean isCurrentUser) {
-
-        List<WebsiteWithPrivacyDTO> bookmarks =
-                getBookmarksByUser(requestedUsername, from, size, isCurrentUser);
-
-        int totalCount = countUserPost(requestedUsername, isCurrentUser);
-        int totalPages = PageUtil.getAllPages(totalCount, size);
-        return BookmarksAndTotalPagesDTO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
-    }
-
-    private BookmarksAndTotalPagesDTO getBookmarksExceptRequestedUser(
+    private BookmarksAndTotalPagesVO getBookmarksExceptRequestedUser(
             String currentUsername, String requestedUsername, int from, int size) {
 
         List<WebsiteWithPrivacyDTO> bookmarks =
@@ -346,16 +269,16 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         int totalCount = countExcludeUserPost(requestedUsername, currentUsername);
         int totalPages = PageUtil.getAllPages(totalCount, size);
-        return BookmarksAndTotalPagesDTO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
+        return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
 
-    private BookmarksAndTotalPagesDTO getLatestBookmarks(String currentUsername, int from, int size) {
+    private BookmarksAndTotalPagesVO getLatestBookmarks(String currentUsername, int from, int size) {
         List<WebsiteWithPrivacyDTO> bookmarks =
                 getAllPubSpecUserPriWebs(from, size, currentUsername);
 
         int totalCount = countAllPubAndSpecUserPriWebs(currentUsername);
         int totalPages = PageUtil.getAllPages(totalCount, size);
-        return BookmarksAndTotalPagesDTO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
+        return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
 
     @Override
@@ -367,18 +290,6 @@ public class WebsiteServiceImpl implements WebsiteService {
         int totalCount = websiteMapper.countDistinctPublicUrl();
         int totalPages = PageUtil.getAllPages(totalCount, size);
         return PopularBookmarksVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
-    }
-
-    @Override
-    public List<WebsiteWithPrivacyDTO> getBookmarksByUser(String username,
-                                                          Integer from,
-                                                          Integer size,
-                                                          boolean includePrivate) {
-
-        List<WebsiteDO> websites =
-                websiteMapper.findWebsitesDataByUser(username, from, size, includePrivate);
-
-        return getBookmarks(websites);
     }
 
     /**
@@ -444,21 +355,26 @@ public class WebsiteServiceImpl implements WebsiteService {
         return DozerUtils.convertList(websites, WebsiteWithPrivacyDTO.class);
     }
 
-    @Override
-    public UserBookmarksVO getUserPublicBookmarks(String username, PageInfoDTO pageInfo) {
-        int from = pageInfo.getFrom();
-        int size = pageInfo.getSize();
+    private BookmarksAndTotalPagesVO getUserBookmarks(String username, int from, int size, boolean includePrivate) {
 
-        int totalCounts = websiteMapper.countUserPost(username, false);
+        int totalCounts = countUserPost(username, includePrivate);
         int totalPages = PageUtil.getAllPages(totalCounts, size);
 
-        List<WebsiteDO> webs = websiteMapper.findWebsitesDataByUser(username, from, size, false);
-        List<WebsiteDTO> bookmarks = DozerUtils.convertList(webs, WebsiteDTO.class);
+        List<WebsiteDO> b = websiteMapper.findWebsitesDataByUser(username, from, size, includePrivate);
+        List<WebsiteWithPrivacyDTO> bookmarks = getBookmarks(b);
 
-        return UserBookmarksVO.builder()
+        return BookmarksAndTotalPagesVO.builder()
                 .totalPages(totalPages)
                 .bookmarks(bookmarks)
                 .build();
+    }
+
+    @Override
+    public BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, Boolean includePrivate) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+        boolean shouldIncludePrivate = Optional.ofNullable(includePrivate).orElse(false);
+        return getUserBookmarks(username, from, size, shouldIncludePrivate);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDataFilterDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import java.util.List;
@@ -23,7 +23,7 @@ public interface WebsiteMapper {
      * @param filter the filter
      * @return filtered bookmarked websites
      */
-    List<WebsiteDO> findPublicWebDataByFilter(WebsiteDataFilterDTO filter);
+    List<WebsiteDO> filterPublicBookmarks(BookmarkFilterDTO filter);
 
     /**
      * Get the number of unique public URLs

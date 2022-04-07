@@ -1,5 +1,6 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.vo;
 
+import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Bookmarks and Total Pages Data Transfer Object
+ * Paginated bookmarks and total Pages
  *
  * @author zhou
  * @date 2021/09/05
@@ -19,7 +20,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class BookmarksAndTotalPagesDTO implements Serializable {
+public class BookmarksAndTotalPagesVO implements Serializable {
 
     /**
      * Paginated bookmarks
@@ -28,7 +29,7 @@ public class BookmarksAndTotalPagesDTO implements Serializable {
     /**
      * Total pages
      */
-    Integer totalPages;
+    private Integer totalPages;
 
     private static final long serialVersionUID = 1L;
 }

@@ -1,19 +1,12 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
-import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
-import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.IpUtils;
-import com.github.learndifferent.mtm.utils.PageUtil;
-import com.github.learndifferent.mtm.vo.MyBookmarksVO;
 import com.github.learndifferent.mtm.vo.PersonalInfoVO;
 import com.github.learndifferent.mtm.vo.UserVO;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,29 +55,6 @@ public class MyPageController {
                 .ip(ip)
                 .totalReplyNotifications(totalReplyNotifications)
                 .build();
-    }
-
-    /**
-     * Get my bookmarks
-     *
-     * @param pageInfo Pagination info
-     * @return {@link MyBookmarksVO} My paginated bookmarks and total pages
-     */
-    @GetMapping("/bookmarks")
-    public MyBookmarksVO getMyBookmarks(
-            @PageInfo(size = 7, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
-        String username = getCurrentUsername();
-
-        int from = pageInfo.getFrom();
-        int size = pageInfo.getSize();
-
-        int totalCount = websiteService.countUserPost(username, true);
-        int totalPages = PageUtil.getAllPages(totalCount, size);
-
-        List<WebsiteWithPrivacyDTO> myWebsiteData =
-                websiteService.getBookmarksByUser(username, from, size, true);
-
-        return MyBookmarksVO.builder().myBookmarks(myWebsiteData).totalPages(totalPages).build();
     }
 
     private String getCurrentUsername() {

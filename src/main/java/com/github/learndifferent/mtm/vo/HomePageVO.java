@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.vo;
 
-import com.github.learndifferent.mtm.dto.BookmarksAndTotalPagesDTO;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +27,7 @@ public class HomePageVO implements Serializable {
     /**
      * Paginated bookmarks and total pages
      */
-    private BookmarksAndTotalPagesDTO bookmarksAndTotalPages;
+    private BookmarksAndTotalPagesVO bookmarksAndTotalPages;
     /**
      * Username of the user whose data is being requested
      */

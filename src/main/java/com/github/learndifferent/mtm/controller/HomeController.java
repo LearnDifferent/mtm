@@ -4,15 +4,15 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
-import com.github.learndifferent.mtm.dto.BookmarksAndTotalPagesDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.query.WebDataFilterRequest;
+import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
+import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.HomePageVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
 import java.util.List;
@@ -59,7 +59,7 @@ public class HomeController {
             @PageInfo(size = 12, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
         String currentUser = StpUtil.getLoginIdAsString();
-        BookmarksAndTotalPagesDTO data =
+        BookmarksAndTotalPagesVO data =
                 websiteService.getHomeTimeline(currentUser, timeline, requestedUsername, pageInfo);
 
         return HomePageVO.builder()
@@ -84,13 +84,11 @@ public class HomeController {
      * Filter bookmarked sites
      *
      * @param filter filter request
-     * @return {@link ResultVO}<{@link List}<{@link WebsiteDTO}>> Filtered bookmarked sites
+     * @return filtered bookmarked sites
      */
     @PostMapping("/filter")
-    public ResultVO<List<WebsiteDTO>> filter(@RequestBody WebDataFilterRequest filter) {
-
-        List<WebsiteDTO> webs = websiteService.findPublicWebDataByFilter(filter);
-        return ResultCreator.okResult(webs);
+    public List<BookmarkVO> filter(@RequestBody FilterBookmarksRequest filter) {
+        return websiteService.filterPublicBookmarks(filter);
     }
 
     /**
