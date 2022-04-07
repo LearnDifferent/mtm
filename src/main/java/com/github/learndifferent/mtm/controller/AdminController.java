@@ -5,7 +5,6 @@ import com.github.learndifferent.mtm.annotation.validation.user.role.admin.Admin
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.VisitedBookmarksDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -13,6 +12,7 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.ViewCounterService;
+import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -92,10 +92,9 @@ public class AdminController {
      */
     @GetMapping("/users")
     @AdminValidation
-    public ResultVO<List<UserDTO>> getUsers(
+    public List<UserVO> getUsers(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
-        List<UserDTO> users = userService.getUsers(pageInfo);
-        return ResultCreator.okResult(users);
+        return userService.getUsers(pageInfo);
     }
 
     /**

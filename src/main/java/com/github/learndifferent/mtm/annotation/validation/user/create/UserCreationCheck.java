@@ -7,6 +7,9 @@ import java.lang.annotation.Target;
 
 /**
  * Verify username, password and user role.
+ * This annotation has to be used along with {@link com.github.learndifferent.mtm.annotation.common.Username
+ * Username}, {@link com.github.learndifferent.mtm.annotation.common.Password Password}
+ * and {@link com.github.learndifferent.mtm.annotation.common.UserRole UserRole}
  * If failed verification, throw exception with the following result codes according to the situation:
  * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}</p>
  * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
@@ -21,33 +24,4 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface NewUserCheck {
-
-    /**
-     * The class that has the fields of username and password
-     *
-     * @return {@code Class<? extends Serializable>} class that has the fields of username and password
-     */
-    Class<?> userClass();
-
-    /**
-     * The field name of username in the class
-     *
-     * @return {@code String} field name of username in the class
-     */
-    String usernameFieldName();
-
-    /**
-     * The field name of password in the class
-     *
-     * @return {@code String} field name of password in the class
-     */
-    String passwordFieldName();
-
-    /**
-     * The field name of user role in the class
-     *
-     * @return {@code String} field name of user role in the class
-     */
-    String roleFieldName();
-}
+public @interface UserCreationCheck {}

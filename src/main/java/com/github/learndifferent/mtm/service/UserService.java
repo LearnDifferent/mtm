@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
+import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 
 /**
@@ -75,7 +76,7 @@ public interface UserService {
      * @param notEncryptedPassword not encrypted password
      * @return user
      */
-    UserDTO getUserByNameAndPwd(String userName, String notEncryptedPassword);
+    UserVO getUserByNameAndPwd(String userName, String notEncryptedPassword);
 
     /**
      * Get user role by username
@@ -91,7 +92,7 @@ public interface UserService {
      * @param userName username (ignore case)
      * @return user
      */
-    UserDTO getUserByName(String userName);
+    UserVO getUserByName(String userName);
 
     /**
      * Delete a user and all of the data associated with that user
@@ -122,7 +123,7 @@ public interface UserService {
      * @param pageInfo pagination info
      * @return {@link List}<{@link UserDTO}> users
      */
-    List<UserDTO> getUsers(PageInfoDTO pageInfo);
+    List<UserVO> getUsers(PageInfoDTO pageInfo);
 
     /**
      * Change user role and record the changes

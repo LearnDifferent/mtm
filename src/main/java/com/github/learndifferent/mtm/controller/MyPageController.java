@@ -4,7 +4,6 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.UserService;
@@ -13,6 +12,7 @@ import com.github.learndifferent.mtm.utils.IpUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
 import com.github.learndifferent.mtm.vo.MyBookmarksVO;
 import com.github.learndifferent.mtm.vo.PersonalInfoVO;
+import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class MyPageController {
     public PersonalInfoVO getPersonalInfo(HttpServletRequest request) {
 
         String username = getCurrentUsername();
-        UserDTO user = userService.getUserByName(username);
+        UserVO user = userService.getUserByName(username);
         String ip = IpUtils.getIp(request);
         long totalReplyNotifications = notificationService.countReplyNotifications(username);
 

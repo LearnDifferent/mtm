@@ -1,15 +1,22 @@
 package com.github.learndifferent.mtm.annotation.validation.user.create;
 
+import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
+import com.github.learndifferent.mtm.annotation.common.Password;
+import com.github.learndifferent.mtm.annotation.common.UserRole;
+import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
-import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import java.lang.reflect.Field;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import com.github.learndifferent.mtm.vo.UserVO;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import org.apache.commons.lang3.ObjectUtils;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -30,53 +37,65 @@ import org.springframework.util.StringUtils;
  */
 @Aspect
 @Component
-public class NewUserCheckAspect {
+public class UserCreationCheckAspect {
 
     private final UserService userService;
 
     @Autowired
-    public NewUserCheckAspect(UserService userService) {
+    public UserCreationCheckAspect(UserService userService) {
         this.userService = userService;
     }
 
-    @Around("@annotation(annotation)")
-    public Object around(ProceedingJoinPoint pjp, NewUserCheck annotation) throws Throwable {
+    @Before("@annotation(annotation)")
+    public void check(JoinPoint jp, UserCreationCheck annotation) throws Throwable {
 
-        Object[] args = pjp.getArgs();
+        Object[] args = jp.getArgs();
 
-        Class<?> cls = annotation.userClass();
-        String usernameFieldName = annotation.usernameFieldName();
-        String passwordFieldName = annotation.passwordFieldName();
-        String roleFieldName = annotation.roleFieldName();
+        MethodSignature signature = (MethodSignature) jp.getSignature();
+        Method method = signature.getMethod();
+        Annotation[][] annotations = method.getParameterAnnotations();
 
         String username = "";
         String password = "";
         String role = "";
-        for (Object arg : args) {
-            if (arg != null && cls.isAssignableFrom(arg.getClass())) {
-                username = getFieldValue(cls, usernameFieldName, arg);
-                password = getFieldValue(cls, passwordFieldName, arg);
-                role = getFieldValue(cls, roleFieldName, arg);
+
+        AnnotationHelper helper = new AnnotationHelper(3);
+
+        for (int i = 0; i < annotations.length; i++) {
+            for (Annotation a : annotations[i]) {
+                if (helper.hasNotFoundIndex(0)
+                        && a instanceof Username
+                        && ObjectUtils.isNotEmpty(args[i])
+                        && String.class.isAssignableFrom(args[i].getClass())) {
+                    username = (String) args[i];
+                    helper.findIndex(0);
+                    break;
+                }
+                if (helper.hasNotFoundIndex(1)
+                        && a instanceof Password
+                        && ObjectUtils.isNotEmpty(args[i])
+                        && String.class.isAssignableFrom(args[i].getClass())) {
+                    password = (String) args[i];
+                    helper.findIndex(1);
+                    break;
+                }
+                if (helper.hasNotFoundIndex(2)
+                        && a instanceof UserRole
+                        && ObjectUtils.isNotEmpty(args[i])
+                        && String.class.isAssignableFrom(args[i].getClass())) {
+                    role = (String) args[i];
+                    helper.findIndex(2);
+                    break;
+                }
+            }
+
+            if (helper.hasFoundAll()) {
                 break;
             }
         }
 
         checkUserRoleExists(role);
         checkUsernameAndPassword(username, password);
-        return pjp.proceed();
-    }
-
-    private String getFieldValue(Class<?> cls, String fieldName, Object arg) {
-        try {
-            Field field = cls.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            Object value = field.get(arg);
-            return (String) value;
-        } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
-            e.printStackTrace();
-            // use empty string if can't get the value
-            return "";
-        }
     }
 
     private void checkUserRoleExists(String role) {
@@ -139,7 +158,7 @@ public class NewUserCheckAspect {
      *                          throw an exception with the result code of {@link ResultCode#USER_ALREADY_EXIST}
      */
     private void checkIfUsernameExist(String username) {
-        UserDTO userHasThatName = userService.getUserByName(username);
+        UserVO userHasThatName = userService.getUserByName(username);
         ThrowExceptionUtils.throwIfNotNull(userHasThatName, ResultCode.USER_ALREADY_EXIST);
     }
 }

@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import java.util.List;
@@ -83,20 +84,20 @@ public interface UserMapper {
     UserDO getUserByName(String userName);
 
     /**
-     * Get user id by username and password
+     * Get user ID by username and password
      *
      * @param userName username
      * @param password password
-     * @return user id or null if not exists
+     * @return user ID or null if not exists
      */
     String getUserIdByNameAndPassword(@Param("userName") String userName,
                                       @Param("password") String password);
 
     /**
-     * Delete user by user id
+     * Delete user by user ID
      *
-     * @param userId user id
-     * @return success or failure
+     * @param userId user ID
+     * @return true if success
      */
     boolean deleteUserByUserId(String userId);
 
@@ -106,7 +107,7 @@ public interface UserMapper {
      * @param user user data to update
      * @return true if success
      */
-    boolean updateUser(UserDO user);
+    boolean updateUser(UserDTO user);
 
     /**
      * Get User ID by Username

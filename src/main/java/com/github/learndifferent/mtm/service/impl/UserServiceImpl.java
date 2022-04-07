@@ -1,23 +1,26 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import static com.github.learndifferent.mtm.constant.enums.RoleType.ADMIN;
+import static com.github.learndifferent.mtm.constant.enums.RoleType.USER;
+import static com.github.learndifferent.mtm.constant.enums.RoleType.valueOf;
+
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
-import com.github.learndifferent.mtm.entity.UserDO.UserDOBuilder;
 import com.github.learndifferent.mtm.manager.CdUserManager;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.service.UserService;
-import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -65,19 +68,13 @@ public class UserServiceImpl implements UserService {
         String oldPassword = info.getOldPassword();
         String newPassword = info.getNewPassword();
 
-        UserServiceImpl userService = ApplicationContextUtils.getBean(UserServiceImpl.class);
-        UserDTO user = userService.getUserByNameAndPwd(userName, oldPassword);
-
         // if user does not exist, it will be considered as wrong password
+        UserVO user = getUserByNameAndPwd(userName, oldPassword);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.PASSWORD_INCORRECT);
 
-        // encrypt the password
-        newPassword = Md5Util.getMd5(newPassword);
-        // set the new password
-        UserDO userDO = DozerUtils.convert(user, UserDO.class);
-        userDO.setPassword(newPassword);
+        UserDTO userDTO = UserDTO.ofPasswordUpdate(user.getUserId(), newPassword);
         // update user
-        return userMapper.updateUser(userDO);
+        return userMapper.updateUser(userDTO);
     }
 
     @Override
@@ -85,15 +82,14 @@ public class UserServiceImpl implements UserService {
 
         String username = usernameAndPassword.getUserName();
         String notEncryptedPassword = usernameAndPassword.getPassword();
-
         return cdUserManager.createUser(username, notEncryptedPassword, role);
     }
 
     @Override
-    public UserDTO getUserByNameAndPwd(String userName, String notEncryptedPassword) {
+    public UserVO getUserByNameAndPwd(String userName, String notEncryptedPassword) {
         String password = Md5Util.getMd5(notEncryptedPassword);
         UserDO userDO = userMapper.getUserByNameAndPwd(userName, password);
-        return DozerUtils.convert(userDO, UserDTO.class);
+        return DozerUtils.convert(userDO, UserVO.class);
     }
 
     @Override
@@ -103,9 +99,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(value = "user:name", key = "#userName")
-    public UserDTO getUserByName(String userName) {
+    public UserVO getUserByName(String userName) {
         UserDO userDO = userMapper.getUserByName(userName);
-        return DozerUtils.convert(userDO, UserDTO.class);
+        return DozerUtils.convert(userDO, UserVO.class);
     }
 
     @Override
@@ -122,24 +118,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(value = "user:all", unless = "#result != null and #result.size() > 0")
-    public List<UserDTO> getUsers(PageInfoDTO pageInfo) {
+    public List<UserVO> getUsers(PageInfoDTO pageInfo) {
         Integer from = pageInfo.getFrom();
         Integer size = pageInfo.getSize();
         List<UserDO> users = userMapper.getUsers(from, size);
-        return DozerUtils.convertList(users, UserDTO.class);
+        return DozerUtils.convertList(users, UserVO.class);
     }
 
     @Override
     public boolean changeUserRoleAndRecordChanges(String userId, String newRole) {
         String curRole = userMapper.getUserRoleById(userId);
         try {
-            RoleType currentRole = RoleType.valueOf(curRole.toUpperCase());
-            RoleType newUserRole = RoleType.valueOf(newRole.toUpperCase());
-            boolean success = changeUserRole(userId, currentRole, newUserRole);
-            if (success) {
-                notificationManager.recordRoleChanges(userId, currentRole, newUserRole);
-            }
-            return success;
+            RoleType currentRole = valueOf(curRole.toUpperCase());
+            RoleType newUserRole = valueOf(newRole.toUpperCase());
+            return changeUserRoleAndRecordChanges(userId, currentRole, newUserRole);
         } catch (IllegalArgumentException | NullPointerException e) {
             e.printStackTrace();
             // if can't get the role, return false
@@ -147,22 +139,31 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private boolean changeUserRole(String userId, RoleType curRole, RoleType newRole) {
+    private boolean changeUserRoleAndRecordChanges(String userId, RoleType curRole, RoleType newRole) {
         if (curRole.equals(newRole)) {
+            // return true if no changes need to be done
             return true;
         }
 
-        UserDOBuilder builder = UserDO.builder().userId(userId);
-        switch (curRole) {
-            case USER:
-                UserDO upgrade = builder.role(RoleType.ADMIN.role()).build();
-                return userMapper.updateUser(upgrade);
-            case ADMIN:
-                UserDO degrade = builder.role(RoleType.USER.role()).build();
-                return userMapper.updateUser(degrade);
-            default:
-                // false if the user role is neither admin nor user
-                return false;
+        boolean success = false;
+        if (isUpgradeOrDowngrade(curRole, newRole)) {
+            success = updateUserRole(userId, newRole);
         }
+
+        if (success) {
+            // record changes
+            notificationManager.recordRoleChanges(userId, curRole, newRole);
+        }
+        return success;
+    }
+
+    private boolean isUpgradeOrDowngrade(RoleType curRole, RoleType newRole) {
+        return (USER.equals(curRole) && ADMIN.equals(newRole))
+                || (ADMIN.equals(curRole) && USER.equals(newRole));
+    }
+
+    private boolean updateUserRole(String userId, RoleType role) {
+        UserDTO user = UserDTO.ofRoleUpdate(userId, role);
+        return userMapper.updateUser(user);
     }
 }

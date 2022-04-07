@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.vo;
 
-import com.github.learndifferent.mtm.dto.UserDTO;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +23,7 @@ public class PersonalInfoVO implements Serializable {
     /**
      * User information
      */
-    private UserDTO user;
+    private UserVO user;
 
     /**
      * IP Address

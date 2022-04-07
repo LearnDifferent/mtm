@@ -87,7 +87,7 @@
         where user_name = #{username};
     </select>
 
-    <update id="updateUser" parameterType="com.github.learndifferent.mtm.entity.UserDO">
+    <update id="updateUser" parameterType="com.github.learndifferent.mtm.dto.UserDTO">
         update user
         <set>
             <if test="userName != null and userName !=''">

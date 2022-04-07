@@ -1,20 +1,22 @@
 package com.github.learndifferent.mtm.manager;
 
-import com.github.learndifferent.mtm.annotation.validation.user.create.NewUserCheck;
+import com.github.learndifferent.mtm.annotation.common.Password;
+import com.github.learndifferent.mtm.annotation.common.UserRole;
+import com.github.learndifferent.mtm.annotation.common.Username;
+import com.github.learndifferent.mtm.annotation.validation.user.create.UserCreationCheck;
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.constant.enums.RoleType;
+import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
-import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import com.github.learndifferent.mtm.utils.UUIDUtils;
-import java.time.Instant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
@@ -100,22 +102,14 @@ public class CdUserManager {
         return userId;
     }
 
-    public boolean createUser(String username, String notEncryptedPassword, String role) {
-
-        UserDO user = UserDO.builder().userName(username).role(role)
-                .password(notEncryptedPassword).build();
-
-        CdUserManager cdUserManager = ApplicationContextUtils.getBean(CdUserManager.class);
-        return cdUserManager.addUserWithNoEncryptedPwdNoIdNoTime(user);
-    }
-
-
     /**
      * Add a user: encrypt the password, set a user ID and creation time
      *
-     * @param user user data with not encrypted password and without user ID and creation time
+     * @param username             username
+     * @param notEncryptedPassword not encrypted password
+     * @param role                 user role
      * @return true if success
-     * @throws ServiceException {@link NewUserCheck} annotation will verify and throw an exception
+     * @throws ServiceException {@link UserCreationCheck} annotation will verify and throw an exception
      *                          if something goes wrong. If the username is already taken, the result will be {@link
      *                          com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}.
      *                          If username contains not only letters and numbers, the result will be {@link
@@ -128,29 +122,29 @@ public class CdUserManager {
      *                          com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
      *                          If user role is not found, the result will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}.
      */
-    @NewUserCheck(userClass = UserDO.class,
-                  usernameFieldName = "userName",
-                  passwordFieldName = "password",
-                  roleFieldName = "role")
-    public boolean addUserWithNoEncryptedPwdNoIdNoTime(UserDO user) {
+    @UserCreationCheck
+    public boolean createUser(@Username String username,
+                              @Password String notEncryptedPassword,
+                              @UserRole(defaultRole = RoleType.USER) String role) {
 
-        // get user ID
-        String uuid = UUIDUtils.getUuid();
-        // encrypt password
-        String password = Md5Util.getMd5(user.getPassword());
-        // set user fields
-        user.setUserId(uuid).setCreateTime(Instant.now()).setPassword(password);
-
-        // add to Elasticsearch asynchronously
-        UserForSearchDTO userDataToEs = DozerUtils.convert(user, UserForSearchDTO.class);
-        elasticsearchManager.addUserDataToElasticsearchAsync(userDataToEs);
-
+        UserDTO userDTO = UserDTO.createUser(username, notEncryptedPassword, role);
+        UserDO userDO = DozerUtils.convert(userDTO, UserDO.class);
         try {
-            return userMapper.addUser(user);
+            return createUser(userDO);
         } catch (DuplicateKeyException e) {
             // DuplicateKeyException is same as com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
             // the primary key is userName, so duplicate key means username is already taken
             throw new ServiceException(ResultCode.USER_ALREADY_EXIST);
         }
+    }
+
+    private boolean createUser(UserDO user) {
+        boolean success = userMapper.addUser(user);
+        if (success) {
+            // add to Elasticsearch asynchronously
+            UserForSearchDTO userToEs = DozerUtils.convert(user, UserForSearchDTO.class);
+            elasticsearchManager.addUserDataToElasticsearchAsync(userToEs);
+        }
+        return success;
     }
 }

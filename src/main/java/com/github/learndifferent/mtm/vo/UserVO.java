@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.entity;
+package com.github.learndifferent.mtm.vo;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -7,18 +7,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * User Data Object
+ * User View Object / User Value Object
  *
  * @author zhou
- * @date 2021/09/05
+ * @date 2022/4/7
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDO implements Serializable {
+public class UserVO implements Serializable {
 
     /**
-     * Username is the primary key
+     * Username
      */
     private String userName;
 

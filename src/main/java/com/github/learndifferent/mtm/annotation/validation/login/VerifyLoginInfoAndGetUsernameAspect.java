@@ -7,12 +7,12 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.VerificationCode;
 import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.VerificationCodeService;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.UserVO;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -326,7 +326,7 @@ public class VerifyLoginInfoAndGetUsernameAspect {
 
         verificationCodeService.checkCode(verifyToken, code);
 
-        UserDTO user = userService.getUserByNameAndPwd(username, notEncryptedPassword);
+        UserVO user = userService.getUserByNameAndPwd(username, notEncryptedPassword);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
 
         return user.getUserName();
