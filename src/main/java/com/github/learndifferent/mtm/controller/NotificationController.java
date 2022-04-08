@@ -4,12 +4,10 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.query.DelReNotificationRequest;
+import com.github.learndifferent.mtm.query.DelReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
-import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,18 +91,9 @@ public class NotificationController {
      *                                                                  the owner of the notification to delete
      */
     @PostMapping("/reply/delete")
-    public void deleteReplyNotification(@RequestBody DelReNotificationRequest data) {
-        // check the permission
-        checkPermission(data);
-        // delete notification
-        notificationService.deleteReplyNotification(data);
-    }
-
-    private void checkPermission(DelReNotificationRequest data) {
-        String receiveUsername = data.getReceiveUsername();
+    public void deleteReplyNotification(@RequestBody DelReplyNotificationRequest data) {
         String currentUsername = getCurrentUsername();
-        boolean notCurrentUser = CompareStringUtil.notEqualsIgnoreCase(receiveUsername, currentUsername);
-        ThrowExceptionUtils.throwIfTrue(notCurrentUser, ResultCode.PERMISSION_DENIED);
+        notificationService.deleteReplyNotification(data, currentUsername);
     }
 
     /**

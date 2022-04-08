@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.query.DelReNotificationRequest;
+import com.github.learndifferent.mtm.query.DelReplyNotificationRequest;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
 
@@ -42,11 +42,17 @@ public interface NotificationService {
 
 
     /**
-     * Delete reply notification
+     * Delete a reply notification
      *
-     * @param data notification data to delete
+     * @param data     notification data to delete
+     * @param username username of the user who is deleting the notification
+     * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED} if the user who is deleting
+     *                                                                  the notification is not the owner of the
+     *                                                                  notification to delete
      */
-    void deleteReplyNotification(DelReNotificationRequest data);
+    void deleteReplyNotification(DelReplyNotificationRequest data, String username);
 
     /**
      * Delete all system notifications and remove all saved usernames

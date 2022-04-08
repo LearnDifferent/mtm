@@ -1,5 +1,9 @@
 package com.github.learndifferent.mtm.query;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.learndifferent.mtm.config.CustomInstantDeserializer;
+import com.github.learndifferent.mtm.config.CustomInstantSerializer;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
@@ -19,39 +23,42 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Builder
-public class DelReNotificationRequest implements Serializable {
+public class DelReplyNotificationRequest implements Serializable {
 
     /**
      * Creation time
      */
+    @JsonSerialize(using = CustomInstantSerializer.class)
+    @JsonDeserialize(using = CustomInstantDeserializer.class)
     private Instant creationTime;
 
     /**
-     * User's name, who is about to receive the notification.
-     * If {@link com.github.learndifferent.mtm.dto.ReplyNotificationDTO#getReplyToCommentId()} is null,
+     * Name of the user, who is about to receive the notification.
+     * If {@link #getReplyToCommentId()} is null,
      * then the user is the owner of the website data.
-     * If {@link com.github.learndifferent.mtm.dto.ReplyNotificationDTO#getReplyToCommentId()} is not null,
+     * If {@link #getReplyToCommentId()} is not null,
      * then the user is the author of the comment being replied to.
      */
     private String receiveUsername;
 
     /**
-     * User's name, who sent the reply (or comment)
+     * Name of the user who sent the reply (or comment)
      */
     private String sendUsername;
 
     /**
-     * Comment id
+     * ID of the comment
      */
     private Integer commentId;
 
     /**
-     * Web id
+     * ID of the bookmarked website data
      */
     private Integer webId;
 
     /**
-     * The ID of the comment being replied to (null if not reply to any comment)
+     * The ID of the comment being replied to
+     * <p>Not reply to any comment if null, which means this is a bookmark comment</p>
      */
     private Integer replyToCommentId;
 
