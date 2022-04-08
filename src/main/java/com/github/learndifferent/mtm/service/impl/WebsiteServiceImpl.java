@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -406,6 +407,24 @@ public class WebsiteServiceImpl implements WebsiteService {
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
         return DozerUtils.convert(web, BookmarkVO.class);
+    }
+
+    @Override
+    public void checkBookmarkExistsAndUserPermission(int webId, String username) {
+        // username cannot be empty
+        ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
+
+        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
+
+        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+
+        Boolean isPublic = bookmark.getIsPublic();
+
+        boolean isPrivate = BooleanUtils.isFalse(isPublic);
+        String owner = bookmark.getUserName();
+
+        boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, owner);
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     @Override
