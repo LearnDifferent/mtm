@@ -2,12 +2,12 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
-import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,8 +42,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int lastIndex) {
-        return notificationManager.getReplyNotifications(receiveUsername, 0, lastIndex);
+    public List<ReplyMessageNotificationVO> getReplyNotifications(String receiveUsername, int lastIndex) {
+        return notificationManager.getReplyMessageNotification(receiveUsername, 0, lastIndex);
     }
 
     @Override

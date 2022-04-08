@@ -4,13 +4,13 @@ import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
-import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +76,9 @@ public class NotificationManager {
      * @param lastIndex       to
      * @return reply notifications
      */
-    public List<ReplyNotificationWithMsgDTO> getReplyNotifications(String receiveUsername, int from, int lastIndex) {
+    public List<ReplyMessageNotificationVO> getReplyMessageNotification(String receiveUsername,
+                                                                        int from,
+                                                                        int lastIndex) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         List<String> notifications = redisTemplate.opsForList().range(key, from, lastIndex);
 
@@ -87,24 +89,26 @@ public class NotificationManager {
         redisTemplate.delete(KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase());
 
         return notifications.stream()
-                .map(n -> {
-                    ReplyNotificationWithMsgDTO no = JsonUtils.toObject(n, ReplyNotificationWithMsgDTO.class);
-                    String text = getCommentTextIfWebsiteAndCommentExist(no);
-                    no.setMessage(text);
-                    return no;
-                })
+                .map(this::getReplyMessageNotification)
                 .collect(Collectors.toList());
     }
 
-    private String getCommentTextIfWebsiteAndCommentExist(ReplyNotificationWithMsgDTO notification) {
+    private ReplyMessageNotificationVO getReplyMessageNotification(String notification) {
+        ReplyMessageNotificationVO no = JsonUtils.toObject(notification, ReplyMessageNotificationVO.class);
+        String text = getCommentTextIfWebsiteAndCommentExist(no);
+        no.setMessage(text);
+        return no;
+    }
+
+    private String getCommentTextIfWebsiteAndCommentExist(ReplyMessageNotificationVO notification) {
 
         Integer webId = notification.getWebId();
-        // include private website data because another method
+        // include private bookmarks because another method
         // that views the details will verify the permission later on
-        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
+        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
 
-        if (web == null) {
-            // if the website data does not exist,
+        if (bookmark == null) {
+            // if the bookmark does not exist,
             // returns null to indicate that the comment does not exist
             return null;
         }

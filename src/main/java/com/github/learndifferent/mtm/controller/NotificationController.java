@@ -4,13 +4,13 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.ReplyNotificationWithMsgDTO;
 import com.github.learndifferent.mtm.query.DelReNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2021/09/05
  */
 @RestController
-@RequestMapping("/notify")
+@RequestMapping("/notification")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -54,23 +54,21 @@ public class NotificationController {
     }
 
     /**
-     * Get reply / comment notifications
+     * Get reply notifications
      *
-     * @param lastIndex index of the last element of the reply / comment notification list
-     * @return {@link ResultVO}<{@link List}<{@link ReplyNotificationWithMsgDTO}>> reply / comment notification list
-     * with the result code of {@link ResultCode#SUCCESS}
+     * @param lastIndex index of the last element of the reply notification list
+     * @return reply notifications
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotificationService#getReplyNotifications(String,
      *                                                                  int)} will throw an exception with
      *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
      *                                                                  if there is no notifications found
      */
     @GetMapping("/reply")
-    public ResultVO<List<ReplyNotificationWithMsgDTO>> getReplyNotifications(
+    public List<ReplyMessageNotificationVO> getReplyNotifications(
             @RequestParam(value = "lastIndex", defaultValue = "10") int lastIndex) {
 
         String username = getCurrentUsername();
-        List<ReplyNotificationWithMsgDTO> n = notificationService.getReplyNotifications(username, lastIndex);
-        return ResultCreator.okResult(n);
+        return notificationService.getReplyNotifications(username, lastIndex);
     }
 
     /**
@@ -137,14 +135,14 @@ public class NotificationController {
     /**
      * Check whether the current user has read the latest system notification
      *
-     * @return true if current user has read the latest notification, or there is no system notification
-     * <p>false if current user has not read the latest notification</p>
+     * @return {@link ResultCode#SUCCESS} if current user has read the latest notification or there is no system notification.
+     * {@link ResultCode#FAILED} if current user has not read the latest notification.
      */
     @GetMapping("/read")
-    public ResultVO<Boolean> checkIfReadLatestSysNotification() {
+    public ResultVO<ResultCode> checkIfReadLatestSysNotification() {
         String currentUsername = getCurrentUsername();
         boolean hasRead = notificationService.checkIfReadLatestSysNotification(currentUsername);
-        return ResultCreator.okResult(hasRead);
+        return hasRead ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
     /**
