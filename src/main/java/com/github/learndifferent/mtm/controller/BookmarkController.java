@@ -6,7 +6,6 @@ import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.ExistingDataRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -14,6 +13,7 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.vo.BookmarkResultVO;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -121,17 +121,16 @@ public class BookmarkController {
      * Get a bookmark
      *
      * @param webId ID of the bookmarked website data
-     * @return {@link ResultVO}<{@link WebsiteDTO the bookmark}>
+     * @return {@link BookmarkVO the bookmark}
      * @throws ServiceException If the user currently logged in has no permission to get the bookmark,
      *                          or the bookmark doesn't exist, a {@link ServiceException}
      *                          will be thrown with the result code of {@link ResultCode#PERMISSION_DENIED}
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
     @GetMapping("/get")
-    public ResultVO<WebsiteDTO> getBookmark(@RequestParam("webId") Integer webId) {
+    public BookmarkVO getBookmark(@RequestParam("webId") Integer webId) {
         String currentUsername = getCurrentUsername();
-        WebsiteDTO web = websiteService.getBookmark(webId, currentUsername);
-        return ResultCreator.okResult(web);
+        return websiteService.getBookmark(webId, currentUsername);
     }
 
     /**

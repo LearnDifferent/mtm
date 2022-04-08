@@ -4,7 +4,6 @@ import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -142,7 +141,7 @@ public interface WebsiteService {
      *                          {@link ResultCode#PERMISSION_DENIED}
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
-    WebsiteDTO getBookmark(int webId, String userName);
+    BookmarkVO getBookmark(int webId, String userName);
 
     /**
      * Export user's bookmarks to a HTML file.

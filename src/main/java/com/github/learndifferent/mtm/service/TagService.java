@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
 
@@ -109,7 +109,7 @@ public interface TagService {
      *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
      *                                                                  NO_RESULTS_FOUND} if no results found
      */
-    List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo);
+    List<BookmarkVO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo);
 
     /**
      * Search bookmarks by a certain tag and get total pages.

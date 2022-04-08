@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.vo;
 
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -25,7 +24,7 @@ public class SearchByTagResultVO implements Serializable {
     /**
      * Paginated bookmarks associated with the chosen tag
      */
-    private List<WebsiteDTO> bookmarks;
+    private List<BookmarkVO> bookmarks;
 
     /**
      * Total pages

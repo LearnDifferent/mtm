@@ -6,10 +6,10 @@ import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.TagService;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,13 +128,11 @@ public class TagController {
      *                                                                  if no results found
      */
     @GetMapping("/search")
-    public ResultVO<List<WebsiteDTO>> getBookmarksByTagName(@RequestParam("tagName") String tagName,
-                                                            @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
-                                                                    PageInfoDTO pageInfo) {
+    public List<BookmarkVO> getBookmarksByTagName(@RequestParam("tagName") String tagName,
+                                                  @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
+                                                          PageInfoDTO pageInfo) {
         String currentUsername = getCurrentUsername();
-        List<WebsiteDTO> bookmarks =
-                tagService.getBookmarksByUsernameAndTag(currentUsername, tagName, pageInfo);
-        return ResultCreator.okResult(bookmarks);
+        return tagService.getBookmarksByUsernameAndTag(currentUsername, tagName, pageInfo);
     }
 
     /**

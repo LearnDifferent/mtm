@@ -17,8 +17,6 @@ import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
@@ -258,7 +256,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     private BookmarksAndTotalPagesVO getBookmarksExceptRequestedUser(
             String currentUsername, String requestedUsername, int from, int size) {
 
-        List<WebsiteWithPrivacyDTO> bookmarks =
+        List<BookmarkVO> bookmarks =
                 getAllPubSpecUserPriWebsExcludeUser(requestedUsername, from, size, currentUsername);
 
         int totalCount = countExcludeUserPost(requestedUsername, currentUsername);
@@ -267,7 +265,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     private BookmarksAndTotalPagesVO getLatestBookmarks(String currentUsername, int from, int size) {
-        List<WebsiteWithPrivacyDTO> bookmarks =
+        List<BookmarkVO> bookmarks =
                 getAllPubSpecUserPriWebs(from, size, currentUsername);
 
         int totalCount = countAllPubAndSpecUserPriWebs(currentUsername);
@@ -317,9 +315,9 @@ public class WebsiteServiceImpl implements WebsiteService {
      * @param from              from
      * @param size              size
      * @param userNameToShowAll 该用户名的用户的所有数据都要展示
-     * @return {@link List}<{@link WebsiteWithPrivacyDTO}> 除去某个用户的所有网页
+     * @return 除去某个用户的所有网页
      */
-    private List<WebsiteWithPrivacyDTO> getAllPubSpecUserPriWebsExcludeUser(
+    private List<BookmarkVO> getAllPubSpecUserPriWebsExcludeUser(
             String excludeUsername, int from, int size, String userNameToShowAll) {
 
         List<WebsiteDO> websites = websiteMapper.findWebsitesDataExcludeUser(
@@ -334,19 +332,19 @@ public class WebsiteServiceImpl implements WebsiteService {
      * @param from         from
      * @param size         size
      * @param specUsername specific user's name
-     * @return {@link List}<{@link WebsiteWithPrivacyDTO}>
+     * @return all public and specific user's private bookmarks
      */
-    private List<WebsiteWithPrivacyDTO> getAllPubSpecUserPriWebs(Integer from,
-                                                                 Integer size,
-                                                                 String specUsername) {
+    private List<BookmarkVO> getAllPubSpecUserPriWebs(Integer from,
+                                                      Integer size,
+                                                      String specUsername) {
         List<WebsiteDO> websites =
                 websiteMapper.getAllPubAndSpecUserPriWebs(from, size, specUsername);
 
         return getBookmarks(websites);
     }
 
-    private List<WebsiteWithPrivacyDTO> getBookmarks(List<WebsiteDO> websites) {
-        return DozerUtils.convertList(websites, WebsiteWithPrivacyDTO.class);
+    private List<BookmarkVO> getBookmarks(List<WebsiteDO> websites) {
+        return DozerUtils.convertList(websites, BookmarkVO.class);
     }
 
     private BookmarksAndTotalPagesVO getUserBookmarks(String username, int from, int size, boolean includePrivate) {
@@ -355,12 +353,9 @@ public class WebsiteServiceImpl implements WebsiteService {
         int totalPages = PageUtil.getAllPages(totalCounts, size);
 
         List<WebsiteDO> b = websiteMapper.findWebsitesDataByUser(username, from, size, includePrivate);
-        List<WebsiteWithPrivacyDTO> bookmarks = getBookmarks(b);
+        List<BookmarkVO> bookmarks = getBookmarks(b);
 
-        return BookmarksAndTotalPagesVO.builder()
-                .totalPages(totalPages)
-                .bookmarks(bookmarks)
-                .build();
+        return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
     }
 
     @Override
@@ -398,19 +393,19 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
-    public WebsiteDTO getBookmark(int webId, String userName) {
+    public BookmarkVO getBookmark(int webId, String userName) {
         WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
 
-        // website data does not exist
+        // data does not exist
         ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        // website data is not public
-        // and the owner's username of website data does not match the username
+        // data is not public
+        // and the owner's username of data does not match the username
         boolean noPermission = Boolean.FALSE.equals(web.getIsPublic())
                 && CompareStringUtil.notEqualsIgnoreCase(userName, web.getUserName());
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
-        return DozerUtils.convert(web, WebsiteDTO.class);
+        return DozerUtils.convert(web, BookmarkVO.class);
     }
 
     @Override
@@ -441,7 +436,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     private String getBookmarksByUserInHtml(String username, boolean includePrivate) {
 
-        List<WebsiteDTO> bookmarks = findAllWebDataByUser(username, includePrivate);
+        List<BookmarkVO> bookmarks = findAllWebDataByUser(username, includePrivate);
 
         StringBuilder sb = new StringBuilder();
         sb.append(HtmlFileConstant.FILE_START);
@@ -469,11 +464,10 @@ public class WebsiteServiceImpl implements WebsiteService {
         return sb.append(HtmlFileConstant.FILE_END).toString();
     }
 
-    private List<WebsiteDTO> findAllWebDataByUser(String userName, boolean includePrivate) {
+    private List<BookmarkVO> findAllWebDataByUser(String userName, boolean includePrivate) {
         // from 和 size 为 null 的时候，表示不分页，直接获取全部
-        List<WebsiteDO> webs = websiteMapper.findWebsitesDataByUser(userName,
-                null, null, includePrivate);
-        return DozerUtils.convertList(webs, WebsiteDTO.class);
+        List<WebsiteDO> bookmarks = websiteMapper.findWebsitesDataByUser(userName, null, null, includePrivate);
+        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
     @Override

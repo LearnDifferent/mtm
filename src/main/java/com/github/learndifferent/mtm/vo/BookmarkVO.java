@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ * Bookmark View Object / Value Object
+ *
  * @author zhou
  * @date 2022/4/7
  */

@@ -8,7 +8,6 @@ import com.github.learndifferent.mtm.annotation.validation.website.permission.Mo
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
@@ -19,6 +18,7 @@ import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.PageUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,14 +92,14 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo) {
+    public List<BookmarkVO> getBookmarksByUsernameAndTag(String username, String tagName, PageInfoDTO pageInfo) {
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
         return getBookmarksByUsernameAndTag(username, tagName, from, size);
     }
 
-    private List<WebsiteDTO> getBookmarksByUsernameAndTag(String username, String tagName, int from, int size) {
+    private List<BookmarkVO> getBookmarksByUsernameAndTag(String username, String tagName, int from, int size) {
         List<Integer> ids = tagMapper.getWebIdByTagName(tagName, from, size);
         throwExceptionIfEmpty(ids);
 
@@ -111,12 +111,32 @@ public class TagServiceImpl implements TagService {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<WebsiteDTO> bookmarks = getBookmarksByUsernameAndTag(username, tagName, from, size);
+        List<BookmarkVO> bookmarks = getBookmarksByUsernameAndTag(username, tagName, from, size);
 
         int totalCount = countTags(tagName);
         int totalPages = PageUtil.getAllPages(totalCount, size);
 
         return SearchByTagResultVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
+    }
+
+    private List<BookmarkVO> getBookmarks(String username, List<Integer> ids) {
+        List<BookmarkVO> result = new ArrayList<>();
+        ids.forEach(i -> updateBookmarks(result, username, i));
+        return result;
+    }
+
+    private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int webId) {
+        WebsiteDO b = websiteMapper.getWebsiteDataById(webId);
+        if (b == null) {
+            return;
+        }
+
+        boolean isPublic = b.getIsPublic();
+        String owner = b.getUserName();
+        if (isPublic || owner.equalsIgnoreCase(username)) {
+            BookmarkVO bookmark = DozerUtils.convert(b, BookmarkVO.class);
+            bookmarks.add(bookmark);
+        }
     }
 
     /**
@@ -127,26 +147,6 @@ public class TagServiceImpl implements TagService {
      */
     private int countTags(String tagName) {
         return tagMapper.countTags(tagName);
-    }
-
-    private List<WebsiteDTO> getBookmarks(String username, List<Integer> ids) {
-        List<WebsiteDTO> result = new ArrayList<>();
-        ids.forEach(i -> updateBookmarks(result, username, i));
-        return result;
-    }
-
-    private void updateBookmarks(List<WebsiteDTO> bookmarks, String username, int webId) {
-        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
-        if (web == null) {
-            return;
-        }
-
-        boolean isPublic = web.getIsPublic();
-        String owner = web.getUserName();
-        if (isPublic || owner.equalsIgnoreCase(username)) {
-            WebsiteDTO w = DozerUtils.convert(web, WebsiteDTO.class);
-            bookmarks.add(w);
-        }
     }
 
     @Override
