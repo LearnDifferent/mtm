@@ -1,24 +1,17 @@
 package com.github.learndifferent.mtm.annotation.validation.comment.get;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
-import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
-import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.service.WebsiteService;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import org.apache.commons.lang3.BooleanUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 /**
  * Check before getting comments.
@@ -30,11 +23,11 @@ import org.springframework.util.StringUtils;
 @Component
 public class GetCommentsCheckAspect {
 
-    private final WebsiteMapper websiteMapper;
+    private final WebsiteService websiteService;
 
     @Autowired
-    public GetCommentsCheckAspect(WebsiteMapper websiteMapper) {
-        this.websiteMapper = websiteMapper;
+    public GetCommentsCheckAspect(WebsiteService websiteService) {
+        this.websiteService = websiteService;
     }
 
     @Before("@annotation(getCommentsCheck)")
@@ -75,30 +68,6 @@ public class GetCommentsCheckAspect {
             }
         }
 
-        // 用户名是否为当前用户的用户名（并判断是否空）
-        checkUsername(username);
-        checkBookmarksExistsAndPermission(webId, username);
-    }
-
-    private void checkUsername(String username) {
-        String currentUsername = StpUtil.getLoginIdAsString();
-
-        boolean hasNoPermission = StringUtils.isEmpty(username)
-                || CompareStringUtil.notEqualsIgnoreCase(username, currentUsername);
-
-        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
-    }
-
-    private void checkBookmarksExistsAndPermission(int webId, String username) {
-        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
-
-        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
-
-        Boolean isPublic = bookmark.getIsPublic();
-        boolean isPrivate = BooleanUtils.isFalse(isPublic);
-        String user = bookmark.getUserName();
-
-        boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, user);
-        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
+        websiteService.checkBookmarkExistsAndUserPermission(webId, username);
     }
 }

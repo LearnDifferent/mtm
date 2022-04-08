@@ -7,14 +7,11 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.CommentDO;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import org.apache.commons.lang3.BooleanUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -22,7 +19,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 /**
  * Throw an exception with the result code of {@link ResultCode#PERMISSION_DENIED}
@@ -51,14 +47,14 @@ import org.springframework.util.StringUtils;
 @Component
 public class AddCommentCheckAspect {
 
-    private final WebsiteMapper websiteMapper;
+    private final WebsiteService websiteService;
 
     private final CommentMapper commentMapper;
 
     @Autowired
-    public AddCommentCheckAspect(WebsiteMapper websiteMapper,
+    public AddCommentCheckAspect(WebsiteService websiteService,
                                  CommentMapper commentMapper) {
-        this.websiteMapper = websiteMapper;
+        this.websiteService = websiteService;
         this.commentMapper = commentMapper;
     }
 
@@ -123,7 +119,7 @@ public class AddCommentCheckAspect {
         checkComment(comment);
         // check if the bookmark exists
         // check whether the user has permission to comment (public or the user owns the bookmark)
-        checkBookmarkExistsAndPermission(webId, username);
+        websiteService.checkBookmarkExistsAndUserPermission(webId, username);
         // 检查该用户是否已经对该网页进行了相同内容的评论
         checkCommentContentExists(comment, webId, username);
         // 如果是回复评论，需要检查回复的评论的 Comment ID 是否存在
@@ -136,22 +132,6 @@ public class AddCommentCheckAspect {
 
         boolean tooLong = comment.length() > 140;
         ThrowExceptionUtils.throwIfTrue(tooLong, ResultCode.COMMENT_TOO_LONG);
-    }
-
-    private void checkBookmarkExistsAndPermission(int webId, String username) {
-        // username cannot be empty
-        ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
-
-        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
-
-        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
-
-        Boolean isPublic = bookmark.getIsPublic();
-        boolean isPrivate = BooleanUtils.isFalse(isPublic);
-        String owner = bookmark.getUserName();
-
-        boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, owner);
-        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     private void checkCommentContentExists(String comment, int webId, String username) {
