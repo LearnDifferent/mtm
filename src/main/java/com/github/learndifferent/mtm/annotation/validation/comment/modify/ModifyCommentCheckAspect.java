@@ -4,8 +4,8 @@ import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.CommentDTO;
-import com.github.learndifferent.mtm.service.CommentService;
+import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -29,10 +29,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ModifyCommentCheckAspect {
 
-    private final CommentService commentService;
+    private final CommentMapper commentMapper;
 
     @Autowired
-    public ModifyCommentCheckAspect(CommentService commentService) {this.commentService = commentService;}
+    public ModifyCommentCheckAspect(CommentMapper commentMapper) {this.commentMapper = commentMapper;}
 
     @Before("@annotation(modifyCommentCheck)")
     public void checkBeforeModification(JoinPoint jp, ModifyCommentCheck modifyCommentCheck) {
@@ -76,7 +76,7 @@ public class ModifyCommentCheckAspect {
     }
 
     private void check(String username, int commentId) {
-        CommentDTO comment = commentService.getCommentById(commentId);
+        CommentDO comment = commentMapper.getCommentById(commentId);
         // comment does not exist
         ThrowExceptionUtils.throwIfNull(comment, ResultCode.COMMENT_NOT_EXISTS);
 

@@ -8,8 +8,6 @@ import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
-import com.github.learndifferent.mtm.dto.BookmarkCommentDTO;
-import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
@@ -17,6 +15,8 @@ import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
+import com.github.learndifferent.mtm.vo.CommentVO;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,30 +42,24 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDTO getCommentById(Integer commentId) {
+    public CommentVO getCommentById(Integer commentId) {
         if (commentId == null) {
             return null;
         }
         CommentDO comment = commentMapper.getCommentById(commentId);
-        return DozerUtils.convert(comment, CommentDTO.class);
-    }
-
-    @Override
-    public CommentDTO getComment(String comment, int webId, String username) {
-        CommentDO commentDO = commentMapper.getCommentByWebIdAndUsernameAndComment(comment, webId, username);
-        return DozerUtils.convert(commentDO, CommentDTO.class);
+        return DozerUtils.convert(comment, CommentVO.class);
     }
 
     @Override
     @GetCommentsCheck
-    public List<BookmarkCommentDTO> getBookmarkComments(@WebId Integer webId,
-                                                        Integer replyToCommentId,
-                                                        Integer load,
-                                                        @Username String username,
-                                                        Boolean isDesc) {
+    public List<BookmarkCommentVO> getBookmarkComments(@WebId Integer webId,
+                                                       Integer replyToCommentId,
+                                                       Integer load,
+                                                       @Username String username,
+                                                       Boolean isDesc) {
         List<CommentDO> commentList = commentMapper.getCommentsByWebAndReplyCommentId(
                 webId, replyToCommentId, load, isDesc);
-        List<BookmarkCommentDTO> comments = DozerUtils.convertList(commentList, BookmarkCommentDTO.class);
+        List<BookmarkCommentVO> comments = DozerUtils.convertList(commentList, BookmarkCommentVO.class);
 
         comments.forEach(comment -> {
             // Get a count of the replies from this comment (comment id won't be null)

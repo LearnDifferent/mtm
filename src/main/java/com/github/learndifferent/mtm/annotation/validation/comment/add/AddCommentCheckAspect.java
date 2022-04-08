@@ -6,10 +6,10 @@ import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.CommentDTO;
+import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
-import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -53,13 +53,13 @@ public class AddCommentCheckAspect {
 
     private final WebsiteMapper websiteMapper;
 
-    private final CommentService commentService;
+    private final CommentMapper commentMapper;
 
     @Autowired
     public AddCommentCheckAspect(WebsiteMapper websiteMapper,
-                                 CommentService commentService) {
+                                 CommentMapper commentMapper) {
         this.websiteMapper = websiteMapper;
-        this.commentService = commentService;
+        this.commentMapper = commentMapper;
     }
 
     @Before("@annotation(addCommentCheck)")
@@ -155,8 +155,7 @@ public class AddCommentCheckAspect {
     }
 
     private void checkCommentContentExists(String comment, int webId, String username) {
-        CommentDTO exist = commentService.getComment(
-                comment, webId, username);
+        CommentDO exist = commentMapper.getCommentByWebIdAndUsernameAndComment(comment, webId, username);
         ThrowExceptionUtils.throwIfNotNull(exist, ResultCode.COMMENT_EXISTS);
     }
 
@@ -165,7 +164,7 @@ public class AddCommentCheckAspect {
             // null means it's a comment, not a reply
             return;
         }
-        CommentDTO comment = commentService.getCommentById(replyToCommentId);
+        CommentDO comment = commentMapper.getCommentById(replyToCommentId);
         ThrowExceptionUtils.throwIfNull(comment, ResultCode.COMMENT_NOT_EXISTS);
     }
 }

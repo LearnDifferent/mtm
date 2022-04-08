@@ -1,9 +1,8 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.dto.BookmarkCommentDTO;
-import com.github.learndifferent.mtm.dto.CommentDTO;
-import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
+import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
+import com.github.learndifferent.mtm.vo.CommentVO;
 import java.util.List;
 
 /**
@@ -20,27 +19,20 @@ public interface CommentService {
      * @param commentId ID of the comment
      * @return the comment (null if comment does not exist)
      */
-    CommentDTO getCommentById(Integer commentId);
-
-    /**
-     * Get a comment
-     *
-     * @param comment  comment
-     * @param webId    ID of the bookmarked website data
-     * @param username username of the owner of the comment
-     * @return {@link CommentDO}
-     */
-    CommentDTO getComment(String comment, int webId, String username);
+    CommentVO getCommentById(Integer commentId);
 
     /**
      * Get comments of a bookmark
      *
      * @param webId            ID of the bookmarked website data
-     * @param replyToCommentId Reply to another comment (null if it's not a reply)
+     * @param replyToCommentId ID of the comment to reply
+     *                         <p>
+     *                         null if this is not a reply
+     *                         </p>
      * @param load             Amount of data to load
      * @param username         Username of the user who is trying to get comments
      * @param isDesc           True if descending order
-     * @return Return a list of {@link BookmarkCommentDTO} or an empty list if there is no comment of the bookmark
+     * @return Return a list of {@link BookmarkCommentVO} or an empty list if there is no comment of the bookmark
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the website's
      *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck
@@ -51,11 +43,11 @@ public interface CommentService {
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    List<BookmarkCommentDTO> getBookmarkComments(Integer webId,
-                                                 Integer replyToCommentId,
-                                                 Integer load,
-                                                 String username,
-                                                 Boolean isDesc);
+    List<BookmarkCommentVO> getBookmarkComments(Integer webId,
+                                                Integer replyToCommentId,
+                                                Integer load,
+                                                String username,
+                                                Boolean isDesc);
 
     /**
      * Delete a comment by id
@@ -80,7 +72,10 @@ public interface CommentService {
      * @param comment          comment
      * @param webId            ID of the bookmarked website data
      * @param username         username of the user who is trying to add the comment
-     * @param replyToCommentId reply to another comment (null if it's not a reply)
+     * @param replyToCommentId ID of the comment to reply
+     *                         <p>
+     *                         null if this is not a reply
+     *                         </p>
      * @return true if success
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck
      *                                                                  AddCommentCheck} annotation will throw an

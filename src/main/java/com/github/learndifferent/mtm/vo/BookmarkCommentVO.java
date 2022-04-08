@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.vo;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -9,32 +9,27 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Comment DTO
+ * Comment data of a bookmark
  *
  * @author zhou
- * @date 2021/9/28
+ * @date 2021/9/29
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Accessors(chain = true)
 @Builder
-public class CommentDTO implements Serializable {
+@Accessors(chain = true)
+public class BookmarkCommentVO implements Serializable {
 
     /**
-     * Comment id
+     * Comment ID
      */
     private Integer commentId;
 
     /**
-     * content
+     * Content
      */
     private String comment;
-
-    /**
-     * Web id
-     */
-    private Integer webId;
 
     /**
      * Username
@@ -47,9 +42,17 @@ public class CommentDTO implements Serializable {
     private Instant creationTime;
 
     /**
-     * Reply to the comment (null if it's not a reply)
+     * ID of the comment to reply
+     * <p>
+     * null if this is not a reply
+     * </p>
      */
     private Integer replyToCommentId;
+
+    /**
+     * Count of the replies from this comment
+     */
+    private Integer repliesCount;
 
     private static final long serialVersionUID = 1L;
 }

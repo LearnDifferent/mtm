@@ -2,12 +2,12 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.BookmarkCommentDTO;
-import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.CommentService;
+import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
+import com.github.learndifferent.mtm.vo.CommentVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -39,10 +39,13 @@ public class CommentController {
      * Get comment data of a bookmark
      *
      * @param webId            ID of the bookmarked website data
-     * @param replyToCommentId Reply to another comment (null if it's not a reply)
+     * @param replyToCommentId ID of the comment to reply
+     *                         <p>
+     *                         Null if this is not a reply
+     *                         </p>
      * @param load             Amount of data to load
      * @param isDesc           True if descending order
-     * @return Return a list of {@link BookmarkCommentDTO} with the result code of {@link ResultCode#SUCCESS},
+     * @return Return a list of {@link BookmarkCommentVO} with the result code of {@link ResultCode#SUCCESS},
      * or an empty list with {@link ResultCode#NO_RESULTS_FOUND} if there is no comments of the bookmark
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the
@@ -53,14 +56,14 @@ public class CommentController {
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @GetMapping
-    public ResultVO<List<BookmarkCommentDTO>> getComments(@RequestParam("webId") Integer webId,
-                                                          @RequestParam(value = "replyToCommentId", required = false)
-                                                                  Integer replyToCommentId,
-                                                          @RequestParam("load") Integer load,
-                                                          @RequestParam(value = "isDesc", required = false, defaultValue = "true")
-                                                                  Boolean isDesc) {
+    public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("webId") Integer webId,
+                                                         @RequestParam(value = "replyToCommentId", required = false)
+                                                                 Integer replyToCommentId,
+                                                         @RequestParam("load") Integer load,
+                                                         @RequestParam(value = "isDesc", required = false, defaultValue = "true")
+                                                                 Boolean isDesc) {
         String currentUsername = getCurrentUsername();
-        List<BookmarkCommentDTO> comments = commentService.getBookmarkComments(
+        List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
                 webId, replyToCommentId, load, currentUsername, isDesc);
 
         ResultCode code = CollectionUtils.isEmpty(comments) ? ResultCode.NO_RESULTS_FOUND
@@ -69,26 +72,15 @@ public class CommentController {
     }
 
     /**
-     * Get a comment
-     *
-     * @param commentId ID of the comment
-     * @return {@link ResultVO}<{@link CommentDTO}> Return result code of {@link ResultCode#SUCCESS}
-     * with the comment as data if the comment exists. If the comment does not exist, return the result code of
-     * {@link ResultCode#FAILED}
-     */
-    @GetMapping("/get")
-    public ResultVO<CommentDTO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId) {
-        CommentDTO comment = commentService.getCommentById(commentId);
-        return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
-    }
-
-    /**
      * Create a comment and send a notification to the user who is about to receive it
      *
      * @param comment          Comment
      * @param webId            ID of the bookmarked website data
-     * @param replyToCommentId Reply to another comment (null if it's not a reply)
-     * @return {@link ResultVO}<{@link Boolean}> True if success
+     * @param replyToCommentId ID of the comment to reply
+     *                         <p>
+     *                         Null if this is not a reply
+     *                         </p>
+     * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addCommentAndSendNotification(String,
      *                                                                  Integer, String, Integer)} will throw an
      *                                                                  exception with the result code of {@link
@@ -117,10 +109,10 @@ public class CommentController {
      *                                                                  </p>
      */
     @GetMapping("/create")
-    public ResultVO<Boolean> createComment(@RequestParam("comment") String comment,
-                                           @RequestParam("webId") Integer webId,
-                                           @RequestParam(value = "replyToCommentId",
-                                                         required = false) Integer replyToCommentId) {
+    public ResultVO<ResultCode> createComment(@RequestParam("comment") String comment,
+                                              @RequestParam("webId") Integer webId,
+                                              @RequestParam(value = "replyToCommentId",
+                                                            required = false) Integer replyToCommentId) {
         String currentUsername = getCurrentUsername();
         boolean success = commentService.addCommentAndSendNotification(
                 comment, webId, currentUsername, replyToCommentId);
@@ -131,7 +123,7 @@ public class CommentController {
      * Update a comment
      *
      * @param commentInfo Request body containing the comment information to update
-     * @return {@link ResultVO}<{@link Boolean}> true if success
+     * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#updateComment(UpdateCommentRequest,
      *                                                                  String)} will throw exceptions with the
      *                                                                  result codes of {@link ResultCode#COMMENT_NOT_EXISTS}
@@ -147,7 +139,7 @@ public class CommentController {
      *                                                                  and {@link ResultCode#COMMENT_TOO_LONG}
      */
     @PostMapping
-    public ResultVO<Boolean> updateComment(@RequestBody UpdateCommentRequest commentInfo) {
+    public ResultVO<ResultCode> updateComment(@RequestBody UpdateCommentRequest commentInfo) {
         String currentUsername = getCurrentUsername();
         boolean success = commentService.updateComment(commentInfo, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
@@ -157,7 +149,7 @@ public class CommentController {
      * Delete a comment
      *
      * @param commentId ID of the comment
-     * @return success or failure
+     * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#deleteCommentById(Integer,
      *                                                                  String)}
      *                                                                  will throw exceptions with the
@@ -167,10 +159,24 @@ public class CommentController {
      *                                                                  no permissions to delete the comment
      */
     @DeleteMapping
-    public ResultVO<Boolean> deleteComment(@RequestParam("commentId") Integer commentId) {
+    public ResultVO<ResultCode> deleteComment(@RequestParam("commentId") Integer commentId) {
         String currentUsername = getCurrentUsername();
         boolean success = commentService.deleteCommentById(commentId, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
+    }
+
+    /**
+     * Get a comment
+     *
+     * @param commentId ID of the comment
+     * @return {@link ResultVO}<{@link CommentVO}> Return result code of {@link ResultCode#SUCCESS}
+     * with the comment as data if the comment exists. If the comment does not exist, return the result code of
+     * {@link ResultCode#FAILED}
+     */
+    @GetMapping("/get")
+    public ResultVO<CommentVO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId) {
+        CommentVO comment = commentService.getCommentById(commentId);
+        return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
     }
 
     /**
