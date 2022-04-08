@@ -8,7 +8,6 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.manager.CdUserManager;
 import com.github.learndifferent.mtm.manager.NotificationManager;
@@ -20,6 +19,7 @@ import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +52,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Cacheable(value = "user:names-and-bookmarks")
-    public List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks() {
-        // null means get all user's
-        return userMapper.getNamesAndCountTheirPublicWebs(null);
-    }
-
-    @Override
-    public List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks(List<String> usernames) {
-        return userMapper.getNamesAndCountTheirPublicWebs(usernames);
+    public List<UserBookmarkNumberVO> getNamesAndPublicBookmarkNums(List<String> usernames) {
+        return userMapper.getNamesAndPublicBookmarkNums(usernames);
     }
 
     @Override

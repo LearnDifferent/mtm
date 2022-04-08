@@ -2,9 +2,9 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
+import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 
@@ -17,21 +17,16 @@ import java.util.List;
 public interface UserService {
 
     /**
-     * Get all usernames of the users
-     * and the total number of their public bookmarks sorted by the total number
+     * Get usernames of the users and the total numbers of their public bookmarks
+     * sorted by the total number.
      *
-     * @return {@link List}<{@link UserWithWebCountDTO}>
+     * @param usernames usernames of the requested users
+     *                  <p>
+     *                  get all usernames in database if null or emtpy
+     *                  </p>
+     * @return {@link List}<{@link UserBookmarkNumberVO}>
      */
-    List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks();
-
-    /**
-     * Get all usernames of the users that are requested
-     * and the total number of their public bookmarks sorted by the total number
-     *
-     * @param usernames requested usernames
-     * @return {@link List}<{@link UserWithWebCountDTO}>
-     */
-    List<UserWithWebCountDTO> getNamesAndCountTheirPubBookmarks(List<String> usernames);
+    List<UserBookmarkNumberVO> getNamesAndPublicBookmarkNums(List<String> usernames);
 
     /**
      * Change password

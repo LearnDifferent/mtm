@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.dto;
+package com.github.learndifferent.mtm.vo;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 用户信息 + 该用户收藏的网页的个数
+ * Username of the user and total number of the user's public bookmarks
  *
  * @author zhou
  * @date 2021/09/05
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserWithWebCountDTO implements Serializable {
+public class UserBookmarkNumberVO implements Serializable {
 
     /**
      * Username
@@ -22,10 +22,9 @@ public class UserWithWebCountDTO implements Serializable {
     private String userName;
 
     /**
-     * The number of websites that user owns
+     * Total number of the user's public bookmarks
      */
-    private Integer webCount;
+    private Integer bookmarkNumber;
 
     private static final long serialVersionUID = 1L;
 }
-

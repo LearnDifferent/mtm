@@ -16,6 +16,8 @@ import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
+import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +45,22 @@ public class UserController {
     }
 
     /**
+     * Get usernames of the users and the total numbers of their public bookmarks
+     * sorted by the total number
+     *
+     * @param usernames usernames of the requested users
+     *                  <p>
+     *                  get all usernames in database if null or emtpy
+     *                  </p>
+     * @return usernames of the users and the total number of their public bookmarks sorted by the total number
+     */
+    @GetMapping
+    public List<UserBookmarkNumberVO> getNamesAndPublicBookmarkNums(
+            @RequestParam(value = "usernames", required = false) List<String> usernames) {
+        return userService.getNamesAndPublicBookmarkNums(usernames);
+    }
+
+    /**
      * Change Password
      *
      * @param passwordInfo username, old password and new password
@@ -53,7 +71,7 @@ public class UserController {
      *                                                                  if the user is guest
      */
     @NotGuest
-    @PostMapping("/changePwd")
+    @PostMapping("/change-password")
     public ResultVO<ResultCode> changePassword(@RequestBody ChangePwdRequest passwordInfo) {
 
         boolean success = userService.changePassword(passwordInfo);
@@ -82,8 +100,7 @@ public class UserController {
      *                        ignored.
      *                        <p>{@link RegisterCodeCheck} annotation will use the value of it for verification if
      *                        necessary.</p>
-     * @return If success, return {@link ResultCreator#okResult()}. If failure, return {@link
-     * ResultCreator#defaultFailResult()}
+     * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link RegisterCodeCheck} annotation will check
      *                                                                  the codes and {@link UserService#addUser(CreateUserRequest,
      *                                                                  String)} method will verify username, password
@@ -110,7 +127,7 @@ public class UserController {
 
         boolean success = userService.addUser(userInfo, role);
 
-        return success ? ResultCreator.okResult() : ResultCreator.defaultFailResult();
+        return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
     /**

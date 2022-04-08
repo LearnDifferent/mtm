@@ -1,8 +1,8 @@
 package com.github.learndifferent.mtm.mapper;
 
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
+import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -17,13 +17,16 @@ import org.springframework.stereotype.Repository;
 public interface UserMapper {
 
     /**
-     * Get user names and the number of public website data that user owns, sorted by the number.
+     * Get usernames of the users and the total numbers of their public bookmarks
+     * sorted by the total number.
      *
-     * @param usernames user names.
-     *                  If the {@code usernames} is empty, return all users' data.
-     * @return {@link List}<{@link UserWithWebCountDTO}>
+     * @param usernames usernames of the requested users
+     *                  <p>
+     *                  get all usernames in database if null or emtpy
+     *                  </p>
+     * @return {@link List}<{@link UserBookmarkNumberVO}>
      */
-    List<UserWithWebCountDTO> getNamesAndCountTheirPublicWebs(List<String> usernames);
+    List<UserBookmarkNumberVO> getNamesAndPublicBookmarkNums(List<String> usernames);
 
     /**
      * Get users

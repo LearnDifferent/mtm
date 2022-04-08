@@ -9,8 +9,8 @@
         <result column="role" jdbcType="VARCHAR" property="role"/>
     </resultMap>
 
-    <select id="getNamesAndCountTheirPublicWebs" resultType="com.github.learndifferent.mtm.dto.UserWithWebCountDTO">
-        select count(web_id) webCount, u.user_name userName
+    <select id="getNamesAndPublicBookmarkNums" resultType="com.github.learndifferent.mtm.vo.UserBookmarkNumberVO">
+        select count(web_id) bookmarkNumber, u.user_name userName
         from website w
         left join user u on w.user_name = u.user_name
         <where>
@@ -22,7 +22,7 @@
             </if>
         </where>
         group by userName
-        order by webCount desc;
+        order by bookmarkNumber desc;
     </select>
 
     <insert id="addUser" parameterType="com.github.learndifferent.mtm.entity.UserDO">

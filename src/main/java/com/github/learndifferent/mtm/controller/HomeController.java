@@ -5,10 +5,7 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.UserWithWebCountDTO;
 import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
-import com.github.learndifferent.mtm.response.ResultCreator;
-import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -67,17 +64,6 @@ public class HomeController {
                 .bookmarksAndTotalPages(data)
                 .requestedUsername(requestedUsername)
                 .build();
-    }
-
-    /**
-     * Get all usernames of the users and the total number of their public bookmarks sorted by the total number
-     *
-     * @return all usernames of the users and the total number of their public bookmarks sorted by the total number
-     */
-    @GetMapping("/filter")
-    public ResultVO<List<UserWithWebCountDTO>> getUsernamesAndCountPublicBookmarks() {
-        List<UserWithWebCountDTO> data = userService.getNamesAndCountTheirPubBookmarks();
-        return ResultCreator.okResult(data);
     }
 
     /**
