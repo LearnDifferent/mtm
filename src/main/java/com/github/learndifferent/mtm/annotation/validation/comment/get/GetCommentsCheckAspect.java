@@ -5,8 +5,8 @@ import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -30,10 +30,12 @@ import org.springframework.util.StringUtils;
 @Component
 public class GetCommentsCheckAspect {
 
-    private final WebsiteService websiteService;
+    private final WebsiteMapper websiteMapper;
 
     @Autowired
-    public GetCommentsCheckAspect(WebsiteService websiteService) {this.websiteService = websiteService;}
+    public GetCommentsCheckAspect(WebsiteMapper websiteMapper) {
+        this.websiteMapper = websiteMapper;
+    }
 
     @Before("@annotation(getCommentsCheck)")
     public void check(JoinPoint jp, GetCommentsCheck getCommentsCheck) {
@@ -75,7 +77,7 @@ public class GetCommentsCheckAspect {
 
         // 用户名是否为当前用户的用户名（并判断是否空）
         checkUsername(username);
-        checkWebsiteExistsAndPermission(webId, username);
+        checkBookmarksExistsAndPermission(webId, username);
     }
 
     private void checkUsername(String username) {
@@ -87,14 +89,14 @@ public class GetCommentsCheckAspect {
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
-    private void checkWebsiteExistsAndPermission(int webId, String username) {
-        WebsiteWithPrivacyDTO web = websiteService.findWebsiteDataWithPrivacyById(webId);
+    private void checkBookmarksExistsAndPermission(int webId, String username) {
+        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
 
-        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        Boolean isPublic = web.getIsPublic();
+        Boolean isPublic = bookmark.getIsPublic();
         boolean isPrivate = BooleanUtils.isFalse(isPublic);
-        String user = web.getUserName();
+        String user = bookmark.getUserName();
 
         boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, user);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);

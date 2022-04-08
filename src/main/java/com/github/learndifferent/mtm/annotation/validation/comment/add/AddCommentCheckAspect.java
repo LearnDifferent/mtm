@@ -7,9 +7,9 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.CommentDTO;
-import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
+import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.service.CommentService;
-import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -51,14 +51,14 @@ import org.springframework.util.StringUtils;
 @Component
 public class AddCommentCheckAspect {
 
-    private final WebsiteService websiteService;
+    private final WebsiteMapper websiteMapper;
 
     private final CommentService commentService;
 
     @Autowired
-    public AddCommentCheckAspect(WebsiteService websiteService,
+    public AddCommentCheckAspect(WebsiteMapper websiteMapper,
                                  CommentService commentService) {
-        this.websiteService = websiteService;
+        this.websiteMapper = websiteMapper;
         this.commentService = commentService;
     }
 
@@ -121,9 +121,9 @@ public class AddCommentCheckAspect {
 
         // 评论是否小于等于 140 字符且不为空
         checkComment(comment);
-        // 该 Web ID 的网页是否存在，以及该用户是否有权限评论该网页
-        // 公开的网页，及该用户所有的网页才有权限评论
-        checkWebsiteExistsAndPermission(webId, username);
+        // check if the bookmark exists
+        // check whether the user has permission to comment (public or the user owns the bookmark)
+        checkBookmarkExistsAndPermission(webId, username);
         // 检查该用户是否已经对该网页进行了相同内容的评论
         checkCommentContentExists(comment, webId, username);
         // 如果是回复评论，需要检查回复的评论的 Comment ID 是否存在
@@ -138,17 +138,17 @@ public class AddCommentCheckAspect {
         ThrowExceptionUtils.throwIfTrue(tooLong, ResultCode.COMMENT_TOO_LONG);
     }
 
-    private void checkWebsiteExistsAndPermission(int webId, String username) {
+    private void checkBookmarkExistsAndPermission(int webId, String username) {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
 
-        WebsiteWithPrivacyDTO web = websiteService.findWebsiteDataWithPrivacyById(webId);
+        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
 
-        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        Boolean isPublic = web.getIsPublic();
+        Boolean isPublic = bookmark.getIsPublic();
         boolean isPrivate = BooleanUtils.isFalse(isPublic);
-        String owner = web.getUserName();
+        String owner = bookmark.getUserName();
 
         boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, owner);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);

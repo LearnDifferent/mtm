@@ -3,13 +3,14 @@ package com.github.learndifferent.mtm.annotation.validation.website.bookmarked;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.aspectj.lang.JoinPoint;
@@ -33,11 +34,11 @@ import org.springframework.stereotype.Component;
 @Order(4)
 public class BookmarkCheckAspect {
 
-    private final WebsiteService websiteService;
+    private final WebsiteMapper websiteMapper;
 
     @Autowired
-    public BookmarkCheckAspect(WebsiteService websiteService) {
-        this.websiteService = websiteService;
+    public BookmarkCheckAspect(WebsiteMapper websiteMapper) {
+        this.websiteMapper = websiteMapper;
     }
 
     @Before("@annotation(annotation)")
@@ -114,10 +115,11 @@ public class BookmarkCheckAspect {
 
     private void testIfUserAlreadyBookmarked(String userName, String url) {
 
-        WebsiteDTO web = websiteService.findWebsitesDataByUrl(url).stream()
+        List<WebsiteDO> list = websiteMapper.findWebsitesDataByUrl(url);
+        WebsiteDO bookmark = list.stream()
                 .filter(w -> w.getUserName().equals(userName))
                 .findFirst().orElse(null);
 
-        ThrowExceptionUtils.throwIfNotNull(web, ResultCode.ALREADY_SAVED);
+        ThrowExceptionUtils.throwIfNotNull(bookmark, ResultCode.ALREADY_SAVED);
     }
 }

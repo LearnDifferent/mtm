@@ -107,12 +107,6 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
-    public WebsiteWithPrivacyDTO findWebsiteDataWithPrivacyById(int webId) {
-        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
-        return DozerUtils.convert(web, WebsiteWithPrivacyDTO.class);
-    }
-
-    @Override
     @WebsiteDataClean
     @BookmarkCheck(usernameParamName = "userName",
                    paramClassContainsUrl = WebWithNoIdentityDTO.class,
@@ -375,12 +369,6 @@ public class WebsiteServiceImpl implements WebsiteService {
         int size = pageInfo.getSize();
         boolean shouldIncludePrivate = Optional.ofNullable(includePrivate).orElse(false);
         return getUserBookmarks(username, from, size, shouldIncludePrivate);
-    }
-
-    @Override
-    public List<WebsiteDTO> findWebsitesDataByUrl(String url) {
-        List<WebsiteDO> webs = websiteMapper.findWebsitesDataByUrl(url);
-        return DozerUtils.convertList(webs, WebsiteDTO.class);
     }
 
     @Override

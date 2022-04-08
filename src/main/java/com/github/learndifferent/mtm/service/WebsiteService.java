@@ -5,7 +5,6 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.dto.WebsiteDTO;
-import com.github.learndifferent.mtm.dto.WebsiteWithPrivacyDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -18,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * WebsiteService
+ * Website Service
  *
  * @author zhou
  * @date 2021/09/05
@@ -32,14 +31,6 @@ public interface WebsiteService {
      * @return filtered bookmarked websites
      */
     List<BookmarkVO> filterPublicBookmarks(FilterBookmarksRequest filterRequest);
-
-    /**
-     * Find the bookmark with privacy settings by ID
-     *
-     * @param webId ID of the bookmarked website data
-     * @return {@link WebsiteWithPrivacyDTO}
-     */
-    WebsiteWithPrivacyDTO findWebsiteDataWithPrivacyById(int webId);
 
     /**
      * Complete the website data and add it to bookmarks
@@ -109,14 +100,6 @@ public interface WebsiteService {
      * @return {@link BookmarksAndTotalPagesVO}
      */
     BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, Boolean includePrivate);
-
-    /**
-     * Find a bookmarked website by URL
-     *
-     * @param url URL
-     * @return A list of {@link WebsiteDTO}
-     */
-    List<WebsiteDTO> findWebsitesDataByUrl(String url);
 
     /**
      * Delete a bookmarked website and its associated data

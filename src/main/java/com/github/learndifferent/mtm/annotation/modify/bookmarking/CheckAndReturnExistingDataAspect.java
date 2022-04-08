@@ -5,9 +5,9 @@ import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
-import com.github.learndifferent.mtm.dto.WebsiteDTO;
+import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -37,11 +37,11 @@ import org.springframework.stereotype.Component;
 @Order(2)
 public class CheckAndReturnExistingDataAspect {
 
-    private final WebsiteService websiteService;
+    private final WebsiteMapper websiteMapper;
 
     @Autowired
-    public CheckAndReturnExistingDataAspect(WebsiteService websiteService) {
-        this.websiteService = websiteService;
+    public CheckAndReturnExistingDataAspect(WebsiteMapper websiteMapper) {
+        this.websiteMapper = websiteMapper;
     }
 
     /**
@@ -95,7 +95,7 @@ public class CheckAndReturnExistingDataAspect {
         }
 
         // Find the website data in database by URL
-        List<WebsiteDTO> websInDb = websiteService.findWebsitesDataByUrl(url);
+        List<WebsiteDO> websInDb = websiteMapper.findWebsitesDataByUrl(url);
 
         // If not found, do nothing
         if (websInDb.isEmpty()) {
@@ -103,7 +103,7 @@ public class CheckAndReturnExistingDataAspect {
         }
 
         // If found, check whether the user has already bookmarked the website
-        checkIfMarked(username, websInDb);
+        checkIfBookmarked(username, websInDb);
         // If not bookmarked yet, return the website data in database
         return DozerUtils.convert(websInDb.get(0), WebWithNoIdentityDTO.class);
     }
@@ -116,12 +116,13 @@ public class CheckAndReturnExistingDataAspect {
      * @throws ServiceException Throw an exception with the result code of {@link ResultCode#ALREADY_SAVED}
      *                          if the user has already bookmarked the website
      */
-    private void checkIfMarked(String username, List<WebsiteDTO> websInDb) {
-        WebsiteDTO userMarkedWeb = websInDb.stream()
+    private void checkIfBookmarked(String username, List<WebsiteDO> websInDb) {
+        WebsiteDO bookmark = websInDb.stream()
                 .filter(w -> w.getUserName().equals(username))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
 
-        ThrowExceptionUtils.throwIfNotNull(userMarkedWeb, ResultCode.ALREADY_SAVED);
+        ThrowExceptionUtils.throwIfNotNull(bookmark, ResultCode.ALREADY_SAVED);
     }
 
 }
