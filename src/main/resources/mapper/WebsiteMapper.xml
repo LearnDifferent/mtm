@@ -202,4 +202,12 @@
         from website
         where web_id = #{webId,jdbcType=INTEGER};
     </select>
+
+    <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
+        select w.user_name, w.title, w.url, w.public isPublic, v.web_id, v.views
+        from website_views v
+                 left join website w on v.web_id = w.web_id
+        order by v.views desc
+        limit #{from},#{size};
+    </select>
 </mapper>

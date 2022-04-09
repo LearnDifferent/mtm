@@ -11,7 +11,6 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
-import com.github.learndifferent.mtm.service.ViewCounterService;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -41,13 +40,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookmarkController {
 
     private final WebsiteService websiteService;
-    private final ViewCounterService viewCounterService;
 
     @Autowired
-    public BookmarkController(WebsiteService websiteService,
-                              ViewCounterService viewCounterService) {
+    public BookmarkController(WebsiteService websiteService) {
         this.websiteService = websiteService;
-        this.viewCounterService = viewCounterService;
     }
 
     /**
@@ -166,7 +162,7 @@ public class BookmarkController {
     }
 
     /**
-     * Get visited bookmarks from database
+     * Get visited bookmarks
      *
      * @param pageInfo Pagination information
      * @return visited bookmarks
@@ -179,7 +175,7 @@ public class BookmarkController {
     @AdminValidation
     public List<VisitedBookmarksVO> getVisitedBookmarks(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
-        return viewCounterService.getVisitedBookmarks(pageInfo);
+        return websiteService.getVisitedBookmarks(pageInfo);
     }
 
     private String getCurrentUsername() {

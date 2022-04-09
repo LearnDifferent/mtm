@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -182,4 +183,24 @@ public interface WebsiteService {
      *                          if it's not a valid HTML file that contains bookmarks
      */
     String importBookmarksFromHtmlFile(MultipartFile htmlFile, String username);
+
+    /**
+     * Get visited bookmarks from database
+     * <li>
+     * The data in database may not be newest.
+     * Use {@link ViewCounterService#updateViewsAndReturnFailKeys()} to import data into database
+     * if the user wants the newest data).
+     * </li>
+     * <li>
+     * The result will be stored in cache.
+     * </li>
+     * <li>
+     * The cache will be deleted when the data in database
+     * is updated by {@link ViewCounterService#updateViewsAndReturnFailKeys()}.
+     * </li>
+     *
+     * @param pageInfo pagination information
+     * @return visited bookmarks
+     */
+    List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo);
 }

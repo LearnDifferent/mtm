@@ -4,6 +4,7 @@ import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -189,4 +190,13 @@ public interface WebsiteMapper {
      * @return username of the user who owns the bookmark
      */
     String getBookmarkOwnerName(int webId);
+
+    /**
+     * Get visited bookmarks
+     *
+     * @param from from
+     * @param size size
+     * @return all visited bookmarks
+     */
+    List<VisitedBookmarksVO> getVisitedBookmarks(@Param("from") int from, @Param("size") int size);
 }

@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.util.List;
 
 /**
@@ -33,9 +32,14 @@ public interface ViewCounterService {
 
     /**
      * Save the numbers of views from Redis to the database,
-     * or add the view data from database to Redis if the Redis has no view data
+     * or add the view data from database to Redis if the Redis has no view data.
+     * <p>
+     * This will also delete the value of the key "bookmarks:visited" stored in cache
+     * if the method saved the numbers of views from Redis to the database
+     * </p>
      *
      * @return Return a list of keys that failed to save
+     * @see WebsiteService#getVisitedBookmarks(PageInfoDTO)
      */
     List<String> updateViewsAndReturnFailKeys();
 
@@ -43,13 +47,4 @@ public interface ViewCounterService {
      * A scheduled task to run {@link #updateViewsAndReturnFailKeys()} every 12 hours
      */
     void updateViewsScheduledTask();
-
-    /**
-     * Get visited bookmarks from database.
-     * If no data available, the empty result will be cached for 30 seconds.
-     *
-     * @param pageInfo pagination information
-     * @return visited bookmarks
-     */
-    List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo);
 }

@@ -1,13 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
-import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.ViewDataDO;
 import com.github.learndifferent.mtm.mapper.BookmarkViewMapper;
 import com.github.learndifferent.mtm.service.ViewCounterService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -114,6 +111,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @CacheEvict(value = "bookmarks:visited", allEntries = true)
     public List<String> saveViewsToDbAndReturnFailKeys(Set<String> keys) {
 
         // clear all data before adding new data
@@ -166,14 +164,5 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     @Scheduled(fixedRate = 43_200_000)
     public void updateViewsScheduledTask() {
         getBean().updateViewsAndReturnFailKeys();
-    }
-
-    @Override
-    @Cacheable(value = "bookmarks:visited", unless = "#result != null and #result.size() > 0")
-    public List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo) {
-        int from = pageInfo.getFrom();
-        int size = pageInfo.getSize();
-        List<VisitedBookmarksVO> data = bookmarkViewMapper.getVisitedBookmarks(from, size);
-        return DozerUtils.convertList(data, VisitedBookmarksVO.class);
     }
 }

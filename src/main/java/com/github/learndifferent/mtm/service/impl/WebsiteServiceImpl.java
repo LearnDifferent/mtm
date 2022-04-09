@@ -36,6 +36,7 @@ import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -58,6 +59,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -558,5 +560,14 @@ public class WebsiteServiceImpl implements WebsiteService {
         boolean hasNoData =
                 result[0] + result[1] + result[2] == 0;
         ThrowExceptionUtils.throwIfTrue(hasNoData, ResultCode.HTML_FILE_NO_BOOKMARKS);
+    }
+
+    @Override
+    @Cacheable(value = "bookmarks:visited")
+    public List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+        List<VisitedBookmarksVO> data = websiteMapper.getVisitedBookmarks(from, size);
+        return DozerUtils.convertList(data, VisitedBookmarksVO.class);
     }
 }
