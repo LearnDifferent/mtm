@@ -39,9 +39,9 @@ custom-redis:
     "[user:name]": 10
     "[tag:all]": 10
     "[tag:popular]": 10
-    "[user:all]": 20
-    "[bookmarks:visited]": 30
+    "[empty:user:all]": 20
     "system-log": 40
+    "[bookmarks:visited]": 0
     "[tag:a]": 0
 ---
 spring:
