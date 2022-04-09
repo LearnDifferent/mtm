@@ -47,6 +47,9 @@ public class UserController {
     /**
      * Get usernames of the users and the total numbers of their public bookmarks
      * sorted by the total number
+     * <p>
+     * Get all usernames in database if {@code usernames} is null or empty.
+     * </p>
      *
      * @param usernames usernames of the requested users
      *                  <p>

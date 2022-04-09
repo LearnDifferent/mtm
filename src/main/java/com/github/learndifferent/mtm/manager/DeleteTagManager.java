@@ -29,8 +29,8 @@ public class DeleteTagManager {
 
     @Caching(evict = {
             @CacheEvict(value = "tag:a", key = "#webId"),
-            @CacheEvict(value = "tag:all"),
-            @CacheEvict(value = "tag:popular")
+            @CacheEvict(value = "tag:all", allEntries = true),
+            @CacheEvict(value = "tag:popular", allEntries = true)
     })
     public void deleteAllTagsByWebId(int webId) {
         tagMapper.deleteAllTags(webId);

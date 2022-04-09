@@ -19,10 +19,16 @@ public interface UserService {
     /**
      * Get usernames of the users and the total numbers of their public bookmarks
      * sorted by the total number.
+     * <p>
+     * Get all usernames in database if {@code usernames} is null or empty.
+     * </p>
+     * <p>
+     * This will also store the result in cache.
+     * </p>
      *
      * @param usernames usernames of the requested users
      *                  <p>
-     *                  get all usernames in database if null or emtpy
+     *                  get all usernames in database if {@code usernames} is null or empty
      *                  </p>
      * @return {@link List}<{@link UserBookmarkNumberVO}>
      */
@@ -113,9 +119,11 @@ public interface UserService {
 
     /**
      * Get users.
-     * If no users found, the empty result will be cached for 20 seconds.
+     * <p>
+     * If no users found, the empty result will be stored in the cache.
+     * </p>
      *
-     * @param pageInfo pagination info
+     * @param pageInfo pagination information
      * @return {@link List}<{@link UserDTO}> users
      */
     List<UserVO> getUsers(PageInfoDTO pageInfo);

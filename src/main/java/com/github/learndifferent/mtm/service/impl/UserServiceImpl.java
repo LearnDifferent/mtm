@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Caching(evict = {
-            @CacheEvict("user:names-and-bookmarks"),
+            @CacheEvict(value = "user:names-and-bookmarks", allEntries = true),
             @CacheEvict(value = {"user:name"}, key = "#userName")})
     public boolean deleteUserAndAssociatedData(String currentUsername,
                                                String userName,
@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Cacheable(value = "user:all", unless = "#result != null and #result.size() > 0")
+    @Cacheable(value = "empty:user:all", unless = "#result != null and #result.size() > 0")
     public List<UserVO> getUsers(PageInfoDTO pageInfo) {
         Integer from = pageInfo.getFrom();
         Integer size = pageInfo.getSize();
