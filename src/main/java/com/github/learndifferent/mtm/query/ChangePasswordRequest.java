@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 修改密码的 Request Body
+ * Request Body that contains username, old password and new password
  *
  * @author zhou
  * @date 2021/09/05
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChangePwdRequest implements Serializable {
+public class ChangePasswordRequest implements Serializable {
 
     /**
      * Username

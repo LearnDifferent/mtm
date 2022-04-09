@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.query.DelReplyNotificationRequest;
+import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
 
@@ -52,7 +52,7 @@ public interface NotificationService {
      *                                                                  the notification is not the owner of the
      *                                                                  notification to delete
      */
-    void deleteReplyNotification(DelReplyNotificationRequest data, String username);
+    void deleteReplyNotification(DeleteReplyNotificationRequest data, String username);
 
     /**
      * Delete all system notifications and remove all saved usernames

@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * UserMapper
+ * User Mapper
  *
  * @author zhou
  * @date 2021/09/05
@@ -50,17 +50,17 @@ public interface UserMapper {
      * @param user new user
      * @return true if success
      */
-    boolean addUser(UserDO user);
+    boolean addUser(UserDTO user);
 
     /**
-     * Find user by username and password
+     * Get user by username and password
      *
      * @param userName username
      * @param password password
      * @return user
      */
-    UserDO getUserByNameAndPwd(@Param("userName") String userName,
-                               @Param("password") String password);
+    UserDO getUserByNameAndPassword(@Param("userName") String userName,
+                                    @Param("password") String password);
 
     /**
      * Get user role by username

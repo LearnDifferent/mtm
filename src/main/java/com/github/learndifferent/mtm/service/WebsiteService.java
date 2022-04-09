@@ -2,9 +2,9 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -39,16 +39,11 @@ public interface WebsiteService {
      * @param username Username of the user who is bookmarking
      * @param isPublic True if this is a public bookmark
      * @return true if success
-     * @throws ServiceException This implementation method is annotated with
-     *                          {@link com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck
-     *                          BookmarkCheck} annotation
-     *                          and {@link com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean
-     *                          WebsiteDataClean} annotation, which will throw exceptions with
-     *                          the result code will of {@link ResultCode#ALREADY_SAVED},
+     * @throws ServiceException throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
      *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      *                          if something goes wrong.
      */
-    boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, boolean isPublic);
+    boolean bookmarkWithBasicWebData(BasicWebDataRequest data, String username, boolean isPublic);
 
     /**
      * Bookmark a new web page

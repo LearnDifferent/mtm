@@ -5,14 +5,12 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.WebsiteService;
-import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
@@ -66,20 +64,18 @@ public class BookmarkController {
     }
 
     /**
-     * Bookmark a web page with existing data
+     * Bookmark a web page with basic website data
      *
-     * @param request Request body of basic website data that contains title, URL, image and description
+     * @param basicData Request body that contains title, URL, image and description
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
-     * @throws ServiceException {@link WebsiteService#bookmarkWithBasicWebData(BasicWebDataDTO, String, boolean)}
-     *                          will verify and throw exceptions if something goes wrong.
-     *                          The Result Codes are: {@link ResultCode#ALREADY_SAVED}, {@link
-     *                          ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
+     * @throws ServiceException throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
+     *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
+     *                          if something goes wrong
      */
     @PostMapping
-    public ResultVO<ResultCode> bookmarkWithBasicWebData(@RequestBody BasicWebDataRequest request) {
-        BasicWebDataDTO basicWebData = DozerUtils.convert(request, BasicWebDataDTO.class);
+    public ResultVO<ResultCode> bookmarkWithBasicWebData(@RequestBody BasicWebDataRequest basicData) {
         String currentUsername = getCurrentUsername();
-        boolean success = websiteService.bookmarkWithBasicWebData(basicWebData, currentUsername, true);
+        boolean success = websiteService.bookmarkWithBasicWebData(basicData, currentUsername, true);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 

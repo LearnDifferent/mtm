@@ -12,7 +12,7 @@ import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.manager.UserAccountManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.query.ChangePwdRequest;
+import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
@@ -57,13 +57,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changePassword(ChangePwdRequest info) {
+    public boolean changePassword(ChangePasswordRequest info) {
         String userName = info.getUserName();
         String oldPassword = info.getOldPassword();
         String newPassword = info.getNewPassword();
 
         // if user does not exist, it will be considered as wrong password
-        UserVO user = getUserByNameAndPwd(userName, oldPassword);
+        UserVO user = getUserByNameAndPassword(userName, oldPassword);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.PASSWORD_INCORRECT);
 
         UserDTO userDTO = UserDTO.ofPasswordUpdate(user.getUserId(), newPassword);
@@ -80,9 +80,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserVO getUserByNameAndPwd(String userName, String notEncryptedPassword) {
+    public UserVO getUserByNameAndPassword(String userName, String notEncryptedPassword) {
         String password = Md5Util.getMd5(notEncryptedPassword);
-        UserDO userDO = userMapper.getUserByNameAndPwd(userName, password);
+        UserDO userDO = userMapper.getUserByNameAndPassword(userName, password);
         return DozerUtils.convert(userDO, UserVO.class);
     }
 

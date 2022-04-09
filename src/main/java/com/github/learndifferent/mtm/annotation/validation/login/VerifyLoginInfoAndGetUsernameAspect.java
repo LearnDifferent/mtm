@@ -326,10 +326,9 @@ public class VerifyLoginInfoAndGetUsernameAspect {
 
         verificationCodeService.checkCode(verifyToken, code);
 
-        UserVO user = userService.getUserByNameAndPwd(username, notEncryptedPassword);
+        UserVO user = userService.getUserByNameAndPassword(username, notEncryptedPassword);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
 
         return user.getUserName();
     }
-
 }

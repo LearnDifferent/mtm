@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
-import com.github.learndifferent.mtm.query.ChangePwdRequest;
+import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
@@ -40,7 +40,7 @@ public interface UserService {
      * @param info username, old password and new password
      * @return true if success
      */
-    boolean changePassword(ChangePwdRequest info);
+    boolean changePassword(ChangePasswordRequest info);
 
     /**
      * Add a user with username, user role and not encrypted password
@@ -77,7 +77,7 @@ public interface UserService {
      * @param notEncryptedPassword not encrypted password
      * @return user
      */
-    UserVO getUserByNameAndPwd(String userName, String notEncryptedPassword);
+    UserVO getUserByNameAndPassword(String userName, String notEncryptedPassword);
 
     /**
      * Get user role by username

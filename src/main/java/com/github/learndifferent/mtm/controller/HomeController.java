@@ -6,7 +6,6 @@ import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
-import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
@@ -32,12 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
 
     private final WebsiteService websiteService;
-    private final UserService userService;
 
     @Autowired
-    public HomeController(WebsiteService websiteService, UserService userService) {
+    public HomeController(WebsiteService websiteService) {
         this.websiteService = websiteService;
-        this.userService = userService;
     }
 
     /**

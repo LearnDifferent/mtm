@@ -6,17 +6,21 @@ import com.github.learndifferent.mtm.annotation.common.InvitationCodeToken;
 import com.github.learndifferent.mtm.annotation.common.UserRole;
 import com.github.learndifferent.mtm.annotation.common.VerificationCode;
 import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
+import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.register.RegisterCodeCheck;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
+import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
-import com.github.learndifferent.mtm.query.ChangePwdRequest;
+import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
+import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Get, create, delete and update users
+ * User Controller
  *
  * @author zhou
  * @date 2021/09/05
@@ -53,7 +57,7 @@ public class UserController {
      *
      * @param usernames usernames of the requested users
      *                  <p>
-     *                  get all usernames in database if null or emtpy
+     *                  get all usernames in database if {@code usernames} is null or empty
      *                  </p>
      * @return usernames of the users and the total number of their public bookmarks sorted by the total number
      */
@@ -75,7 +79,7 @@ public class UserController {
      */
     @NotGuest
     @PostMapping("/change-password")
-    public ResultVO<ResultCode> changePassword(@RequestBody ChangePwdRequest passwordInfo) {
+    public ResultVO<ResultCode> changePassword(@RequestBody ChangePasswordRequest passwordInfo) {
 
         boolean success = userService.changePassword(passwordInfo);
 
@@ -84,7 +88,7 @@ public class UserController {
     }
 
     /**
-     * Create User
+     * Create a user
      *
      * @param userInfo        Username and Password
      * @param role            User Role: The value will be {@link UserRole#defaultRole()} when the request parameter is
@@ -108,7 +112,7 @@ public class UserController {
      *                                                                  the codes and {@link UserService#addUser(CreateUserRequest,
      *                                                                  String)} method will verify username, password
      *                                                                  and user role. If failed verification, they
-     *                                                                  will throw exception and the result codes are:
+     *                                                                  will throw an exception and the result code could be:
      *                                                                  <p>{@link ResultCode#VERIFICATION_CODE_FAILED}</p>
      *                                                                  <p>{@link ResultCode#INVITATION_CODE_FAILED}</p>
      *                                                                  <p>{@link ResultCode#USER_ALREADY_EXIST}</p>
@@ -129,7 +133,6 @@ public class UserController {
                                            @InvitationCodeToken(required = false) String invitationToken) {
 
         boolean success = userService.addUser(userInfo, role);
-
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
@@ -172,7 +175,7 @@ public class UserController {
     }
 
     /**
-     * Change User Role
+     * Change user role
      *
      * @param userId  ID of the user
      * @param newRole the new role of the user
@@ -191,5 +194,22 @@ public class UserController {
 
         boolean success = userService.changeUserRoleAndRecordChanges(userId, newRole);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.PERMISSION_DENIED);
+    }
+
+    /**
+     * Get users
+     *
+     * @param pageInfo Pagination information
+     * @return users
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
+     */
+    @GetMapping("/all")
+    @AdminValidation
+    public List<UserVO> getUsers(
+            @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
+        return userService.getUsers(pageInfo);
     }
 }

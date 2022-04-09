@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class UserDTO implements Serializable {
 
-    public static UserDTO createUser(String username, String notEncryptedPassword, String role) {
+    public static UserDTO ofNewUser(String username, String notEncryptedPassword, String role) {
         // get user ID
         String userId = UUIDUtils.getUuid();
         // encrypt and set password

@@ -25,6 +25,7 @@ import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
@@ -100,6 +101,24 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
+    public boolean bookmarkWithBasicWebData(BasicWebDataRequest data, String username, boolean isPublic) {
+        BasicWebDataDTO basicData = DozerUtils.convert(data, BasicWebDataDTO.class);
+        WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+        return bean.bookmarkWithBasicWebData(basicData, username, isPublic);
+    }
+
+    /**
+     * Convert the basic website data into a bookmark
+     *
+     * @param data     Basic website data that contains title, URL, image and description
+     * @param username Username of the user who is bookmarking
+     * @param isPublic True if this is a public bookmark
+     * @return true if success
+     * @throws ServiceException {@link BookmarkCheck} annotation and {@link WebsiteDataClean} annotation will
+     *                          throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
+     *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
+     *                          if something goes wrong.
+     */
     @WebsiteDataClean
     @BookmarkCheck(usernameParamName = "username",
                    classContainsUrlParamName = BasicWebDataDTO.class,

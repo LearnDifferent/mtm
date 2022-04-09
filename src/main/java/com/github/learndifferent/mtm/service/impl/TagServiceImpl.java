@@ -59,8 +59,8 @@ public class TagServiceImpl implements TagService {
     public String applyTag(@Username String username, @WebId Integer webId, @Tag String tagName) {
         String tag = tagName.trim();
         TagDO tagDO = TagDO.builder().tag(tag).webId(webId).build();
-        boolean success = tagMapper.addTag(tagDO);
-        return success ? tag : "";
+        tagMapper.addTag(tagDO);
+        return tagDO.getTag();
     }
 
     @Override

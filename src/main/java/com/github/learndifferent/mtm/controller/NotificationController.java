@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.query.DelReplyNotificationRequest;
+import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
@@ -84,14 +84,14 @@ public class NotificationController {
     /**
      * Delete a reply notification
      *
-     * @param data the data of notification to delete
+     * @param data Request body that contains the data of the reply notification to delete
      * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception with the result code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED} if
      *                                                                  the user that is currently logged in is not
      *                                                                  the owner of the notification to delete
      */
     @PostMapping("/reply/delete")
-    public void deleteReplyNotification(@RequestBody DelReplyNotificationRequest data) {
+    public void deleteReplyNotification(@RequestBody DeleteReplyNotificationRequest data) {
         String currentUsername = getCurrentUsername();
         notificationService.deleteReplyNotification(data, currentUsername);
     }

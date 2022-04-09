@@ -9,12 +9,10 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
-import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
-import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,10 +125,9 @@ public class UserAccountManager {
                               @Password String notEncryptedPassword,
                               @UserRole(defaultRole = RoleType.USER) String role) {
 
-        UserDTO userDTO = UserDTO.createUser(username, notEncryptedPassword, role);
-        UserDO userDO = DozerUtils.convert(userDTO, UserDO.class);
+        UserDTO user = UserDTO.ofNewUser(username, notEncryptedPassword, role);
         try {
-            return createUser(userDO);
+            return createUser(user);
         } catch (DuplicateKeyException e) {
             // DuplicateKeyException is same as com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
             // the primary key is userName, so duplicate key means username is already taken
@@ -138,13 +135,22 @@ public class UserAccountManager {
         }
     }
 
-    private boolean createUser(UserDO user) {
+    private boolean createUser(UserDTO user) {
         boolean success = userMapper.addUser(user);
         if (success) {
-            // add to Elasticsearch asynchronously
-            UserForSearchDTO data = DozerUtils.convert(user, UserForSearchDTO.class);
-            elasticsearchManager.saveToElasticsearchAsync(data);
+            saveToElasticsearchAsync(user);
         }
-        return success;
+        return true;
+    }
+
+    private void saveToElasticsearchAsync(UserDTO user) {
+        // add to Elasticsearch asynchronously
+        UserForSearchDTO data = UserForSearchDTO.builder()
+                .userName(user.getUserName())
+                .userId(user.getUserId())
+                .createTime(user.getCreateTime())
+                .role(user.getRole())
+                .build();
+        elasticsearchManager.saveToElasticsearchAsync(data);
     }
 }

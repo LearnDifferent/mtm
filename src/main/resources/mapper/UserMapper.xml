@@ -25,7 +25,7 @@
         order by bookmarkNumber desc;
     </select>
 
-    <insert id="addUser" parameterType="com.github.learndifferent.mtm.entity.UserDO">
+    <insert id="addUser" parameterType="com.github.learndifferent.mtm.dto.UserDTO">
         insert into user (user_id, user_name, `password`,
                           creation_time, `role`)
         values (#{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
@@ -38,7 +38,7 @@
         where user_id = #{userId};
     </delete>
 
-    <select id="getUserByNameAndPwd" resultMap="BaseResultMap">
+    <select id="getUserByNameAndPassword" resultMap="BaseResultMap">
         select *
         from user
         where user_name = #{userName}

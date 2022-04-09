@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Delete a reply notification
+ * Request body that contains the data of the reply notification to delete
  *
  * @author zhou
  * @date 2021/10/10
@@ -23,7 +23,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Builder
-public class DelReplyNotificationRequest implements Serializable {
+public class DeleteReplyNotificationRequest implements Serializable {
 
     /**
      * Creation time

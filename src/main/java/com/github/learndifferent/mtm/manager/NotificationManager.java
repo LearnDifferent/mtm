@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
@@ -168,7 +169,7 @@ public class NotificationManager {
                 .build();
     }
 
-    public void deleteReplyNotification(ReplyNotificationDTO data) {
+    public void deleteReplyNotification(DeleteReplyNotificationRequest data) {
         String receiveUsername = data.getReceiveUsername();
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         String value = JsonUtils.toJson(data);
