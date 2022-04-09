@@ -7,8 +7,9 @@ import com.github.learndifferent.mtm.constant.consist.EsConstant;
  *
  * @author zhou
  * @date 2021/10/16
+ * @see com.github.learndifferent.mtm.config.mvc.ConvertByNamesConverterFactory
  */
-public enum SearchMode {
+public enum SearchMode implements ConvertByNames {
 
     /**
      * Search for bookmarked websites
@@ -31,5 +32,10 @@ public enum SearchMode {
 
     public String mode() {
         return mode;
+    }
+
+    @Override
+    public String[] namesForConverter() {
+        return new String[]{this.mode, this.name()};
     }
 }

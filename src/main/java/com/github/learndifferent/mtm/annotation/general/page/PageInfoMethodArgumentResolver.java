@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.annotation.general.page;
 
+import com.github.learndifferent.mtm.config.mvc.CustomWebConfig;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
@@ -20,7 +21,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  *
  * @author zhou
  * @date 2021/09/05
- * @see com.github.learndifferent.mtm.config.CustomWebConfig#addArgumentResolvers(List)
+ * @see CustomWebConfig#addArgumentResolvers(List)
  */
 @Slf4j
 public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentResolver {
