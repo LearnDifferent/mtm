@@ -42,74 +42,80 @@ public interface WebsiteMapper {
     List<PopularBookmarkDTO> getPopularPublicBookmarks(@Param("from") int from, @Param("size") int size);
 
     /**
-     * 获取所有用于搜索的公开网页数据
+     * Get all public bookmarked website data for search
      *
      * @return {@code List<WebForSearchDTO>}
      */
     List<WebForSearchDTO> getAllPublicWebDataForSearch();
 
     /**
-     * 计算所有公开网页数据的条数。指定的用户需要把私有的网页数据个数也计入其中
+     * Get the number of public bookmarks of all users and private bookmarks of specific user
      *
-     * @param specUsername 指定的用户名
-     * @return int 数据条数
+     * @param specUsername username of the user whose private bookmarks will be counted
+     * @return the number of bookmarks
      */
-    int countAllPubAndSpecUserPriWebs(String specUsername);
+    int countAllPublicAndSpecificPrivateBookmarks(String specUsername);
 
     /**
-     * 计算用户的网页数据的条数（可以选择是否包含私有的网页数据）
+     * Get the number of bookmarks of the user
      *
-     * @param userName       用户名
-     * @param includePrivate 是否包含私有的网页数据
-     * @return int 数据条数
+     * @param userName             username of the user
+     * @param shouldIncludePrivate true if including the private bookmarks
+     * @return number of bookmarks of the user
      */
-    int countUserPost(@Param("userName") String userName,
-                      @Param("includePrivate") boolean includePrivate);
+    int countUserPost(@Param("userName") String userName, @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
 
     /**
-     * 计算除去 {@code excludeUsername} 用户名的用户收藏的公开的网页的总数，
-     * 如果 {@code excludeUsername} 和 {@code userNameToShowAll} 不相等，
-     * 那么用户名为 {@code userNameToShowAll} 的用户的私有的网页数据也要统计
+     * Get public bookmarks of a user
+     * <p>
+     * Include all private bookmarks if {@code shouldIncludePrivate} is true
+     * </p>
+     * <p>
+     * The result will not be paginated if {@code from} or {@code size} is null
+     * </p>
      *
-     * @param excludeUsername   除去该用户名的用户
-     * @param userNameToShowAll 该用户名的用户需要展示公开和私有的网页数据
-     * @return 一共有多少条数据
-     */
-    int countExcludeUserPost(@Param("excludeUsername") String excludeUsername,
-                             @Param("userNameToShowAll") String userNameToShowAll);
-
-    /**
-     * Get all public bookmarks, and if {@code includePrivate} is true, then include all private bookmarks too.
-     * If {@code from} or {@code size} is null, then the result will not be paginated.
-     *
-     * @param userName       username
-     * @param from           from
-     * @param size           size
-     * @param includePrivate true if include private website data
+     * @param userName             username
+     * @param from                 from
+     *                             <p>The result will not be paginated if {@code from} or {@code size} is null</p>
+     * @param size                 size
+     *                             <p>The result will not be paginated if {@code from} or {@code size} is null</p>
+     * @param shouldIncludePrivate true if include private website data
      * @return A list of {@link WebsiteDO}
      */
-    List<WebsiteDO> findWebsitesDataByUser(@Param("userName") String userName,
-                                           @Param("from") Integer from,
-                                           @Param("size") Integer size,
-                                           @Param("includePrivate") boolean includePrivate);
+    List<WebsiteDO> getUserBookmarks(@Param("userName") String userName,
+                                     @Param("from") Integer from,
+                                     @Param("size") Integer size,
+                                     @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
 
     /**
-     * 查找除去用户名为 {@code excludeUsername} 的所有公开网页。
-     * 其中如果有用户名为 {@code userNameToShowAll} 的网页数据，
-     * 那么该用户的公开和私有数据都要展示出来。
-     * <p>处理的时候，如果 {@code excludeUsername} 和 {@code userNameToShowAll} 相等，
-     * 那么就没必要再把 {@code userNameToShowAll} 用户的数据全部查出来</p>
+     * Get public bookmarks of all users and
+     * some private bookmarks of the user whose username is {@code includePrivateUsername},
+     * excluding the bookmarks of the user whose username is {@code excludeUsername}
      *
-     * @param excludeUsername   不查找该用户 / 某个用户
-     * @param from              from
-     * @param size              size
-     * @param userNameToShowAll 该用户名的用户的所有数据都要展示
-     * @return {@link List}<{@link WebsiteDO}> 除去某个用户的所有网页
+     * @param includePrivateUsername username of the user whose public and private bookmarks will be shown
+     * @param excludeUsername        username of the user whose bookmarks will not be shown
+     * @param from                   from
+     * @param size                   size
+     * @return bookmarks
      */
-    List<WebsiteDO> findWebsitesDataExcludeUser(@Param("excludeUsername") String excludeUsername,
-                                                @Param("from") int from,
-                                                @Param("size") int size,
-                                                @Param("userNameToShowAll") String userNameToShowAll);
+    List<WebsiteDO> getAllPublicSomePrivateExcludingSpecificUserBookmark(
+            @Param("includePrivateUsername") String includePrivateUsername,
+            @Param("excludeUsername") String excludeUsername,
+            @Param("from") int from,
+            @Param("size") int size);
+
+    /**
+     * Get the number of public bookmarks of all users and
+     * some private bookmarks of specific user whose username is {@code includePrivateUsername},
+     * excluding the bookmarks of the user whose username is {@code excludeUsername}
+     *
+     * @param includePrivateUsername username of the user whose public and private bookmarks will be counted
+     * @param excludeUsername        username of the user whose bookmarks will not be counted
+     * @return the number of bookmarks
+     */
+    int countAllPublicSomePrivateExcludingSpecificUserBookmark(
+            @Param("includePrivateUsername") String includePrivateUsername,
+            @Param("excludeUsername") String excludeUsername);
 
     /**
      * Find a bookmarked website by URL
@@ -120,25 +126,29 @@ public interface WebsiteMapper {
     List<WebsiteDO> findWebsitesDataByUrl(String url);
 
     /**
-     * 获取所有公开网页数据，以及指定用户的公开和私有网页数据数据（desc 排序，分页）。
-     * 如果 from 或 size 为 null，表示获取所有。
+     * Get public bookmarks of all users and private bookmarks of specific user
+     * <p>
+     * The result will not be paginated if {@code from} or {@code size} is null
+     * </p>
      *
-     * @param from         从
-     * @param size         大小
-     * @param specUsername 指定的用户名
-     * @return {@code List<WebsiteDO>}
+     * @param from         from
+     *                     <p>The result will not be paginated if {@code from} or {@code size} is null</p>
+     * @param size         size
+     *                     <p>The result will not be paginated if {@code from} or {@code size} is null</p>
+     * @param specUsername username of the user whose public and private bookmarks will be shown
+     * @return public bookmarks of all users and private bookmarks of specific user
      */
-    List<WebsiteDO> getAllPubAndSpecUserPriWebs(@Param("from") Integer from,
-                                                @Param("size") Integer size,
-                                                @Param("specUsername") String specUsername);
+    List<WebsiteDO> getAllPublicAndSpecificPrivateBookmarks(@Param("from") Integer from,
+                                                            @Param("size") Integer size,
+                                                            @Param("specUsername") String specUsername);
 
     /**
-     * 通过 id 删除网页
+     * Delete a bookmarked website
      *
-     * @param webId id
-     * @return boolean
+     * @param webId ID of the bookmarked website data
+     * @return true if success
      */
-    boolean deleteWebsiteDataById(Integer webId);
+    boolean deleteBookmarkById(Integer webId);
 
     /**
      * 删除该用户名的用户所收藏的所有网站数据
@@ -150,10 +160,10 @@ public interface WebsiteMapper {
     /**
      * Add the website to bookmarks
      *
-     * @param websiteDO website
+     * @param newBookmark the website to be bookmarked
      * @return true if success
      */
-    boolean addWebsiteData(WebsiteDO websiteDO);
+    boolean addBookmark(WebsiteDO newBookmark);
 
     /**
      * Find the bookmark by ID
@@ -164,18 +174,18 @@ public interface WebsiteMapper {
     WebsiteDO getWebsiteDataById(Integer webId);
 
     /**
-     * 通过 web id 更新网页数据
+     * Update bookmark
      *
-     * @param websiteDO 网页数据
-     * @return 是否成功
+     * @param updatedBookmark updated bookmark data
+     * @return true if success
      */
-    boolean updateWebsiteDataById(WebsiteDO websiteDO);
+    boolean updateBookmark(WebsiteDO updatedBookmark);
 
     /**
-     * Get user's name, who owns the website data
+     * Get the username of the user who owns the bookmark
      *
-     * @param webId website id
-     * @return {@link String}
+     * @param webId ID of the bookmarked website data
+     * @return username of the user who owns the bookmark
      */
     String getUsernameByWebId(int webId);
 }

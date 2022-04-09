@@ -14,6 +14,7 @@ import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
+import com.github.learndifferent.mtm.dto.NewBookmarkDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
@@ -53,6 +54,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -94,78 +96,66 @@ public class WebsiteServiceImpl implements WebsiteService {
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
-    /**
-     * Count number of the user's bookmarks
-     *
-     * @param userName       username of the user
-     * @param includePrivate true if including the private bookmarks
-     * @return number of the user's bookmarks
-     */
-    private int countUserPost(String userName, boolean includePrivate) {
-        return websiteMapper.countUserPost(userName, includePrivate);
-    }
-
     @Override
     @WebsiteDataClean
-    @BookmarkCheck(usernameParamName = "userName",
-                   paramClassContainsUrl = WebWithNoIdentityDTO.class,
+    @BookmarkCheck(paramClassContainsUrl = WebWithNoIdentityDTO.class,
+                   usernameParamName = "username",
                    urlFieldNameInParamClass = "url")
-    public boolean bookmarkWithExistingData(
-            WebWithNoIdentityDTO webWithNoIdentity, String userName, boolean isPublic) {
-        // 添加信息后，放入数据库
-        WebsiteDO websiteDO = DozerUtils.convert(webWithNoIdentity, WebsiteDO.class);
-        return websiteMapper.addWebsiteData(websiteDO
-                .setUserName(userName)
-                .setCreateTime(Instant.now())
-                .setIsPublic(isPublic));
+    public boolean bookmarkWithExistingData(WebWithNoIdentityDTO data, String username, boolean isPublic) {
+        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, isPublic);
+        WebsiteDO w = DozerUtils.convert(newBookmark, WebsiteDO.class);
+        return websiteMapper.addBookmark(w);
     }
 
     @Override
     public BookmarkResultVO bookmark(String url, String username, Boolean isPublic, Boolean beInEs) {
-
-        boolean bePublic = Optional.ofNullable(isPublic).orElse(true);
-        boolean syncToElasticsearchValue = Optional.ofNullable(beInEs).orElse(true);
+        // get the basic data
+        WebWithNoIdentityDTO basic = scrapeWebData(url, username);
 
         // Only public data can be added to Elasticsearch
-        boolean syncToElasticsearch = bePublic && syncToElasticsearchValue;
+        boolean bePublic = Optional.ofNullable(isPublic).orElse(true);
+        boolean shouldBeInElasticsearch = Optional.ofNullable(beInEs).orElse(true);
+        boolean shouldBeInEs = bePublic && shouldBeInElasticsearch;
 
-        // get the basic data
-        WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
-        WebWithNoIdentityDTO basic = bean.scrapeWebDataFromUrl(url, username);
+        return shouldBeInEs ? saveToElasticsearchAndDatabase(username, basic)
+                : saveToDatabase(username, basic, bePublic);
+    }
 
-        // Default Future Result
-        Future<Boolean> resultOfElasticsearch = null;
-
-        if (syncToElasticsearch) {
-            // 如果选择同步到 Elasticsearch 中，就异步执行保存方法并返回结果
-            // 如果选择不同步，也就是 syncToEs 为 false 或 null 的情况：
-            // 直接返回 true 作为结果，表示无需异步存放
-            // 此时 resultOfElasticsearch 会从 null 转化为 FutureTask 类型的值
-            resultOfElasticsearch = elasticsearchManager.
-                    saveBookmarkToElasticsearchAsync(basic);
-        }
-
-        // save to database
-        boolean hasSavedToDatabase = bean.bookmarkWithExistingData(basic, username, bePublic);
-
-        // 如果 Future Result 为 null，说明无需放入 Elasticsearch 中
-        if (resultOfElasticsearch == null) {
-            // return the result of saving to database
-            return BookmarkResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
-        }
-
-        // get the result of saving to Elasticsearch
+    private BookmarkResultVO saveToElasticsearchAndDatabase(String username, WebWithNoIdentityDTO basic) {
+        // save to Elasticsearch asynchronously
+        Future<Boolean> elasticsearchResult = elasticsearchManager.saveBookmarkToElasticsearchAsync(basic);
+        // save to database and get the BookmarkResultVO
+        BookmarkResultVO result = saveToDatabase(username, basic, true);
+        // get the result of saving to Elasticsearch asynchronously
         boolean hasSavedToElasticsearch = false;
         try {
-            hasSavedToElasticsearch = resultOfElasticsearch.get(10L, TimeUnit.SECONDS);
+            hasSavedToElasticsearch = elasticsearchResult.get(10L, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
         }
+        return result.setHasSavedToElasticsearch(hasSavedToElasticsearch);
+    }
 
-        return BookmarkResultVO.builder()
-                .hasSavedToDatabase(hasSavedToDatabase)
-                .hasSavedToElasticsearch(hasSavedToElasticsearch)
-                .build();
+    private BookmarkResultVO saveToDatabase(String username, WebWithNoIdentityDTO basic, boolean bePublic) {
+        // get the result of saving to database
+        WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+        boolean hasSavedToDatabase = bean.bookmarkWithExistingData(basic, username, bePublic);
+        // return the result of saving to database
+        return BookmarkResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
+    }
+
+    private WebWithNoIdentityDTO scrapeWebData(String url, String userName) {
+
+        try {
+            WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+            return bean.scrapeWebDataFromUrl(url, userName);
+        } catch (MalformedURLException e) {
+            throw new ServiceException(ResultCode.URL_MALFORMED);
+        } catch (SocketTimeoutException e) {
+            throw new ServiceException(ResultCode.URL_ACCESS_DENIED);
+        } catch (IOException e) {
+            throw new ServiceException(ResultCode.CONNECTION_ERROR);
+        }
     }
 
     /**
@@ -194,25 +184,19 @@ public class WebsiteServiceImpl implements WebsiteService {
      */
     @UrlClean
     @CheckAndReturnExistingData
-    public WebWithNoIdentityDTO scrapeWebDataFromUrl(@Url String url, @Username String userName) {
+    public WebWithNoIdentityDTO scrapeWebDataFromUrl(@Url String url, @Username String userName) throws IOException {
+        Document document = Jsoup.parse(new URL(url), 3000);
 
-        try {
-            Document document = Jsoup.parse(new URL(url), 3000);
+        String title = document.title();
+        String desc = document.body().text();
+        String img = getFirstImg(document);
 
-            String title = document.title();
-            String desc = document.body().text();
-            String img = getFirstImg(document);
-
-            return WebWithNoIdentityDTO.builder()
-                    .title(title).url(url).img(img).desc(desc)
-                    .build();
-        } catch (MalformedURLException e) {
-            throw new ServiceException(ResultCode.URL_MALFORMED);
-        } catch (SocketTimeoutException e) {
-            throw new ServiceException(ResultCode.URL_ACCESS_DENIED);
-        } catch (IOException e) {
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
+        return WebWithNoIdentityDTO.builder()
+                .title(title)
+                .url(url)
+                .img(img)
+                .desc(desc)
+                .build();
     }
 
     private String getFirstImg(Document document) {
@@ -224,6 +208,18 @@ public class WebsiteServiceImpl implements WebsiteService {
         // 如果没有图片，就返回一个默认图片地址
         return "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fbpic.588ku.com%2Felement_origin_min_pic%2F00%2F93%2F63%2F2656f2a6a663e1c.jpg&refer=http%3A%2F%2Fbpic.588ku.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1618635152&t=e26535a2d80f40281592178ee20ee656";
     }
+
+    @Override
+    public PopularBookmarksVO getPopularBookmarksAndTotalPages(PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
+
+        List<PopularBookmarkDTO> bookmarks = websiteMapper.getPopularPublicBookmarks(from, size);
+        int totalCount = websiteMapper.countDistinctPublicUrl();
+        int totalPages = PageUtil.getAllPages(totalCount, size);
+        return PopularBookmarksVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
+    }
+
 
     @Override
     @EmptyStringCheck
@@ -246,7 +242,8 @@ public class WebsiteServiceImpl implements WebsiteService {
             case BLOCK:
                 // check out all public bookmarks except the requested user's
                 // this will include current user's private bookmarks if the requested user is not current user
-                return getBookmarksExceptRequestedUser(currentUsername, requestedUsername, from, size);
+                return getPublicIncludeCurrentPrivateExceptRequestedUserBookmark(
+                        currentUsername, requestedUsername, from, size);
             case LATEST:
             default:
                 // get all public bookmarks and current user's private bookmarks
@@ -254,124 +251,100 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
     }
 
-    private BookmarksAndTotalPagesVO getBookmarksExceptRequestedUser(
-            String currentUsername, String requestedUsername, int from, int size) {
-
-        List<BookmarkVO> bookmarks =
-                getAllPubSpecUserPriWebsExcludeUser(requestedUsername, from, size, currentUsername);
-
-        int totalCount = countExcludeUserPost(requestedUsername, currentUsername);
-        int totalPages = PageUtil.getAllPages(totalCount, size);
-        return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
-    }
-
-    private BookmarksAndTotalPagesVO getLatestBookmarks(String currentUsername, int from, int size) {
-        List<BookmarkVO> bookmarks =
-                getAllPubSpecUserPriWebs(from, size, currentUsername);
-
-        int totalCount = countAllPubAndSpecUserPriWebs(currentUsername);
-        int totalPages = PageUtil.getAllPages(totalCount, size);
-        return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
-    }
-
-    @Override
-    public PopularBookmarksVO getPopularBookmarksAndTotalPages(PageInfoDTO pageInfo) {
-        int from = pageInfo.getFrom();
-        int size = pageInfo.getSize();
-
-        List<PopularBookmarkDTO> bookmarks = websiteMapper.getPopularPublicBookmarks(from, size);
-        int totalCount = websiteMapper.countDistinctPublicUrl();
-        int totalPages = PageUtil.getAllPages(totalCount, size);
-        return PopularBookmarksVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
-    }
-
-    /**
-     * 计算所有公开网页数据的条数。指定的用户需要把私有的网页数据个数也计入其中
-     *
-     * @param specUsername 指定的用户名
-     * @return int 数据条数
-     */
-    private int countAllPubAndSpecUserPriWebs(String specUsername) {
-        return websiteMapper.countAllPubAndSpecUserPriWebs(specUsername);
-    }
-
-    /**
-     * 计算除去 {@code excludeUsername} 用户名的用户收藏的公开的网页的总数，
-     * 如果 {@code excludeUsername} 和 {@code userNameToShowAll} 不相等，
-     * 那么用户名为 {@code userNameToShowAll} 的用户的私有的网页数据也要统计
-     *
-     * @param excludeUsername   除去该用户名的用户
-     * @param userNameToShowAll 该用户名的用户需要展示公开和私有的网页数据
-     * @return 一共有多少条数据
-     */
-    private int countExcludeUserPost(String excludeUsername, String userNameToShowAll) {
-        return websiteMapper.countExcludeUserPost(excludeUsername, userNameToShowAll);
-    }
-
-    /**
-     * Get user with the name of {@code userNameToShowAll}'s private and all user's public bookmarks,
-     * excluding the user with the name of with {@code excludeUsername}'s bookmarks.
-     *
-     * @param excludeUsername   不查找该用户 / 某个用户
-     * @param from              from
-     * @param size              size
-     * @param userNameToShowAll 该用户名的用户的所有数据都要展示
-     * @return 除去某个用户的所有网页
-     */
-    private List<BookmarkVO> getAllPubSpecUserPriWebsExcludeUser(
-            String excludeUsername, int from, int size, String userNameToShowAll) {
-
-        List<WebsiteDO> websites = websiteMapper.findWebsitesDataExcludeUser(
-                excludeUsername, from, size, userNameToShowAll);
-
-        return getBookmarks(websites);
-    }
-
-    /**
-     * Get all public and specific user's private bookmarks
-     *
-     * @param from         from
-     * @param size         size
-     * @param specUsername specific user's name
-     * @return all public and specific user's private bookmarks
-     */
-    private List<BookmarkVO> getAllPubSpecUserPriWebs(Integer from,
-                                                      Integer size,
-                                                      String specUsername) {
-        List<WebsiteDO> websites =
-                websiteMapper.getAllPubAndSpecUserPriWebs(from, size, specUsername);
-
-        return getBookmarks(websites);
-    }
-
-    private List<BookmarkVO> getBookmarks(List<WebsiteDO> websites) {
+    private List<BookmarkVO> convertToBookmarkVO(List<WebsiteDO> websites) {
         return DozerUtils.convertList(websites, BookmarkVO.class);
     }
 
-    private BookmarksAndTotalPagesVO getUserBookmarks(String username, int from, int size, boolean includePrivate) {
+    private BookmarksAndTotalPagesVO getUserBookmarks(String username,
+                                                      int from,
+                                                      int size,
+                                                      boolean shouldIncludePrivate) {
 
-        int totalCounts = countUserPost(username, includePrivate);
+        int totalCounts = websiteMapper.countUserPost(username, shouldIncludePrivate);
         int totalPages = PageUtil.getAllPages(totalCounts, size);
 
-        List<WebsiteDO> b = websiteMapper.findWebsitesDataByUser(username, from, size, includePrivate);
-        List<BookmarkVO> bookmarks = getBookmarks(b);
+        List<WebsiteDO> b = websiteMapper.getUserBookmarks(username, from, size, shouldIncludePrivate);
+        List<BookmarkVO> bookmarks = convertToBookmarkVO(b);
 
         return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
     }
 
+    private BookmarksAndTotalPagesVO getPublicIncludeCurrentPrivateExceptRequestedUserBookmark(
+            String currentUsername, String requestedUsername, int from, int size) {
+
+        List<BookmarkVO> bookmarks =
+                getAllPublicSomePrivateExcludingSpecificUserBookmark(currentUsername, requestedUsername, from, size);
+
+        int totalCount = websiteMapper
+                .countAllPublicSomePrivateExcludingSpecificUserBookmark(currentUsername, requestedUsername);
+        int totalPages = PageUtil.getAllPages(totalCount, size);
+        return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
+    }
+
+    /**
+     * Get public bookmarks of all users and
+     * some private bookmarks of the user whose username is {@code includePrivateUsername},
+     * excluding the bookmarks of the user whose username is {@code excludeUsername}
+     *
+     * @param includePrivateUsername username of the user whose public and private bookmarks will be shown
+     * @param excludeUsername        username of the user whose bookmarks will not be shown
+     * @param from                   from
+     * @param size                   size
+     * @return bookmarks
+     */
+    private List<BookmarkVO> getAllPublicSomePrivateExcludingSpecificUserBookmark(
+            String includePrivateUsername, String excludeUsername, int from, int size) {
+
+        List<WebsiteDO> websites = websiteMapper.getAllPublicSomePrivateExcludingSpecificUserBookmark(
+                includePrivateUsername, excludeUsername, from, size);
+
+        return convertToBookmarkVO(websites);
+    }
+
+    private BookmarksAndTotalPagesVO getLatestBookmarks(String currentUsername, int from, int size) {
+        List<BookmarkVO> bookmarks =
+                getAllPublicAndSpecificPrivateBookmarks(from, size, currentUsername);
+
+        int totalCount = websiteMapper.countAllPublicAndSpecificPrivateBookmarks(currentUsername);
+        int totalPages = PageUtil.getAllPages(totalCount, size);
+        return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
+    }
+
+    /**
+     * Get public bookmarks of all users and private bookmarks of specific user
+     * <p>
+     * The result will not be paginated if {@code from} or {@code size} is null
+     * </p>
+     *
+     * @param from         from
+     *                     <p>The result will not be paginated if {@code from} or {@code size} is null</p>
+     * @param size         size
+     *                     <p>The result will not be paginated if {@code from} or {@code size} is null</p>
+     * @param specUsername username of the user whose public and private bookmarks will be shown
+     * @return public bookmarks of all users and private bookmarks of specific user
+     */
+    private List<BookmarkVO> getAllPublicAndSpecificPrivateBookmarks(Integer from,
+                                                                     Integer size,
+                                                                     String specUsername) {
+        List<WebsiteDO> websites = websiteMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, specUsername);
+        return convertToBookmarkVO(websites);
+    }
+
     @Override
-    public BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, Boolean includePrivate) {
+    public BookmarksAndTotalPagesVO getUserBookmarks(String username,
+                                                     PageInfoDTO pageInfo,
+                                                     Boolean shouldIncludePrivate) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        boolean shouldIncludePrivate = Optional.ofNullable(includePrivate).orElse(false);
-        return getUserBookmarks(username, from, size, shouldIncludePrivate);
+        boolean needPrivate = Optional.ofNullable(shouldIncludePrivate).orElse(false);
+        return getUserBookmarks(username, from, size, needPrivate);
     }
 
     @Override
     @ModifyWebsitePermissionCheck
     public boolean deleteBookmark(@WebId Integer webId, @Username String userName) {
-        // Web Id will not be null after checking by @ModifyWebsitePermissionCheck
-        boolean success = websiteMapper.deleteWebsiteDataById(webId);
+        // ID will not be null after checking by @ModifyWebsitePermissionCheck
+        boolean success = websiteMapper.deleteBookmarkById(webId);
         if (success) {
             // delete views
             deleteViewManager.deleteWebView(webId);
@@ -384,29 +357,29 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     @ModifyWebsitePermissionCheck
     public boolean changePrivacySettings(@WebId Integer webId, @Username String userName) {
-        // Web Id will not be null after checking by @ModifyWebsitePermissionCheck
-        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
-        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        // ID will not be null after checking by @ModifyWebsitePermissionCheck
+        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
+        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        boolean newPrivacy = !web.getIsPublic();
-        WebsiteDO webWithNewPrivacy = web.setIsPublic(newPrivacy);
-        return websiteMapper.updateWebsiteDataById(webWithNewPrivacy);
+        boolean newPrivacy = !bookmark.getIsPublic();
+        WebsiteDO webWithNewPrivacy = bookmark.setIsPublic(newPrivacy);
+        return websiteMapper.updateBookmark(webWithNewPrivacy);
     }
 
     @Override
     public BookmarkVO getBookmark(int webId, String userName) {
-        WebsiteDO web = websiteMapper.getWebsiteDataById(webId);
+        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
 
         // data does not exist
-        ThrowExceptionUtils.throwIfNull(web, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         // data is not public
         // and the owner's username of data does not match the username
-        boolean noPermission = Boolean.FALSE.equals(web.getIsPublic())
-                && CompareStringUtil.notEqualsIgnoreCase(userName, web.getUserName());
+        boolean noPermission = Boolean.FALSE.equals(bookmark.getIsPublic())
+                && CompareStringUtil.notEqualsIgnoreCase(userName, bookmark.getUserName());
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
-        return DozerUtils.convert(web, BookmarkVO.class);
+        return DozerUtils.convert(bookmark, BookmarkVO.class);
     }
 
     @Override
@@ -415,12 +388,11 @@ public class WebsiteServiceImpl implements WebsiteService {
         ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
 
         WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
-
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();
-
         boolean isPrivate = BooleanUtils.isFalse(isPublic);
+
         String owner = bookmark.getUserName();
 
         boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, owner);
@@ -441,8 +413,8 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         String filename = username + "_" + time + ".html";
 
-        boolean includePrivate = username.equalsIgnoreCase(currentUsername);
-        String html = getBookmarksByUserInHtml(username, includePrivate);
+        boolean shouldIncludePrivate = username.equalsIgnoreCase(currentUsername);
+        String html = getBookmarksByUserInHtml(username, shouldIncludePrivate);
 
         try {
             response.setCharacterEncoding("UTF-8");
@@ -453,9 +425,9 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
     }
 
-    private String getBookmarksByUserInHtml(String username, boolean includePrivate) {
+    private String getBookmarksByUserInHtml(String username, boolean shouldIncludePrivate) {
 
-        List<BookmarkVO> bookmarks = findAllWebDataByUser(username, includePrivate);
+        List<BookmarkVO> bookmarks = getAllUserBookmarks(username, shouldIncludePrivate);
 
         StringBuilder sb = new StringBuilder();
         sb.append(HtmlFileConstant.FILE_START);
@@ -483,9 +455,9 @@ public class WebsiteServiceImpl implements WebsiteService {
         return sb.append(HtmlFileConstant.FILE_END).toString();
     }
 
-    private List<BookmarkVO> findAllWebDataByUser(String userName, boolean includePrivate) {
+    private List<BookmarkVO> getAllUserBookmarks(String userName, boolean shouldIncludePrivate) {
         // from 和 size 为 null 的时候，表示不分页，直接获取全部
-        List<WebsiteDO> bookmarks = websiteMapper.findWebsitesDataByUser(userName, null, null, includePrivate);
+        List<WebsiteDO> bookmarks = websiteMapper.getUserBookmarks(userName, null, null, shouldIncludePrivate);
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
@@ -520,7 +492,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         });
     }
 
-    private WebWithNoIdentityDTO getBookmarkFromElement(org.jsoup.nodes.Element dt) {
+    private WebWithNoIdentityDTO getBookmarkFromElement(Element dt) {
 
         WebWithNoIdentityDTO.WebWithNoIdentityDTOBuilder webBuilder =
                 WebWithNoIdentityDTO.builder();

@@ -34,10 +34,10 @@ public interface WebsiteService {
     /**
      * Complete the website data and add it to bookmarks
      *
-     * @param webWithNoIdentity Website data that has no web ID, username and creation time,
-     *                          which only contains title, url, image and description
-     * @param userName          Username of the user who is bookmarking
-     * @param isPublic          True if this is a public bookmark
+     * @param data     Website data that has no web ID, username and creation time,
+     *                 which only contains title, url, image and description
+     * @param username Username of the user who is bookmarking
+     * @param isPublic True if this is a public bookmark
      * @return true if success
      * @throws ServiceException This implementation method is annotated with
      *                          {@link com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck
@@ -48,7 +48,7 @@ public interface WebsiteService {
      *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      *                          if something goes wrong.
      */
-    boolean bookmarkWithExistingData(WebWithNoIdentityDTO webWithNoIdentity, String userName, boolean isPublic);
+    boolean bookmarkWithExistingData(WebWithNoIdentityDTO data, String username, boolean isPublic);
 
     /**
      * Bookmark a new web page
@@ -90,15 +90,15 @@ public interface WebsiteService {
     /**
      * Get paginated public bookmarks of a user
      * <p>
-     * Include all private bookmarks if {@code includePrivate} is true
+     * Include all private bookmarks if {@code shouldIncludePrivate} is true
      * </p>
      *
-     * @param username       username of the user whose bookmarks is being requested
-     * @param pageInfo       pagination info
-     * @param includePrivate true if include private bookmarks
+     * @param username             username of the user whose bookmarks is being requested
+     * @param pageInfo             pagination info
+     * @param shouldIncludePrivate true if include private bookmarks
      * @return {@link BookmarksAndTotalPagesVO}
      */
-    BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, Boolean includePrivate);
+    BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, Boolean shouldIncludePrivate);
 
     /**
      * Delete a bookmarked website and its associated data

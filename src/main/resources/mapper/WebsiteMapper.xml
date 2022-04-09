@@ -73,7 +73,7 @@
         where `public` is true;
     </select>
 
-    <select id="getAllPubAndSpecUserPriWebs" resultMap="BaseResultMap">
+    <select id="getAllPublicAndSpecificPrivateBookmarks" resultMap="BaseResultMap">
         <!-- 因为 web_id 也是根据时间顺序生成的，所以用 creation_time 和 web_id 排序是一样的效果 -->
         select * from website
         <where>
@@ -100,7 +100,7 @@
         where url = #{url};
     </select>
 
-    <select id="countAllPubAndSpecUserPriWebs" resultType="java.lang.Integer">
+    <select id="countAllPublicAndSpecificPrivateBookmarks" resultType="java.lang.Integer">
         select count(web_id)
         from website
         <where>
@@ -112,26 +112,25 @@
         ;
     </select>
 
-    <select id="findWebsitesDataByUser" resultMap="BaseResultMap">
+    <select id="getUserBookmarks" resultMap="BaseResultMap">
         select *
         from website
         where user_name = #{userName}
-        <!-- 如果 includePrivate 为 false，就只查找数据库中 public 属性为 true 的 -->
-        <if test="!includePrivate ">
+        <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 public 属性为 true 的 -->
+        <if test="!shouldIncludePrivate">
             and `public` is true
         </if>
         order by web_id desc
         <if test="from!=null and size!=null">
             limit #{from},#{size}
         </if>
-
     </select>
 
     <select id="countUserPost" resultType="java.lang.Integer">
         select count(user_name)
         from website
         where user_name = #{userName}
-        <if test="!includePrivate ">
+        <if test="!shouldIncludePrivate">
             and `public` is true
         </if>
         ;
@@ -144,29 +143,29 @@
         group by url, title, `desc`, img;
     </select>
 
-    <select id="findWebsitesDataExcludeUser" resultMap="BaseResultMap">
+    <select id="getAllPublicSomePrivateExcludingSpecificUserBookmark" resultMap="BaseResultMap">
         select *
         from website
         where user_name != #{excludeUsername}
         and ( `public` is true
-        <if test="userNameToShowAll != null and userNameToShowAll != '' and !userNameToShowAll.equalsIgnoreCase(excludeUsername)">
-            or user_name = #{userNameToShowAll}
+        <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
+            or user_name = #{includePrivateUsername}
         </if>
         ) order by web_id desc limit #{from}, #{size};
     </select>
 
-    <select id="countExcludeUserPost" resultType="java.lang.Integer">
+    <select id="countAllPublicSomePrivateExcludingSpecificUserBookmark" resultType="java.lang.Integer">
         select count(web_id)
         from website
         where user_name != #{excludeUsername}
         and ( `public` is true
-        <if test="userNameToShowAll != null and userNameToShowAll != '' and !userNameToShowAll.equalsIgnoreCase(excludeUsername)">
-            or user_name = #{userNameToShowAll}
+        <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
+            or user_name = #{includePrivateUsername}
         </if>
         );
     </select>
 
-    <delete id="deleteWebsiteDataById" parameterType="java.lang.Integer">
+    <delete id="deleteBookmarkById" parameterType="java.lang.Integer">
         delete
         from website
         where web_id = #{webId,jdbcType=INTEGER}
@@ -178,14 +177,14 @@
         where user_name = #{userName}
     </delete>
 
-    <insert id="addWebsiteData" keyColumn="web_id" keyProperty="webId"
+    <insert id="addBookmark" keyColumn="web_id" keyProperty="webId"
             parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
             useGeneratedKeys="true">
         insert into website(user_name, title, url, img, `desc`, `creation_time`, `public`)
         values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
-    <update id="updateWebsiteDataById" parameterType="com.github.learndifferent.mtm.entity.WebsiteDO">
+    <update id="updateBookmark" parameterType="com.github.learndifferent.mtm.entity.WebsiteDO">
         update website
         set user_name       = #{userName,jdbcType=VARCHAR},
             title           = #{title,jdbcType=VARCHAR},
