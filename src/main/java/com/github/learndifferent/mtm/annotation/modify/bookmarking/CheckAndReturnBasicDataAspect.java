@@ -4,7 +4,7 @@ import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
@@ -35,12 +35,12 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @Order(2)
-public class CheckAndReturnExistingDataAspect {
+public class CheckAndReturnBasicDataAspect {
 
     private final WebsiteMapper websiteMapper;
 
     @Autowired
-    public CheckAndReturnExistingDataAspect(WebsiteMapper websiteMapper) {
+    public CheckAndReturnBasicDataAspect(WebsiteMapper websiteMapper) {
         this.websiteMapper = websiteMapper;
     }
 
@@ -48,14 +48,14 @@ public class CheckAndReturnExistingDataAspect {
      * Check if the website is bookmarked by the user
      * and the website data is stored in database according to username and url.
      *
-     * @param pjp                        Proceeding Join Point
-     * @param checkAndReturnExistingData IfMarkedThenReturn annotation
+     * @param pjp                     Proceeding Join Point
+     * @param checkAndReturnBasicData annotation
      * @return {@code Object}
      * @throws Throwable Throw an exception with the result code of {@link ResultCode#ALREADY_SAVED}
      *                   if the user has already bookmarked the website
      */
-    @Around("@annotation(checkAndReturnExistingData)")
-    public Object around(ProceedingJoinPoint pjp, CheckAndReturnExistingData checkAndReturnExistingData)
+    @Around("@annotation(checkAndReturnBasicData)")
+    public Object around(ProceedingJoinPoint pjp, CheckAndReturnBasicData checkAndReturnBasicData)
             throws Throwable {
 
         MethodSignature signature = (MethodSignature) pjp.getSignature();
@@ -94,18 +94,18 @@ public class CheckAndReturnExistingDataAspect {
             }
         }
 
-        // Find the website data in database by URL
-        List<WebsiteDO> websInDb = websiteMapper.findWebsitesDataByUrl(url);
+        // Get all bookmarks that have the given URL
+        List<WebsiteDO> bookmarks = websiteMapper.getBookmarksByUrl(url);
 
         // If not found, do nothing
-        if (websInDb.isEmpty()) {
+        if (bookmarks.isEmpty()) {
             return pjp.proceed();
         }
 
         // If found, check whether the user has already bookmarked the website
-        checkIfBookmarked(username, websInDb);
-        // If not bookmarked yet, return the website data in database
-        return DozerUtils.convert(websInDb.get(0), WebWithNoIdentityDTO.class);
+        checkIfBookmarked(username, bookmarks);
+        // If not bookmarked yet, return the basic website data in database
+        return DozerUtils.convert(bookmarks.get(0), BasicWebDataDTO.class);
     }
 
     /**
@@ -124,5 +124,4 @@ public class CheckAndReturnExistingDataAspect {
 
         ThrowExceptionUtils.throwIfNotNull(bookmark, ResultCode.ALREADY_SAVED);
     }
-
 }

@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Website data that has no web id, username and creation time
- * , which only contains title, url, image and description.
+ * Basic website data that only contains title, url, image and description
  *
  * @author zhou
  * @date 2021/09/05
@@ -19,11 +18,23 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class WebWithNoIdentityDTO implements Serializable {
+public class BasicWebDataDTO implements Serializable {
 
+    /**
+     * Title
+     */
     private String title;
+    /**
+     * URL
+     */
     private String url;
+    /**
+     * Image
+     */
     private String img;
+    /**
+     * Description
+     */
     private String desc;
 
     private static final long serialVersionUID = 1L;

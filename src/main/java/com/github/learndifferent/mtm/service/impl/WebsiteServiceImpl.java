@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.service.impl;
 import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
-import com.github.learndifferent.mtm.annotation.modify.bookmarking.CheckAndReturnExistingData;
+import com.github.learndifferent.mtm.annotation.modify.bookmarking.CheckAndReturnBasicData;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
 import com.github.learndifferent.mtm.annotation.modify.url.UrlClean;
@@ -13,11 +13,12 @@ import com.github.learndifferent.mtm.annotation.validation.website.permission.Mo
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO.BasicWebDataDTOBuilder;
 import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.NewBookmarkDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
-import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
@@ -29,10 +30,10 @@ import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.utils.PageUtil;
+import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import com.github.learndifferent.mtm.vo.BookmarkResultVO;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
+import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
 import java.io.IOException;
@@ -63,7 +64,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * WebsiteService 实现类
+ * Website Service Implementation
  *
  * @author zhou
  * @date 2021/09/05
@@ -98,19 +99,19 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     @WebsiteDataClean
-    @BookmarkCheck(paramClassContainsUrl = WebWithNoIdentityDTO.class,
-                   usernameParamName = "username",
+    @BookmarkCheck(usernameParamName = "username",
+                   classContainsUrlParamName = BasicWebDataDTO.class,
                    urlFieldNameInParamClass = "url")
-    public boolean bookmarkWithExistingData(WebWithNoIdentityDTO data, String username, boolean isPublic) {
+    public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, boolean isPublic) {
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, isPublic);
         WebsiteDO w = DozerUtils.convert(newBookmark, WebsiteDO.class);
         return websiteMapper.addBookmark(w);
     }
 
     @Override
-    public BookmarkResultVO bookmark(String url, String username, Boolean isPublic, Boolean beInEs) {
+    public BookmarkingResultVO bookmark(String url, String username, Boolean isPublic, Boolean beInEs) {
         // get the basic data
-        WebWithNoIdentityDTO basic = scrapeWebData(url, username);
+        BasicWebDataDTO basic = scrapeWebData(url, username);
 
         // Only public data can be added to Elasticsearch
         boolean bePublic = Optional.ofNullable(isPublic).orElse(true);
@@ -121,11 +122,11 @@ public class WebsiteServiceImpl implements WebsiteService {
                 : saveToDatabase(username, basic, bePublic);
     }
 
-    private BookmarkResultVO saveToElasticsearchAndDatabase(String username, WebWithNoIdentityDTO basic) {
+    private BookmarkingResultVO saveToElasticsearchAndDatabase(String username, BasicWebDataDTO data) {
         // save to Elasticsearch asynchronously
-        Future<Boolean> elasticsearchResult = elasticsearchManager.saveBookmarkToElasticsearchAsync(basic);
-        // save to database and get the BookmarkResultVO
-        BookmarkResultVO result = saveToDatabase(username, basic, true);
+        Future<Boolean> elasticsearchResult = elasticsearchManager.saveToElasticsearchAsync(data);
+        // save to database and get the BookmarkingResultVO
+        BookmarkingResultVO result = saveToDatabase(username, data, true);
         // get the result of saving to Elasticsearch asynchronously
         boolean hasSavedToElasticsearch = false;
         try {
@@ -136,15 +137,15 @@ public class WebsiteServiceImpl implements WebsiteService {
         return result.setHasSavedToElasticsearch(hasSavedToElasticsearch);
     }
 
-    private BookmarkResultVO saveToDatabase(String username, WebWithNoIdentityDTO basic, boolean bePublic) {
+    private BookmarkingResultVO saveToDatabase(String username, BasicWebDataDTO basic, boolean bePublic) {
         // get the result of saving to database
         WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
-        boolean hasSavedToDatabase = bean.bookmarkWithExistingData(basic, username, bePublic);
+        boolean hasSavedToDatabase = bean.bookmarkWithBasicWebData(basic, username, bePublic);
         // return the result of saving to database
-        return BookmarkResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
+        return BookmarkingResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
     }
 
-    private WebWithNoIdentityDTO scrapeWebData(String url, String userName) {
+    private BasicWebDataDTO scrapeWebData(String url, String userName) {
 
         try {
             WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
@@ -161,7 +162,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     /**
      * Firstly, {@link UrlClean} will clean up the URL.
      * <p>
-     * Secondly, {@link CheckAndReturnExistingData} will check whether the website is bookmarked by the user and the
+     * Secondly, {@link CheckAndReturnBasicData} will check whether the website is bookmarked by the user and the
      * website data is stored in database:
      * </p>
      * <li>
@@ -180,18 +181,18 @@ public class WebsiteServiceImpl implements WebsiteService {
      *
      * @param url      URL
      * @param userName username of the user
-     * @return {@link WebWithNoIdentityDTO}
+     * @return {@link BasicWebDataDTO}
      */
     @UrlClean
-    @CheckAndReturnExistingData
-    public WebWithNoIdentityDTO scrapeWebDataFromUrl(@Url String url, @Username String userName) throws IOException {
+    @CheckAndReturnBasicData
+    public BasicWebDataDTO scrapeWebDataFromUrl(@Url String url, @Username String userName) throws IOException {
         Document document = Jsoup.parse(new URL(url), 3000);
 
         String title = document.title();
         String desc = document.body().text();
         String img = getFirstImg(document);
 
-        return WebWithNoIdentityDTO.builder()
+        return BasicWebDataDTO.builder()
                 .title(title)
                 .url(url)
                 .img(img)
@@ -216,7 +217,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         List<PopularBookmarkDTO> bookmarks = websiteMapper.getPopularPublicBookmarks(from, size);
         int totalCount = websiteMapper.countDistinctPublicUrl();
-        int totalPages = PageUtil.getAllPages(totalCount, size);
+        int totalPages = PaginationUtils.getTotalPages(totalCount, size);
         return PopularBookmarksVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
 
@@ -260,8 +261,8 @@ public class WebsiteServiceImpl implements WebsiteService {
                                                       int size,
                                                       boolean shouldIncludePrivate) {
 
-        int totalCounts = websiteMapper.countUserPost(username, shouldIncludePrivate);
-        int totalPages = PageUtil.getAllPages(totalCounts, size);
+        int totalCounts = websiteMapper.countUserBookmarks(username, shouldIncludePrivate);
+        int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
 
         List<WebsiteDO> b = websiteMapper.getUserBookmarks(username, from, size, shouldIncludePrivate);
         List<BookmarkVO> bookmarks = convertToBookmarkVO(b);
@@ -277,7 +278,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         int totalCount = websiteMapper
                 .countAllPublicSomePrivateExcludingSpecificUserBookmark(currentUsername, requestedUsername);
-        int totalPages = PageUtil.getAllPages(totalCount, size);
+        int totalPages = PaginationUtils.getTotalPages(totalCount, size);
         return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
 
@@ -306,7 +307,7 @@ public class WebsiteServiceImpl implements WebsiteService {
                 getAllPublicAndSpecificPrivateBookmarks(from, size, currentUsername);
 
         int totalCount = websiteMapper.countAllPublicAndSpecificPrivateBookmarks(currentUsername);
-        int totalPages = PageUtil.getAllPages(totalCount, size);
+        int totalPages = PaginationUtils.getTotalPages(totalCount, size);
         return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
 
@@ -358,7 +359,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     @ModifyWebsitePermissionCheck
     public boolean changePrivacySettings(@WebId Integer webId, @Username String userName) {
         // ID will not be null after checking by @ModifyWebsitePermissionCheck
-        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
+        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean newPrivacy = !bookmark.getIsPublic();
@@ -368,7 +369,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     public BookmarkVO getBookmark(int webId, String userName) {
-        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
+        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
 
         // data does not exist
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
@@ -387,7 +388,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
 
-        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
+        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();
@@ -487,15 +488,14 @@ public class WebsiteServiceImpl implements WebsiteService {
         Elements dts = document.getElementsByTag("dt");
 
         dts.forEach(dt -> {
-            WebWithNoIdentityDTO bookmark = getBookmarkFromElement(dt);
-            bookmarkAndUpdateResult(username, result, bookmark);
+            BasicWebDataDTO basicWebData = getBasicWebDataFromElement(dt);
+            bookmarkAndUpdateResult(username, result, basicWebData);
         });
     }
 
-    private WebWithNoIdentityDTO getBookmarkFromElement(Element dt) {
+    private BasicWebDataDTO getBasicWebDataFromElement(Element dt) {
 
-        WebWithNoIdentityDTO.WebWithNoIdentityDTOBuilder webBuilder =
-                WebWithNoIdentityDTO.builder();
+        BasicWebDataDTOBuilder webBuilder = BasicWebDataDTO.builder();
 
         Elements imgTag = dt.getElementsByTag("img");
         String img = imgTag.get(0).attr("abs:src");
@@ -513,7 +513,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         return webBuilder.build();
     }
 
-    private void bookmarkAndUpdateResult(String username, int[] result, WebWithNoIdentityDTO web) {
+    private void bookmarkAndUpdateResult(String username, int[] result, BasicWebDataDTO web) {
         try {
             boolean success = bookmarkAndGetResult(username, web);
             updateImportingResult(result, success);
@@ -523,11 +523,11 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
     }
 
-    private boolean bookmarkAndGetResult(String username, WebWithNoIdentityDTO web) {
+    private boolean bookmarkAndGetResult(String username, BasicWebDataDTO web) {
         WebsiteServiceImpl websiteService =
                 ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
         // the imported bookmarks are public
-        return websiteService.bookmarkWithExistingData(web, username, true);
+        return websiteService.bookmarkWithBasicWebData(web, username, true);
     }
 
     private void updateImportingResult(int[] result, boolean success) {

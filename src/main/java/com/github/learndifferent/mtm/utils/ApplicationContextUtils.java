@@ -7,7 +7,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
- * 获取原始对象的代理类
+ * Get beans
  *
  * @author zhou
  * @date 2021/09/05

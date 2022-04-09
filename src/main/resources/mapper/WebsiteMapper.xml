@@ -88,13 +88,13 @@
         </if>
     </select>
 
-    <select id="getWebsiteDataById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="getBookmarkById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select *
         from website
         where web_id = #{webId,jdbcType=INTEGER}
     </select>
 
-    <select id="findWebsitesDataByUrl" resultMap="BaseResultMap">
+    <select id="getBookmarksByUrl" resultMap="BaseResultMap">
         select *
         from website
         where url = #{url};
@@ -126,7 +126,7 @@
         </if>
     </select>
 
-    <select id="countUserPost" resultType="java.lang.Integer">
+    <select id="countUserBookmarks" resultType="java.lang.Integer">
         select count(user_name)
         from website
         where user_name = #{userName}
@@ -136,7 +136,8 @@
         ;
     </select>
 
-    <select id="getAllPublicWebDataForSearch" resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
+    <select id="getAllPublicBasicWebDataForSearch"
+            resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`
         from website
         where `public` is true
@@ -171,7 +172,7 @@
         where web_id = #{webId,jdbcType=INTEGER}
     </delete>
 
-    <delete id="deleteWebsiteDataByUsername">
+    <delete id="deleteUserBookmarks">
         delete
         from website
         where user_name = #{userName}
@@ -196,7 +197,7 @@
         where web_id = #{webId,jdbcType=INTEGER}
     </update>
 
-    <select id="getUsernameByWebId" resultType="java.lang.String">
+    <select id="getBookmarkOwnerName" resultType="java.lang.String">
         select user_name
         from website
         where web_id = #{webId,jdbcType=INTEGER};

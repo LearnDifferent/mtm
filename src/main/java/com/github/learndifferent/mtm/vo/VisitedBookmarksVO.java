@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.query;
+package com.github.learndifferent.mtm.vo;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
@@ -8,34 +8,47 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Request body of existing website data that contains title, url, image and description.
+ * Visited Bookmarks
  *
  * @author zhou
- * @date 2021/9/21
+ * @date 2022/3/25
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Accessors(chain = true)
-public class ExistingDataRequest implements Serializable {
+@Builder
+public class VisitedBookmarksVO implements Serializable {
+
+    /**
+     * Username
+     */
+    private String userName;
 
     /**
      * Title
      */
     private String title;
+
     /**
      * Url
      */
     private String url;
+
     /**
-     * Image
+     * ID
      */
-    private String img;
+    private Integer webId;
+
     /**
-     * Description
+     * True if this is a public bookmarks
      */
-    private String desc;
+    private Boolean isPublic;
+
+    /**
+     * The number of views of this bookmark
+     */
+    private Integer views;
 
     private static final long serialVersionUID = 1L;
 }

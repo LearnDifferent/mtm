@@ -9,8 +9,8 @@ import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
-import com.github.learndifferent.mtm.manager.CdUserManager;
 import com.github.learndifferent.mtm.manager.NotificationManager;
+import com.github.learndifferent.mtm.manager.UserAccountManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePwdRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
@@ -29,7 +29,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 /**
- * UserService implementation
+ * User Service implementation
  *
  * @author zhou
  * @date 2021/09/05
@@ -38,15 +38,15 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
-    private final CdUserManager cdUserManager;
+    private final UserAccountManager userAccountManager;
     private final NotificationManager notificationManager;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper,
-                           CdUserManager cdUserManager,
+                           UserAccountManager userAccountManager,
                            NotificationManager notificationManager) {
         this.userMapper = userMapper;
-        this.cdUserManager = cdUserManager;
+        this.userAccountManager = userAccountManager;
         this.notificationManager = notificationManager;
     }
 
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
         String username = usernameAndPassword.getUserName();
         String notEncryptedPassword = usernameAndPassword.getPassword();
-        return cdUserManager.createUser(username, notEncryptedPassword, role);
+        return userAccountManager.createUser(username, notEncryptedPassword, role);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class UserServiceImpl implements UserService {
                                                String notEncryptedPassword) {
         boolean hasNoPermission = CompareStringUtil.notEqualsIgnoreCase(currentUsername, userName);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
-        return cdUserManager.deleteAllDataRelatedToUser(userName, notEncryptedPassword);
+        return userAccountManager.deleteAllDataRelatedToUser(userName, notEncryptedPassword);
     }
 
     @Override

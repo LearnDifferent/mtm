@@ -57,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
                                                        Integer load,
                                                        @Username String username,
                                                        Boolean isDesc) {
-        List<CommentDO> commentList = commentMapper.getCommentsByWebAndReplyCommentId(
+        List<CommentDO> commentList = commentMapper.getBookmarkComments(
                 webId, replyToCommentId, load, isDesc);
         List<BookmarkCommentVO> comments = DozerUtils.convertList(commentList, BookmarkCommentVO.class);
 
@@ -91,8 +91,8 @@ public class CommentServiceImpl implements CommentService {
                 .creationTime(Instant.now())
                 .build();
 
-        // this method will set the ID to the CommentDO automatically
-        boolean success = commentMapper.addCommentAndGetId(commentDO);
+        // this add method is using generated keys, which means it'll set the ID to the CommentDO
+        boolean success = commentMapper.addComment(commentDO);
         if (success) {
             // send notification
             notificationManager.sendReplyNotification(commentDO);

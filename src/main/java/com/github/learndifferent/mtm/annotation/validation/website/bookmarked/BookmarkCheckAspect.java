@@ -1,12 +1,9 @@
 package com.github.learndifferent.mtm.annotation.validation.website.bookmarked;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -22,8 +19,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Verify whether the user has already bookmarked the website by username and URL,
- * and verify whether the user has permission to bookmark the website.
+ * Verify whether the user has already bookmarked the website by username and URL
  *
  * @author zhou
  * @date 2021/09/05
@@ -49,7 +45,7 @@ public class BookmarkCheckAspect {
         Class<?>[] parameterTypes = signature.getParameterTypes();
         Object[] args = joinPoint.getArgs();
 
-        Class<? extends Serializable> classContainsUrl = annotation.paramClassContainsUrl();
+        Class<? extends Serializable> classContainsUrl = annotation.classContainsUrlParamName();
         String urlFieldName = annotation.urlFieldNameInParamClass();
 
         String usernameParamName = annotation.usernameParamName();
@@ -81,7 +77,6 @@ public class BookmarkCheckAspect {
             }
         }
 
-        testUserPermission(username);
         testIfUserAlreadyBookmarked(username, url);
     }
 
@@ -99,24 +94,10 @@ public class BookmarkCheckAspect {
         }
     }
 
-
-    /**
-     * Verify whether the user has permission to bookmark the website.
-     *
-     * @param username username
-     * @throws ServiceException if the user is not the current user,
-     *                          throw an exception with the result code of {@link ResultCode#PERMISSION_DENIED}
-     */
-    private void testUserPermission(String username) {
-        String currentUsername = (String) StpUtil.getLoginIdDefaultNull();
-        boolean notCurrentUser = CompareStringUtil.notEqualsIgnoreCase(username, currentUsername);
-        ThrowExceptionUtils.throwIfTrue(notCurrentUser, ResultCode.PERMISSION_DENIED);
-    }
-
     private void testIfUserAlreadyBookmarked(String userName, String url) {
 
-        List<WebsiteDO> list = websiteMapper.findWebsitesDataByUrl(url);
-        WebsiteDO bookmark = list.stream()
+        List<WebsiteDO> bookmarks = websiteMapper.getBookmarksByUrl(url);
+        WebsiteDO bookmark = bookmarks.stream()
                 .filter(w -> w.getUserName().equals(userName))
                 .findFirst().orElse(null);
 

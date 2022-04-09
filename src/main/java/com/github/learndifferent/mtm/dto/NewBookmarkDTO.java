@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 public class NewBookmarkDTO implements Serializable {
 
-    public static NewBookmarkDTO of(WebWithNoIdentityDTO data, String username, Boolean isPublic) {
+    public static NewBookmarkDTO of(BasicWebDataDTO data, String username, Boolean isPublic) {
         String title = data.getTitle();
         String url = data.getUrl();
         String img = data.getImg();

@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.VisitedBookmarksDTO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.util.List;
 
 /**
@@ -51,5 +51,5 @@ public interface ViewCounterService {
      * @param pageInfo pagination information
      * @return visited bookmarks
      */
-    List<VisitedBookmarksDTO> getVisitedBookmarks(PageInfoDTO pageInfo);
+    List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo);
 }

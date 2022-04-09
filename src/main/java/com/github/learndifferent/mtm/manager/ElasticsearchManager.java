@@ -6,7 +6,7 @@ import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
-import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
@@ -21,7 +21,7 @@ import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
-import com.github.learndifferent.mtm.utils.PageUtil;
+import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
@@ -209,9 +209,9 @@ public class ElasticsearchManager {
 
     @Async("asyncTaskExecutor")
     @WebsiteDataClean
-    public Future<Boolean> saveBookmarkToElasticsearchAsync(WebWithNoIdentityDTO bookmark) {
+    public Future<Boolean> saveToElasticsearchAsync(BasicWebDataDTO data) {
 
-        IndexRequest request = getIndexRequest(bookmark);
+        IndexRequest request = getIndexRequest(data);
         boolean success = false;
 
         try {
@@ -232,7 +232,7 @@ public class ElasticsearchManager {
         return AsyncResult.forValue(success);
     }
 
-    private IndexRequest getIndexRequest(WebWithNoIdentityDTO bookmark) {
+    private IndexRequest getIndexRequest(BasicWebDataDTO bookmark) {
 
         WebForSearchDTO data = DozerUtils.convert(bookmark, WebForSearchDTO.class);
         String json = JsonUtils.toJson(data);
@@ -244,7 +244,7 @@ public class ElasticsearchManager {
     }
 
     @Async("asyncTaskExecutor")
-    public void addUserDataToElasticsearchAsync(UserForSearchDTO user) {
+    public void saveToElasticsearchAsync(UserForSearchDTO user) {
 
         IndexRequest request = getIndexRequest(user);
         try {
@@ -321,14 +321,14 @@ public class ElasticsearchManager {
         return sendBulkRequest(bulkRequest);
     }
 
-    public boolean generateBookmarkData() {
+    public boolean generateBasicWebData() {
 
         throwIfNotClear(EsConstant.INDEX_WEB);
 
-        List<WebForSearchDTO> bookmarks = websiteMapper.getAllPublicWebDataForSearch();
+        List<WebForSearchDTO> data = websiteMapper.getAllPublicBasicWebDataForSearch();
 
         BulkRequest bulkRequest = new BulkRequest();
-        bookmarks.forEach(b -> updateBulkRequest(bulkRequest, EsConstant.INDEX_WEB, b.getUrl(), JsonUtils.toJson(b)));
+        data.forEach(b -> updateBulkRequest(bulkRequest, EsConstant.INDEX_WEB, b.getUrl(), JsonUtils.toJson(b)));
         return sendBulkRequest(bulkRequest);
     }
 
@@ -421,7 +421,7 @@ public class ElasticsearchManager {
         // get total number of hits
         long totalCount = getTotalCount(hits);
         // get total pages
-        int totalPages = PageUtil.getAllPages((int) totalCount, size);
+        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
         // get results
         List<TagForSearchDTO> paginatedResults = getTagResults(hits);
         return SearchResultsDTO.builder()
@@ -478,7 +478,7 @@ public class ElasticsearchManager {
 
         SearchHits hits = searchAndGetHits(searchRequest);
         long totalCount = getTotalCount(hits);
-        int totalPages = PageUtil.getAllPages((int) totalCount, size);
+        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
         List<UserForSearchWithMoreInfo> paginatedResults = getUserResults(hits);
 
         return SearchResultsDTO.builder()
@@ -553,14 +553,14 @@ public class ElasticsearchManager {
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
         // the number of websites bookmarked by the user
-        int webCount = websiteMapper.countUserPost(userName, false);
+        int number = websiteMapper.countUserBookmarks(userName, false);
 
         return UserForSearchWithMoreInfo.builder()
                 .userId(userId)
                 .userName(userName)
                 .role(role)
                 .createTime(creationTime)
-                .webCount(webCount)
+                .webCount(number)
                 .build();
     }
 
@@ -573,7 +573,7 @@ public class ElasticsearchManager {
 
         SearchHits hits = searchAndGetHits(searchRequest);
         long totalCount = getTotalCount(hits);
-        int totalPage = PageUtil.getAllPages((int) totalCount, size);
+        int totalPage = PaginationUtils.getTotalPages((int) totalCount, size);
 
         List<WebForSearchDTO> paginatedResults = getBookmarkResults(hits);
 

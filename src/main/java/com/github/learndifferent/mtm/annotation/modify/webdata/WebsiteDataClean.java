@@ -1,12 +1,13 @@
 package com.github.learndifferent.mtm.annotation.modify.webdata;
 
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Clean Up {@link com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO}'s fields:
+ * Clean Up {@link BasicWebDataDTO}'s fields:
  * 1. Check if the URLs are valid
  * 2. Clean up the format of the website URL
  * 3. If the title or description is empty, replace it with URL as content

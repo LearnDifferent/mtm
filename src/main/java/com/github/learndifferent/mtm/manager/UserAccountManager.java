@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 2021/10/22
  */
 @Component
-public class CdUserManager {
+public class UserAccountManager {
 
     private final WebsiteMapper websiteMapper;
     private final UserMapper userMapper;
@@ -39,11 +39,11 @@ public class CdUserManager {
     private final ElasticsearchManager elasticsearchManager;
 
     @Autowired
-    public CdUserManager(ElasticsearchManager elasticsearchManager,
-                         NotificationManager notificationManager,
-                         WebsiteMapper websiteMapper,
-                         UserMapper userMapper,
-                         CommentMapper commentMapper) {
+    public UserAccountManager(ElasticsearchManager elasticsearchManager,
+                              NotificationManager notificationManager,
+                              WebsiteMapper websiteMapper,
+                              UserMapper userMapper,
+                              CommentMapper commentMapper) {
         this.elasticsearchManager = elasticsearchManager;
         this.notificationManager = notificationManager;
         this.websiteMapper = websiteMapper;
@@ -68,8 +68,8 @@ public class CdUserManager {
 
         String userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
 
-        // Delete website data related to the user
-        websiteMapper.deleteWebsiteDataByUsername(username);
+        // Delete bookmarks related to the user
+        websiteMapper.deleteUserBookmarks(username);
         // Delete comment data related to the user
         commentMapper.deleteCommentsByUsername(username);
 
@@ -142,8 +142,8 @@ public class CdUserManager {
         boolean success = userMapper.addUser(user);
         if (success) {
             // add to Elasticsearch asynchronously
-            UserForSearchDTO userToEs = DozerUtils.convert(user, UserForSearchDTO.class);
-            elasticsearchManager.addUserDataToElasticsearchAsync(userToEs);
+            UserForSearchDTO data = DozerUtils.convert(user, UserForSearchDTO.class);
+            elasticsearchManager.saveToElasticsearchAsync(data);
         }
         return success;
     }

@@ -105,7 +105,7 @@ public class NotificationManager {
         Integer webId = notification.getWebId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
-        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
+        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
 
         if (bookmark == null) {
             // if the bookmark does not exist,
@@ -150,9 +150,9 @@ public class NotificationManager {
         String receiveUsername;
 
         if (notifyWebsiteOwner) {
-            receiveUsername = websiteMapper.getUsernameByWebId(webId);
+            receiveUsername = websiteMapper.getBookmarkOwnerName(webId);
         } else {
-            receiveUsername = commentMapper.getUsernameByCommentId(replyToCommentId);
+            receiveUsername = commentMapper.getCommentSenderName(replyToCommentId);
         }
 
         String sendUsername = comment.getUsername();

@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class BookmarkResultVO implements Serializable {
+public class BookmarkingResultVO implements Serializable {
 
     /**
      * True if the data was successfully saved to Database

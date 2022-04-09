@@ -2,13 +2,13 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import com.github.learndifferent.mtm.response.ResultVO;
-import com.github.learndifferent.mtm.vo.BookmarkResultVO;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
+import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
 import java.util.List;
@@ -32,10 +32,9 @@ public interface WebsiteService {
     List<BookmarkVO> filterPublicBookmarks(FilterBookmarksRequest filterRequest);
 
     /**
-     * Complete the website data and add it to bookmarks
+     * Convert the basic website data into a bookmark
      *
-     * @param data     Website data that has no web ID, username and creation time,
-     *                 which only contains title, url, image and description
+     * @param data     Basic website data that contains title, URL, image and description
      * @param username Username of the user who is bookmarking
      * @param isPublic True if this is a public bookmark
      * @return true if success
@@ -48,7 +47,7 @@ public interface WebsiteService {
      *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      *                          if something goes wrong.
      */
-    boolean bookmarkWithExistingData(WebWithNoIdentityDTO data, String username, boolean isPublic);
+    boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, boolean isPublic);
 
     /**
      * Bookmark a new web page
@@ -57,12 +56,12 @@ public interface WebsiteService {
      * @param username Username of the user who is bookmarking
      * @param isPublic True or null if this is a public bookmark
      * @param beInEs   True or null if the data should be added to Elasticsearch
-     * @return {@link ResultVO}<{@link BookmarkResultVO}> The result of bookmarking a new web page
+     * @return {@link ResultVO}<{@link BookmarkingResultVO}> The result of bookmarking a new web page
      * @throws ServiceException Exception will be thrown with the result code of {@link ResultCode#URL_MALFORMED},
      *                          {@link ResultCode#URL_ACCESS_DENIED} and {@link ResultCode#CONNECTION_ERROR}
      *                          when an error occurred during an IO operation
      */
-    BookmarkResultVO bookmark(String url, String username, Boolean isPublic, Boolean beInEs);
+    BookmarkingResultVO bookmark(String url, String username, Boolean isPublic, Boolean beInEs);
 
     /**
      * Get bookmarked websites and total pages for the current user on the home page

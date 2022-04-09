@@ -2,12 +2,12 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.VisitedBookmarksDTO;
 import com.github.learndifferent.mtm.entity.ViewDataDO;
-import com.github.learndifferent.mtm.mapper.WebDataViewMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkViewMapper;
 import com.github.learndifferent.mtm.service.ViewCounterService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 /**
- * View Counter
+ * View Counter Implementation
  *
  * @author zhou
  * @date 2022/3/24
@@ -34,7 +34,7 @@ import org.springframework.util.CollectionUtils;
 public class ViewCounterServiceImpl implements ViewCounterService {
 
     private final StringRedisTemplate redisTemplate;
-    private final WebDataViewMapper webDataViewMapper;
+    private final BookmarkViewMapper bookmarkViewMapper;
 
     /**
      * the length of {@link KeyConstant#WEB_VIEW_COUNT_PREFIX}
@@ -43,9 +43,9 @@ public class ViewCounterServiceImpl implements ViewCounterService {
 
     @Autowired
     public ViewCounterServiceImpl(StringRedisTemplate redisTemplate,
-                                  WebDataViewMapper webDataViewMapper) {
+                                  BookmarkViewMapper bookmarkViewMapper) {
         this.redisTemplate = redisTemplate;
-        this.webDataViewMapper = webDataViewMapper;
+        this.bookmarkViewMapper = bookmarkViewMapper;
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
 
     private List<String> saveViewsToRedisAndReturnEmptyList() {
         // get data from database
-        List<ViewDataDO> data = webDataViewMapper.getAllViewData();
+        List<ViewDataDO> data = bookmarkViewMapper.getAllViewData();
 
         // save to Redis
         Map<String, String> kv = data.stream().collect(Collectors.toMap(
@@ -117,7 +117,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     public List<String> saveViewsToDbAndReturnFailKeys(Set<String> keys) {
 
         // clear all data before adding new data
-        webDataViewMapper.clearAll();
+        bookmarkViewMapper.clearAll();
 
         // keys that failed to save
         List<String> failKeys = new ArrayList<>();
@@ -127,7 +127,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         keys.forEach(key -> updateViewsCollections(set, failKeys, key));
 
         // save all data to database
-        webDataViewMapper.addAll(set);
+        bookmarkViewMapper.addAll(set);
 
         // return the list of the keys that failed to save
         return failKeys;
@@ -170,10 +170,10 @@ public class ViewCounterServiceImpl implements ViewCounterService {
 
     @Override
     @Cacheable(value = "bookmarks:visited", unless = "#result != null and #result.size() > 0")
-    public List<VisitedBookmarksDTO> getVisitedBookmarks(PageInfoDTO pageInfo) {
+    public List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        List<VisitedBookmarksDTO> data = webDataViewMapper.getVisitedWebData(from, size);
-        return DozerUtils.convertList(data, VisitedBookmarksDTO.class);
+        List<VisitedBookmarksVO> data = bookmarkViewMapper.getVisitedBookmarks(from, size);
+        return DozerUtils.convertList(data, VisitedBookmarksVO.class);
     }
 }

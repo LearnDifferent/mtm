@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * WebsiteMapper
+ * Website Mapper
  *
  * @author zhou
  * @date 2021/09/05
@@ -42,11 +42,11 @@ public interface WebsiteMapper {
     List<PopularBookmarkDTO> getPopularPublicBookmarks(@Param("from") int from, @Param("size") int size);
 
     /**
-     * Get all public bookmarked website data for search
+     * Get all public basic website data for search
      *
      * @return {@code List<WebForSearchDTO>}
      */
-    List<WebForSearchDTO> getAllPublicWebDataForSearch();
+    List<WebForSearchDTO> getAllPublicBasicWebDataForSearch();
 
     /**
      * Get the number of public bookmarks of all users and private bookmarks of specific user
@@ -63,7 +63,8 @@ public interface WebsiteMapper {
      * @param shouldIncludePrivate true if including the private bookmarks
      * @return number of bookmarks of the user
      */
-    int countUserPost(@Param("userName") String userName, @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
+    int countUserBookmarks(@Param("userName") String userName,
+                           @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
 
     /**
      * Get public bookmarks of a user
@@ -118,12 +119,12 @@ public interface WebsiteMapper {
             @Param("excludeUsername") String excludeUsername);
 
     /**
-     * Find a bookmarked website by URL
+     * Get all bookmarks that have the given URL
      *
-     * @param url url
+     * @param url URL
      * @return {@code List<WebsiteDO>}
      */
-    List<WebsiteDO> findWebsitesDataByUrl(String url);
+    List<WebsiteDO> getBookmarksByUrl(String url);
 
     /**
      * Get public bookmarks of all users and private bookmarks of specific user
@@ -151,11 +152,11 @@ public interface WebsiteMapper {
     boolean deleteBookmarkById(Integer webId);
 
     /**
-     * 删除该用户名的用户所收藏的所有网站数据
+     * Delete all bookmarks of the user
      *
-     * @param userName 用户名
+     * @param userName username of the user
      */
-    void deleteWebsiteDataByUsername(String userName);
+    void deleteUserBookmarks(String userName);
 
     /**
      * Add the website to bookmarks
@@ -171,7 +172,7 @@ public interface WebsiteMapper {
      * @param webId ID of the bookmarked website data
      * @return {@link WebsiteDO}
      */
-    WebsiteDO getWebsiteDataById(Integer webId);
+    WebsiteDO getBookmarkById(Integer webId);
 
     /**
      * Update bookmark
@@ -187,5 +188,5 @@ public interface WebsiteMapper {
      * @param webId ID of the bookmarked website data
      * @return username of the user who owns the bookmark
      */
-    String getUsernameByWebId(int webId);
+    String getBookmarkOwnerName(int webId);
 }

@@ -135,7 +135,7 @@ public class AddCommentCheckAspect {
     }
 
     private void checkCommentContentExists(String comment, int webId, String username) {
-        CommentDO exist = commentMapper.getCommentByWebIdAndUsernameAndComment(comment, webId, username);
+        CommentDO exist = commentMapper.getSpecificComment(comment, webId, username);
         ThrowExceptionUtils.throwIfNotNull(exist, ResultCode.COMMENT_EXISTS);
     }
 

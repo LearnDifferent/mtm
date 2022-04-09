@@ -78,7 +78,7 @@ public class ModifyWebsitePermissionCheckAspect {
 
         ThrowExceptionUtils.throwIfTrue(webId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        WebsiteDO bookmark = websiteMapper.getWebsiteDataById(webId);
+        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean emptyUsername = StringUtils.isEmpty(username);

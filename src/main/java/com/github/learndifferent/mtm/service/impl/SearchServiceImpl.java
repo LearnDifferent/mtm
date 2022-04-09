@@ -69,7 +69,7 @@ public class SearchServiceImpl implements SearchService {
                 return elasticsearchManager.generateTagData();
             case WEB:
             default:
-                return elasticsearchManager.generateBookmarkData();
+                return elasticsearchManager.generateBasicWebData();
         }
     }
 

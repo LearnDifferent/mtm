@@ -16,7 +16,7 @@ import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.utils.PageUtil;
+import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Tag Service
+ * Tag Service Implementation
  *
  * @author zhou
  * @date 2022/3/31
@@ -114,7 +114,7 @@ public class TagServiceImpl implements TagService {
         List<BookmarkVO> bookmarks = getBookmarksByUsernameAndTag(username, tagName, from, size);
 
         int totalCount = countTags(tagName);
-        int totalPages = PageUtil.getAllPages(totalCount, size);
+        int totalPages = PaginationUtils.getTotalPages(totalCount, size);
 
         return SearchByTagResultVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
@@ -126,7 +126,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int webId) {
-        WebsiteDO b = websiteMapper.getWebsiteDataById(webId);
+        WebsiteDO b = websiteMapper.getBookmarkById(webId);
         if (b == null) {
             return;
         }

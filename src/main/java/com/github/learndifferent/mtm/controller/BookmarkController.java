@@ -2,19 +2,23 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.query.ExistingDataRequest;
+import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
+import com.github.learndifferent.mtm.service.ViewCounterService;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.vo.BookmarkResultVO;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
+import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,10 +41,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookmarkController {
 
     private final WebsiteService websiteService;
+    private final ViewCounterService viewCounterService;
 
     @Autowired
-    public BookmarkController(WebsiteService websiteService) {
+    public BookmarkController(WebsiteService websiteService,
+                              ViewCounterService viewCounterService) {
         this.websiteService = websiteService;
+        this.viewCounterService = viewCounterService;
     }
 
     /**
@@ -55,9 +62,9 @@ public class BookmarkController {
      *                          when an error occurred during an IO operation
      */
     @GetMapping
-    public BookmarkResultVO bookmark(@RequestParam("url") String url,
-                                     @RequestParam("isPublic") Boolean isPublic,
-                                     @RequestParam("beInEs") Boolean beInEs) {
+    public BookmarkingResultVO bookmark(@RequestParam("url") String url,
+                                        @RequestParam("isPublic") Boolean isPublic,
+                                        @RequestParam("beInEs") Boolean beInEs) {
         String currentUsername = getCurrentUsername();
         return websiteService.bookmark(url, currentUsername, isPublic, beInEs);
     }
@@ -65,20 +72,18 @@ public class BookmarkController {
     /**
      * Bookmark a web page with existing data
      *
-     * @param request Request body of existing public website data that
-     *                has no web id, username and creation time,
-     *                which only contains title, url, image and description.
+     * @param request Request body of basic website data that contains title, URL, image and description
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
-     * @throws ServiceException {@link WebsiteService#bookmarkWithExistingData(WebWithNoIdentityDTO, String, boolean)}
+     * @throws ServiceException {@link WebsiteService#bookmarkWithBasicWebData(BasicWebDataDTO, String, boolean)}
      *                          will verify and throw exceptions if something goes wrong.
      *                          The Result Codes are: {@link ResultCode#ALREADY_SAVED}, {@link
      *                          ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      */
     @PostMapping
-    public ResultVO<ResultCode> bookmarkWithExistingData(@RequestBody ExistingDataRequest request) {
-        WebWithNoIdentityDTO website = DozerUtils.convert(request, WebWithNoIdentityDTO.class);
+    public ResultVO<ResultCode> bookmarkWithBasicWebData(@RequestBody BasicWebDataRequest request) {
+        BasicWebDataDTO basicWebData = DozerUtils.convert(request, BasicWebDataDTO.class);
         String currentUsername = getCurrentUsername();
-        boolean success = websiteService.bookmarkWithExistingData(website, currentUsername, true);
+        boolean success = websiteService.bookmarkWithBasicWebData(basicWebData, currentUsername, true);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
@@ -158,6 +163,23 @@ public class BookmarkController {
                                                            @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                    PageInfoDTO pageInfo) {
         return websiteService.getUserBookmarks(username, pageInfo, false);
+    }
+
+    /**
+     * Get visited bookmarks from database
+     *
+     * @param pageInfo Pagination information
+     * @return visited bookmarks
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
+     */
+    @GetMapping("/visited-bookmarks")
+    @AdminValidation
+    public List<VisitedBookmarksVO> getVisitedBookmarks(
+            @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
+        return viewCounterService.getVisitedBookmarks(pageInfo);
     }
 
     private String getCurrentUsername() {

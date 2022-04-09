@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.github.learndifferent.mtm.mapper.WebDataViewMapper">
+<mapper namespace="com.github.learndifferent.mtm.mapper.BookmarkViewMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.ViewDataDO">
         <result column="web_id" jdbcType="INTEGER" property="webId"/>
         <result column="views" jdbcType="INTEGER" property="views"/>
@@ -16,7 +16,7 @@
         delete
         from website_views;
     </delete>
-    <select id="getVisitedWebData" resultType="com.github.learndifferent.mtm.dto.VisitedBookmarksDTO">
+    <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
         select w.user_name, w.title, w.url, w.public isPublic, v.web_id, v.views
         from website_views v
                  left join website w on v.web_id = w.web_id

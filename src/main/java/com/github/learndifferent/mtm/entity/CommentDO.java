@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * 评论
+ * Comment Data Object
  *
  * @author zhou
  * @date 2021/9/28
@@ -48,7 +48,10 @@ public class CommentDO implements Serializable {
     private Instant creationTime;
 
     /**
-     * Reply to the comment (null if it's not a reply)
+     * ID of the comment to reply
+     * <p>
+     * null if this is not a reply
+     * </p>
      */
     private Integer replyToCommentId;
 

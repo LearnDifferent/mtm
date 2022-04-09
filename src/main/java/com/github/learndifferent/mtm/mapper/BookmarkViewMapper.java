@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.mapper;
 
-import com.github.learndifferent.mtm.dto.VisitedBookmarksDTO;
 import com.github.learndifferent.mtm.entity.ViewDataDO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.util.List;
 import java.util.Set;
 import org.apache.ibatis.annotations.Param;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * @date 2022/3/24
  */
 @Repository
-public interface WebDataViewMapper {
+public interface BookmarkViewMapper {
 
     /**
      * Add all view data to database
@@ -44,7 +44,7 @@ public interface WebDataViewMapper {
      * @param size size
      * @return all visited bookmarks
      */
-    List<VisitedBookmarksDTO> getVisitedWebData(@Param("from") int from, @Param("size") int size);
+    List<VisitedBookmarksVO> getVisitedBookmarks(@Param("from") int from, @Param("size") int size);
 
     /**
      * Delete view data by {@code webId}

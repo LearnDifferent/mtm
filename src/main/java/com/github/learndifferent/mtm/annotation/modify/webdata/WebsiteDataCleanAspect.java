@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.annotation.modify.webdata;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.WebWithNoIdentityDTO;
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.utils.CleanUrlUtil;
 import com.github.learndifferent.mtm.utils.ShortenUtils;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * Clean Up {@link WebWithNoIdentityDTO}'s fields:
+ * Clean Up {@link BasicWebDataDTO}'s fields:
  * 1. Check if the URLs are valid
  * 2. Clean up the format of the website URL
  * 3. If the title or description is empty, replace it with URL as content
@@ -36,9 +36,9 @@ public class WebsiteDataCleanAspect {
 
         for (int i = 0; i < args.length; i++) {
             if (args[i] != null
-                    && WebWithNoIdentityDTO.class.isAssignableFrom(args[i].getClass())) {
+                    && BasicWebDataDTO.class.isAssignableFrom(args[i].getClass())) {
 
-                WebWithNoIdentityDTO web = (WebWithNoIdentityDTO) args[i];
+                BasicWebDataDTO web = (BasicWebDataDTO) args[i];
                 String title = web.getTitle();
                 String desc = web.getDesc();
                 String url = web.getUrl();

@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.annotation.general.page;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.utils.PageUtil;
+import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -63,10 +63,10 @@ public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentReso
             // "num" stands for "current page"
             case CURRENT_PAGE:
             default:
-                // num must be greater than 0
-                int currentPage = PageUtil.constrainGreaterThanZero(num);
+                // current page must be greater than 0
+                int currentPage = PaginationUtils.constrainGreaterThanZero(num);
                 // get "from" according to current page
-                from = PageUtil.getFromIndex(currentPage, size);
+                from = PaginationUtils.getFromIndex(currentPage, size);
         }
 
         return PageInfoDTO.builder().from(from).size(size).build();

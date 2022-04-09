@@ -17,53 +17,55 @@ public interface CommentMapper {
     /**
      * Get a comment by id
      *
-     * @param commentId comment id
+     * @param commentId ID of the comment
      * @return the comment
      */
     CommentDO getCommentById(int commentId);
 
     /**
-     * Get the user's name, who sent the comment
+     * Get username of the user who sent the comment
      *
-     * @param commentId comment id
-     * @return {@link String}
+     * @param commentId ID of the comment
+     * @return username of the user who sent the comment
      */
-    String getUsernameByCommentId(int commentId);
+    String getCommentSenderName(int commentId);
 
     /**
-     * Get comment by web id, username and comment
+     * Get a specific comment
      *
-     * @param comment  comment
+     * @param comment  comment content
      * @param webId    ID of the bookmarked website data
-     * @param username username
-     * @return {@link CommentDO} comment data object
+     * @param username username of the user who sent the comment
+     * @return {@link CommentDO}
      */
-    CommentDO getCommentByWebIdAndUsernameAndComment(@Param("comment") String comment,
-                                                     @Param("webId") int webId,
-                                                     @Param("username") String username);
+    CommentDO getSpecificComment(@Param("comment") String comment,
+                                 @Param("webId") int webId,
+                                 @Param("username") String username);
 
     /**
      * Get the text of the comment
      *
-     * @param commentId comment id
+     * @param commentId ID of the comment
      * @return the text of the comment
      */
     String getCommentTextById(int commentId);
 
     /**
-     * Get comments by {@code webId} and {@code replyToCommentId}.
-     * If the {@code webId} is null, get all.
+     * Get comments of a bookmark
      *
      * @param webId            ID of the bookmarked website data
-     * @param replyToCommentId Reply to the comment (null if it's not a reply)
+     * @param replyToCommentId ID of the comment to reply
+     *                         <p>
+     *                         null if this is not a reply
+     *                         </p>
      * @param load             Amount of data to load
      * @param isDesc           True if descending order
      * @return the comments
      */
-    List<CommentDO> getCommentsByWebAndReplyCommentId(@Param("webId") Integer webId,
-                                                      @Param("replyToCommentId") Integer replyToCommentId,
-                                                      @Param("load") Integer load,
-                                                      @Param("isDesc") Boolean isDesc);
+    List<CommentDO> getBookmarkComments(@Param("webId") Integer webId,
+                                        @Param("replyToCommentId") Integer replyToCommentId,
+                                        @Param("load") Integer load,
+                                        @Param("isDesc") Boolean isDesc);
 
     /**
      * Get a count of the replies from this comment
@@ -77,30 +79,30 @@ public interface CommentMapper {
     /**
      * Delete a comment by id
      *
-     * @param commentId comment id
+     * @param commentId ID of the comment
      * @return true if success
      */
     boolean deleteCommentById(int commentId);
 
     /**
-     * Delete user's comments
+     * Delete comments of the user
      *
-     * @param username username
+     * @param username username of the user
      */
     void deleteCommentsByUsername(String username);
 
     /**
-     * Add a comment and get new {@link CommentDO} with the ID
+     * Add a comment (this method is using generated keys)
      *
      * @param comment comment
-     * @return true if success (the id will set to {@link CommentDO} automatically)
+     * @return true if success
      */
-    boolean addCommentAndGetId(CommentDO comment);
+    boolean addComment(CommentDO comment);
 
     /**
      * Update a comment
      *
-     * @param commentId comment id
+     * @param commentId ID of the comment
      * @param comment   comment
      * @return true if success
      */
