@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.Privacy;
@@ -151,7 +152,7 @@ public class BookmarkController {
     public BookmarksAndTotalPagesVO getCurrentUserBookmarks(@PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                     PageInfoDTO pageInfo) {
         String currentUsername = getCurrentUsername();
-        return websiteService.getUserBookmarks(currentUsername, pageInfo, true);
+        return websiteService.getUserBookmarks(currentUsername, pageInfo, AccessPrivilege.ALL);
     }
 
     /**
@@ -165,7 +166,7 @@ public class BookmarkController {
     public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("username") String username,
                                                            @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                    PageInfoDTO pageInfo) {
-        return websiteService.getUserBookmarks(username, pageInfo, false);
+        return websiteService.getUserBookmarks(username, pageInfo, AccessPrivilege.LIMITED);
     }
 
     /**

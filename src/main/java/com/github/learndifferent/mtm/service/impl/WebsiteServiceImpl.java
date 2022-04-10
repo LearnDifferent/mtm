@@ -14,6 +14,7 @@ import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
+import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.Order;
@@ -54,7 +55,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -238,11 +238,10 @@ public class WebsiteServiceImpl implements WebsiteService {
     private String getFirstImg(Document document) {
         Elements images = document.select("img[src]");
 
-        if (images.size() > 0) {
-            return images.get(0).attr("abs:src");
-        }
-        // 如果没有图片，就返回一个默认图片地址
-        return "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fbpic.588ku.com%2Felement_origin_min_pic%2F00%2F93%2F63%2F2656f2a6a663e1c.jpg&refer=http%3A%2F%2Fbpic.588ku.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1618635152&t=e26535a2d80f40281592178ee20ee656";
+        boolean hasImage = images.size() > 0;
+        // return the first image or return a default image if there is no image available
+        return hasImage ? images.get(0).attr("abs:src")
+                : "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fbpic.588ku.com%2Felement_origin_min_pic%2F00%2F93%2F63%2F2656f2a6a663e1c.jpg&refer=http%3A%2F%2Fbpic.588ku.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1618635152&t=e26535a2d80f40281592178ee20ee656";
     }
 
     @Override
@@ -256,7 +255,6 @@ public class WebsiteServiceImpl implements WebsiteService {
         return PopularBookmarksVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
 
-
     @Override
     @EmptyStringCheck
     public BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername,
@@ -269,12 +267,14 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         // check whether the current user is requested user
         boolean isCurrentUser = currentUsername.equalsIgnoreCase(requestedUsername);
+        // if the current user is requesting his own data, then he can access his private data
+        AccessPrivilege privilege = isCurrentUser ? AccessPrivilege.ALL : AccessPrivilege.LIMITED;
 
         switch (homeTimeline) {
             case USER:
                 // check out public bookmarks of the requested user's
                 // this will include private bookmarks if the requested user is current user
-                return getUserBookmarks(requestedUsername, from, size, isCurrentUser);
+                return getUserBookmarks(requestedUsername, from, size, privilege);
             case BLOCK:
                 // check out all public bookmarks except the requested user's
                 // this will include current user's private bookmarks if the requested user is not current user
@@ -294,12 +294,12 @@ public class WebsiteServiceImpl implements WebsiteService {
     private BookmarksAndTotalPagesVO getUserBookmarks(String username,
                                                       int from,
                                                       int size,
-                                                      boolean shouldIncludePrivate) {
+                                                      AccessPrivilege privilege) {
 
-        int totalCounts = websiteMapper.countUserBookmarks(username, shouldIncludePrivate);
+        int totalCounts = websiteMapper.countUserBookmarks(username, privilege.canAccessPrivateData());
         int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
 
-        List<WebsiteDO> b = websiteMapper.getUserBookmarks(username, from, size, shouldIncludePrivate);
+        List<WebsiteDO> b = websiteMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
         List<BookmarkVO> bookmarks = convertToBookmarkVO(b);
 
         return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
@@ -369,11 +369,10 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     public BookmarksAndTotalPagesVO getUserBookmarks(String username,
                                                      PageInfoDTO pageInfo,
-                                                     Boolean shouldIncludePrivate) {
+                                                     AccessPrivilege privilege) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        boolean needPrivate = Optional.ofNullable(shouldIncludePrivate).orElse(false);
-        return getUserBookmarks(username, from, size, needPrivate);
+        return getUserBookmarks(username, from, size, privilege);
     }
 
     @Override
@@ -449,8 +448,11 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         String filename = username + "_" + time + ".html";
 
-        boolean shouldIncludePrivate = username.equalsIgnoreCase(currentUsername);
-        String html = getBookmarksByUserInHtml(username, shouldIncludePrivate);
+        boolean isRequestingOwnData = username.equalsIgnoreCase(currentUsername);
+        AccessPrivilege privilege = isRequestingOwnData ? AccessPrivilege.ALL
+                : AccessPrivilege.LIMITED;
+
+        String html = getBookmarksByUserInHtml(username, privilege);
 
         try {
             response.setCharacterEncoding("UTF-8");
@@ -461,9 +463,9 @@ public class WebsiteServiceImpl implements WebsiteService {
         }
     }
 
-    private String getBookmarksByUserInHtml(String username, boolean shouldIncludePrivate) {
+    private String getBookmarksByUserInHtml(String username, AccessPrivilege privilege) {
 
-        List<BookmarkVO> bookmarks = getAllUserBookmarks(username, shouldIncludePrivate);
+        List<BookmarkVO> bookmarks = getAllUserBookmarks(username, privilege);
 
         StringBuilder sb = new StringBuilder();
         sb.append(HtmlFileConstant.FILE_START);
@@ -491,9 +493,10 @@ public class WebsiteServiceImpl implements WebsiteService {
         return sb.append(HtmlFileConstant.FILE_END).toString();
     }
 
-    private List<BookmarkVO> getAllUserBookmarks(String userName, boolean shouldIncludePrivate) {
+    private List<BookmarkVO> getAllUserBookmarks(String userName, AccessPrivilege privilege) {
         // from 和 size 为 null 的时候，表示不分页，直接获取全部
-        List<WebsiteDO> bookmarks = websiteMapper.getUserBookmarks(userName, null, null, shouldIncludePrivate);
+        List<WebsiteDO> bookmarks =
+                websiteMapper.getUserBookmarks(userName, null, null, privilege.canAccessPrivateData());
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 

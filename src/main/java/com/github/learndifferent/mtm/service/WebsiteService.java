@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.Order;
@@ -117,12 +118,13 @@ public interface WebsiteService {
      * Include all private bookmarks if {@code shouldIncludePrivate} is true
      * </p>
      *
-     * @param username             username of the user whose bookmarks is being requested
-     * @param pageInfo             pagination info
-     * @param shouldIncludePrivate true if include private bookmarks
+     * @param username  username of the user whose bookmarks is being requested
+     * @param pageInfo  pagination info
+     * @param privilege {@link AccessPrivilege#LIMITED} if only public data can be accessed.
+     *                  {@link AccessPrivilege#ALL} if public and private data can be accessed.
      * @return {@link BookmarksAndTotalPagesVO}
      */
-    BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, Boolean shouldIncludePrivate);
+    BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, AccessPrivilege privilege);
 
     /**
      * Delete a bookmarked website and its associated data
