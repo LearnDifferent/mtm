@@ -4,7 +4,6 @@ import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.mapper.SystemLogMapper;
 import com.github.learndifferent.mtm.service.SystemLogService;
-import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
@@ -29,27 +28,18 @@ public class SystemLogServiceImpl implements SystemLogService {
     }
 
     @Override
-    public List<SysLog> getSystemLogs(PageInfoDTO pageInfo, Boolean isReadFromDb) {
+    @Cacheable(value = "system-log")
+    public List<SysLog> getSystemLogs(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-
-        SystemLogServiceImpl systemLogService =
-                ApplicationContextUtils.getBean(SystemLogServiceImpl.class);
-
-        if (Boolean.TRUE.equals(isReadFromDb)) {
-            return systemLogService.getSystemLogsFromDatabaseDirectly(from, size);
-        }
-
-        return systemLogService.getSystemLogs(from, size);
-    }
-
-    @Cacheable(value = "system-log")
-    public List<SysLog> getSystemLogs(int from, int size) {
         return systemLogMapper.getSystemLogs(from, size);
     }
 
+    @Override
     @CachePut(value = "system-log")
-    public List<SysLog> getSystemLogsFromDatabaseDirectly(int from, int size) {
+    public List<SysLog> getSystemLogsFromDatabaseDirectly(PageInfoDTO pageInfo) {
+        int from = pageInfo.getFrom();
+        int size = pageInfo.getSize();
         return systemLogMapper.getSystemLogs(from, size);
     }
 

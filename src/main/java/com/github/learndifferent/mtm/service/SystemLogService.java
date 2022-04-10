@@ -13,16 +13,26 @@ import java.util.List;
 public interface SystemLogService {
 
     /**
-     * Get System Logs.
-     * The result will be cached for 40 seconds.
+     * Get system logs from cache and database.
+     * <p>
+     * The result will be stored in cache.
+     * </p>
      *
-     * @param isReadFromDb True if data is read from database directly.
-     *                     <p>False or null if data is read from database and cache memory.</p>
-     * @param pageInfo     Pagination information
+     * @param pageInfo Pagination information
      * @return {@link List}<{@link SysLog}> system logs
-     * @see com.github.learndifferent.mtm.config.RedisConfig
      */
-    List<SysLog> getSystemLogs(PageInfoDTO pageInfo, Boolean isReadFromDb);
+    List<SysLog> getSystemLogs(PageInfoDTO pageInfo);
+
+    /**
+     * Get system logs from database directly.
+     * <p>
+     * The result will be put in cache.
+     * </p>
+     *
+     * @param pageInfo Pagination information
+     * @return {@link List}<{@link SysLog}> system logs
+     */
+    List<SysLog> getSystemLogsFromDatabaseDirectly(PageInfoDTO pageInfo);
 
     /**
      * Save System Log Asynchronously

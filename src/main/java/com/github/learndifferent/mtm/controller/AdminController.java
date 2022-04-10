@@ -72,11 +72,9 @@ public class AdminController {
     }
 
     /**
-     * Get system logs
+     * Get system logs from cache and database
      *
-     * @param isReadFromDb true if data is read from database directly.
-     *                     <p>False or null if data is read from database and cache memory.</p>
-     * @param pageInfo     pagination information
+     * @param pageInfo pagination information
      * @return system logs
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
      *                                                                  will throw an exception with the result code of
@@ -86,10 +84,28 @@ public class AdminController {
     @GetMapping("/logs")
     @AdminValidation
     public ResultVO<List<SysLog>> getSystemLogs(
-            @RequestParam(value = "isReadFromDb", required = false) Boolean isReadFromDb,
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
-        List<SysLog> logs = logService.getSystemLogs(pageInfo, isReadFromDb);
+        List<SysLog> logs = logService.getSystemLogs(pageInfo);
+        return ResultCreator.okResult(logs);
+    }
+
+    /**
+     * Get system logs from database directly
+     *
+     * @param pageInfo pagination information
+     * @return system logs
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
+     */
+    @GetMapping("/logs/no-cache")
+    @AdminValidation
+    public ResultVO<List<SysLog>> getSystemLogsFromDatabaseDirectly(
+            @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
+
+        List<SysLog> logs = logService.getSystemLogsFromDatabaseDirectly(pageInfo);
         return ResultCreator.okResult(logs);
     }
 }
