@@ -10,6 +10,7 @@ import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
+import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
@@ -47,45 +48,6 @@ public class UserController {
     }
 
     /**
-     * Get usernames of the users and the total numbers of their public bookmarks
-     * sorted by the total number
-     * <p>
-     * Get all usernames in database if {@code usernames} is null or empty.
-     * </p>
-     *
-     * @param usernames usernames of the requested users
-     *                  <p>
-     *                  get all usernames in database if {@code usernames} is null or empty
-     *                  </p>
-     * @return usernames of the users and the total number of their public bookmarks sorted by the total number
-     */
-    @GetMapping
-    public List<UserBookmarkNumberVO> getNamesAndPublicBookmarkNums(
-            @RequestParam(value = "usernames", required = false) List<String> usernames) {
-        return userService.getNamesAndPublicBookmarkNums(usernames);
-    }
-
-    /**
-     * Change Password
-     *
-     * @param passwordInfo username, old password and new password
-     * @return {@link ResultVO} with the result code of {@link ResultCode#PASSWORD_CHANGED} or {@link ResultCode#UPDATE_FAILED}
-     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
-     *                                                                  {@link ResultCode#PERMISSION_DENIED} will be
-     *                                                                  thrown by the {@link NotGuest} annotation
-     *                                                                  if the user is guest
-     */
-    @NotGuest
-    @PostMapping("/change-password")
-    public ResultVO<ResultCode> changePassword(@RequestBody ChangePasswordRequest passwordInfo) {
-
-        boolean success = userService.changePassword(passwordInfo);
-
-        return success ? ResultCreator.result(ResultCode.PASSWORD_CHANGED)
-                : ResultCreator.result(ResultCode.UPDATE_FAILED);
-    }
-
-    /**
      * Create a user
      *
      * @param userInfo        username and password
@@ -116,7 +78,7 @@ public class UserController {
      *                                                                  <li>{@link ResultCode#PASSWORD_EMPTY}</li>
      *                                                                  </p>
      */
-    @PostMapping("/create")
+    @PostMapping
     public ResultVO<ResultCode> createUser(@RequestBody CreateUserRequest userInfo,
                                            @RequestParam("code") String code,
                                            @RequestParam("token") String token,
@@ -170,6 +132,62 @@ public class UserController {
     }
 
     /**
+     * Get users
+     *
+     * @param pageInfo Pagination information
+     * @return users
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
+     */
+    @GetMapping
+    @AdminValidation
+    public List<UserVO> getUsers(
+            @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
+        return userService.getUsers(pageInfo);
+    }
+
+    /**
+     * Get usernames of the users and the total numbers of their public bookmarks
+     * sorted by the total number
+     * <p>
+     * Get all usernames in database if {@code usernames} is null or empty.
+     * </p>
+     *
+     * @param usernames usernames of the requested users
+     *                  <p>
+     *                  get all usernames in database if {@code usernames} is null or empty
+     *                  </p>
+     * @return usernames of the users and the total number of their public bookmarks sorted by the total number
+     */
+    @PostMapping("/usernames-and-bookmarks")
+    public List<UserBookmarkNumberVO> getNamesAndPublicBookmarkNums(UsernamesRequest usernames) {
+        return userService.getNamesAndPublicBookmarkNums(usernames.getUsernames());
+    }
+
+    /**
+     * Change Password
+     *
+     * @param passwordInfo username, old password and new password
+     * @return {@link ResultVO} with the result code of {@link ResultCode#PASSWORD_CHANGED} or {@link ResultCode#UPDATE_FAILED}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED} will be
+     *                                                                  thrown by the {@link NotGuest} annotation
+     *                                                                  if the user is guest
+     */
+    @NotGuest
+    @PostMapping("/change-password")
+    public ResultVO<ResultCode> changePassword(@RequestBody ChangePasswordRequest passwordInfo) {
+
+        boolean success = userService.changePassword(passwordInfo);
+
+        return success ? ResultCreator.result(ResultCode.PASSWORD_CHANGED)
+                : ResultCreator.result(ResultCode.UPDATE_FAILED);
+    }
+
+
+    /**
      * Change user role
      *
      * @param userId  ID of the user
@@ -189,22 +207,5 @@ public class UserController {
 
         boolean success = userService.changeUserRoleAndRecordChanges(userId, newRole);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.PERMISSION_DENIED);
-    }
-
-    /**
-     * Get users
-     *
-     * @param pageInfo Pagination information
-     * @return users
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
-     *                                                                  if the user is not admin
-     */
-    @GetMapping("/all")
-    @AdminValidation
-    public List<UserVO> getUsers(
-            @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
-        return userService.getUsers(pageInfo);
     }
 }
