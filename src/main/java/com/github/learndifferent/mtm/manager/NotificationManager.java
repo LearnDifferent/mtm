@@ -1,8 +1,11 @@
 package com.github.learndifferent.mtm.manager;
 
+import static com.github.learndifferent.mtm.constant.enums.UserRole.ADMIN;
+import static com.github.learndifferent.mtm.constant.enums.UserRole.USER;
+
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.RoleType;
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
@@ -265,7 +268,7 @@ public class NotificationManager {
      * @param formerRole the former role of the user
      * @param newRole    the new role that the user has been assigned to
      */
-    public void recordRoleChanges(String userId, RoleType formerRole, RoleType newRole) {
+    public void recordRoleChanges(String userId, UserRole formerRole, UserRole newRole) {
         if (formerRole.equals(newRole)) {
             return;
         }
@@ -281,7 +284,7 @@ public class NotificationManager {
      * Generate a User Role Change Notification
      *
      * @param userId ID of the user
-     * @return notification (it will be empty if the user role is not changed
+     * @return return the notification or an empty string if the user role is not changed
      */
     public String generateRoleChangeNotification(String userId) {
         String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
@@ -301,8 +304,8 @@ public class NotificationManager {
         String formerRoleString = String.valueOf(formerRoleObject);
 
         try {
-            RoleType newRole = RoleType.valueOf(newRoleString.toUpperCase());
-            RoleType formerRole = RoleType.valueOf(formerRoleString.toUpperCase());
+            UserRole newRole = UserRole.valueOf(newRoleString.toUpperCase());
+            UserRole formerRole = UserRole.valueOf(formerRoleString.toUpperCase());
             return compareAndReturnNotification(newRole, formerRole);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -311,12 +314,12 @@ public class NotificationManager {
         }
     }
 
-    private String compareAndReturnNotification(RoleType newRole, RoleType formerRole) {
+    private String compareAndReturnNotification(UserRole newRole, UserRole formerRole) {
         String notification = "";
-        if (RoleType.USER.equals(formerRole) && RoleType.ADMIN.equals(newRole)) {
+        if (USER.equals(formerRole) && ADMIN.equals(newRole)) {
             notification = "Your account has been upgraded to Admin by Administer";
         }
-        if (RoleType.ADMIN.equals(formerRole) && RoleType.USER.equals(newRole)) {
+        if (ADMIN.equals(formerRole) && USER.equals(newRole)) {
             notification = "Your account has been downgraded to Standard User by Administer";
         }
         return notification;

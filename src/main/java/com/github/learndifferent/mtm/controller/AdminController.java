@@ -8,8 +8,8 @@ import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
-import com.github.learndifferent.mtm.service.InvitationCodeService;
 import com.github.learndifferent.mtm.service.SystemLogService;
+import com.github.learndifferent.mtm.service.VerificationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,14 +28,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
 
     private final SystemLogService logService;
-
-    private final InvitationCodeService invitationCodeService;
+    private final VerificationService verificationService;
 
     @Autowired
     public AdminController(SystemLogService logService,
-                           InvitationCodeService invitationCodeService) {
+                           VerificationService verificationService) {
         this.logService = logService;
-        this.invitationCodeService = invitationCodeService;
+        this.verificationService = verificationService;
     }
 
     /**
@@ -56,8 +55,8 @@ public class AdminController {
     /**
      * Send invitation code
      *
-     * @param invitationToken Token for invitation code
-     * @param email           Email
+     * @param token token for invitation code
+     * @param email Email
      * @throws com.github.learndifferent.mtm.exception.ServiceException The invitation code will be assigned to the
      *                                                                  "data" field in a {@code ServiceException} when
      *                                                                  an email setting error occurs.
@@ -66,18 +65,18 @@ public class AdminController {
      *                                                                  if there is an email setting error.
      */
     @GetMapping("/invitation")
-    public void send(@RequestParam("invitationToken") String invitationToken,
+    public void send(@RequestParam("token") String token,
                      @RequestParam("email") String email) {
 
-        invitationCodeService.send(invitationToken, email);
+        verificationService.sendInvitationCode(token, email);
     }
 
     /**
      * Get system logs
      *
-     * @param isReadFromDb True if data is read from database directly.
+     * @param isReadFromDb true if data is read from database directly.
      *                     <p>False or null if data is read from database and cache memory.</p>
-     * @param pageInfo     Pagination information
+     * @param pageInfo     pagination information
      * @return system logs
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
      *                                                                  will throw an exception with the result code of

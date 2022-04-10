@@ -1,0 +1,63 @@
+package com.github.learndifferent.mtm.service;
+
+import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.exception.ServiceException;
+
+/**
+ * Verification Service
+ *
+ * @author zhou
+ * @date 2021/09/21
+ */
+public interface VerificationService {
+
+    /**
+     * Get the verification code
+     *
+     * @param token token for verification code
+     * @return verification code image with Base64 encoding
+     */
+    String getVerificationCodeImg(String token);
+
+    /**
+     * Check the verification code and invitation code
+     *
+     * @param code            verification code
+     * @param token           token for verification code
+     * @param role            user Role
+     * @param invitationCode  invitation code
+     * @param invitationToken token for invitation code
+     * @throws ServiceException If failed verification, this will throw an exception
+     *                          with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED
+     *                          VERIFICATION_CODE_FAILED} or {@link com.github.learndifferent.mtm.constant.enums.ResultCode
+     *                          INVITATION_CODE_FAILED}
+     */
+    void checkRegisterCodes(String code, String token, UserRole role, String invitationCode, String invitationToken);
+
+    /**
+     * Check if the verification code is correct
+     *
+     * @param token token for verification codec
+     * @param code  verification code that the user entered
+     * @throws ServiceException The result code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED
+     *                          VERIFICATION_CODE_FAILED} if failed verification
+     */
+    void checkVerificationCode(String token, String code);
+
+    /**
+     * Generate invitation code, store the code in cache for 20 minutes),
+     * and send the invitation code via email
+     *
+     * @param token token for verification code
+     * @param email email address
+     * @throws ServiceException The invitation code will be assigned to the
+     *                          "data" field in a {@link ServiceException} when
+     *                          an email setting error occurs.
+     *                          And the {@link ServiceException} will be thrown
+     *                          with the result code of
+     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#EMAIL_SET_UP_ERROR
+     *                          EMAIL_SET_UP_ERROR} if there is an email setting
+     *                          error.
+     */
+    void sendInvitationCode(String token, String email);
+}

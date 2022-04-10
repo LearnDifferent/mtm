@@ -1,11 +1,11 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import static com.github.learndifferent.mtm.constant.enums.RoleType.ADMIN;
-import static com.github.learndifferent.mtm.constant.enums.RoleType.USER;
-import static com.github.learndifferent.mtm.constant.enums.RoleType.valueOf;
+import static com.github.learndifferent.mtm.constant.enums.UserRole.ADMIN;
+import static com.github.learndifferent.mtm.constant.enums.UserRole.USER;
+import static com.github.learndifferent.mtm.constant.enums.UserRole.valueOf;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.RoleType;
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean addUser(CreateUserRequest usernameAndPassword, String role) {
+    public boolean addUser(CreateUserRequest usernameAndPassword, UserRole role) {
 
         String username = usernameAndPassword.getUserName();
         String notEncryptedPassword = usernameAndPassword.getPassword();
@@ -123,8 +123,8 @@ public class UserServiceImpl implements UserService {
     public boolean changeUserRoleAndRecordChanges(String userId, String newRole) {
         String curRole = userMapper.getUserRoleById(userId);
         try {
-            RoleType currentRole = valueOf(curRole.toUpperCase());
-            RoleType newUserRole = valueOf(newRole.toUpperCase());
+            UserRole currentRole = valueOf(curRole.toUpperCase());
+            UserRole newUserRole = valueOf(newRole.toUpperCase());
             return changeUserRoleAndRecordChanges(userId, currentRole, newUserRole);
         } catch (IllegalArgumentException | NullPointerException e) {
             e.printStackTrace();
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private boolean changeUserRoleAndRecordChanges(String userId, RoleType curRole, RoleType newRole) {
+    private boolean changeUserRoleAndRecordChanges(String userId, UserRole curRole, UserRole newRole) {
         if (curRole.equals(newRole)) {
             // return true if no changes need to be done
             return true;
@@ -151,12 +151,12 @@ public class UserServiceImpl implements UserService {
         return success;
     }
 
-    private boolean isUpgradeOrDowngrade(RoleType curRole, RoleType newRole) {
+    private boolean isUpgradeOrDowngrade(UserRole curRole, UserRole newRole) {
         return (USER.equals(curRole) && ADMIN.equals(newRole))
                 || (ADMIN.equals(curRole) && USER.equals(newRole));
     }
 
-    private boolean updateUserRole(String userId, RoleType role) {
+    private boolean updateUserRole(String userId, UserRole role) {
         UserDTO user = UserDTO.ofRoleUpdate(userId, role);
         return userMapper.updateUser(user);
     }

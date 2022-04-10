@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.controller;
 
-import com.github.learndifferent.mtm.service.VerificationCodeService;
+import com.github.learndifferent.mtm.service.VerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,32 +8,31 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Get the verification code
+ * Verification Controller
  *
  * @author zhou
  * @date 2021/09/05
  */
 @RestController
-@RequestMapping("/verify")
+@RequestMapping("/verification")
 public class VerificationController {
 
-    private final VerificationCodeService verificationCodeService;
+    private final VerificationService verificationService;
 
     @Autowired
-    public VerificationController(VerificationCodeService verificationCodeService) {
-        this.verificationCodeService = verificationCodeService;
+    public VerificationController(VerificationService verificationService) {
+        this.verificationService = verificationService;
     }
 
     /**
      * Get the verification code
      *
-     * @param verifyToken Token stored in localStorage for verification
-     * @return Verification code image with Base64 encoding
+     * @param verifyToken token for verification code
+     * @return verification code image with Base64 encoding
      */
-    @GetMapping("/getVerImg")
-    public String getVerificationCodeImg(
-            @RequestParam(value = "verifyToken") String verifyToken) {
+    @GetMapping("/code")
+    public String getVerificationCodeImg(@RequestParam("token") String verifyToken) {
 
-        return verificationCodeService.getVerificationCodeImg(verifyToken);
+        return verificationService.getVerificationCodeImg(verifyToken);
     }
 }

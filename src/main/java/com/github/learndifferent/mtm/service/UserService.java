@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
@@ -65,10 +66,8 @@ public interface UserService {
      *                                                                  If password is not less than 50 characters, the
      *                                                                  result will be {@link
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
-     *                                                                  If user role is not found, the result will be
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}.
      */
-    boolean addUser(CreateUserRequest usernameAndPassword, String role);
+    boolean addUser(CreateUserRequest usernameAndPassword, UserRole role);
 
     /**
      * Get user by name and password

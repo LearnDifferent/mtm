@@ -9,7 +9,7 @@ import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
-import com.github.learndifferent.mtm.service.VerificationCodeService;
+import com.github.learndifferent.mtm.service.VerificationService;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.UserVO;
@@ -42,13 +42,13 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 @Order(1)
 public class VerifyLoginInfoAndGetUsernameAspect {
 
-    private final VerificationCodeService verificationCodeService;
+    private final VerificationService verificationService;
     private final UserService userService;
 
     @Autowired
-    public VerifyLoginInfoAndGetUsernameAspect(VerificationCodeService verificationCodeService,
+    public VerifyLoginInfoAndGetUsernameAspect(VerificationService verificationService,
                                                UserService userService) {
-        this.verificationCodeService = verificationCodeService;
+        this.verificationService = verificationService;
         this.userService = userService;
     }
 
@@ -324,7 +324,7 @@ public class VerifyLoginInfoAndGetUsernameAspect {
                                                   String username,
                                                   String notEncryptedPassword) {
 
-        verificationCodeService.checkCode(verifyToken, code);
+        verificationService.checkVerificationCode(verifyToken, code);
 
         UserVO user = userService.getUserByNameAndPassword(username, notEncryptedPassword);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);

@@ -2,10 +2,8 @@ package com.github.learndifferent.mtm.annotation.validation.user.create;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Password;
-import com.github.learndifferent.mtm.annotation.common.UserRole;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.RoleType;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -22,15 +20,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * Verify username, password and user role.
- * If failed verification, throw exception with the following result codes according to the situation:
- * <p>{@link ResultCode#USER_ALREADY_EXIST}</p>
- * <p>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
- * <p>{@link ResultCode#USERNAME_TOO_LONG}</p>
- * <p>{@link ResultCode#USERNAME_EMPTY}</p>
- * <p>{@link ResultCode#PASSWORD_TOO_LONG}</p>
- * <p>{@link ResultCode#PASSWORD_EMPTY}</p>
- * <p>{@link ResultCode#USER_ROLE_NOT_FOUND}</p>
+ * Verify username and password.
+ * If failed verification, throw an exception with one of these result codes according to the situation:
+ * <li>{@link ResultCode#USER_ALREADY_EXIST}</li>
+ * <li>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</li>
+ * <li>{@link ResultCode#USERNAME_TOO_LONG}</li>
+ * <li>{@link ResultCode#USERNAME_EMPTY}</li>
+ * <li>{@link ResultCode#PASSWORD_TOO_LONG}</li>
+ * <li>{@link ResultCode#PASSWORD_EMPTY}</li>
  *
  * @author zhou
  * @date 2021/09/13
@@ -57,9 +54,8 @@ public class UserCreationCheckAspect {
 
         String username = "";
         String password = "";
-        String role = "";
 
-        AnnotationHelper helper = new AnnotationHelper(3);
+        AnnotationHelper helper = new AnnotationHelper(2);
 
         for (int i = 0; i < annotations.length; i++) {
             for (Annotation a : annotations[i]) {
@@ -79,14 +75,6 @@ public class UserCreationCheckAspect {
                     helper.findIndex(1);
                     break;
                 }
-                if (helper.hasNotFoundIndex(2)
-                        && a instanceof UserRole
-                        && ObjectUtils.isNotEmpty(args[i])
-                        && String.class.isAssignableFrom(args[i].getClass())) {
-                    role = (String) args[i];
-                    helper.findIndex(2);
-                    break;
-                }
             }
 
             if (helper.hasFoundAll()) {
@@ -94,20 +82,7 @@ public class UserCreationCheckAspect {
             }
         }
 
-        checkUserRoleExists(role);
         checkUsernameAndPassword(username, password);
-    }
-
-    private void checkUserRoleExists(String role) {
-        checkIfEmpty(role, ResultCode.USER_ROLE_NOT_FOUND);
-        try {
-            // get the RoleType(Enum) from the uppercase string
-            RoleType.valueOf(role.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            e.printStackTrace();
-            // exception when the role is not valid
-            throw new ServiceException(ResultCode.USER_ROLE_NOT_FOUND);
-        }
     }
 
     private void checkUsernameAndPassword(String username, String password) {

@@ -1,12 +1,12 @@
 package com.github.learndifferent.mtm.constant.enums;
 
 /**
- * 角色类型
+ * User role
  *
  * @author zhou
  * @date 2021/09/05
  */
-public enum RoleType {
+public enum UserRole implements ConvertByNames {
 
     /**
      * user
@@ -23,11 +23,16 @@ public enum RoleType {
 
     private final String role;
 
-    RoleType(final String role) {
+    UserRole(final String role) {
         this.role = role;
     }
 
     public String role() {
         return this.role;
+    }
+
+    @Override
+    public String[] namesForConverter() {
+        return new String[]{this.role, this.name()};
     }
 }

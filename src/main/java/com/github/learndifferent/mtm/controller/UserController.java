@@ -1,24 +1,19 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.github.learndifferent.mtm.annotation.common.InvitationCode;
-import com.github.learndifferent.mtm.annotation.common.InvitationCodeToken;
-import com.github.learndifferent.mtm.annotation.common.UserRole;
-import com.github.learndifferent.mtm.annotation.common.VerificationCode;
-import com.github.learndifferent.mtm.annotation.common.VerificationCodeToken;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
-import com.github.learndifferent.mtm.annotation.validation.register.RegisterCodeCheck;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.RoleType;
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.CreateUserRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.UserService;
+import com.github.learndifferent.mtm.service.VerificationService;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
@@ -42,10 +37,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final VerificationService verificationService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService,
+                          VerificationService verificationService) {
         this.userService = userService;
+        this.verificationService = verificationService;
     }
 
     /**
@@ -90,48 +88,45 @@ public class UserController {
     /**
      * Create a user
      *
-     * @param userInfo        Username and Password
-     * @param role            User Role: The value will be {@link UserRole#defaultRole()} when the request parameter is
-     *                        not provided or the role value does not match any value of {@link RoleType}, setting by
-     *                        {@link RegisterCodeCheck} annotation.
-     *                        If the user role is {@code admin}, {@link RegisterCodeCheck} annotation will
-     *                        verify the invitation code and the token for invitation code.
-     * @param code            Verification Code: {@link RegisterCodeCheck} annotation will use the value of it for
-     *                        verification
-     * @param verifyToken     Token for Verification Code: {@link RegisterCodeCheck} annotation will use the value of it
-     *                        for verification
-     * @param invitationCode  Invitation Code: If the user role is not {@code admin}, then the value will be ignored.
-     *                        <p>{@link RegisterCodeCheck} annotation will use the value of it for verification if
-     *                        necessary.</p>
-     * @param invitationToken Token for Invitation Code: If the user role is not {@code admin}, then the value will be
-     *                        ignored.
-     *                        <p>{@link RegisterCodeCheck} annotation will use the value of it for verification if
-     *                        necessary.</p>
+     * @param userInfo        username and password
+     * @param code            verification code
+     * @param token           token for verification Code
+     * @param role            user role (verify the invitation code if the user role is {@link UserRole#ADMIN})
+     * @param invitationCode  invitation code (the value will be ignored if the user role is not {@link UserRole#ADMIN})
+     * @param invitationToken token for invitation code
+     *                        (the value will be ignored if the user role is not {@link UserRole#ADMIN})
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link RegisterCodeCheck} annotation will check
-     *                                                                  the codes and {@link UserService#addUser(CreateUserRequest,
-     *                                                                  String)} method will verify username, password
-     *                                                                  and user role. If failed verification, they
-     *                                                                  will throw an exception and the result code could be:
-     *                                                                  <p>{@link ResultCode#VERIFICATION_CODE_FAILED}</p>
-     *                                                                  <p>{@link ResultCode#INVITATION_CODE_FAILED}</p>
-     *                                                                  <p>{@link ResultCode#USER_ALREADY_EXIST}</p>
-     *                                                                  <p>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</p>
-     *                                                                  <p>{@link ResultCode#USERNAME_TOO_LONG}</p>
-     *                                                                  <p>{@link ResultCode#USERNAME_EMPTY}</p>
-     *                                                                  <p>{@link ResultCode#PASSWORD_TOO_LONG}</p>
-     *                                                                  <p>{@link ResultCode#PASSWORD_EMPTY}</p>
-     *                                                                  <p>{@link ResultCode#USER_ROLE_NOT_FOUND}</p>
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link VerificationService#checkRegisterCodes(String,
+     *                                                                  String, UserRole, String, String)} will throw
+     *                                                                  an
+     *                                                                  exception with the result code of
+     *                                                                  {@link ResultCode#VERIFICATION_CODE_FAILED} or
+     *                                                                  {@link ResultCode#INVITATION_CODE_FAILED}
+     *                                                                  if failed verification.
+     *                                                                  <p>
+     *                                                                  {@link UserService#addUser(CreateUserRequest,
+     *                                                                  UserRole)} will verify username and
+     *                                                                  password, and throw an exception with one of
+     *                                                                  these result codes if failed verification:
+     *                                                                  <li>{@link ResultCode#USER_ALREADY_EXIST}</li>
+     *                                                                  <li>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</li>
+     *                                                                  <li>{@link ResultCode#USERNAME_TOO_LONG}</li>
+     *                                                                  <li>{@link ResultCode#USERNAME_EMPTY}</li>
+     *                                                                  <li>{@link ResultCode#PASSWORD_TOO_LONG}</li>
+     *                                                                  <li>{@link ResultCode#PASSWORD_EMPTY}</li>
+     *                                                                  </p>
      */
     @PostMapping("/create")
-    @RegisterCodeCheck
     public ResultVO<ResultCode> createUser(@RequestBody CreateUserRequest userInfo,
-                                           @UserRole(defaultRole = RoleType.USER) String role,
-                                           @VerificationCode String code,
-                                           @VerificationCodeToken String verifyToken,
-                                           @InvitationCode(required = false) String invitationCode,
-                                           @InvitationCodeToken(required = false) String invitationToken) {
+                                           @RequestParam("code") String code,
+                                           @RequestParam("token") String token,
+                                           @RequestParam("role") UserRole role,
+                                           @RequestParam(value = "invitationCode", required = false)
+                                                   String invitationCode,
+                                           @RequestParam(value = "invitationToken", required = false)
+                                                   String invitationToken) {
 
+        verificationService.checkRegisterCodes(code, token, role, invitationCode, invitationToken);
         boolean success = userService.addUser(userInfo, role);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }

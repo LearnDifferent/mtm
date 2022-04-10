@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.dto;
 
-import com.github.learndifferent.mtm.constant.enums.RoleType;
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.UUIDUtils;
 import java.io.Serializable;
@@ -15,14 +15,14 @@ import java.util.Objects;
  */
 public class UserDTO implements Serializable {
 
-    public static UserDTO ofNewUser(String username, String notEncryptedPassword, String role) {
+    public static UserDTO ofNewUser(String username, String notEncryptedPassword, UserRole role) {
         // get user ID
         String userId = UUIDUtils.getUuid();
         // encrypt and set password
         String password = Md5Util.getMd5(notEncryptedPassword);
         // get creation time
         Instant creationTime = Instant.now();
-        return new UserDTO(userId, username, password, creationTime, role);
+        return new UserDTO(userId, username, password, creationTime, role.role());
     }
 
     public static UserDTO ofPasswordUpdate(String userId, String notEncryptedPassword) {
@@ -31,7 +31,7 @@ public class UserDTO implements Serializable {
         return new UserDTO(userId, null, newPassword, null, null);
     }
 
-    public static UserDTO ofRoleUpdate(String userId, RoleType role) {
+    public static UserDTO ofRoleUpdate(String userId, UserRole role) {
         return new UserDTO(userId, null, null, null, role.role());
     }
 

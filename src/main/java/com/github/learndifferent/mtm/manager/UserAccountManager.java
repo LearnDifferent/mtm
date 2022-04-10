@@ -1,12 +1,11 @@
 package com.github.learndifferent.mtm.manager;
 
 import com.github.learndifferent.mtm.annotation.common.Password;
-import com.github.learndifferent.mtm.annotation.common.UserRole;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.user.create.UserCreationCheck;
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.RoleType;
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -101,7 +100,7 @@ public class UserAccountManager {
     }
 
     /**
-     * Add a user: encrypt the password, set a user ID and creation time
+     * Add a user: encrypt the password, set a user ID and the creation time
      *
      * @param username             username
      * @param notEncryptedPassword not encrypted password
@@ -118,12 +117,11 @@ public class UserAccountManager {
      *                          If password is empty, the result will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}.
      *                          If password is not less than 50 characters, the result will be {@link
      *                          com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
-     *                          If user role is not found, the result will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ROLE_NOT_FOUND}.
      */
     @UserCreationCheck
     public boolean createUser(@Username String username,
                               @Password String notEncryptedPassword,
-                              @UserRole(defaultRole = RoleType.USER) String role) {
+                              UserRole role) {
 
         UserDTO user = UserDTO.ofNewUser(username, notEncryptedPassword, role);
         try {
