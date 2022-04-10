@@ -16,6 +16,8 @@ import com.github.learndifferent.mtm.annotation.validation.website.permission.Mo
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
+import com.github.learndifferent.mtm.constant.enums.Order;
+import com.github.learndifferent.mtm.constant.enums.OrderField;
 import com.github.learndifferent.mtm.constant.enums.Privacy;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
@@ -31,7 +33,7 @@ import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
-import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
+import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
@@ -98,9 +100,15 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     @Override
-    public List<BookmarkVO> filterPublicBookmarks(FilterBookmarksRequest filterRequest) {
+    public List<BookmarkVO> filterPublicBookmarks(UsernamesRequest usernames,
+                                                  Integer load,
+                                                  String fromTimestamp,
+                                                  String toTimestamp,
+                                                  OrderField orderField,
+                                                  Order order) {
 
-        BookmarkFilterDTO filter = BookmarkFilterDTO.of(filterRequest);
+        BookmarkFilterDTO filter = BookmarkFilterDTO.of(
+                usernames.getUsernames(), load, fromTimestamp, toTimestamp, orderField, order);
         List<WebsiteDO> bookmarks = websiteMapper.filterPublicBookmarks(filter);
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }

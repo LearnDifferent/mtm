@@ -1,17 +1,19 @@
 package com.github.learndifferent.mtm.dto;
 
+import com.github.learndifferent.mtm.constant.enums.Order;
+import com.github.learndifferent.mtm.constant.enums.OrderField;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
- * Filter public bookmarks
+ * Filter
  *
  * @author zhou
  * @date 2022/3/20
@@ -19,68 +21,44 @@ import org.springframework.util.CollectionUtils;
 @Slf4j
 public class BookmarkFilterDTO implements Serializable {
 
-    public static BookmarkFilterDTO of(FilterBookmarksRequest filterRequest) {
-        Integer load = filterRequest.getLoad();
-        List<String> usernames = filterRequest.getUsernames();
-        Boolean isOrderByUsername = filterRequest.getIsOrderByUsername();
-        Boolean isDesc = filterRequest.getIsDesc();
-        List<String> datetimeList = filterRequest.getDatetimeList();
-        return of(load, usernames, datetimeList, isOrderByUsername, isDesc);
-    }
-
-    public static BookmarkFilterDTO of(Integer load,
-                                       List<String> usernames,
-                                       List<String> datetimeList,
-                                       Boolean isOrderByUsername,
-                                       Boolean isDesc) {
-        BookmarkFilterDTO bookmarkFilter =
-                new BookmarkFilterDTO(load, usernames, null, null, isOrderByUsername, isDesc);
-        bookmarkFilter.setTimes(datetimeList);
+    public static BookmarkFilterDTO of(List<String> usernames,
+                                       Integer load,
+                                       String fromTimestamp,
+                                       String toTimestamp,
+                                       OrderField orderField,
+                                       Order order) {
+        BookmarkFilterDTO bookmarkFilter = new BookmarkFilterDTO(load, usernames, orderField, order);
+        bookmarkFilter.setTimes(fromTimestamp, toTimestamp);
         return bookmarkFilter;
     }
 
-    private void setTimes(List<String> datetimeList) {
-        if (CollectionUtils.isEmpty(datetimeList)) {
+    private void setTimes(String fromTimestamp, String toTimestamp) {
+        boolean isNoTime = StringUtils.isEmpty(fromTimestamp)
+                && StringUtils.isEmpty(toTimestamp);
+        if (isNoTime) {
             // Don't filter by datetime if no datetime is selected
             return;
         }
 
-        int len = datetimeList.size();
-        Instant fromDatetime;
-        Instant toDatetime;
-
-        switch (len) {
-            case 1:
-                // Select the particular datetime till current datetime
-                // if only one datetime is selected
-                fromDatetime = getDatetime(datetimeList.get(0));
-                toDatetime = Instant.now();
-                break;
-            case 2:
-                // Select between two datetime ranges
-                fromDatetime = getDatetime(datetimeList.get(0));
-                toDatetime = getDatetime(datetimeList.get(1));
-                break;
-            default:
-                throw new ServiceException("Can't set " + len + " datetime ranges");
-        }
-
         // set datetime
-        this.fromDatetime = fromDatetime;
-        this.toDatetime = toDatetime;
+        this.fromDatetime = getTime(fromTimestamp);
+        this.toDatetime = getTime(toTimestamp);
 
         // check and change the datetime order if necessary
         checkAndOrderDatetime();
     }
 
-    private Instant getDatetime(String datetime) {
+    private Instant getTime(String timestamp) {
+        // get the current datetime if null
+        return timestamp == null ? Instant.now() : getInstant(timestamp);
+    }
+
+    private Instant getInstant(String timestamp) {
         try {
-            return Instant.parse(datetime);
-        } catch (NullPointerException | DateTimeParseException e) {
-            // Make it be the current datetime if exception
+            return Instant.ofEpochMilli(Long.parseLong(timestamp));
+        } catch (DateTimeParseException | NumberFormatException e) {
             e.printStackTrace();
-            log.warn("Can't get the datetime, change to current datetime instead.");
-            return Instant.now();
+            throw new ServiceException(ResultCode.TIMESTAMP_INVALID);
         }
     }
 
@@ -97,20 +75,16 @@ public class BookmarkFilterDTO implements Serializable {
 
     private BookmarkFilterDTO(Integer load,
                               List<String> usernames,
-                              Instant fromDatetime,
-                              Instant toDatetime,
-                              Boolean isOrderByUsername,
-                              Boolean isDesc) {
+                              OrderField orderField,
+                              Order order) {
         this.load = load;
         this.usernames = usernames;
-        this.fromDatetime = fromDatetime;
-        this.toDatetime = toDatetime;
-        this.isOrderByUsername = isOrderByUsername;
-        this.isDesc = isDesc;
+        this.orderField = orderField.getSnakeCaseName();
+        this.isDesc = order.isDesc();
     }
 
     /**
-     * Amount of data to load (The default value is 10)
+     * Amount of data to load
      */
     private final Integer load;
 
@@ -130,12 +104,12 @@ public class BookmarkFilterDTO implements Serializable {
     private Instant toDatetime;
 
     /**
-     * True if order by username, null or false if order by datetime
+     * Order by the field
      */
-    private final Boolean isOrderByUsername;
+    private final String orderField;
 
     /**
-     * True if ascending order, null or false if descending order
+     * True if descending order, null or false if ascending order
      */
     private final Boolean isDesc;
 
@@ -155,11 +129,11 @@ public class BookmarkFilterDTO implements Serializable {
         return toDatetime;
     }
 
-    public Boolean getOrderByUsername() {
-        return isOrderByUsername;
+    public String getOrderField() {
+        return orderField;
     }
 
-    public Boolean getDesc() {
+    public Boolean getIsDesc() {
         return isDesc;
     }
 
@@ -174,13 +148,13 @@ public class BookmarkFilterDTO implements Serializable {
         BookmarkFilterDTO that = (BookmarkFilterDTO) o;
         return Objects.equals(load, that.load) && Objects.equals(usernames, that.usernames)
                 && Objects.equals(fromDatetime, that.fromDatetime) && Objects.equals(toDatetime,
-                that.toDatetime) && Objects.equals(isOrderByUsername, that.isOrderByUsername) && Objects
-                .equals(isDesc, that.isDesc);
+                that.toDatetime) && Objects.equals(orderField, that.orderField) && Objects.equals(
+                isDesc, that.isDesc);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(load, usernames, fromDatetime, toDatetime, isOrderByUsername, isDesc);
+        return Objects.hash(load, usernames, fromDatetime, toDatetime, orderField, isDesc);
     }
 
     @Override
@@ -190,7 +164,7 @@ public class BookmarkFilterDTO implements Serializable {
                 ", usernames=" + usernames +
                 ", fromDatetime=" + fromDatetime +
                 ", toDatetime=" + toDatetime +
-                ", isOrderByUsername=" + isOrderByUsername +
+                ", orderField='" + orderField + '\'' +
                 ", isDesc=" + isDesc +
                 '}';
     }

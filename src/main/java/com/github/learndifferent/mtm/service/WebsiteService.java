@@ -2,12 +2,14 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
+import com.github.learndifferent.mtm.constant.enums.Order;
+import com.github.learndifferent.mtm.constant.enums.OrderField;
 import com.github.learndifferent.mtm.constant.enums.Privacy;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
-import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
+import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
@@ -27,12 +29,29 @@ import org.springframework.web.multipart.MultipartFile;
 public interface WebsiteService {
 
     /**
-     * Filter public bookmarked websites
+     * Filter public bookmarked sites
+     * <p>
+     * {@code fromTimestamp} and {@code toTimestamp} is used to query a specific range of time.
+     * <li>It will not query a range of time if both of them are null.</li>
+     * <li>It will set the null value to the current time if one of them is null</li>
+     * <li>It will swap the two values if necessary.</li>
+     * </p>
      *
-     * @param filterRequest Filter Public Website Data Request
+     * @param usernames     request body that contains usernames
+     *                      <p>null or empty if select all users</p>
+     * @param load          amount of data to load
+     * @param fromTimestamp filter by time
+     * @param toTimestamp   filter by time
+     * @param orderField    order by the field
+     * @param order         {@link Order#ASC} if ascending order, {@link Order#DESC} if descending order
      * @return filtered bookmarked websites
      */
-    List<BookmarkVO> filterPublicBookmarks(FilterBookmarksRequest filterRequest);
+    List<BookmarkVO> filterPublicBookmarks(UsernamesRequest usernames,
+                                           Integer load,
+                                           String fromTimestamp,
+                                           String toTimestamp,
+                                           OrderField orderField,
+                                           Order order);
 
     /**
      * Bookmark a new web page

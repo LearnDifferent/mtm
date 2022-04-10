@@ -125,6 +125,10 @@ public enum ResultCode {
      */
     JSON_ERROR(3013, "Error related to Json"),
     /**
+     * Timestamp is invalid
+     */
+    TIMESTAMP_INVALID(3014, "Please check your timestamp"),
+    /**
      * Tag is too long
      */
     TAG_TOO_LONG(3015, "Tag should not be longer than 16 characters"),

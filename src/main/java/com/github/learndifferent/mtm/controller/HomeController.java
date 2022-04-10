@@ -3,9 +3,11 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
+import com.github.learndifferent.mtm.constant.enums.Order;
+import com.github.learndifferent.mtm.constant.enums.OrderField;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.query.FilterBookmarksRequest;
+import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
@@ -64,14 +66,31 @@ public class HomeController {
     }
 
     /**
-     * Filter bookmarked sites
+     * Filter public bookmarked sites
+     * <p>
+     * {@code fromTimestamp} and {@code toTimestamp} is used to query a specific range of time.
+     * <li>It will not query a range of time if both of them are null.</li>
+     * <li>It will set the null value to the current time if one of them is null</li>
+     * <li>It will swap the two values if necessary.</li>
+     * </p>
      *
-     * @param filter filter request
-     * @return filtered bookmarked sites
+     * @param usernames     request body that contains usernames
+     *                      <p>null or empty if select all users</p>
+     * @param load          amount of data to load
+     * @param fromTimestamp filter by time
+     * @param toTimestamp   filter by time
+     * @param orderField    order by the field
+     * @param order         {@link Order#ASC} if ascending order, {@link Order#DESC} if descending order
+     * @return filtered bookmarked websites
      */
     @PostMapping("/filter")
-    public List<BookmarkVO> filter(@RequestBody FilterBookmarksRequest filter) {
-        return websiteService.filterPublicBookmarks(filter);
+    public List<BookmarkVO> filter(@RequestBody UsernamesRequest usernames,
+                                   @RequestParam("load") Integer load,
+                                   @RequestParam(value = "fromTimestamp", required = false) String fromTimestamp,
+                                   @RequestParam(value = "toTimestamp", required = false) String toTimestamp,
+                                   @RequestParam("orderField") OrderField orderField,
+                                   @RequestParam("order") Order order) {
+        return websiteService.filterPublicBookmarks(usernames, load, fromTimestamp, toTimestamp, orderField, order);
     }
 
     /**

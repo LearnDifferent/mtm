@@ -29,33 +29,19 @@
             HAVING creation_time <![CDATA[ >= ]]> #{fromDatetime,jdbcType=TIMESTAMP}
             AND creation_time <![CDATA[ <= ]]> #{toDatetime,jdbcType=TIMESTAMP}
         </if>
-
-        <if test="isOrderByUsername == null or isOrderByUsername == false">
-            order by creation_time
-        </if>
-        <if test="isOrderByUsername == true">
-            order by user_name
-        </if>
-
+        order by ${orderField}
         <if test="isDesc == null or isDesc == false">
             desc
         </if>
-
         <!-- 如果按照时间排序，相同时间下要按照 username 升序排序 -->
-        <if test="isOrderByUsername == null or isOrderByUsername == false">
+        <if test="orderField.equalsIgnoreCase('creation_time')">
             , user_name asc
         </if>
         <!-- 如果按照 username 排序，相同 username 下要按照时间降序排序 -->
-        <if test="isOrderByUsername == true">
+        <if test="orderField.equalsIgnoreCase('user_name')">
             , creation_time desc
         </if>
-
-        <if test="load == null or load lte 0">
-            limit 0, 10
-        </if>
-        <if test="load != null and load gt 0">
-            limit 0, #{load}
-        </if>
+        limit 0, #{load}
     </select>
 
     <select id="getPopularPublicBookmarks" resultType="com.github.learndifferent.mtm.dto.PopularBookmarkDTO">
