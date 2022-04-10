@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
@@ -31,7 +32,7 @@ public interface CommentService {
      *                         </p>
      * @param load             Amount of data to load
      * @param username         Username of the user who is trying to get comments
-     * @param isDesc           True if descending order
+     * @param order            {@link Order#ASC} if ascending order, {@link Order#DESC} if descending order
      * @return Return a list of {@link BookmarkCommentVO} or an empty list if there is no comment of the bookmark
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the website's
@@ -47,7 +48,7 @@ public interface CommentService {
                                                 Integer replyToCommentId,
                                                 Integer load,
                                                 String username,
-                                                Boolean isDesc);
+                                                Order order);
 
     /**
      * Delete a comment by id

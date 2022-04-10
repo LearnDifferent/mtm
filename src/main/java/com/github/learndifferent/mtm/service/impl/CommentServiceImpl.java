@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
+import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
@@ -56,9 +57,9 @@ public class CommentServiceImpl implements CommentService {
                                                        Integer replyToCommentId,
                                                        Integer load,
                                                        @Username String username,
-                                                       Boolean isDesc) {
+                                                       Order order) {
         List<CommentDO> commentList = commentMapper.getBookmarkComments(
-                webId, replyToCommentId, load, isDesc);
+                webId, replyToCommentId, load, order.isDesc());
         List<BookmarkCommentVO> comments = DozerUtils.convertList(commentList, BookmarkCommentVO.class);
 
         comments.forEach(comment -> {

@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -44,13 +45,13 @@ public class CommentController {
      *                         Null if this is not a reply
      *                         </p>
      * @param load             Amount of data to load
-     * @param isDesc           True if descending order
+     * @param order            {@link Order#ASC} if ascending order, {@link Order#DESC} if descending order
      * @return Return a list of {@link BookmarkCommentVO} with the result code of {@link ResultCode#SUCCESS},
      * or an empty list with {@link ResultCode#NO_RESULTS_FOUND} if there is no comments of the bookmark
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the
      *                                                                  comments, {@link CommentService#getBookmarkComments(Integer,
-     *                                                                  Integer, Integer, String, Boolean)}
+     *                                                                  Integer, Integer, String, Order)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
@@ -60,11 +61,10 @@ public class CommentController {
                                                          @RequestParam(value = "replyToCommentId", required = false)
                                                                  Integer replyToCommentId,
                                                          @RequestParam("load") Integer load,
-                                                         @RequestParam(value = "isDesc", required = false, defaultValue = "true")
-                                                                 Boolean isDesc) {
+                                                         @RequestParam("order") Order order) {
         String currentUsername = getCurrentUsername();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
-                webId, replyToCommentId, load, currentUsername, isDesc);
+                webId, replyToCommentId, load, currentUsername, order);
 
         ResultCode code = CollectionUtils.isEmpty(comments) ? ResultCode.NO_RESULTS_FOUND
                 : ResultCode.SUCCESS;
