@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.dto;
 
+import com.github.learndifferent.mtm.constant.enums.Privacy;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -12,13 +13,13 @@ import java.util.Objects;
  */
 public class NewBookmarkDTO implements Serializable {
 
-    public static NewBookmarkDTO of(BasicWebDataDTO data, String username, Boolean isPublic) {
+    public static NewBookmarkDTO of(BasicWebDataDTO data, String username, Privacy privacy) {
         String title = data.getTitle();
         String url = data.getUrl();
         String img = data.getImg();
         String desc = data.getDesc();
 
-        return NewBookmarkDTO.of(username, title, url, img, desc, isPublic);
+        return NewBookmarkDTO.of(username, title, url, img, desc, privacy);
     }
 
     public static NewBookmarkDTO of(String username,
@@ -26,8 +27,9 @@ public class NewBookmarkDTO implements Serializable {
                                     String url,
                                     String img,
                                     String desc,
-                                    Boolean isPublic) {
-        return new NewBookmarkDTO(username, title, url, img, desc, Instant.now(), isPublic);
+                                    Privacy privacy) {
+
+        return new NewBookmarkDTO(username, title, url, img, desc, Instant.now(), privacy.isPublic());
     }
 
     private NewBookmarkDTO(String userName,

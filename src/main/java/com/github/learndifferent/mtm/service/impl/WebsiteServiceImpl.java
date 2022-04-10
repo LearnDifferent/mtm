@@ -1,5 +1,8 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import static com.github.learndifferent.mtm.constant.enums.AddDataMode.ADD_TO_DATABASE_AND_ELASTICSEARCH;
+import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
+
 import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
@@ -11,7 +14,9 @@ import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
+import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
+import com.github.learndifferent.mtm.constant.enums.Privacy;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO.BasicWebDataDTOBuilder;
@@ -100,19 +105,13 @@ public class WebsiteServiceImpl implements WebsiteService {
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
-    @Override
-    public boolean bookmarkWithBasicWebData(BasicWebDataRequest data, String username, boolean isPublic) {
-        BasicWebDataDTO basicData = DozerUtils.convert(data, BasicWebDataDTO.class);
-        WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
-        return bean.bookmarkWithBasicWebData(basicData, username, isPublic);
-    }
-
     /**
      * Convert the basic website data into a bookmark
      *
      * @param data     Basic website data that contains title, URL, image and description
      * @param username Username of the user who is bookmarking
-     * @param isPublic True if this is a public bookmark
+     * @param privacy  {@link Privacy#PUBLIC} if this is a public bookmark and
+     *                 {@link Privacy#PRIVATE} if this is private
      * @return true if success
      * @throws ServiceException {@link BookmarkCheck} annotation and {@link WebsiteDataClean} annotation will
      *                          throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
@@ -123,31 +122,31 @@ public class WebsiteServiceImpl implements WebsiteService {
     @BookmarkCheck(usernameParamName = "username",
                    classContainsUrlParamName = BasicWebDataDTO.class,
                    urlFieldNameInParamClass = "url")
-    public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, boolean isPublic) {
-        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, isPublic);
-        WebsiteDO w = DozerUtils.convert(newBookmark, WebsiteDO.class);
-        return websiteMapper.addBookmark(w);
+    public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, Privacy privacy) {
+        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
+        WebsiteDO b = DozerUtils.convert(newBookmark, WebsiteDO.class);
+        return websiteMapper.addBookmark(b);
     }
 
     @Override
-    public BookmarkingResultVO bookmark(String url, String username, Boolean isPublic, Boolean beInEs) {
+    public BookmarkingResultVO bookmark(String url, String username, Privacy privacy, AddDataMode mode) {
         // get the basic data
         BasicWebDataDTO basic = scrapeWebData(url, username);
 
         // Only public data can be added to Elasticsearch
-        boolean bePublic = Optional.ofNullable(isPublic).orElse(true);
-        boolean shouldBeInElasticsearch = Optional.ofNullable(beInEs).orElse(true);
-        boolean shouldBeInEs = bePublic && shouldBeInElasticsearch;
+        boolean shouldAddToDatabaseAndElasticsearch = PUBLIC.equals(privacy)
+                && ADD_TO_DATABASE_AND_ELASTICSEARCH.equals(mode);
 
-        return shouldBeInEs ? saveToElasticsearchAndDatabase(username, basic)
-                : saveToDatabase(username, basic, bePublic);
+        return shouldAddToDatabaseAndElasticsearch
+                ? saveToElasticsearchAndDatabase(username, basic)
+                : saveToDatabase(username, basic, privacy);
     }
 
     private BookmarkingResultVO saveToElasticsearchAndDatabase(String username, BasicWebDataDTO data) {
         // save to Elasticsearch asynchronously
         Future<Boolean> elasticsearchResult = elasticsearchManager.saveToElasticsearchAsync(data);
         // save to database and get the BookmarkingResultVO
-        BookmarkingResultVO result = saveToDatabase(username, data, true);
+        BookmarkingResultVO result = saveToDatabase(username, data, PUBLIC);
         // get the result of saving to Elasticsearch asynchronously
         boolean hasSavedToElasticsearch = false;
         try {
@@ -158,10 +157,10 @@ public class WebsiteServiceImpl implements WebsiteService {
         return result.setHasSavedToElasticsearch(hasSavedToElasticsearch);
     }
 
-    private BookmarkingResultVO saveToDatabase(String username, BasicWebDataDTO basic, boolean bePublic) {
+    private BookmarkingResultVO saveToDatabase(String username, BasicWebDataDTO basic, Privacy privacy) {
         // get the result of saving to database
         WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
-        boolean hasSavedToDatabase = bean.bookmarkWithBasicWebData(basic, username, bePublic);
+        boolean hasSavedToDatabase = bean.bookmarkWithBasicWebData(basic, username, privacy);
         // return the result of saving to database
         return BookmarkingResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
     }
@@ -178,6 +177,13 @@ public class WebsiteServiceImpl implements WebsiteService {
         } catch (IOException e) {
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
+    }
+
+    @Override
+    public boolean addToBookmark(BasicWebDataRequest data, String username) {
+        BasicWebDataDTO basicData = DozerUtils.convert(data, BasicWebDataDTO.class);
+        WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+        return bean.bookmarkWithBasicWebData(basicData, username, PUBLIC);
     }
 
     /**
@@ -548,7 +554,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         WebsiteServiceImpl websiteService =
                 ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
         // the imported bookmarks are public
-        return websiteService.bookmarkWithBasicWebData(web, username, true);
+        return websiteService.bookmarkWithBasicWebData(web, username, PUBLIC);
     }
 
     private void updateImportingResult(int[] result, boolean success) {

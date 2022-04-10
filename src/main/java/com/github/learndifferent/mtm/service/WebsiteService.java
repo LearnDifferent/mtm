@@ -1,6 +1,8 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
+import com.github.learndifferent.mtm.constant.enums.Privacy;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -33,31 +35,39 @@ public interface WebsiteService {
     List<BookmarkVO> filterPublicBookmarks(FilterBookmarksRequest filterRequest);
 
     /**
-     * Convert the basic website data into a bookmark
-     *
-     * @param data     Basic website data that contains title, URL, image and description
-     * @param username Username of the user who is bookmarking
-     * @param isPublic True if this is a public bookmark
-     * @return true if success
-     * @throws ServiceException throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
-     *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
-     *                          if something goes wrong.
-     */
-    boolean bookmarkWithBasicWebData(BasicWebDataRequest data, String username, boolean isPublic);
-
-    /**
      * Bookmark a new web page
      *
      * @param url      URL of the web page to bookmark
      * @param username Username of the user who is bookmarking
-     * @param isPublic True or null if this is a public bookmark
-     * @param beInEs   True or null if the data should be added to Elasticsearch
+     * @param privacy  {@link Privacy#PUBLIC} if this is a public bookmark and
+     *                 {@link Privacy#PRIVATE} if this is private
+     * @param mode     {@link AddDataMode#ADD_TO_DATABASE} if the data should only be added to the database.
+     *                 <p>
+     *                 {@link AddDataMode#ADD_TO_DATABASE_AND_ELASTICSEARCH} if the data should
+     *                 be added to the database and ElasticSearch
+     *                 </p>
+     *                 <p>
+     *                 Note that this value will be ignored if this is a private bookmark
+     *                 because only public data can be added to Elasticsearch
+     *                 </p>
      * @return {@link ResultVO}<{@link BookmarkingResultVO}> The result of bookmarking a new web page
      * @throws ServiceException Exception will be thrown with the result code of {@link ResultCode#URL_MALFORMED},
      *                          {@link ResultCode#URL_ACCESS_DENIED} and {@link ResultCode#CONNECTION_ERROR}
      *                          when an error occurred during an IO operation
      */
-    BookmarkingResultVO bookmark(String url, String username, Boolean isPublic, Boolean beInEs);
+    BookmarkingResultVO bookmark(String url, String username, Privacy privacy, AddDataMode mode);
+
+    /**
+     * Add a website to the bookmarks
+     *
+     * @param data     Basic website data that contains title, URL, image and description
+     * @param username Username of the user who is bookmarking
+     * @return true if success
+     * @throws ServiceException throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
+     *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
+     *                          if something goes wrong.
+     */
+    boolean addToBookmark(BasicWebDataRequest data, String username);
 
     /**
      * Get bookmarked websites and total pages for the current user on the home page

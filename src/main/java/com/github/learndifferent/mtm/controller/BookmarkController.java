@@ -3,7 +3,9 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
+import com.github.learndifferent.mtm.constant.enums.Privacy;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -47,9 +49,18 @@ public class BookmarkController {
     /**
      * Bookmark a new web page
      *
-     * @param url      URL of the web page to bookmark
-     * @param isPublic true or null if this is a public bookmark
-     * @param beInEs   true or null if the data should be added to Elasticsearch
+     * @param url     URL of the web page to bookmark
+     * @param privacy {@link Privacy#PUBLIC} if this is a public bookmark and
+     *                {@link Privacy#PRIVATE} if this is private
+     * @param mode    {@link AddDataMode#ADD_TO_DATABASE} if the data should only be added to the database.
+     *                <p>
+     *                {@link AddDataMode#ADD_TO_DATABASE_AND_ELASTICSEARCH} if the data should
+     *                be added to the database and ElasticSearch
+     *                </p>
+     *                <p>
+     *                Note that this value will be ignored if this is a private bookmark
+     *                because only public data can be added to Elasticsearch
+     *                </p>
      * @return The result of bookmarking a new web page
      * @throws ServiceException Exception will be thrown with the result code of {@link ResultCode#URL_MALFORMED},
      *                          {@link ResultCode#URL_ACCESS_DENIED} and {@link ResultCode#CONNECTION_ERROR}
@@ -57,14 +68,14 @@ public class BookmarkController {
      */
     @GetMapping
     public BookmarkingResultVO bookmark(@RequestParam("url") String url,
-                                        @RequestParam("isPublic") Boolean isPublic,
-                                        @RequestParam("beInEs") Boolean beInEs) {
+                                        @RequestParam("privacy") Privacy privacy,
+                                        @RequestParam("mode") AddDataMode mode) {
         String currentUsername = getCurrentUsername();
-        return websiteService.bookmark(url, currentUsername, isPublic, beInEs);
+        return websiteService.bookmark(url, currentUsername, privacy, mode);
     }
 
     /**
-     * Bookmark a web page with basic website data
+     * Add a website to the bookmarks
      *
      * @param basicData Request body that contains title, URL, image and description
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
@@ -73,9 +84,9 @@ public class BookmarkController {
      *                          if something goes wrong
      */
     @PostMapping
-    public ResultVO<ResultCode> bookmarkWithBasicWebData(@RequestBody BasicWebDataRequest basicData) {
+    public ResultVO<ResultCode> addToBookmark(@RequestBody BasicWebDataRequest basicData) {
         String currentUsername = getCurrentUsername();
-        boolean success = websiteService.bookmarkWithBasicWebData(basicData, currentUsername, true);
+        boolean success = websiteService.addToBookmark(basicData, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
