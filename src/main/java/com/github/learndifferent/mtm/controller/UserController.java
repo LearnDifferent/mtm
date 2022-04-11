@@ -13,11 +13,15 @@ import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
+import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.VerificationService;
+import com.github.learndifferent.mtm.utils.IpUtils;
+import com.github.learndifferent.mtm.vo.PersonalInfoVO;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,12 +43,15 @@ public class UserController {
 
     private final UserService userService;
     private final VerificationService verificationService;
+    private final NotificationService notificationService;
 
     @Autowired
     public UserController(UserService userService,
-                          VerificationService verificationService) {
+                          VerificationService verificationService,
+                          NotificationService notificationService) {
         this.userService = userService;
         this.verificationService = verificationService;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -133,16 +140,37 @@ public class UserController {
     }
 
     /**
+     * Get personal information
+     *
+     * @param request Request
+     * @return {@link PersonalInfoVO Personal information}
+     */
+    @GetMapping
+    public PersonalInfoVO getPersonalInfo(HttpServletRequest request) {
+
+        String username = StpUtil.getLoginIdAsString();
+        UserVO user = userService.getUserByName(username);
+        String ip = IpUtils.getIp(request);
+        long totalReplyNotifications = notificationService.countReplyNotifications(username);
+
+        return PersonalInfoVO.builder()
+                .user(user)
+                .ip(ip)
+                .totalReplyNotifications(totalReplyNotifications)
+                .build();
+    }
+
+    /**
      * Get users
      *
-     * @param pageInfo Pagination information
+     * @param pageInfo pagination information
      * @return users
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the user is not admin
      */
-    @GetMapping
+    @GetMapping("/all")
     @AdminValidation
     public List<UserVO> getUsers(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
@@ -186,7 +214,6 @@ public class UserController {
         return success ? ResultCreator.result(ResultCode.PASSWORD_CHANGED)
                 : ResultCreator.result(ResultCode.UPDATE_FAILED);
     }
-
 
     /**
      * Change user role
