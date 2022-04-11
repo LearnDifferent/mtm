@@ -194,13 +194,6 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <!-- Spring Boot -->
-        <!-- Commons -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
-        </dependency>
-        <!-- Commons -->
         <!-- Jsoup -->
         <dependency>
             <groupId>org.jsoup</groupId>
