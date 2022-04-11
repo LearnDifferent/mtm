@@ -182,21 +182,22 @@ public class NotificationManager {
     /**
      * Send System Notification and ensure the limit is 20
      *
-     * @param content content of notification
+     * @param message the message to send
      */
-    public void sendSystemNotification(String content) {
-        redisTemplate.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, content);
+    public void sendSystemNotification(String message) {
+        redisTemplate.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, message);
         redisTemplate.opsForList().trim(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
     }
 
     /**
      * Get first 20 system notifications and convert the text to an HTML format.
-     * <p>This will also record the username of the user who wants to get the latest system notifications</p>
+     * <p>Username of the user who read the latest system notifications
+     * will be stored in the cache.</p>
      *
      * @param username username of the user who wants to get the latest system notifications
      * @return first 20 system notifications
      */
-    public String getSysNotHtmlAndRecordName(String username) {
+    public String getSystemNotificationsHtml(String username) {
 
         List<String> messages = getFirst20SystemNotifications();
 

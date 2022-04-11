@@ -4,9 +4,12 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
+import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -46,36 +49,48 @@ public class SystemController {
      *
      * @return {@link ResultVO}<{@link String}> notifications
      */
-    @SystemLog(title = "Notification", optsType = OptsType.READ)
     @GetMapping
+    @SystemLog(title = "Notification", optsType = OptsType.READ)
     public ResultVO<String> getSystemNotifications() {
         String currentUsername = StpUtil.getLoginIdAsString();
-        String notifications = notificationService.getSysNotHtmlAndRecordName(currentUsername);
+        String notifications = notificationService.getSystemNotificationsHtml(currentUsername);
         return ResultCreator.okResult(notifications);
+    }
+
+    /**
+     * Send a system notification
+     * <p>
+     * The notification will be a push notification if the message is from {@link UserRole#ADMIN}
+     * </p>
+     *
+     * @param message the message to send
+     * @return {@link ResultCode#SUCCESS} if success
+     */
+    @GetMapping("/send")
+    @SystemLog(title = "Notification", optsType = OptsType.CREATE)
+    public ResultVO<ResultCode> sendSystemNotification(@RequestParam("message") String message) {
+        // only the message from the admin has the highest priority
+        boolean isAdmin = StpUtil.hasRole(UserRole.ADMIN.role());
+        PriorityLevel priority = isAdmin ? PriorityLevel.URGENT : PriorityLevel.LOW;
+        // send the message
+        String currentUsername = StpUtil.getLoginIdAsString();
+        notificationService.sendSystemNotification(currentUsername, message, priority);
+        return ResultCreator.okResult();
     }
 
     /**
      * Delete system notifications
      *
-     * @return {@link ResultCreator#okResult()}
+     * @return {@link ResultCode#SUCCESS} if success
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw an exception if the
+     *                                                                  user is a guest with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED}
      */
-    @SystemLog(title = "Notification", optsType = OptsType.DELETE)
     @DeleteMapping
+    @NotGuest
+    @SystemLog(title = "Notification", optsType = OptsType.DELETE)
     public ResultVO<ResultCode> deleteSystemNotifications() {
-        notificationService.deleteSysNotificationAndSavedNames();
-        return ResultCreator.okResult();
-    }
-
-    /**
-     * Send a system notification
-     *
-     * @param content the content to send
-     * @return {@link ResultCreator#okResult()}
-     */
-    @SystemLog(title = "Notification", optsType = OptsType.CREATE)
-    @GetMapping("/send")
-    public ResultVO<ResultCode> sendSystemNotification(@RequestParam("content") String content) {
-        notificationService.sendSysNotAndDelSavedNames(content);
+        notificationService.deleteSystemNotifications();
         return ResultCreator.okResult();
     }
 

@@ -1,12 +1,14 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
+import com.github.learndifferent.mtm.utils.ShortenUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
@@ -57,7 +59,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void deleteSysNotificationAndSavedNames() {
+    public void deleteSystemNotifications() {
         // delete all notifications
         notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION);
         // delete all saved usernames
@@ -65,16 +67,22 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public String getSysNotHtmlAndRecordName(String username) {
-        return notificationManager.getSysNotHtmlAndRecordName(username);
+    public String getSystemNotificationsHtml(String username) {
+        return notificationManager.getSystemNotificationsHtml(username);
     }
 
     @Override
-    public void sendSysNotAndDelSavedNames(String content) {
+    public void sendSystemNotification(String username, String message, PriorityLevel priority) {
+        // shorten the message from user
+        String msg = ShortenUtils.flatten(message);
+        String m = ShortenUtils.shorten(msg, 30);
         // send notification
-        notificationManager.sendSystemNotification(content);
-        // delete all saved usernames
-        notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
+        notificationManager.sendSystemNotification(username + ": " + m);
+
+        // delete all saved usernames to make it a push notification if necessary
+        if (PriorityLevel.URGENT.equals(priority)) {
+            notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
+        }
     }
 
     @Override
