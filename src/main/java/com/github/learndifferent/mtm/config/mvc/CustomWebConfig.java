@@ -23,16 +23,12 @@ public class CustomWebConfig implements WebMvcConfigurer {
         resolvers.add(new PageInfoMethodArgumentResolver());
     }
 
-    /**
-     * Intercepts all the requests that are sent to the these paths
-     * for checking whether the user is logged in by SaToken (SaRouteInterceptor).
-     *
-     * @param registry Interceptor Registry
-     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new SaRouteInterceptor())
-                .addPathPatterns("/search/load", "/home");
+                .addPathPatterns("/**")
+                .excludePathPatterns("/verification/**", "/user",
+                        "/", "/css/**", "/js/**", "/img/**", "/favicon.ico", "/index.html");
     }
 
     @Override
