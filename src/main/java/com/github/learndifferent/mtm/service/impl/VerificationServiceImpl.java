@@ -2,8 +2,11 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.SendEmailManager;
+import com.github.learndifferent.mtm.manager.UserAccountManager;
+import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.service.VerificationService;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -30,12 +33,15 @@ public class VerificationServiceImpl implements VerificationService {
 
     private final StringRedisTemplate redisTemplate;
     private final SendEmailManager sendEmailManager;
+    private final UserAccountManager userAccountManager;
 
     @Autowired
     public VerificationServiceImpl(StringRedisTemplate redisTemplate,
-                                   SendEmailManager sendEmailManager) {
+                                   SendEmailManager sendEmailManager,
+                                   UserAccountManager userAccountManager) {
         this.redisTemplate = redisTemplate;
         this.sendEmailManager = sendEmailManager;
+        this.userAccountManager = userAccountManager;
     }
 
     @Override
@@ -82,11 +88,6 @@ public class VerificationServiceImpl implements VerificationService {
         }
     }
 
-    @Override
-    public void checkVerificationCode(String token, String code) {
-        checkCode(token, code, ResultCode.VERIFICATION_CODE_FAILED);
-    }
-
     private void checkCode(String token, String code, ResultCode resultCode) {
         // throw an exception if empty
         throwExceptionIfEmpty(token, code, resultCode);
@@ -105,6 +106,20 @@ public class VerificationServiceImpl implements VerificationService {
 
     private String getCodeByToken(String token) {
         return redisTemplate.opsForValue().get(token);
+    }
+
+    @Override
+    public String verifyLoginInfoAndGetUsername(UserIdentificationRequest userIdentification,
+                                                String token,
+                                                String code) {
+        checkCode(token, code, ResultCode.VERIFICATION_CODE_FAILED);
+
+        String username = userIdentification.getUserName();
+        String password = userIdentification.getPassword();
+        UserDO user = userAccountManager.getUserByNameAndPassword(username, password);
+        ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
+
+        return user.getUserName();
     }
 
     @Override

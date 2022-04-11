@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
+import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * User Creation and Deletion
+ * User account manager
  *
  * @author zhou
  * @date 2021/10/22
@@ -150,5 +151,17 @@ public class UserAccountManager {
                 .role(user.getRole())
                 .build();
         elasticsearchManager.saveToElasticsearchAsync(data);
+    }
+
+    /**
+     * Get user by name and password
+     *
+     * @param username             username
+     * @param notEncryptedPassword not encrypted password
+     * @return user
+     */
+    public UserDO getUserByNameAndPassword(String username, String notEncryptedPassword) {
+        String password = Md5Util.getMd5(notEncryptedPassword);
+        return userMapper.getUserByNameAndPassword(username, password);
     }
 }

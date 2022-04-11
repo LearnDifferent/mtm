@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 
 /**
  * Verification Service
@@ -35,14 +36,18 @@ public interface VerificationService {
     void checkRegisterCodes(String code, String token, UserRole role, String invitationCode, String invitationToken);
 
     /**
-     * Check if the verification code is correct
+     * Verify login information and get the username
      *
-     * @param token token for verification codec
-     * @param code  verification code that the user entered
-     * @throws ServiceException The result code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED
-     *                          VERIFICATION_CODE_FAILED} if failed verification
+     * @param userIdentification Request body that contains username and password entered by the user
+     * @param token              Token for verification code
+     * @param code               Verification code
+     * @return username of the user
+     * @throws ServiceException Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED
+     *                          VERIFICATION_CODE_FAILED} if the verification code is invalid and with the result code
+     *                          of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST
+     *                          USER_NOT_EXIST} if username and password do not match
      */
-    void checkVerificationCode(String token, String code);
+    String verifyLoginInfoAndGetUsername(UserIdentificationRequest userIdentification, String token, String code);
 
     /**
      * Generate invitation code, store the code in cache for 20 minutes),

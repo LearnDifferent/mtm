@@ -4,7 +4,7 @@ import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
-import com.github.learndifferent.mtm.query.CreateUserRequest;
+import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
@@ -46,8 +46,8 @@ public interface UserService {
     /**
      * Add a user with username, user role and not encrypted password
      *
-     * @param usernameAndPassword username and not encrypted password
-     * @param role                user role
+     * @param userIdentification Request body that contains username and password entered by the user
+     * @param role               user role
      * @return true if success
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method will verify and throw an exception
      *                                                                  if something goes wrong. If the username is
@@ -67,16 +67,7 @@ public interface UserService {
      *                                                                  result will be {@link
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
      */
-    boolean addUser(CreateUserRequest usernameAndPassword, UserRole role);
-
-    /**
-     * Get user by name and password
-     *
-     * @param userName             username
-     * @param notEncryptedPassword not encrypted password
-     * @return user
-     */
-    UserVO getUserByNameAndPassword(String userName, String notEncryptedPassword);
+    boolean addUser(UserIdentificationRequest userIdentification, UserRole role);
 
     /**
      * Get user role by username

@@ -2,12 +2,11 @@ package com.github.learndifferent.mtm.query;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 用户名和密码的 Request Body
+ * Request body that contains username and password entered by the user
  *
  * @author zhou
  * @date 2021/09/05
@@ -15,13 +14,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class LoginRequest implements Serializable {
+public class UserIdentificationRequest implements Serializable {
 
     /**
      * Username
      */
     private String userName;
+
     /**
      * Password
      */

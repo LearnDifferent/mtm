@@ -13,11 +13,10 @@ import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.manager.UserAccountManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
-import com.github.learndifferent.mtm.query.CreateUserRequest;
+import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.CompareStringUtil;
 import com.github.learndifferent.mtm.utils.DozerUtils;
-import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
@@ -63,7 +62,7 @@ public class UserServiceImpl implements UserService {
         String newPassword = info.getNewPassword();
 
         // if user does not exist, it will be considered as wrong password
-        UserVO user = getUserByNameAndPassword(userName, oldPassword);
+        UserDO user = userAccountManager.getUserByNameAndPassword(userName, oldPassword);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.PASSWORD_INCORRECT);
 
         UserDTO userDTO = UserDTO.ofPasswordUpdate(user.getUserId(), newPassword);
@@ -72,18 +71,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean addUser(CreateUserRequest usernameAndPassword, UserRole role) {
+    public boolean addUser(UserIdentificationRequest userIdentification, UserRole role) {
 
-        String username = usernameAndPassword.getUserName();
-        String notEncryptedPassword = usernameAndPassword.getPassword();
+        String username = userIdentification.getUserName();
+        String notEncryptedPassword = userIdentification.getPassword();
         return userAccountManager.createUser(username, notEncryptedPassword, role);
-    }
-
-    @Override
-    public UserVO getUserByNameAndPassword(String userName, String notEncryptedPassword) {
-        String password = Md5Util.getMd5(notEncryptedPassword);
-        UserDO userDO = userMapper.getUserByNameAndPassword(userName, password);
-        return DozerUtils.convert(userDO, UserVO.class);
     }
 
     @Override

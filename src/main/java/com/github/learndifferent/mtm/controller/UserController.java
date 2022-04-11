@@ -9,7 +9,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
-import com.github.learndifferent.mtm.query.CreateUserRequest;
+import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -50,13 +50,14 @@ public class UserController {
     /**
      * Create a user
      *
-     * @param userInfo        username and password
-     * @param code            verification code
-     * @param token           token for verification Code
-     * @param role            user role (verify the invitation code if the user role is {@link UserRole#ADMIN})
-     * @param invitationCode  invitation code (the value will be ignored if the user role is not {@link UserRole#ADMIN})
-     * @param invitationToken token for invitation code
-     *                        (the value will be ignored if the user role is not {@link UserRole#ADMIN})
+     * @param userIdentification Request body that contains username and password entered by the user
+     * @param code               verification code
+     * @param token              token for verification Code
+     * @param role               user role (verify the invitation code if the user role is {@link UserRole#ADMIN})
+     * @param invitationCode     invitation code (the value will be ignored if the user role is not {@link
+     *                           UserRole#ADMIN})
+     * @param invitationToken    token for invitation code
+     *                           (the value will be ignored if the user role is not {@link UserRole#ADMIN})
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link VerificationService#checkRegisterCodes(String,
      *                                                                  String, UserRole, String, String)} will throw
@@ -66,7 +67,7 @@ public class UserController {
      *                                                                  {@link ResultCode#INVITATION_CODE_FAILED}
      *                                                                  if failed verification.
      *                                                                  <p>
-     *                                                                  {@link UserService#addUser(CreateUserRequest,
+     *                                                                  {@link UserService#addUser(UserIdentificationRequest,
      *                                                                  UserRole)} will verify username and
      *                                                                  password, and throw an exception with one of
      *                                                                  these result codes if failed verification:
@@ -79,7 +80,7 @@ public class UserController {
      *                                                                  </p>
      */
     @PostMapping
-    public ResultVO<ResultCode> createUser(@RequestBody CreateUserRequest userInfo,
+    public ResultVO<ResultCode> createUser(@RequestBody UserIdentificationRequest userIdentification,
                                            @RequestParam("code") String code,
                                            @RequestParam("token") String token,
                                            @RequestParam("role") UserRole role,
@@ -89,7 +90,7 @@ public class UserController {
                                                    String invitationToken) {
 
         verificationService.checkRegisterCodes(code, token, role, invitationCode, invitationToken);
-        boolean success = userService.addUser(userInfo, role);
+        boolean success = userService.addUser(userIdentification, role);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
