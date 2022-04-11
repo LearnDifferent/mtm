@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -42,6 +43,40 @@ public class VerificationController {
     public String getVerificationCodeImg(@RequestParam("token") String verifyToken) {
 
         return verificationService.getVerificationCodeImg(verifyToken);
+    }
+
+    /**
+     * Send invitation code
+     *
+     * @param token token for invitation code
+     * @param email Email
+     * @throws com.github.learndifferent.mtm.exception.ServiceException The invitation code will be assigned to the
+     *                                                                  "data" field in a {@code ServiceException} when
+     *                                                                  an email setting error occurs.
+     *                                                                  And the {@code ServiceException} will be thrown
+     *                                                                  with the result code of {@link ResultCode#EMAIL_SET_UP_ERROR}
+     *                                                                  if there is an email setting error.
+     */
+    @GetMapping("/invitation")
+    public void send(@RequestParam("token") String token,
+                     @RequestParam("email") String email) {
+
+        verificationService.sendInvitationCode(token, email);
+    }
+
+    /**
+     * Check if the user currently logged in is admin
+     *
+     * @return {@link ResultCode#SUCCESS} if the current user is admin
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
+     */
+    @GetMapping
+    @AdminValidation
+    public ResultVO<ResultCode> checkAdmin() {
+        return ResultCreator.okResult();
     }
 
     /**

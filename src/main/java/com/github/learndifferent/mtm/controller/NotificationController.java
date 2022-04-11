@@ -1,8 +1,6 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
-import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -14,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,19 +36,6 @@ public class NotificationController {
     }
 
     /**
-     * Get system notifications
-     *
-     * @return {@link ResultVO}<{@link String}> notifications
-     */
-    @SystemLog(title = "Notification", optsType = OptsType.READ)
-    @GetMapping
-    public ResultVO<String> getSystemNotifications() {
-        String currentUsername = getCurrentUsername();
-        String notifications = notificationService.getSysNotHtmlAndRecordName(currentUsername);
-        return ResultCreator.okResult(notifications);
-    }
-
-    /**
      * Get reply notifications
      *
      * @param lastIndex index of the last element of the reply notification list
@@ -61,24 +45,12 @@ public class NotificationController {
      *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
      *                                                                  if there is no notifications found
      */
-    @GetMapping("/reply")
+    @GetMapping
     public List<ReplyMessageNotificationVO> getReplyNotifications(
             @RequestParam(value = "lastIndex", defaultValue = "10") int lastIndex) {
 
-        String username = getCurrentUsername();
+        String username = StpUtil.getLoginIdAsString();
         return notificationService.getReplyNotifications(username, lastIndex);
-    }
-
-    /**
-     * Count the number of new reply notifications for the current user
-     *
-     * @return number of new reply notifications
-     */
-    @GetMapping("/reply/new")
-    public ResultVO<Integer> countNewReplyNotifications() {
-        String currentUsername = getCurrentUsername();
-        int count = notificationService.countNewReplyNotifications(currentUsername);
-        return ResultCreator.okResult(count);
     }
 
     /**
@@ -90,48 +62,22 @@ public class NotificationController {
      *                                                                  the user that is currently logged in is not
      *                                                                  the owner of the notification to delete
      */
-    @PostMapping("/reply/delete")
+    @PostMapping
     public void deleteReplyNotification(@RequestBody DeleteReplyNotificationRequest data) {
-        String currentUsername = getCurrentUsername();
+        String currentUsername = StpUtil.getLoginIdAsString();
         notificationService.deleteReplyNotification(data, currentUsername);
     }
 
     /**
-     * Delete system notifications
+     * Count the number of new reply notifications for the current user
      *
-     * @return {@link ResultCreator#okResult()}
+     * @return number of new reply notifications
      */
-    @SystemLog(title = "Notification", optsType = OptsType.DELETE)
-    @DeleteMapping
-    public ResultVO<ResultCode> deleteSystemNotifications() {
-        notificationService.deleteSysNotificationAndSavedNames();
-        return ResultCreator.okResult();
-    }
-
-    /**
-     * Send a system notification
-     *
-     * @param content the content to send
-     * @return {@link ResultCreator#okResult()}
-     */
-    @SystemLog(title = "Notification", optsType = OptsType.CREATE)
-    @GetMapping("/send/{content}")
-    public ResultVO<ResultCode> sendSystemNotification(@PathVariable String content) {
-        notificationService.sendSysNotAndDelSavedNames(content);
-        return ResultCreator.okResult();
-    }
-
-    /**
-     * Check whether the current user has read the latest system notification
-     *
-     * @return {@link ResultCode#SUCCESS} if current user has read the latest notification or there is no system notification.
-     * {@link ResultCode#FAILED} if current user has not read the latest notification.
-     */
-    @GetMapping("/read")
-    public ResultVO<ResultCode> checkIfReadLatestSysNotification() {
-        String currentUsername = getCurrentUsername();
-        boolean hasRead = notificationService.checkIfReadLatestSysNotification(currentUsername);
-        return hasRead ? ResultCreator.okResult() : ResultCreator.failResult();
+    @GetMapping("/count")
+    public ResultVO<Integer> countNewReplyNotifications() {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        int count = notificationService.countNewReplyNotifications(currentUsername);
+        return ResultCreator.okResult(count);
     }
 
     /**
@@ -145,7 +91,7 @@ public class NotificationController {
      */
     @GetMapping("/role-changed")
     public ResultVO<String> getRoleChangeNotification() {
-        String currentUsername = getCurrentUsername();
+        String currentUsername = StpUtil.getLoginIdAsString();
         String notification = notificationService.generateRoleChangeNotification(currentUsername);
         return StringUtils.isEmpty(notification) ? ResultCreator.result(ResultCode.UPDATE_FAILED)
                 : ResultCreator.okResult(notification);
@@ -156,11 +102,7 @@ public class NotificationController {
      */
     @DeleteMapping("/role-changed")
     public void deleteRoleChangeNotification() {
-        String currentUsername = getCurrentUsername();
+        String currentUsername = StpUtil.getLoginIdAsString();
         notificationService.deleteRoleChangeNotification(currentUsername);
-    }
-
-    private String getCurrentUsername() {
-        return StpUtil.getLoginIdAsString();
     }
 }

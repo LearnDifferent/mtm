@@ -1,74 +1,95 @@
 package com.github.learndifferent.mtm.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
+import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.SystemLogService;
-import com.github.learndifferent.mtm.service.VerificationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Admin Controller
+ * System Controller
  *
  * @author zhou
- * @date 2021/09/05
+ * @date 2022/4/11
  */
 @RestController
-@RequestMapping("/admin")
-public class AdminController {
+@RequestMapping("/system")
+public class SystemController {
 
     private final SystemLogService logService;
-    private final VerificationService verificationService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public AdminController(SystemLogService logService,
-                           VerificationService verificationService) {
+    public SystemController(SystemLogService logService,
+                            NotificationService notificationService) {
         this.logService = logService;
-        this.verificationService = verificationService;
+        this.notificationService = notificationService;
     }
 
     /**
-     * Check if the current user is an admin
+     * Get system notifications
      *
-     * @return {@link ResultCode#SUCCESS} if the current user is admin
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
-     *                                                                  if the user is not admin
+     * @return {@link ResultVO}<{@link String}> notifications
      */
+    @SystemLog(title = "Notification", optsType = OptsType.READ)
     @GetMapping
-    @AdminValidation
-    public ResultVO<ResultCode> checkAdmin() {
+    public ResultVO<String> getSystemNotifications() {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        String notifications = notificationService.getSysNotHtmlAndRecordName(currentUsername);
+        return ResultCreator.okResult(notifications);
+    }
+
+    /**
+     * Delete system notifications
+     *
+     * @return {@link ResultCreator#okResult()}
+     */
+    @SystemLog(title = "Notification", optsType = OptsType.DELETE)
+    @DeleteMapping
+    public ResultVO<ResultCode> deleteSystemNotifications() {
+        notificationService.deleteSysNotificationAndSavedNames();
         return ResultCreator.okResult();
     }
 
     /**
-     * Send invitation code
+     * Send a system notification
      *
-     * @param token token for invitation code
-     * @param email Email
-     * @throws com.github.learndifferent.mtm.exception.ServiceException The invitation code will be assigned to the
-     *                                                                  "data" field in a {@code ServiceException} when
-     *                                                                  an email setting error occurs.
-     *                                                                  And the {@code ServiceException} will be thrown
-     *                                                                  with the result code of {@link ResultCode#EMAIL_SET_UP_ERROR}
-     *                                                                  if there is an email setting error.
+     * @param content the content to send
+     * @return {@link ResultCreator#okResult()}
      */
-    @GetMapping("/invitation")
-    public void send(@RequestParam("token") String token,
-                     @RequestParam("email") String email) {
+    @SystemLog(title = "Notification", optsType = OptsType.CREATE)
+    @GetMapping("/send")
+    public ResultVO<ResultCode> sendSystemNotification(@RequestParam("content") String content) {
+        notificationService.sendSysNotAndDelSavedNames(content);
+        return ResultCreator.okResult();
+    }
 
-        verificationService.sendInvitationCode(token, email);
+    /**
+     * Check whether the current user has read the latest system notification
+     *
+     * @return {@link ResultCode#SUCCESS} if current user has read the latest notification or there is no system notification.
+     * {@link ResultCode#FAILED} if current user has not read the latest notification.
+     */
+    @GetMapping("/read")
+    public ResultVO<ResultCode> checkIfReadLatestSysNotification() {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        boolean hasRead = notificationService.checkIfReadLatestSysNotification(currentUsername);
+        return hasRead ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
     /**
