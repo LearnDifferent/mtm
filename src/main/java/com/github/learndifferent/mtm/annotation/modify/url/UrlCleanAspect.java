@@ -5,7 +5,6 @@ import com.github.learndifferent.mtm.utils.CleanUrlUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -40,7 +39,7 @@ public class UrlCleanAspect {
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
                 if (annotation instanceof Url
-                        && ObjectUtils.isNotEmpty(args[i])
+                        && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
 
                     args[i] = CleanUrlUtil.cleanup((String) args[i]);

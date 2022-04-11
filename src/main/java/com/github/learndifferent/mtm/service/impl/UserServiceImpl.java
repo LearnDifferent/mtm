@@ -15,7 +15,7 @@ import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.service.UserService;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
     public boolean deleteUserAndAssociatedData(String currentUsername,
                                                String userName,
                                                String notEncryptedPassword) {
-        boolean hasNoPermission = CompareStringUtil.notEqualsIgnoreCase(currentUsername, userName);
+        boolean hasNoPermission = CustomStringUtils.notEqualsIgnoreCase(currentUsername, userName);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
         return userAccountManager.deleteAllDataRelatedToUser(userName, notEncryptedPassword);
     }

@@ -4,11 +4,11 @@ import com.github.learndifferent.mtm.config.mvc.CustomWebConfig;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -77,7 +77,7 @@ public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentReso
 
         int num = 0;
 
-        if (StringUtils.isNotEmpty(paramValue)) {
+        if (CustomStringUtils.notEmpty(paramValue)) {
             try {
                 num = Integer.parseInt(paramValue);
             } catch (NumberFormatException e) {

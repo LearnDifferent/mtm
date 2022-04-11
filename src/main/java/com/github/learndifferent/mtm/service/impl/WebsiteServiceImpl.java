@@ -37,7 +37,7 @@ import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.WebsiteService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -61,7 +61,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -411,7 +410,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         // data is not public
         // and the owner's username of data does not match the username
         boolean noPermission = Boolean.FALSE.equals(bookmark.getIsPublic())
-                && CompareStringUtil.notEqualsIgnoreCase(userName, bookmark.getUserName());
+                && CustomStringUtils.notEqualsIgnoreCase(userName, bookmark.getUserName());
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
         return DozerUtils.convert(bookmark, BookmarkVO.class);
@@ -426,11 +425,11 @@ public class WebsiteServiceImpl implements WebsiteService {
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();
-        boolean isPrivate = BooleanUtils.isFalse(isPublic);
+        boolean isPrivate = Boolean.FALSE.equals(isPublic);
 
         String owner = bookmark.getUserName();
 
-        boolean hasNoPermission = isPrivate && CompareStringUtil.notEqualsIgnoreCase(username, owner);
+        boolean hasNoPermission = isPrivate && CustomStringUtils.notEqualsIgnoreCase(username, owner);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 

@@ -6,7 +6,7 @@ import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.service.NotificationService;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
@@ -50,7 +50,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void deleteReplyNotification(DeleteReplyNotificationRequest data, String username) {
         String receiveUsername = data.getReceiveUsername();
-        boolean notOwner = CompareStringUtil.notEqualsIgnoreCase(receiveUsername, username);
+        boolean notOwner = CustomStringUtils.notEqualsIgnoreCase(receiveUsername, username);
         ThrowExceptionUtils.throwIfTrue(notOwner, ResultCode.PERMISSION_DENIED);
 
         notificationManager.deleteReplyNotification(data);

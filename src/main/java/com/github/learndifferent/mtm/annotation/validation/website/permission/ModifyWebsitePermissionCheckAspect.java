@@ -6,7 +6,7 @@ import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.mapper.WebsiteMapper;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -84,7 +84,7 @@ public class ModifyWebsitePermissionCheckAspect {
         boolean emptyUsername = StringUtils.isEmpty(username);
         ThrowExceptionUtils.throwIfTrue(emptyUsername, ResultCode.USER_NOT_EXIST);
 
-        boolean notTheOwner = CompareStringUtil.notEqualsIgnoreCase(username, bookmark.getUserName());
+        boolean notTheOwner = CustomStringUtils.notEqualsIgnoreCase(username, bookmark.getUserName());
         ThrowExceptionUtils.throwIfTrue(notTheOwner, ResultCode.PERMISSION_DENIED);
     }
 }

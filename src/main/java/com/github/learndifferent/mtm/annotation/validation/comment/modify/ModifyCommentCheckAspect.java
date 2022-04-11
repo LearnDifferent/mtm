@@ -6,7 +6,7 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -81,7 +81,7 @@ public class ModifyCommentCheckAspect {
         ThrowExceptionUtils.throwIfNull(comment, ResultCode.COMMENT_NOT_EXISTS);
 
         String owner = comment.getUsername();
-        boolean hasNoPermission = CompareStringUtil.notEqualsIgnoreCase(username, owner);
+        boolean hasNoPermission = CustomStringUtils.notEqualsIgnoreCase(username, owner);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 }

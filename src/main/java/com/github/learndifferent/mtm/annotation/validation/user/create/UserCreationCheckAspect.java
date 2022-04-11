@@ -10,7 +10,6 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import org.apache.commons.lang3.ObjectUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -61,7 +60,7 @@ public class UserCreationCheckAspect {
             for (Annotation a : annotations[i]) {
                 if (helper.hasNotFoundIndex(0)
                         && a instanceof Username
-                        && ObjectUtils.isNotEmpty(args[i])
+                        && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
                     helper.findIndex(0);
@@ -69,7 +68,7 @@ public class UserCreationCheckAspect {
                 }
                 if (helper.hasNotFoundIndex(1)
                         && a instanceof Password
-                        && ObjectUtils.isNotEmpty(args[i])
+                        && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     password = (String) args[i];
                     helper.findIndex(1);

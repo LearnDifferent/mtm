@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -66,8 +65,8 @@ public class BookmarkCheckAspect {
 
             if (helper.hasNotFoundIndex(1)
                     && usernameParamName.equals(parameterNames[i])
-                    && String.class.isAssignableFrom(parameterTypes[i])
-                    && ObjectUtils.isNotEmpty(args[i])) {
+                    && args[i] != null
+                    && String.class.isAssignableFrom(parameterTypes[i])) {
                 username = (String) args[i];
                 helper.findIndex(1);
             }

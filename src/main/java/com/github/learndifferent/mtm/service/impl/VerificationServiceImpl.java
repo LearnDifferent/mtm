@@ -8,7 +8,7 @@ import com.github.learndifferent.mtm.manager.SendEmailManager;
 import com.github.learndifferent.mtm.manager.UserAccountManager;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.service.VerificationService;
-import com.github.learndifferent.mtm.utils.CompareStringUtil;
+import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.utils.UUIDUtils;
 import com.github.learndifferent.mtm.utils.VerifyCodeUtils;
@@ -95,7 +95,7 @@ public class VerificationServiceImpl implements VerificationService {
         // get the correct code stored in the cache according to token
         String correctCode = getCodeByToken(token);
         // verify the code and throw an exception if failed verification
-        boolean isFailedVerification = CompareStringUtil.notEqualsIgnoreCase(code, correctCode);
+        boolean isFailedVerification = CustomStringUtils.notEqualsIgnoreCase(code, correctCode);
         ThrowExceptionUtils.throwIfTrue(isFailedVerification, resultCode);
     }
 
