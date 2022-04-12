@@ -27,7 +27,7 @@ public class CustomWebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new SaRouteInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/verification/**", "/user",
+                .excludePathPatterns("/verification/**", "/login", "/user",
                         "/", "/css/**", "/js/**", "/img/**", "/favicon.ico", "/index.html");
     }
 
