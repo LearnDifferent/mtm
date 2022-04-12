@@ -2,7 +2,10 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification;
+import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -93,6 +96,7 @@ public class VerificationController {
      *                                                                  if username and password do not match
      */
     @PostMapping("/login")
+    @SystemNotification(messageType = MessageType.LOGIN)
     public ResultVO<SaTokenInfo> login(@RequestBody UserIdentificationRequest userIdentification,
                                        @RequestParam("token") String token,
                                        @RequestParam("code") String code) {
@@ -114,6 +118,7 @@ public class VerificationController {
      * @return {@link ResultCode#SUCCESS}
      */
     @GetMapping("/logout")
+    @SystemNotification(priority = PriorityLevel.LOW, messageType = MessageType.LOGOUT)
     public ResultVO<ResultCode> logout() {
         StpUtil.logout();
         return ResultCreator.okResult();
