@@ -9,8 +9,12 @@ import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommen
 import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
 import com.github.learndifferent.mtm.constant.enums.Order;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.CommentHistoryDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.NotificationManager;
+import com.github.learndifferent.mtm.mapper.CommentHistoryMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.service.CommentService;
@@ -23,6 +27,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Comment service
@@ -34,11 +40,15 @@ import org.springframework.stereotype.Service;
 public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
+    private final CommentHistoryMapper commentHistoryMapper;
     private final NotificationManager notificationManager;
 
     @Autowired
-    public CommentServiceImpl(CommentMapper commentMapper, NotificationManager notificationManager) {
+    public CommentServiceImpl(CommentMapper commentMapper,
+                              CommentHistoryMapper commentHistoryMapper,
+                              NotificationManager notificationManager) {
         this.commentMapper = commentMapper;
+        this.commentHistoryMapper = commentHistoryMapper;
         this.notificationManager = notificationManager;
     }
 
@@ -95,31 +105,56 @@ public class CommentServiceImpl implements CommentService {
         // this add method is using generated keys, which means it'll set the ID to the CommentDO
         boolean success = commentMapper.addComment(commentDO);
         if (success) {
-            // send notification
-            notificationManager.sendReplyNotification(commentDO);
+            recordHistoryAndSendNotification(commentDO);
         }
 
         return success;
     }
 
+    private void recordHistoryAndSendNotification(CommentDO commentDO) {
+        // add history
+        Integer commentId = commentDO.getCommentId();
+        String comment = commentDO.getComment();
+        Instant creationTime = commentDO.getCreationTime();
+        CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment, creationTime);
+        addHistory(history);
+
+        // send notification
+        notificationManager.sendReplyNotification(commentDO);
+    }
+
     @Override
-    public boolean updateComment(UpdateCommentRequest commentInfo, String username) {
+    public boolean editComment(UpdateCommentRequest commentInfo, String username) {
         Integer commentId = commentInfo.getCommentId();
         String comment = commentInfo.getComment();
         Integer webId = commentInfo.getWebId();
 
         CommentServiceImpl commentServiceImpl =
                 ApplicationContextUtils.getBean(CommentServiceImpl.class);
-        return commentServiceImpl.updateComment(commentId, comment, username, webId);
+        return commentServiceImpl.editComment(commentId, comment, username, webId);
     }
 
     @AddCommentCheck
     @ModifyCommentCheck
-    public boolean updateComment(@CommentId Integer commentId,
-                                 @Comment String comment,
-                                 @Username String username,
-                                 @WebId Integer webId) {
-        return commentMapper.updateComment(commentId, comment);
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean editComment(@CommentId Integer commentId,
+                               @Comment String comment,
+                               @Username String username,
+                               @WebId Integer webId) {
+        boolean success = commentMapper.updateComment(commentId, comment);
+        if (success) {
+            // commentId will not be null after checking by @ModifyCommentCheck
+            CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment);
+            addHistory(history);
+        }
+        return success;
+    }
+
+    private void addHistory(CommentHistoryDTO history) {
+        boolean notSuccess = !commentHistoryMapper.addHistory(history);
+        if (notSuccess) {
+            throw new ServiceException(ResultCode.UPDATE_FAILED);
+        }
     }
 
     @Override

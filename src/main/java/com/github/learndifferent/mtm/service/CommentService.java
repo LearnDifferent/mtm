@@ -109,11 +109,15 @@ public interface CommentService {
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS
      *                                                                  COMMENT_NOT_EXISTS}
      *                                                                  </p>
+     *                                                                  <p>
+     *                                                                  If it fails to update the comment history, the
+     *                                                                  result code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
+     *                                                                  </p>
      */
     boolean addCommentAndSendNotification(String comment, Integer webId, String username, Integer replyToCommentId);
 
     /**
-     * Update a comment
+     * Edit a comment
      *
      * @param commentInfo comment information to update
      * @param username    username of the user who is trying to update the comment
@@ -136,9 +140,11 @@ public interface CommentService {
      *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS}.
      *                                                                  If the comment is empty or too long, the result
      *                                                                  code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_EMPTY}
-     *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}
+     *                                                                  and {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_TOO_LONG}.
+     *                                                                  If it fails to update the edit history, the
+     *                                                                  result code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
      */
-    boolean updateComment(UpdateCommentRequest commentInfo, String username);
+    boolean editComment(UpdateCommentRequest commentInfo, String username);
 
     /**
      * Get the number of comments (exclude replies) of a bookmarked website

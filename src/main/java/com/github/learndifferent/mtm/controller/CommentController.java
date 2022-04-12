@@ -107,6 +107,10 @@ public class CommentController {
      *                                                                  and the "another comment" does not exist, then
      *                                                                  the result code will be {@link ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  </p>
+     *                                                                  <p>
+     *                                                                  If it fails to update the comment history, the
+     *                                                                  result code will be {@link ResultCode#UPDATE_FAILED}
+     *                                                                  </p>
      */
     @GetMapping("/create")
     public ResultVO<ResultCode> createComment(@RequestParam("comment") String comment,
@@ -120,28 +124,38 @@ public class CommentController {
     }
 
     /**
-     * Update a comment
+     * Edit a comment
      *
      * @param commentInfo Request body containing the comment information to update
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#updateComment(UpdateCommentRequest,
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#editComment(UpdateCommentRequest,
      *                                                                  String)} will throw exceptions with the
      *                                                                  result codes of {@link ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      *                                                                  if the comment does not exist or the user has
      *                                                                  no permissions to update the comment.
+     *                                                                  <p>
      *                                                                  It will also throw an exception if the
      *                                                                  comment existed with {@link ResultCode#COMMENT_EXISTS}.
-     *                                                                  If the website does not exist, then the result
+     *                                                                  </p>
+     *                                                                  <p>
+     *                                                                  If the bookmark does not exist, then the result
      *                                                                  code will be {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}.
+     *                                                                  </p>
+     *                                                                  <p>
      *                                                                  If the comment is empty or too long, the result
      *                                                                  code will be {@link ResultCode#COMMENT_EMPTY}
-     *                                                                  and {@link ResultCode#COMMENT_TOO_LONG}
+     *                                                                  and {@link ResultCode#COMMENT_TOO_LONG}.
+     *                                                                  </p>
+     *                                                                  <p>
+     *                                                                  If it fails to update the edit history, the
+     *                                                                  result code will be {@link ResultCode#UPDATE_FAILED}
+     *                                                                  </p>
      */
     @PostMapping
     public ResultVO<ResultCode> updateComment(@RequestBody UpdateCommentRequest commentInfo) {
         String currentUsername = getCurrentUsername();
-        boolean success = commentService.updateComment(commentInfo, currentUsername);
+        boolean success = commentService.editComment(commentInfo, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
