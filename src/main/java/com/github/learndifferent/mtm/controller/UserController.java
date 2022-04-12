@@ -140,7 +140,7 @@ public class UserController {
     }
 
     /**
-     * Get personal information
+     * Get personal information of current user
      *
      * @param request Request
      * @return {@link PersonalInfoVO Personal information}
@@ -220,7 +220,7 @@ public class UserController {
      *
      * @param userId  ID of the user
      * @param newRole the new role of the user
-     * @return Return {@link ResultCreator#okResult()} if success.
+     * @return Return {@link ResultCode#SUCCESS} if success.
      * <p>Return {@link ResultVO} with the result code of {@link ResultCode#PERMISSION_DENIED}
      * if failure, or the user role is neither {@code admin} nor {@code user}</p>
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
@@ -235,5 +235,20 @@ public class UserController {
 
         boolean success = userService.changeUserRoleAndRecordChanges(userId, newRole);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.PERMISSION_DENIED);
+    }
+
+    /**
+     * Check if the user currently logged in is admin
+     *
+     * @return {@link ResultCode#SUCCESS} if the current user is admin
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
+     */
+    @GetMapping("/admin")
+    @AdminValidation
+    public ResultVO<ResultCode> checkAdmin() {
+        return ResultCreator.okResult();
     }
 }
