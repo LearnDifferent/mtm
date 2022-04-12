@@ -23,7 +23,7 @@ public interface CommentHistoryMapper {
     boolean addHistory(CommentHistoryDTO commentHistory);
 
     /**
-     * Get the history of the comment
+     * Get the edit history of a comment
      *
      * @param commentId ID of the comment
      * @return history

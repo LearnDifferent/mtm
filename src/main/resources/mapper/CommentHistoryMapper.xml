@@ -9,6 +9,7 @@
     <select id="getHistory" resultType="com.github.learndifferent.mtm.entity.CommentHistoryDO">
         select *
         from comment_history
-        where comment_id = #{commentId};
+        where comment_id = #{commentId}
+        order by creation_time desc;
     </select>
 </mapper>

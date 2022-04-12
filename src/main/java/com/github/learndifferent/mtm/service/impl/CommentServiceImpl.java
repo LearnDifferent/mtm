@@ -12,15 +12,18 @@ import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.CommentHistoryDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.entity.CommentHistoryDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.CommentHistoryMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
+import com.github.learndifferent.mtm.query.CommentHistoryRequest;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
+import com.github.learndifferent.mtm.vo.CommentHistoryVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import java.time.Instant;
 import java.util.List;
@@ -141,9 +144,9 @@ public class CommentServiceImpl implements CommentService {
                                @Comment String comment,
                                @Username String username,
                                @WebId Integer webId) {
+        // commentId will not be null after checking by @ModifyCommentCheck
         boolean success = commentMapper.updateComment(commentId, comment);
         if (success) {
-            // commentId will not be null after checking by @ModifyCommentCheck
             CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment);
             addHistory(history);
         }
@@ -155,6 +158,22 @@ public class CommentServiceImpl implements CommentService {
         if (notSuccess) {
             throw new ServiceException(ResultCode.UPDATE_FAILED);
         }
+    }
+
+    @Override
+    public List<CommentHistoryVO> getHistory(String username, CommentHistoryRequest request) {
+        Integer commentId = request.getCommentId();
+        Integer webId = request.getWebId();
+        CommentServiceImpl bean = ApplicationContextUtils.getBean(CommentServiceImpl.class);
+        return bean.getHistory(username, commentId, webId);
+    }
+
+    @GetCommentsCheck
+    public List<CommentHistoryVO> getHistory(@Username String username,
+                                             Integer commentId,
+                                             @WebId Integer webId) {
+        List<CommentHistoryDO> history = commentHistoryMapper.getHistory(commentId);
+        return DozerUtils.convertList(history, CommentHistoryVO.class);
     }
 
     @Override

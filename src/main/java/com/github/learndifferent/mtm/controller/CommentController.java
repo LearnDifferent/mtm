@@ -3,11 +3,13 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.query.CommentHistoryRequest;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
+import com.github.learndifferent.mtm.vo.CommentHistoryVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,20 @@ public class CommentController {
     public CommentController(CommentService commentService) {this.commentService = commentService;}
 
     /**
+     * Get a comment
+     *
+     * @param commentId ID of the comment
+     * @return {@link ResultVO}<{@link CommentVO}> Return result code of {@link ResultCode#SUCCESS}
+     * with the comment as data if the comment exists. If the comment does not exist, return the result code of
+     * {@link ResultCode#FAILED}
+     */
+    @GetMapping
+    public ResultVO<CommentVO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId) {
+        CommentVO comment = commentService.getCommentById(commentId);
+        return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
+    }
+
+    /**
      * Get comment data of a bookmark
      *
      * @param webId            ID of the bookmarked website data
@@ -56,19 +72,31 @@ public class CommentController {
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
-    @GetMapping
-    public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("webId") Integer webId,
+    @GetMapping("/get/{webId}")
+    public ResultVO<List<BookmarkCommentVO>> getComments(@PathVariable("webId") Integer webId,
                                                          @RequestParam(value = "replyToCommentId", required = false)
                                                                  Integer replyToCommentId,
                                                          @RequestParam("load") Integer load,
                                                          @RequestParam("order") Order order) {
-        String currentUsername = getCurrentUsername();
+        String currentUsername = StpUtil.getLoginIdAsString();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
                 webId, replyToCommentId, load, currentUsername, order);
 
         ResultCode code = CollectionUtils.isEmpty(comments) ? ResultCode.NO_RESULTS_FOUND
                 : ResultCode.SUCCESS;
         return ResultCreator.result(code, comments);
+    }
+
+    /**
+     * Get the number of comments (exclude replies) of a bookmarked website
+     *
+     * @param webId ID of the bookmarked website data
+     * @return number of comments of the bookmarked website
+     */
+    @GetMapping("/get/number/{webId}")
+    public ResultVO<Integer> countComment(@PathVariable("webId") Integer webId) {
+        int number = commentService.countCommentByWebId(webId);
+        return ResultCreator.okResult(number);
     }
 
     /**
@@ -108,7 +136,7 @@ public class CommentController {
      *                                                                  the result code will be {@link ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  </p>
      *                                                                  <p>
-     *                                                                  If it fails to update the comment history, the
+     *                                                                  If it fails to add to the edit history, the
      *                                                                  result code will be {@link ResultCode#UPDATE_FAILED}
      *                                                                  </p>
      */
@@ -117,7 +145,7 @@ public class CommentController {
                                               @RequestParam("webId") Integer webId,
                                               @RequestParam(value = "replyToCommentId",
                                                             required = false) Integer replyToCommentId) {
-        String currentUsername = getCurrentUsername();
+        String currentUsername = StpUtil.getLoginIdAsString();
         boolean success = commentService.addCommentAndSendNotification(
                 comment, webId, currentUsername, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
@@ -148,13 +176,13 @@ public class CommentController {
      *                                                                  and {@link ResultCode#COMMENT_TOO_LONG}.
      *                                                                  </p>
      *                                                                  <p>
-     *                                                                  If it fails to update the edit history, the
+     *                                                                  If it fails to add to the edit history, the
      *                                                                  result code will be {@link ResultCode#UPDATE_FAILED}
      *                                                                  </p>
      */
     @PostMapping
     public ResultVO<ResultCode> updateComment(@RequestBody UpdateCommentRequest commentInfo) {
-        String currentUsername = getCurrentUsername();
+        String currentUsername = StpUtil.getLoginIdAsString();
         boolean success = commentService.editComment(commentInfo, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
@@ -174,38 +202,20 @@ public class CommentController {
      */
     @DeleteMapping
     public ResultVO<ResultCode> deleteComment(@RequestParam("commentId") Integer commentId) {
-        String currentUsername = getCurrentUsername();
+        String currentUsername = StpUtil.getLoginIdAsString();
         boolean success = commentService.deleteCommentById(commentId, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
     /**
-     * Get a comment
+     * Get the edit history of a comment
      *
-     * @param commentId ID of the comment
-     * @return {@link ResultVO}<{@link CommentVO}> Return result code of {@link ResultCode#SUCCESS}
-     * with the comment as data if the comment exists. If the comment does not exist, return the result code of
-     * {@link ResultCode#FAILED}
+     * @param request Request body that contains ID of the comment and ID of the bookmarked website data
+     * @return history of the comment
      */
-    @GetMapping("/get")
-    public ResultVO<CommentVO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId) {
-        CommentVO comment = commentService.getCommentById(commentId);
-        return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
-    }
-
-    /**
-     * Get the number of comments (exclude replies) of a bookmarked website
-     *
-     * @param webId ID of the bookmarked website data
-     * @return number of comments of the bookmarked website
-     */
-    @GetMapping("/get/{webId}")
-    public ResultVO<Integer> countComment(@PathVariable("webId") Integer webId) {
-        int number = commentService.countCommentByWebId(webId);
-        return ResultCreator.okResult(number);
-    }
-
-    private String getCurrentUsername() {
-        return StpUtil.getLoginIdAsString();
+    @PostMapping("/history")
+    public List<CommentHistoryVO> getCommentHistory(@RequestBody CommentHistoryRequest request) {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        return commentService.getHistory(currentUsername, request);
     }
 }
