@@ -27,10 +27,6 @@ public class UserVO implements Serializable {
      */
     private String userId;
     /**
-     * Password
-     */
-    private String password;
-    /**
      * Creation Time
      */
     private Instant createTime;
