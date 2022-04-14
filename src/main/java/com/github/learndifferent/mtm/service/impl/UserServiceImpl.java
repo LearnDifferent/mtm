@@ -71,11 +71,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean addUser(UserIdentificationRequest userIdentification, UserRole role) {
+    public String addUserAndGetUsername(UserIdentificationRequest userIdentification, UserRole role) {
 
         String username = userIdentification.getUserName();
         String notEncryptedPassword = userIdentification.getPassword();
-        return userAccountManager.createUser(username, notEncryptedPassword, role);
+        return userAccountManager.createUserAndGetUsername(username, notEncryptedPassword, role);
     }
 
     @Override

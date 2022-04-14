@@ -48,7 +48,7 @@ public interface UserService {
      *
      * @param userIdentification Request body that contains username and password entered by the user
      * @param role               user role
-     * @return true if success
+     * @return Username of the user
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method will verify and throw an exception
      *                                                                  if something goes wrong. If the username is
      *                                                                  already taken, the result will be {@link
@@ -67,7 +67,7 @@ public interface UserService {
      *                                                                  result will be {@link
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
      */
-    boolean addUser(UserIdentificationRequest userIdentification, UserRole role);
+    String addUserAndGetUsername(UserIdentificationRequest userIdentification, UserRole role);
 
     /**
      * Get user role by username

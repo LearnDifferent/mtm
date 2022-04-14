@@ -101,7 +101,9 @@ public class UserAccountManager {
     }
 
     /**
-     * Add a user: encrypt the password, set a user ID and the creation time
+     * Complete the user information by encrypting the password, setting a user ID
+     * and setting the creation time. After this operation, add the user to database
+     * and return the username.
      *
      * @param username             username
      * @param notEncryptedPassword not encrypted password
@@ -120,13 +122,13 @@ public class UserAccountManager {
      *                          com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
      */
     @UserCreationCheck
-    public boolean createUser(@Username String username,
-                              @Password String notEncryptedPassword,
-                              UserRole role) {
+    public String createUserAndGetUsername(@Username String username,
+                                           @Password String notEncryptedPassword,
+                                           UserRole role) {
 
         UserDTO user = UserDTO.ofNewUser(username, notEncryptedPassword, role);
         try {
-            return createUser(user);
+            return createUserAndGetUsername(user);
         } catch (DuplicateKeyException e) {
             // DuplicateKeyException is same as com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
             // the primary key is userName, so duplicate key means username is already taken
@@ -134,12 +136,13 @@ public class UserAccountManager {
         }
     }
 
-    private boolean createUser(UserDTO user) {
+    private String createUserAndGetUsername(UserDTO user) {
         boolean success = userMapper.addUser(user);
         if (success) {
             saveToElasticsearchAsync(user);
+            return user.getUserName();
         }
-        return true;
+        throw new ServiceException(ResultCode.USER_ALREADY_EXIST);
     }
 
     private void saveToElasticsearchAsync(UserDTO user) {
