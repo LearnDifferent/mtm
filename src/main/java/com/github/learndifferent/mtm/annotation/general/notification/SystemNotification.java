@@ -21,7 +21,7 @@ public @interface SystemNotification {
      *
      * @return Priority level
      */
-    PriorityLevel priority() default PriorityLevel.URGENT;
+    PriorityLevel priority() default PriorityLevel.LOW;
 
     /**
      * Message type
@@ -31,6 +31,10 @@ public @interface SystemNotification {
     MessageType messageType();
 
     enum MessageType {
+        /**
+         * A new user has been created
+         */
+        NEW_USER,
         /**
          * User logged in
          */

@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.IpUtils;
 import java.time.LocalDateTime;
@@ -43,6 +44,8 @@ public class SystemNotificationAspect {
                 return sendLogoutMessage(pjp, priority);
             case LOGIN:
                 return sendLoginMessage(pjp, priority);
+            case NEW_USER:
+                return sendNewUserMessage(pjp, priority);
             default:
                 return doNotSend(pjp);
         }
@@ -60,19 +63,29 @@ public class SystemNotificationAspect {
         return pjp.proceed();
     }
 
-    private String getTime() {
-        return DateTimeFormatter.ofPattern("MM-dd HH:mm").format(LocalDateTime.now());
-    }
-
-
     private Object sendLoginMessage(ProceedingJoinPoint pjp,
                                     PriorityLevel priority) throws Throwable {
 
-        Object proceed = pjp.proceed();
+        Object result = pjp.proceed();
         // after
         sendNotification("Login (" + getTime() + ")", getUsername(), priority);
 
-        return proceed;
+        return result;
+    }
+
+    private Object sendNewUserMessage(ProceedingJoinPoint pjp,
+                                      PriorityLevel priority) throws Throwable {
+        Object result = pjp.proceed();
+
+        // get the ResultVO<String>
+        ResultVO<String> r = (ResultVO<String>) result;
+        sendNotification("New User", r.getData(), priority);
+
+        return result;
+    }
+
+    private String getTime() {
+        return DateTimeFormatter.ofPattern("MM-dd HH:mm").format(LocalDateTime.now());
     }
 
     private String getUsername() {

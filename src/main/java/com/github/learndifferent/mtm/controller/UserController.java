@@ -1,10 +1,13 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification;
+import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
+import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
@@ -55,7 +58,7 @@ public class UserController {
     }
 
     /**
-     * Create a user
+     * Create a user and return the username
      *
      * @param userIdentification Request body that contains username and password entered by the user
      * @param code               verification code
@@ -65,7 +68,7 @@ public class UserController {
      *                           UserRole#ADMIN})
      * @param invitationToken    token for invitation code
      *                           (the value will be ignored if the user role is not {@link UserRole#ADMIN})
-     * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
+     * @return Username
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link VerificationService#checkRegisterCodes(String,
      *                                                                  String, UserRole, String, String)} will throw
      *                                                                  an
@@ -74,7 +77,7 @@ public class UserController {
      *                                                                  {@link ResultCode#INVITATION_CODE_FAILED}
      *                                                                  if failed verification.
      *                                                                  <p>
-     *                                                                  {@link UserService#addUser(UserIdentificationRequest,
+     *                                                                  {@link UserService#addUserAndGetUsername(UserIdentificationRequest,
      *                                                                  UserRole)} will verify username and
      *                                                                  password, and throw an exception with one of
      *                                                                  these result codes if failed verification:
@@ -87,18 +90,19 @@ public class UserController {
      *                                                                  </p>
      */
     @PostMapping
-    public ResultVO<ResultCode> createUser(@RequestBody UserIdentificationRequest userIdentification,
-                                           @RequestParam("code") String code,
-                                           @RequestParam("token") String token,
-                                           @RequestParam("role") UserRole role,
-                                           @RequestParam(value = "invitationCode", required = false)
-                                                   String invitationCode,
-                                           @RequestParam(value = "invitationToken", required = false)
-                                                   String invitationToken) {
+    @SystemNotification(priority = PriorityLevel.URGENT, messageType = MessageType.NEW_USER)
+    public ResultVO<String> createUser(@RequestBody UserIdentificationRequest userIdentification,
+                                       @RequestParam("code") String code,
+                                       @RequestParam("token") String token,
+                                       @RequestParam("role") UserRole role,
+                                       @RequestParam(value = "invitationCode", required = false)
+                                               String invitationCode,
+                                       @RequestParam(value = "invitationToken", required = false)
+                                               String invitationToken) {
 
         verificationService.checkRegisterCodes(code, token, role, invitationCode, invitationToken);
-        boolean success = userService.addUser(userIdentification, role);
-        return success ? ResultCreator.okResult() : ResultCreator.failResult();
+        String username = userService.addUserAndGetUsername(userIdentification, role);
+        return ResultCreator.okResult(username);
     }
 
     /**

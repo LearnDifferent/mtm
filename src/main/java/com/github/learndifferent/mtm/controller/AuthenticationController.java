@@ -4,7 +4,6 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
-import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -67,7 +66,7 @@ public class AuthenticationController {
      * @return {@link ResultCode#SUCCESS}
      */
     @GetMapping("/logout")
-    @SystemNotification(priority = PriorityLevel.LOW, messageType = MessageType.LOGOUT)
+    @SystemNotification(messageType = MessageType.LOGOUT)
     public ResultVO<ResultCode> logout() {
         StpUtil.logout();
         return ResultCreator.okResult();
