@@ -26,6 +26,7 @@ import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
 import com.github.learndifferent.mtm.vo.CommentHistoryVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -56,7 +57,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentVO getCommentById(Integer commentId) {
+    @GetCommentsCheck
+    public CommentVO getCommentById(Integer commentId,
+                                    @WebId Integer webId,
+                                    @Username String username) {
         if (commentId == null) {
             return null;
         }
@@ -82,7 +86,7 @@ public class CommentServiceImpl implements CommentService {
             comment.setRepliesCount(repliesCount);
         });
 
-        return comments;
+        return Collections.unmodifiableList(comments);
     }
 
     @Override
@@ -173,7 +177,8 @@ public class CommentServiceImpl implements CommentService {
                                              Integer commentId,
                                              @WebId Integer webId) {
         List<CommentHistoryDO> history = commentHistoryMapper.getHistory(commentId);
-        return DozerUtils.convertList(history, CommentHistoryVO.class);
+        List<CommentHistoryVO> result = DozerUtils.convertList(history, CommentHistoryVO.class);
+        return Collections.unmodifiableList(result);
     }
 
     @Override

@@ -36,19 +36,31 @@ public class CommentController {
     private final CommentService commentService;
 
     @Autowired
-    public CommentController(CommentService commentService) {this.commentService = commentService;}
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
 
     /**
      * Get a comment
      *
-     * @param commentId ID of the comment
+     * @param commentId ID of the comment.
+     *                  <p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>
+     * @param webId     ID of the bookmarked website data
      * @return {@link ResultVO}<{@link CommentVO}> Return result code of {@link ResultCode#SUCCESS}
      * with the comment as data if the comment exists. If the comment does not exist, return the result code of
      * {@link ResultCode#FAILED}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
+     *                                                                  does not have permissions to get the
+     *                                                                  comments, {@link CommentService#getCommentById(Integer,
+     *                                                                  Integer, String)} will throw an exception with
+     *                                                                  the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
+     *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @GetMapping
-    public ResultVO<CommentVO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId) {
-        CommentVO comment = commentService.getCommentById(commentId);
+    public ResultVO<CommentVO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId,
+                                              @RequestParam("webId") Integer webId) {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        CommentVO comment = commentService.getCommentById(commentId, webId, currentUsername);
         return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
     }
 
@@ -211,11 +223,14 @@ public class CommentController {
      * Get the edit history of a comment
      *
      * @param request Request body that contains ID of the comment and ID of the bookmarked website data
-     * @return history of the comment
+     * @return Return the history of the comment with the result code {@link ResultCode#SUCCESS}
+     * if the comment has been edited. Otherwise, return the result code of {@link ResultCode#FAILED}
      */
     @PostMapping("/history")
-    public List<CommentHistoryVO> getCommentHistory(@RequestBody CommentHistoryRequest request) {
+    public ResultVO<List<CommentHistoryVO>> getCommentHistory(@RequestBody CommentHistoryRequest request) {
         String currentUsername = StpUtil.getLoginIdAsString();
-        return commentService.getHistory(currentUsername, request);
+        List<CommentHistoryVO> result = commentService.getHistory(currentUsername, request);
+        boolean hasBeenEdited = result.size() > 1;
+        return hasBeenEdited ? ResultCreator.okResult(result) : ResultCreator.failResult();
     }
 }

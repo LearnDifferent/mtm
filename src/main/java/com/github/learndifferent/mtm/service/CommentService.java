@@ -19,10 +19,21 @@ public interface CommentService {
     /**
      * Get a comment by ID
      *
-     * @param commentId ID of the comment
+     * @param commentId ID of the comment (Return null if {@code commentId} is null)
+     * @param webId     ID of the bookmarked website data
+     * @param username  Username of the user who is trying to get the comment
      * @return the comment (null if comment does not exist)
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
+     *                                                                  does not have permissions to get the website's
+     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck
+     *                                                                  GetCommentsCheck} annotation will throw an
+     *                                                                  exception with the
+     *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
+     *                                                                  WEBSITE_DATA_NOT_EXISTS}
+     *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
+     *                                                                  PERMISSION_DENIED}
      */
-    CommentVO getCommentById(Integer commentId);
+    CommentVO getCommentById(Integer commentId, Integer webId, String username);
 
     /**
      * Get comments of a bookmark
