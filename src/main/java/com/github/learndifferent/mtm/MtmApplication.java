@@ -1,19 +1,17 @@
 package com.github.learndifferent.mtm;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 启动入口
+ * Application class
  *
  * @author zhou
  * @date 2021/09/05
  */
-@EnableScheduling
-@MapperScan("com.github.learndifferent.mtm.mapper")
 @SpringBootApplication
+@EnableScheduling
 public class MtmApplication {
 
     public static void main(String[] args) {
