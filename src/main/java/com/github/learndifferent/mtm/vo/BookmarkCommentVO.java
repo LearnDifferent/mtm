@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.vo;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +23,7 @@ import lombok.experimental.Accessors;
 public class BookmarkCommentVO implements Serializable {
 
     /**
-     * Comment ID
+     * ID of the comment
      */
     private Integer commentId;
 
@@ -44,7 +45,7 @@ public class BookmarkCommentVO implements Serializable {
     /**
      * ID of the comment to reply
      * <p>
-     * null if this is not a reply
+     * Null if this is not a reply
      * </p>
      */
     private Integer replyToCommentId;
@@ -53,6 +54,12 @@ public class BookmarkCommentVO implements Serializable {
      * Count of the replies from this comment
      */
     private Integer repliesCount;
+
+    /**
+     * Edit history of the comment
+     * <p>If the comment has not been edited, this will be an empty list</p>
+     */
+    private List<CommentHistoryVO> history;
 
     private static final long serialVersionUID = 1L;
 }

@@ -1,10 +1,8 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.Order;
-import com.github.learndifferent.mtm.query.CommentHistoryRequest;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
-import com.github.learndifferent.mtm.vo.CommentHistoryVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import java.util.List;
 
@@ -158,15 +156,6 @@ public interface CommentService {
      *                                                                  result code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
      */
     boolean editComment(UpdateCommentRequest commentInfo, String username);
-
-    /**
-     * Get the edit history of a comment
-     *
-     * @param username username of the user who is requesting the history
-     * @param request  ID of the comment and ID of the bookmarked website data
-     * @return history of the comment
-     */
-    List<CommentHistoryVO> getHistory(String username, CommentHistoryRequest request);
 
     /**
      * Get the number of comments (exclude replies) of a bookmarked website

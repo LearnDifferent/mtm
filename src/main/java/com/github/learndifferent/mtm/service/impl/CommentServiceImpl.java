@@ -17,7 +17,6 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.CommentHistoryMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
-import com.github.learndifferent.mtm.query.CommentHistoryRequest;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
@@ -64,8 +63,11 @@ public class CommentServiceImpl implements CommentService {
         if (commentId == null) {
             return null;
         }
-        CommentDO comment = commentMapper.getCommentById(commentId);
-        return DozerUtils.convert(comment, CommentVO.class);
+        CommentDO commentDO = commentMapper.getCommentById(commentId);
+        CommentVO comment = DozerUtils.convert(commentDO, CommentVO.class);
+        List<CommentHistoryVO> history = getHistory(commentId);
+        comment.setHistory(history);
+        return comment;
     }
 
     @Override
@@ -81,12 +83,28 @@ public class CommentServiceImpl implements CommentService {
 
         comments.forEach(comment -> {
             // Get a count of the replies from this comment (comment id won't be null)
-            int countRepliesFromCommentId = comment.getCommentId();
-            int repliesCount = commentMapper.countRepliesFromComment(countRepliesFromCommentId);
+            int id = comment.getCommentId();
+            int repliesCount = commentMapper.countRepliesFromComment(id);
             comment.setRepliesCount(repliesCount);
+            // Get the edit history of the comment
+            List<CommentHistoryVO> history = getHistory(id);
+            comment.setHistory(history);
         });
-
         return Collections.unmodifiableList(comments);
+    }
+
+    /**
+     * Get edit history of the comment
+     *
+     * @param commentId ID of the comment
+     * @return Return edit history of the comment if the comment has been edited.
+     * Otherwise, return an empty list.
+     */
+    private List<CommentHistoryVO> getHistory(Integer commentId) {
+        List<CommentHistoryDO> history = commentHistoryMapper.getHistory(commentId);
+        List<CommentHistoryVO> result = DozerUtils.convertList(history, CommentHistoryVO.class);
+        result = result.size() > 1 ? result : Collections.emptyList();
+        return Collections.unmodifiableList(result);
     }
 
     @Override
@@ -162,23 +180,6 @@ public class CommentServiceImpl implements CommentService {
         if (notSuccess) {
             throw new ServiceException(ResultCode.UPDATE_FAILED);
         }
-    }
-
-    @Override
-    public List<CommentHistoryVO> getHistory(String username, CommentHistoryRequest request) {
-        Integer commentId = request.getCommentId();
-        Integer webId = request.getWebId();
-        CommentServiceImpl bean = ApplicationContextUtils.getBean(CommentServiceImpl.class);
-        return bean.getHistory(username, commentId, webId);
-    }
-
-    @GetCommentsCheck
-    public List<CommentHistoryVO> getHistory(@Username String username,
-                                             Integer commentId,
-                                             @WebId Integer webId) {
-        List<CommentHistoryDO> history = commentHistoryMapper.getHistory(commentId);
-        List<CommentHistoryVO> result = DozerUtils.convertList(history, CommentHistoryVO.class);
-        return Collections.unmodifiableList(result);
     }
 
     @Override

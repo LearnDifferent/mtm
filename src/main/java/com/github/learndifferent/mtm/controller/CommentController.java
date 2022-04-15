@@ -3,13 +3,11 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.query.CommentHistoryRequest;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
-import com.github.learndifferent.mtm.vo.CommentHistoryVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,20 +215,5 @@ public class CommentController {
         String currentUsername = StpUtil.getLoginIdAsString();
         boolean success = commentService.deleteCommentById(commentId, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
-    }
-
-    /**
-     * Get the edit history of a comment
-     *
-     * @param request Request body that contains ID of the comment and ID of the bookmarked website data
-     * @return Return the history of the comment with the result code {@link ResultCode#SUCCESS}
-     * if the comment has been edited. Otherwise, return the result code of {@link ResultCode#FAILED}
-     */
-    @PostMapping("/history")
-    public ResultVO<List<CommentHistoryVO>> getCommentHistory(@RequestBody CommentHistoryRequest request) {
-        String currentUsername = StpUtil.getLoginIdAsString();
-        List<CommentHistoryVO> result = commentService.getHistory(currentUsername, request);
-        boolean hasBeenEdited = result.size() > 1;
-        return hasBeenEdited ? ResultCreator.okResult(result) : ResultCreator.failResult();
     }
 }
