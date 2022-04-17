@@ -23,7 +23,6 @@ mybatis:
     map-underscore-to-camel-case: true
 # Elasticsearch Configuration
 elasticsearch:
-  host: es
   port: 9200
   scheme-name: http
 # Async Configuration
@@ -54,6 +53,8 @@ spring:
 # Redis Configuration
 custom-redis:
   host: mid
+elasticsearch:
+  host: es
 ---
 spring:
   profiles: dev
@@ -63,6 +64,8 @@ spring:
     password: rootroot
 # Redis Configuration
 custom-redis:
+  host: localhost
+elasticsearch:
   host: localhost
 logging:
   level:
