@@ -39,6 +39,14 @@ CREATE TABLE IF NOT EXISTS `comment`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `comment_history`
+(
+    `comment_id`    int(11) unsigned NOT NULL,
+    `comment`       varchar(140)     NOT NULL,
+    `creation_time` datetime         NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `system_log`
 (
     `title`    varchar(256)  NOT NULL,
@@ -63,6 +71,7 @@ CREATE TABLE IF NOT EXISTS `tag`
     `web_id` int(11)       not null
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
 
 insert into user
 values ('first_user', 'Guest', '0bb2b8178920142d4598bd4b61924a2c', CURRENT_DATE(), 'guest');
