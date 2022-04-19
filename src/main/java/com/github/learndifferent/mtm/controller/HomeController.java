@@ -69,10 +69,10 @@ public class HomeController {
      * Filter public bookmarked sites
      * <p>
      * {@code fromTimestamp} and {@code toTimestamp} is used to query a specific range of time.
+     * </p>
      * <li>It will not query a range of time if both of them are null.</li>
      * <li>It will set the null value to the current time if one of them is null</li>
      * <li>It will swap the two values if necessary.</li>
-     * </p>
      *
      * @param usernames     request body that contains usernames
      *                      <p>null or empty if select all users</p>
