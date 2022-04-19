@@ -8,7 +8,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver # MySQL Version 5
     type: com.alibaba.druid.pool.DruidDataSource
   mail:
-    username: # Your Email. For Instance: abc@email.com
+    username: # Your Email Address. For Instance: abc@email.com
     password: # Your Email Password.
     host: # Your Email Host. For Instance: smtp.xxx.com
   sa-token:
