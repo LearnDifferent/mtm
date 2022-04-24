@@ -27,14 +27,14 @@ public final class KeyConstant {
     public static final String REPLY_NOTIFICATION_PREFIX = "notification:";
 
     /**
-     * The key of reply notification count is "notification:count:" + lowercase username
+     * The key of reply notification count is "count:notification:" + lowercase username
      */
-    public static final String REPLY_NOTIFICATION_COUNT_PREFIX = "notification:count:";
+    public static final String REPLY_NOTIFICATION_COUNT_PREFIX = "count:notification:";
 
     /**
      * The key of the set in Redis which stores all the keys that contain the view data
      */
-    public static final String VIEW_KEY_SET = "view:all";
+    public static final String VIEW_KEY_SET = "all:view";
 
     /**
      * The key prefix of the key that stores the number of views of a bookmark
