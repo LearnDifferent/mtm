@@ -4,8 +4,6 @@
          alt="MTM" 
          width="25%">
   </a>
-<!--   <br> -->
-<!--   MTM -->
 </h1>
 
 <div align="center">
@@ -22,8 +20,25 @@
   </h4>
 </div>
 
-<h3 align="center">A social bookmarking site built with Spring Boot, MySQL, MyBatis, Redis, Elasticsearch, Vue and Docker</h3>
-<br>
+<h3 align="center">
+	<a name="tech">
+		<img src="https://img.shields.io/badge/-Java-000?&logo=Java&logoColor=007396&style=flat-square"/>
+		<img src="https://img.shields.io/badge/-Spring%20Boot-000?&logo=springboot&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-Redis-000?&logo=Redis&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-Mysql%20&%20MyBatis-000?&logo=mysql&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-Elasticsearch-000?&logo=Elasticsearch&logoColor=007396&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-JUnit%20&%20Mockito-000?&logo=JUnit5&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-Maven-000?&logo=ApacheMaven&logoColor=e9546b&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-Docker-000?&logo=Docker&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-JavaScript-000?&logo=JavaScript&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-Vue-000?&logo=vue.js&style=flat-square)"/>
+		<img src="https://img.shields.io/badge/-Vuetify-000?&logo=vuetify&logoColor=426579&style=flat-square)"/>
+	</a>
+</h3>
+
+# MTM
+
+MTM is a social bookmarking site built with Spring Boot, MySQL, MyBatis, Redis, Elasticsearch, Vue and Docker
 
 ## Table of Contents
 
