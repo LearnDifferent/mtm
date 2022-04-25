@@ -30,9 +30,6 @@
 		<img src="https://img.shields.io/badge/-JUnit%20&%20Mockito-000?&logo=JUnit5&style=flat-square)"/>
 		<img src="https://img.shields.io/badge/-Maven-000?&logo=ApacheMaven&logoColor=e9546b&style=flat-square)"/>
 		<img src="https://img.shields.io/badge/-Docker-000?&logo=Docker&style=flat-square)"/>
-		<img src="https://img.shields.io/badge/-JavaScript-000?&logo=JavaScript&style=flat-square)"/>
-		<img src="https://img.shields.io/badge/-Vue-000?&logo=vue.js&style=flat-square)"/>
-		<img src="https://img.shields.io/badge/-Vuetify-000?&logo=vuetify&logoColor=426579&style=flat-square)"/>
 	</a>
 </h3>
 
