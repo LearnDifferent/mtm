@@ -55,4 +55,9 @@ public final class KeyConstant {
      * The hash key of {@link #ROLE_CHANGE_RECORD_PREFIX}
      */
     public static final String NEW_ROLE_CHANGE_RECORD_HASH_KEY = "new";
+
+    /**
+     * Usernames of the users who turned off notifications
+     */
+    public static final String MUTE_NOTIFICATIONS = "mute:notifications";
 }
