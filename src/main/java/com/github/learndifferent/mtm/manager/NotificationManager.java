@@ -335,4 +335,17 @@ public class NotificationManager {
         String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
         deleteByKey(key);
     }
+
+    /**
+     * Check if the user has turned off notifications
+     *
+     * @param username username
+     * @return true if the user has turned off notifications
+     */
+    public boolean checkIfTurnOffNotifications(String username) {
+        Boolean result = redisTemplate.opsForSet()
+                .isMember(KeyConstant.MUTE_NOTIFICATIONS, username.toLowerCase());
+
+        return Optional.ofNullable(result).orElse(false);
+    }
 }
