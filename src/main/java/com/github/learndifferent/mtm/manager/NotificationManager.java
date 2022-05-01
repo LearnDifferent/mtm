@@ -348,4 +348,25 @@ public class NotificationManager {
 
         return Optional.ofNullable(result).orElse(false);
     }
+
+    /**
+     * Turn on notifications if the user turned off notifications and
+     * turn off notifications if the user turned on notifications
+     *
+     * @param username username of the user who wants to turn on/off notifications
+     */
+    public void turnOnTurnOffNotifications(String username) {
+        String key = KeyConstant.MUTE_NOTIFICATIONS;
+        String val = username.toLowerCase();
+
+        boolean hasTurnedOff = checkIfTurnOffNotifications(val);
+        if (hasTurnedOff) {
+            // turn on notifications
+            redisTemplate.opsForSet().remove(key, val);
+            return;
+        }
+
+        // turn off notifications
+        redisTemplate.opsForSet().add(key, val);
+    }
 }
