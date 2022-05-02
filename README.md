@@ -72,6 +72,7 @@ MTM is a social bookmarking site built with Spring Boot, MySQL, MyBatis, Redis, 
 
 [Frontend (mtm-ui)](https://github.com/LearnDifferent/mtm-ui)
 
+- [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [Vue.js](https://github.com/vuejs/vue)
 - [Vuetify](https://github.com/vuetifyjs/vuetify)
 - [Moment](https://github.com/moment/moment)
