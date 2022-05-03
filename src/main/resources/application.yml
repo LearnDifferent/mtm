@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: @profileActive@
   application:
     name: web
   datasource:
@@ -12,7 +12,7 @@ spring:
     password: # Your Email Password.
     host: # Your Email Host. For Instance: smtp.xxx.com
   sa-token:
-    # create separate tokens for each user when they login with the same account
+    # Create separate tokens for each user when they login with the same account
     is-share: false
 server:
   port: 80
@@ -42,35 +42,3 @@ custom-redis:
     "system-log": 40
     "[bookmarks:visited]": 0
     "[tag:a]": 0
----
-spring:
-  profiles: prod
-  datasource:
-    # "db" is the host of MySQL
-    url: jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
-    username: root
-    password: LearnDifferent
-# Redis Configuration
-custom-redis:
-  host: mid
-elasticsearch:
-  host: es
----
-spring:
-  profiles: dev
-  datasource:
-    url: jdbc:mysql://localhost:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
-    username: root
-    password: rootroot
-# Redis Configuration
-custom-redis:
-  host: localhost
-elasticsearch:
-  host: localhost
-logging:
-  level:
-    com:
-      github:
-        learndifferent:
-          mtm:
-            mapper: debug

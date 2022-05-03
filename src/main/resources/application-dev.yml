@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: rootroot # Change it to your MySQL root user password
+# Redis Configuration
+custom-redis:
+  host: localhost
+# Elasticsearch Configuration
+elasticsearch:
+  host: localhost
+logging:
+  level:
+    com:
+      github:
+        learndifferent:
+          mtm:
+            mapper: debug

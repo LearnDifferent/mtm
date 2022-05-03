@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    # "db" is the host of MySQL
+    url: jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: LearnDifferent
+# Redis Configuration
+custom-redis:
+  host: mid
+# Elasticsearch Configuration
+elasticsearch:
+  host: es
