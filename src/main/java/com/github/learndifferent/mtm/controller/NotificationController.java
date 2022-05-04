@@ -81,7 +81,7 @@ public class NotificationController {
     }
 
     /**
-     * Get Current User's Role Change Notification
+     * Get current user's role change notification
      *
      * @return Return {@link ResultCreator#okResult(Object)} with the notification.
      * <p>
@@ -98,11 +98,34 @@ public class NotificationController {
     }
 
     /**
-     * Delete Role Change Notification for Current User
+     * Delete role change notification for current user
      */
     @DeleteMapping("/role-changed")
     public void deleteRoleChangeNotification() {
         String currentUsername = StpUtil.getLoginIdAsString();
         notificationService.deleteRoleChangeNotification(currentUsername);
+    }
+
+    /**
+     * Check if the user currently logged in has turned off notifications
+     *
+     * @return Return {@link ResultCode#SUCCESS} if the user has turned off notifications
+     * and {@link ResultCode#FAILED} if the user has turned on notifications
+     */
+    @GetMapping("/mute")
+    public ResultVO<ResultCode> checkIfTurnOffNotifications() {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        boolean hasTurnedOff = notificationService.checkIfTurnOffNotifications(currentUsername);
+        return hasTurnedOff ? ResultCreator.okResult() : ResultCreator.failResult();
+    }
+
+    /**
+     * Turn on notifications if the current user turned off notifications and
+     * turn off notifications if the current user turned on notifications
+     */
+    @GetMapping("/mute/switch")
+    public void turnOnTurnOffNotifications() {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        notificationService.turnOnTurnOffNotifications(currentUsername);
     }
 }
