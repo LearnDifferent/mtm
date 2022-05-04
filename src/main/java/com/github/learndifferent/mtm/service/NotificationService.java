@@ -25,7 +25,8 @@ public interface NotificationService {
      * Count the number of new reply notifications
      *
      * @param receiveUsername username
-     * @return number of new reply notifications
+     * @return Return the number of new reply notifications,
+     * or return 0 if the user turned off notifications
      */
     int countNewReplyNotifications(String receiveUsername);
 
@@ -90,8 +91,9 @@ public interface NotificationService {
      * Check whether the user has read the latest system notification
      *
      * @param username username of the user
-     * @return true if user has read the latest notification, or there is no system notification
-     * <p>false if user has not read the latest notification</p>
+     * @return Return true if user has read the latest notification, or there is no system notification.
+     * If the user turned off the notifications, return true as well.
+     * <p>Return false if user has not read the latest notification</p>
      */
     boolean checkIfReadLatestSysNotification(String username);
 
@@ -119,4 +121,11 @@ public interface NotificationService {
      */
     boolean checkIfTurnOffNotifications(String username);
 
+    /**
+     * Turn on notifications if the user turned off notifications and
+     * turn off notifications if the user turned on notifications
+     *
+     * @param username username of the user who wants to turn on/off notifications
+     */
+    void turnOnTurnOffNotifications(String username);
 }

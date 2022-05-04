@@ -41,7 +41,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public int countNewReplyNotifications(String receiveUsername) {
-        return notificationManager.countNewReplyNotifications(receiveUsername);
+        boolean hasTurnedOff = checkIfTurnOffNotifications(receiveUsername);
+        return hasTurnedOff ? 0
+                : notificationManager.countNewReplyNotifications(receiveUsername);
     }
 
     @Override
@@ -87,7 +89,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public boolean checkIfReadLatestSysNotification(String username) {
-        return notificationManager.checkIfReadLatestSysNotification(username);
+        boolean hasTurnedOffNotification = checkIfTurnOffNotifications(username);
+        return hasTurnedOffNotification || notificationManager.checkIfReadLatestSysNotification(username);
     }
 
     @Override
@@ -115,4 +118,8 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationManager.checkIfTurnOffNotifications(username);
     }
 
+    @Override
+    public void turnOnTurnOffNotifications(String username) {
+        notificationManager.turnOnTurnOffNotifications(username);
+    }
 }
