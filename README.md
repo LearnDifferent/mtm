@@ -269,18 +269,16 @@ git clone git@github.com:LearnDifferent/mtm.git
 
 #### Database
 
-1. Change the `spring.datasource.password` in [application.yml](./src/main/resources/application.yml) to your MySQL root user password. For example:
+1. Import [init.sql](./init.sql) into MySQL
+1. Change the `spring.datasource.password` in [application-dev.yml](./src/main/resources/application-dev.yml) to your MySQL root user password. For example:
 
 ```yaml
 spring:
-  profiles: dev
   datasource:
     url: jdbc:mysql://localhost:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
     username: root
     password: MyPassword # This means that your MySQL root user password is: MyPassword
 ```
-
-2. Import [init.sql](./init.sql) into MySQL
 
 #### Elasticsearch
 
@@ -337,7 +335,7 @@ custom-redis:
 Run it from Maven directly using the Spring Boot Maven plugin:
 
 ```bash
-./mvnw spring-boot:run
+./mvnw spring-boot:run -P dev
 ```
 
 The application is now running on [localhost:80](http://localhost:80)
