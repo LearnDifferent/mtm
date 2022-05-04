@@ -109,4 +109,10 @@ public class NotificationServiceImpl implements NotificationService {
         }
         notificationManager.deleteRoleChangeNotification(userId);
     }
+
+    @Override
+    public boolean checkIfTurnOffNotifications(String username) {
+        return notificationManager.checkIfTurnOffNotifications(username);
+    }
+
 }

@@ -110,4 +110,13 @@ public interface NotificationService {
      * @param username Username of the user
      */
     void deleteRoleChangeNotification(String username);
+
+    /**
+     * Check if the user has turned off notifications
+     *
+     * @param username username
+     * @return true if the user has turned off notifications
+     */
+    boolean checkIfTurnOffNotifications(String username);
+
 }
