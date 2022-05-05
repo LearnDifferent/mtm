@@ -5,10 +5,10 @@ FROM registry.cn-hangzhou.aliyuncs.com/acs/maven:3-jdk-8 AS mtm-maven
 
 WORKDIR /tmp
 ADD pom.xml /tmp
-RUN ["/usr/local/bin/mvn-entrypoint.sh","mvn","verify","clean","--fail-never"]
+RUN ["/usr/local/bin/mvn-entrypoint.sh", "mvn", "clean", "package", "--fail-never"]
 
 ADD . /tmp
-RUN ["/usr/local/bin/mvn-entrypoint.sh","mvn","verify"]
+RUN ["/usr/local/bin/mvn-entrypoint.sh", "mvn", "package", "-P prod"]
 
 FROM anapsix/alpine-java:8u202b08_server-jre
 # Alternatives to start a Java instance:
