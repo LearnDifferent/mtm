@@ -1,0 +1,6 @@
+### Ignore all files
+**
+
+### Allow these files
+!src/
+!pom.xml
