@@ -1,13 +1,12 @@
 # mtm
-
 Version |  Update Time  | Status | Author |  Description
 ---|---|---|---|---
-v2022-04-18 15:08:18|2022-04-18 15:08:18|auto|@zhou|Created by smart-doc
+v2022-05-08 22:06:27|2022-05-08 22:06:27|auto|@zhou|Created by smart-doc
+
+
 
 ## Authentication
-
 ### Login
-
 **URL:** http://127.0.0.1/login
 
 **Type:** POST
@@ -50,8 +49,8 @@ data|object|Data|-
 └─tokenActivityTimeout|int64|No comments found.|-
 └─loginDevice|string|No comments found.|-
 
-### Logout
 
+### Logout
 **URL:** http://127.0.0.1/logout
 
 **Type:** GET
@@ -70,10 +69,9 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
+
 ## Bookmark Controller
-
 ### Bookmark a new web page
-
 **URL:** http://127.0.0.1/bookmark/
 
 **Type:** GET
@@ -99,8 +97,8 @@ Field | Type|Description|Since
 hasSavedToDatabase|boolean|True if the data was successfully saved to Database|-
 hasSavedToElasticsearch|boolean|True if Elasticsearch saved the data successfully.<br>False if Elasticsearch can't save the data.<br>Null if the data does not need to be saved to Elasticsearch.|-
 
-### Add a website to the bookmarks
 
+### Add a website to the bookmarks
 **URL:** http://127.0.0.1/bookmark/
 
 **Type:** POST
@@ -128,8 +126,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Delete a bookmarked website
 
+### Delete a bookmarked website
 **URL:** http://127.0.0.1/bookmark/
 
 **Type:** DELETE
@@ -154,8 +152,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Make the bookmarked website private if it's publicand make it public if it's private.
 
+### Make the bookmarked website private if it's publicand make it public if it's private.
 **URL:** http://127.0.0.1/bookmark/privacy
 
 **Type:** GET
@@ -164,7 +162,8 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Make the bookmarked website private if it's public and make it public if it's private.
+**Description:** Make the bookmarked website private if it's public
+and make it public if it's private.
 
 **Query-parameters:**
 
@@ -180,8 +179,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Get a bookmark
 
+### Get a bookmark
 **URL:** http://127.0.0.1/bookmark/get
 
 **Type:** GET
@@ -213,8 +212,8 @@ createTime|object|Creation time|-
 └─nanos|int32|No comments found.|-
 isPublic|boolean|True if this is a public bookmark|-
 
-### Get paginated bookmarks of the user currently logged in
 
+### Get paginated bookmarks of the user currently logged in
 **URL:** http://127.0.0.1/bookmark/get/user
 
 **Type:** GET
@@ -249,8 +248,8 @@ bookmarks|array|Paginated bookmarks|-
 └─isPublic|boolean|True if this is a public bookmark|-
 totalPages|int32|Total pages|-
 
-### Get paginated public bookmarks of a user
 
+### Get paginated public bookmarks of a user
 **URL:** http://127.0.0.1/bookmark/get/user/{username}
 
 **Type:** GET
@@ -291,8 +290,8 @@ bookmarks|array|Paginated bookmarks|-
 └─isPublic|boolean|True if this is a public bookmark|-
 totalPages|int32|Total pages|-
 
-### Get visited bookmarks
 
+### Get visited bookmarks
 **URL:** http://127.0.0.1/bookmark/visited-bookmarks
 
 **Type:** GET
@@ -321,10 +320,9 @@ webId|int32|ID|-
 isPublic|boolean|True if this is a public bookmarks|-
 views|int32|The number of views of this bookmark|-
 
+
 ## Get, delete and send notifications
-
 ### Get reply notifications
-
 **URL:** http://127.0.0.1/notification/
 
 **Type:** GET
@@ -355,8 +353,8 @@ commentId|int32|ID of the comment|-
 webId|int32|ID of the bookmarked website data|-
 replyToCommentId|int32|The ID of the comment being replied to<br><p>Not reply to any comment if null, which means this is a bookmark comment</p>|-
 
-### Delete a reply notification
 
+### Delete a reply notification
 **URL:** http://127.0.0.1/notification/
 
 **Type:** POST
@@ -380,8 +378,9 @@ commentId|int32|ID of the comment|false|-
 webId|int32|ID of the bookmarked website data|false|-
 replyToCommentId|int32|The ID of the comment being replied to<br><p>Not reply to any comment if null, which means this is a bookmark comment</p>|false|-
 
-### Count the number of new reply notifications for the current user
 
+
+### Count the number of new reply notifications for the current user
 **URL:** http://127.0.0.1/notification/count
 
 **Type:** GET
@@ -400,8 +399,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Get Current User's Role Change Notification
 
+### Get current user's role change notification
 **URL:** http://127.0.0.1/notification/role-changed
 
 **Type:** GET
@@ -410,7 +409,7 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Get Current User's Role Change Notification
+**Description:** Get current user's role change notification
 
 **Response-fields:**
 
@@ -420,8 +419,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Delete Role Change Notification for Current User
 
+### Delete role change notification for current user
 **URL:** http://127.0.0.1/notification/role-changed
 
 **Type:** DELETE
@@ -430,12 +429,46 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Delete Role Change Notification for Current User
+**Description:** Delete role change notification for current user
+
+
+
+### Check if the user currently logged in has turned off notifications
+**URL:** http://127.0.0.1/notification/mute
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Check if the user currently logged in has turned off notifications
+
+**Response-fields:**
+
+Field | Type|Description|Since
+---|---|---|---
+code|int32|Result Code|-
+msg|string|Message|-
+data|object|Data|-
+
+
+### Turn on notifications if the current user turned off notifications andturn off notifications if the current user turned on notifications
+**URL:** http://127.0.0.1/notification/mute/switch
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Turn on notifications if the current user turned off notifications and
+turn off notifications if the current user turned on notifications
+
+
 
 ## Tag Controller
-
 ### Apply a tag
-
 **URL:** http://127.0.0.1/tag/apply
 
 **Type:** GET
@@ -461,8 +494,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Get tags by the ID of the bookmarked website data.&lt;p&gt;Get all tags if the parameter {@code webId} is missing.&lt;/p&gt;
 
+### Get tags by the ID of the bookmarked website data.&lt;p&gt;Get all tags if the parameter {@code webId} is missing.&lt;/p&gt;
 **URL:** http://127.0.0.1/tag/
 
 **Type:** GET
@@ -492,8 +525,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|array|Data|-
 
-### Get a tag of a bookmark, or return empty string if the bookmark has no tags
 
+### Get a tag of a bookmark, or return empty string if the bookmark has no tags
 **URL:** http://127.0.0.1/tag/one
 
 **Type:** GET
@@ -518,8 +551,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Search bookmarks by a certain tag.&lt;p&gt;If some bookmarks is not public and the user currently logged inis not the owner, then those bookmarks will not be shown.&lt;/p&gt;
 
+### Search bookmarks by a certain tag.&lt;p&gt;If some bookmarks is not public and the user currently logged inis not the owner, then those bookmarks will not be shown.&lt;/p&gt;
 **URL:** http://127.0.0.1/tag/search
 
 **Type:** GET
@@ -557,8 +590,8 @@ createTime|object|Creation time|-
 └─nanos|int32|No comments found.|-
 isPublic|boolean|True if this is a public bookmark|-
 
-### Search bookmarks by a certain tag and get total pages.&lt;p&gt;If some bookmarks is not public and the user currently logged inis not the owner, then those bookmarks will not be shown.&lt;/p&gt;
 
+### Search bookmarks by a certain tag and get total pages.&lt;p&gt;If some bookmarks is not public and the user currently logged inis not the owner, then those bookmarks will not be shown.&lt;/p&gt;
 **URL:** http://127.0.0.1/tag/search/{tagName}
 
 **Type:** GET
@@ -603,8 +636,8 @@ bookmarks|array|Paginated bookmarks associated with the chosen tag|-
 └─isPublic|boolean|True if this is a public bookmark|-
 totalPages|int32|Total pages|-
 
-### Get popular tags
 
+### Get popular tags
 **URL:** http://127.0.0.1/tag/popular
 
 **Type:** GET
@@ -632,8 +665,8 @@ data|array|Data|-
 └─tag|string|Tag|-
 └─number|int32|Count the number of bookmarks of this tag|-
 
-### Delete a tag
 
+### Delete a tag
 **URL:** http://127.0.0.1/tag/
 
 **Type:** DELETE
@@ -659,10 +692,9 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
+
 ## Get, create, update and delete comments
-
 ### Get a comment
-
 **URL:** http://127.0.0.1/comment/
 
 **Type:** GET
@@ -678,7 +710,7 @@ data|object|Data|-
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 commentId|int32|ID of the comment.
-<p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>|false|-
+                 <p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>|false|-
 webId|int32|    ID of the bookmarked website data|true|-
 
 **Response-fields:**
@@ -702,8 +734,8 @@ data|object|Data|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─seconds|int64|No comments found.|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─nanos|int32|No comments found.|-
 
-### Get comment data of a bookmark
 
+### Get comment data of a bookmark
 **URL:** http://127.0.0.1/comment/get/{webId}
 
 **Type:** GET
@@ -725,12 +757,11 @@ webId|int32|           ID of the bookmarked website data|true|-
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 replyToCommentId|int32|ID of the comment to reply
-
                         <p>
                         Null if this is not a reply
                         </p>|false|-
-
-load|int32| Amount of data to load|true|- order|enum|ASC -(asc,false)<br/>DESC -(desc,true)<br/>|true|-
+load|int32|            Amount of data to load|true|-
+order|enum|ASC -(asc,false)<br/>DESC -(desc,true)<br/>|true|-
 
 **Response-fields:**
 
@@ -753,8 +784,8 @@ data|array|Data|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─seconds|int64|No comments found.|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─nanos|int32|No comments found.|-
 
-### Get the number of comments (exclude replies) of a bookmarked website
 
+### Get the number of comments (exclude replies) of a bookmarked website
 **URL:** http://127.0.0.1/comment/get/number/{webId}
 
 **Type:** GET
@@ -779,8 +810,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Create a comment and send a notification to the user who is about to receive it
 
+### Create a comment and send a notification to the user who is about to receive it
 **URL:** http://127.0.0.1/comment/create
 
 **Type:** GET
@@ -798,7 +829,6 @@ Parameter | Type|Description|Required|Since
 comment|string|         Comment|true|-
 webId|int32|           ID of the bookmarked website data|true|-
 replyToCommentId|int32|ID of the comment to reply
-
                         <p>
                         Null if this is not a reply
                         </p>|false|-
@@ -811,8 +841,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Edit a comment
 
+### Edit a comment
 **URL:** http://127.0.0.1/comment/
 
 **Type:** POST
@@ -839,8 +869,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Delete a comment
 
+### Delete a comment
 **URL:** http://127.0.0.1/comment/
 
 **Type:** DELETE
@@ -865,10 +895,9 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
+
 ## View Counter Controller
-
 ### Increase the number of views of a bookmark
-
 **URL:** http://127.0.0.1/view/
 
 **Type:** GET
@@ -885,8 +914,9 @@ Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 webId|int32|ID of the bookmarked website data|true|-
 
-### Count the number of views of a bookmark
 
+
+### Count the number of views of a bookmark
 **URL:** http://127.0.0.1/view/count
 
 **Type:** GET
@@ -911,8 +941,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Save the numbers of views from Redis to the database,or add the view data from database to Redis if the Redis has no view data
 
+### Save the numbers of views from Redis to the database,or add the view data from database to Redis if the Redis has no view data
 **URL:** http://127.0.0.1/view/update
 
 **Type:** GET
@@ -921,8 +951,8 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Save the numbers of views from Redis to the database, or add the view data from database to Redis if
-the Redis has no view data
+**Description:** Save the numbers of views from Redis to the database,
+or add the view data from database to Redis if the Redis has no view data
 
 **Response-fields:**
 
@@ -932,10 +962,9 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|array|Data|-
 
+
 ## System Controller
-
 ### Get system notifications
-
 **URL:** http://127.0.0.1/system/
 
 **Type:** GET
@@ -954,8 +983,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Send a system notification&lt;p&gt;The notification will be a push notification if the message is from {@link UserRole#ADMIN}&lt;/p&gt;
 
+### Send a system notification&lt;p&gt;The notification will be a push notification if the message is from {@link UserRole#ADMIN}&lt;/p&gt;
 **URL:** http://127.0.0.1/system/send
 
 **Type:** GET
@@ -983,8 +1012,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Delete system notifications
 
+### Delete system notifications
 **URL:** http://127.0.0.1/system/
 
 **Type:** DELETE
@@ -1003,8 +1032,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Check whether the current user has read the latest system notification
 
+### Check whether the current user has read the latest system notification
 **URL:** http://127.0.0.1/system/read
 
 **Type:** GET
@@ -1023,8 +1052,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Get system logs from cache and database
 
+### Get system logs from cache and database
 **URL:** http://127.0.0.1/system/logs
 
 **Type:** GET
@@ -1058,8 +1087,8 @@ data|array|Data|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─seconds|int64|No comments found.|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─nanos|int32|No comments found.|-
 
-### Get system logs from database directly
 
+### Get system logs from database directly
 **URL:** http://127.0.0.1/system/logs/no-cache
 
 **Type:** GET
@@ -1093,10 +1122,9 @@ data|array|Data|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─seconds|int64|No comments found.|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─nanos|int32|No comments found.|-
 
+
 ## Search Page Controller
-
 ### Search
-
 **URL:** http://127.0.0.1/search/
 
 **Type:** GET
@@ -1116,9 +1144,9 @@ keyword|string|  keyword (accept empty string and null)|true|-
 from|int32|From|false|-
 size|int32|Size|false|-
 rangeFrom|int32|lower range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
-unbounded.|false|-
+                 unbounded.|false|-
 rangeTo|int32|  upper range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
-unbounded.|false|-
+                 unbounded.|false|-
 
 **Response-fields:**
 
@@ -1131,8 +1159,8 @@ data|object|Data|-
 └─totalPage|int32|Total pages of results|-
 └─paginatedResults|array|Paginated search results|-
 
-### Check and delete data in Elasticsearch
 
+### Check and delete data in Elasticsearch
 **URL:** http://127.0.0.1/search/
 
 **Type:** DELETE
@@ -1157,8 +1185,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Get trending searches, existent of bookmark data for search and the update information.
 
+### Get trending searches, existent of bookmark data for search and the update information.
 **URL:** http://127.0.0.1/search/load
 
 **Type:** GET
@@ -1177,8 +1205,8 @@ trendingList|array|Trending searches|-
 dataStatus|boolean|True if search data is available|-
 hasNewUpdate|boolean|True if the website data in database is different from the data in Elasticsearch|-
 
-### Check the existent and changes of data
 
+### Check the existent and changes of data
 **URL:** http://127.0.0.1/search/status
 
 **Type:** GET
@@ -1202,8 +1230,8 @@ Field | Type|Description|Since
 exists|boolean|Existence of data|-
 hasChanges|boolean|Changes of data|-
 
-### Data generation for Elasticsearch based on database
 
+### Data generation for Elasticsearch based on database
 **URL:** http://127.0.0.1/search/build
 
 **Type:** GET
@@ -1228,8 +1256,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Delete a specific trending keyword (Guest does not have the permission)
 
+### Delete a specific trending keyword (Guest does not have the permission)
 **URL:** http://127.0.0.1/search/trending/{word}
 
 **Type:** DELETE
@@ -1254,8 +1282,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Delete all trending keywords (Guest does not have the permission)
 
+### Delete all trending keywords (Guest does not have the permission)
 **URL:** http://127.0.0.1/search/trending
 
 **Type:** DELETE
@@ -1274,10 +1302,9 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
+
 ## Import and export HTML file
-
 ### Export user's bookmarks to a HTML file.&lt;p&gt;Export bookmarks belonging to the user that is currently logged inif the username is missing.&lt;/p&gt;
-
 **URL:** http://127.0.0.1/file/
 
 **Type:** GET
@@ -1296,8 +1323,9 @@ Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 username|string|username of the user whose data is being exported.|false|-
 
-### Import a HTML file that contains bookmarks
 
+
+### Import a HTML file that contains bookmarks
 **URL:** http://127.0.0.1/file/
 
 **Type:** POST
@@ -1322,10 +1350,9 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
+
 ## Send verification code and invitation code
-
 ### Get the verification code
-
 **URL:** http://127.0.0.1/verification/code
 
 **Type:** GET
@@ -1342,8 +1369,9 @@ Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 token|string|token for verification code|true|-
 
-### Send invitation code
 
+
+### Send invitation code
 **URL:** http://127.0.0.1/verification/invitation-code
 
 **Type:** GET
@@ -1361,10 +1389,10 @@ Parameter | Type|Description|Required|Since
 token|string|token for invitation code|true|-
 email|string|Email|true|-
 
+
+
 ## Home Page Controller
-
 ### Get {@link HomePageVO} Data
-
 **URL:** http://127.0.0.1/home/
 
 **Type:** GET
@@ -1381,7 +1409,7 @@ Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 timeline|enum|LATEST -(latest)<br/>USER -(user)<br/>BLOCK -(block)<br/>|true|-
 requestedUsername|string|username of the user whose data is being requested
-<p>{@code requestedUsername} is not required</p>|false|-
+                         <p>{@code requestedUsername} is not required</p>|false|-
 from|int32|From|false|-
 size|int32|Size|false|-
 
@@ -1405,8 +1433,8 @@ bookmarksAndTotalPages|object|Paginated bookmarks and total pages|-
 └─totalPages|int32|Total pages|-
 requestedUsername|string|Username of the user whose data is being requested|-
 
-### Filter public bookmarked sites&lt;p&gt;{@code fromTimestamp} and {@code toTimestamp} is used to query a specific range of time.&lt;/p&gt;&lt;li&gt;It will not query a range of time if both of them are null.&lt;/li&gt;&lt;li&gt;It will set the null value to the current time if one of them is null&lt;/li&gt;&lt;li&gt;It will swap the two values if necessary.&lt;/li&gt;
 
+### Filter public bookmarked sites&lt;p&gt;{@code fromTimestamp} and {@code toTimestamp} is used to query a specific range of time.&lt;/p&gt;&lt;li&gt;It will not query a range of time if both of them are null.&lt;/li&gt;&lt;li&gt;It will set the null value to the current time if one of them is null&lt;/li&gt;&lt;li&gt;It will swap the two values if necessary.&lt;/li&gt;
 **URL:** http://127.0.0.1/home/filter
 
 **Type:** POST
@@ -1454,8 +1482,8 @@ createTime|object|Creation time|-
 └─nanos|int32|No comments found.|-
 isPublic|boolean|True if this is a public bookmark|-
 
-### Get popular bookmarks and total pages
 
+### Get popular bookmarks and total pages
 **URL:** http://127.0.0.1/home/popular
 
 **Type:** GET
@@ -1485,10 +1513,9 @@ bookmarks|array|Popular bookmarks|-
 └─count|int32|The number of users who bookmarked the website|-
 totalPages|int32|Total pages|-
 
+
 ## User Controller
-
 ### Create a user and return the username
-
 **URL:** http://127.0.0.1/user/
 
 **Type:** POST
@@ -1507,9 +1534,9 @@ code|string|              verification code|true|-
 token|string|             token for verification Code|true|-
 role|enum|USER -(user)<br/>GUEST -(guest)<br/>ADMIN -(admin)<br/>|true|-
 invitationCode|string|    invitation code (the value will be ignored if the user role is not {@link
-UserRole#ADMIN})|false|-
+                          UserRole#ADMIN})|false|-
 invitationToken|string|   token for invitation code
-(the value will be ignored if the user role is not {@link UserRole#ADMIN})|false|-
+                          (the value will be ignored if the user role is not {@link UserRole#ADMIN})|false|-
 
 **Body-parameters:**
 
@@ -1526,8 +1553,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Delete a user and all of the data associated with that user
 
+### Delete a user and all of the data associated with that user
 **URL:** http://127.0.0.1/user/
 
 **Type:** DELETE
@@ -1553,8 +1580,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Get personal information of current user
 
+### Get personal information of current user
 **URL:** http://127.0.0.1/user/
 
 **Type:** GET
@@ -1579,8 +1606,8 @@ user|object|User information|-
 ip|string|IP Address|-
 totalReplyNotifications|int64|Count the total number of reply notifications|-
 
-### Get users
 
+### Get users
 **URL:** http://127.0.0.1/user/all
 
 **Type:** GET
@@ -1609,8 +1636,8 @@ createTime|object|Creation Time|-
 └─nanos|int32|No comments found.|-
 role|string|User Role|-
 
-### Get usernames of the users and the total numbers of their public bookmarkssorted by the total number&lt;p&gt;Get all usernames in database if {@code usernames} is null or empty.&lt;/p&gt;
 
+### Get usernames of the users and the total numbers of their public bookmarkssorted by the total number&lt;p&gt;Get all usernames in database if {@code usernames} is null or empty.&lt;/p&gt;
 **URL:** http://127.0.0.1/user/usernames-and-bookmarks
 
 **Type:** POST
@@ -1619,7 +1646,8 @@ role|string|User Role|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Get usernames of the users and the total numbers of their public bookmarks sorted by the total number
+**Description:** Get usernames of the users and the total numbers of their public bookmarks
+sorted by the total number
 <p>
 Get all usernames in database if {@code usernames} is null or empty.
 </p>
@@ -1637,8 +1665,8 @@ Field | Type|Description|Since
 userName|string|Username|-
 bookmarkNumber|int32|Total number of the user's public bookmarks|-
 
-### Change Password
 
+### Change Password
 **URL:** http://127.0.0.1/user/change-password
 
 **Type:** POST
@@ -1665,8 +1693,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Change user role
 
+### Change user role
 **URL:** http://127.0.0.1/user/role
 
 **Type:** GET
@@ -1692,8 +1720,8 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
-### Check if the user currently logged in is admin
 
+### Check if the user currently logged in is admin
 **URL:** http://127.0.0.1/user/admin
 
 **Type:** GET
