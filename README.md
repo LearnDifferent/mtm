@@ -216,7 +216,7 @@ cd mtm
 Deploy with docker-compose:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 Navigate to MTM:
@@ -231,6 +231,7 @@ Visit [localhost:80](http://localhost:80) in your browser.
 
 - [docker-compose.yml](./docker-compose.yml)
 - [Dockerfile](./Dockerfile)
+- [.dockerignore](./.dockerignore)
 - [mysqlconfig.env](./mysqlconfig.env)
 - [esplugins](./esplugins)
 
