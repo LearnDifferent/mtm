@@ -145,6 +145,10 @@ public enum ResultCode {
      */
     HTML_FILE_NO_BOOKMARKS(3018, "No Data Available. Please Upload the Correct HTML file."),
     /**
+     * Password is too short
+     */
+    PASSWORD_TOO_SHORT(3019, "Password must be greater than 8 characters"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),

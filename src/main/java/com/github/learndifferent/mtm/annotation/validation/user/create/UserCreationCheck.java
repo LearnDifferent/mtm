@@ -16,6 +16,7 @@ import java.lang.annotation.Target;
  * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}</p>
  * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}</p>
  * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}</p>
+ * <p>{@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_SHORT}</p>
  *
  * @author zhou
  * @date 2021/09/13

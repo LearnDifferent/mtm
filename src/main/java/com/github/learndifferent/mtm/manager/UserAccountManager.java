@@ -110,16 +110,18 @@ public class UserAccountManager {
      * @param role                 user role
      * @return true if success
      * @throws ServiceException {@link UserCreationCheck} annotation will verify and throw an exception
-     *                          if something goes wrong. If the username is already taken, the result will be {@link
-     *                          com.github.learndifferent.mtm.constant.enums.ResultCode#USER_ALREADY_EXIST}.
-     *                          If username contains not only letters and numbers, the result will be {@link
-     *                          com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}.
-     *                          If username is empty, the result will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_EMPTY}.
-     *                          If username is not less than 30 characters, the result will be {@link
-     *                          com.github.learndifferent.mtm.constant.enums.ResultCode#USERNAME_TOO_LONG}.
-     *                          If password is empty, the result will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_EMPTY}.
-     *                          If password is not less than 50 characters, the result will be {@link
-     *                          com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
+     *                          if something goes wrong. If the username is already taken, the result code will be
+     *                          {@link ResultCode#USER_ALREADY_EXIST}.
+     *                          If username contains not only letters and numbers, the result code will be {@link
+     *                          ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}.
+     *                          If username is empty, the result will be {@link ResultCode#USERNAME_EMPTY}.
+     *                          If username is not less than 30 characters, the result code will be {@link
+     *                          ResultCode#USERNAME_TOO_LONG}.
+     *                          If password is empty, the result will be {@link ResultCode#PASSWORD_EMPTY}.
+     *                          If password is not less than 50 characters, the result code will be {@link
+     *                          ResultCode#PASSWORD_TOO_LONG}.
+     *                          If password is not greater than 8 characters, the result code will be
+     *                          {@link ResultCode#PASSWORD_TOO_SHORT}
      */
     @UserCreationCheck
     public String createUserAndGetUsername(@Username String username,

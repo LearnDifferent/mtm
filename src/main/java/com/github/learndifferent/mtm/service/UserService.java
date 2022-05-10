@@ -66,6 +66,8 @@ public interface UserService {
      *                                                                  If password is not less than 50 characters, the
      *                                                                  result will be {@link
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_LONG}.
+     *                                                                  If password is not greater than 8 characters, the result code will be
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PASSWORD_TOO_SHORT}
      */
     String addUserAndGetUsername(UserIdentificationRequest userIdentification, UserRole role);
 

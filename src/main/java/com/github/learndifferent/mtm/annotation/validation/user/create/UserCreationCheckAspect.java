@@ -89,6 +89,7 @@ public class UserCreationCheckAspect {
         checkIfEmpty(password, ResultCode.PASSWORD_EMPTY);
         checkIfTooLong(password, 50, ResultCode.PASSWORD_TOO_LONG);
         checkIfTooLong(username, 30, ResultCode.USERNAME_TOO_LONG);
+        checkIfPasswordTooShort(password);
         checkIfOnlyLetterNumber(username);
         checkIfUsernameExist(username);
     }
@@ -109,6 +110,12 @@ public class UserCreationCheckAspect {
     private void checkIfTooLong(String str, int length, ResultCode resultCode) {
         boolean tooLong = str.length() > length;
         ThrowExceptionUtils.throwIfTrue(tooLong, resultCode);
+    }
+
+    private void checkIfPasswordTooShort(String password) {
+        int length = 8;
+        boolean tooShort = password.length() < length;
+        ThrowExceptionUtils.throwIfTrue(tooShort, ResultCode.PASSWORD_TOO_SHORT);
     }
 
     /**

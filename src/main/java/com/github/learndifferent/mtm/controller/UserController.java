@@ -86,6 +86,7 @@ public class UserController {
      *                                                                  <li>{@link ResultCode#USERNAME_TOO_LONG}</li>
      *                                                                  <li>{@link ResultCode#USERNAME_EMPTY}</li>
      *                                                                  <li>{@link ResultCode#PASSWORD_TOO_LONG}</li>
+     *                                                                  <li>{@link ResultCode#PASSWORD_TOO_SHORT}</li>
      *                                                                  <li>{@link ResultCode#PASSWORD_EMPTY}</li>
      *                                                                  </p>
      */
