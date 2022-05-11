@@ -7,7 +7,8 @@ import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.IpUtils;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import javax.servlet.http.HttpServletRequest;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -85,15 +86,19 @@ public class SystemNotificationAspect {
     }
 
     private String getTime() {
-        return DateTimeFormatter.ofPattern("MM-dd HH:mm").format(LocalDateTime.now());
+        return "UTC " + DateTimeFormatter
+                .ofPattern("HH:mm")
+                .withZone(ZoneOffset.UTC)
+                .format(Instant.now());
     }
 
     private String getUsername() {
-        boolean notGuest = !StpUtil.hasRole(UserRole.GUEST.role());
-        if (notGuest) {
-            return StpUtil.getLoginIdAsString();
-        }
+        boolean isGuest = StpUtil.hasRole(UserRole.GUEST.role());
+        // if the user is Guest, return user's IP
+        return isGuest ? getIp() : StpUtil.getLoginIdAsString();
+    }
 
+    private String getIp() {
         ServletRequestAttributes attributes =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         assert attributes != null;
