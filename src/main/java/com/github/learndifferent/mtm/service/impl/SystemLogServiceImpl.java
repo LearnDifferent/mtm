@@ -28,7 +28,7 @@ public class SystemLogServiceImpl implements SystemLogService {
     }
 
     @Override
-    @Cacheable(value = "system-log")
+    @Cacheable(value = "system:log")
     public List<SysLog> getSystemLogs(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
@@ -36,7 +36,7 @@ public class SystemLogServiceImpl implements SystemLogService {
     }
 
     @Override
-    @CachePut(value = "system-log")
+    @CachePut(value = "system:log")
     public List<SysLog> getSystemLogsFromDatabaseDirectly(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
