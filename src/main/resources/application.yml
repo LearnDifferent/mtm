@@ -39,6 +39,6 @@ custom-redis:
     "[tag:all]": 10
     "[tag:popular]": 10
     "[empty:user:all]": 20
-    "system-log": 40
+    "system:log": 40
     "[bookmarks:visited]": 0
     "[tag:a]": 0
