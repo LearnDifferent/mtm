@@ -14,7 +14,8 @@
 
     <select id="filterPublicBookmarks" resultMap="BaseResultMap"
             parameterType="com.github.learndifferent.mtm.dto.BookmarkFilterDTO">
-        select *
+        select
+        web_id, user_name, title, url, img, `desc`, creation_time, public
         from website
         <where>
             `public` is true
@@ -61,7 +62,10 @@
 
     <select id="getAllPublicAndSpecificPrivateBookmarks" resultMap="BaseResultMap">
         <!-- 因为 web_id 也是根据时间顺序生成的，所以用 creation_time 和 web_id 排序是一样的效果 -->
-        select * from website
+        select
+        web_id, user_name, title, url, img, `desc`, creation_time, public
+        from
+        website
         <where>
             `public` is true
             <if test="specUsername != null and specUsername != ''">
@@ -75,13 +79,27 @@
     </select>
 
     <select id="getBookmarkById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select *
+        select web_id,
+               user_name,
+               title,
+               url,
+               img,
+               `desc`,
+               creation_time,
+               public
         from website
         where web_id = #{webId,jdbcType=INTEGER}
     </select>
 
     <select id="getBookmarksByUrl" resultMap="BaseResultMap">
-        select *
+        select web_id,
+               user_name,
+               title,
+               url,
+               img,
+               `desc`,
+               creation_time,
+               public
         from website
         where url = #{url};
     </select>
@@ -99,7 +117,8 @@
     </select>
 
     <select id="getUserBookmarks" resultMap="BaseResultMap">
-        select *
+        select
+        web_id, user_name, title, url, img, `desc`, creation_time, public
         from website
         where user_name = #{userName}
         <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 public 属性为 true 的 -->
@@ -131,7 +150,8 @@
     </select>
 
     <select id="getAllPublicSomePrivateExcludingSpecificUserBookmark" resultMap="BaseResultMap">
-        select *
+        select
+        web_id, user_name, title, url, img, `desc`, creation_time, public
         from website
         where user_name != #{excludeUsername}
         and ( `public` is true
