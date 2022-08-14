@@ -39,10 +39,11 @@
     </delete>
 
     <select id="getUserByNameAndPassword" resultMap="BaseResultMap">
-        select *
+        select user_id, user_name, `password`, creation_time, `role`
         from user
         where user_name = #{userName}
-          and password = #{password};
+          and password = #{password}
+        limit 1;
     </select>
 
     <select id="getUserRoleById" resultType="java.lang.String">
@@ -57,12 +58,13 @@
         where user_name = #{userName};
     </select>
     <select id="getUserByName" resultMap="BaseResultMap">
-        select *
+        select user_id, user_name, `password`, creation_time, `role`
         from user
-        where user_name = #{userName};
+        where user_name = #{userName}
+        limit 1;
     </select>
     <select id="getUsers" resultMap="BaseResultMap">
-        select *
+        select user_id, user_name, `password`, creation_time, `role`
         from user
         order by creation_time desc
         <if test="from!=null and size!=null">
