@@ -10,7 +10,7 @@
         values (#{tag,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER})
     </insert>
     <select id="getSpecificTagByTagTextAndWebId" resultType="com.github.learndifferent.mtm.entity.TagDO">
-        select *
+        select tag, web_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
           and web_id = #{webId,jdbcType=INTEGER};
