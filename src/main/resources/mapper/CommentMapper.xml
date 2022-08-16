@@ -11,9 +11,10 @@
     </resultMap>
 
     <select id="getCommentById" resultMap="BaseResultMap">
-        select *
+        select comment_id, comment, web_id, username, creation_time, reply_to_comment_id
         from comment
-        where comment_id = #{commentId,jdbcType=INTEGER};
+        where comment_id = #{commentId,jdbcType=INTEGER}
+        limit 1;
     </select>
 
     <select id="getCommentSenderName" resultType="java.lang.String">
@@ -29,7 +30,7 @@
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
-        select *
+        select comment_id, comment, web_id, username, creation_time, reply_to_comment_id
         from comment
         <where>
             <if test="webId != null">
@@ -52,11 +53,12 @@
     </select>
 
     <select id="getSpecificComment" resultMap="BaseResultMap">
-        select *
+        select comment_id, comment, web_id, username, creation_time, reply_to_comment_id
         from comment
         where comment = #{comment}
           and username = #{username}
-          and web_id = #{webId};
+          and web_id = #{webId}
+        limit 1;
     </select>
 
     <select id="countRepliesFromComment" resultType="java.lang.Integer">
