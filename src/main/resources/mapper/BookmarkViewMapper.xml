@@ -17,7 +17,7 @@
         from website_views;
     </delete>
     <select id="getAllViewData" resultType="com.github.learndifferent.mtm.entity.ViewDataDO">
-        select *
+        select web_id, views
         from website_views;
     </select>
     <delete id="deleteViewData">
