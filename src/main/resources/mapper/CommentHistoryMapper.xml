@@ -7,7 +7,7 @@
         values (#{commentId}, #{comment}, #{creationTime});
     </insert>
     <select id="getHistory" resultType="com.github.learndifferent.mtm.entity.CommentHistoryDO">
-        select *
+        select comment_id, comment, creation_time
         from comment_history
         where comment_id = #{commentId}
         order by creation_time desc;
