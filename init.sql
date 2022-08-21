@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `website`
     `img`           varchar(600) DEFAULT NULL,
     `desc`          text,
     `creation_time` datetime     DEFAULT NULL,
-    `public`        boolean      DEFAULT true,
+    `is_public`     boolean      DEFAULT true,
     PRIMARY KEY (`web_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
