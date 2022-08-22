@@ -9,16 +9,16 @@
         <result column="img" jdbcType="VARCHAR" property="img"/>
         <result column="desc" jdbcType="VARCHAR" property="desc"/>
         <result column="creation_time" jdbcType="TIMESTAMP" property="createTime"/>
-        <result column="public" jdbcType="BOOLEAN" property="isPublic"/>
+        <result column="is_public" jdbcType="BOOLEAN" property="isPublic"/>
     </resultMap>
 
     <select id="filterPublicBookmarks" resultMap="BaseResultMap"
             parameterType="com.github.learndifferent.mtm.dto.BookmarkFilterDTO">
         select
-        web_id, user_name, title, url, img, `desc`, creation_time, public
+        web_id, user_name, title, url, img, `desc`, creation_time, is_public
         from website
         <where>
-            `public` is true
+            `is_public` is true
             <if test="usernames != null and usernames.size() != 0">
                 <foreach collection="usernames" item="username" open="and (" close=")" separator="or">
                     user_name = #{username}
@@ -48,7 +48,7 @@
     <select id="getPopularPublicBookmarks" resultType="com.github.learndifferent.mtm.dto.PopularBookmarkDTO">
         select count(url) as count, url, title, `desc`, img
         from website
-        where `public` is true
+        where `is_public` is true
         group by url, title, `desc`, img
         order by count desc
         limit #{from}, #{size};
@@ -57,17 +57,17 @@
     <select id="countDistinctPublicUrl" resultType="java.lang.Integer">
         select count(distinct url)
         from website
-        where `public` is true;
+        where `is_public` is true;
     </select>
 
     <select id="getAllPublicAndSpecificPrivateBookmarks" resultMap="BaseResultMap">
         <!-- 因为 web_id 也是根据时间顺序生成的，所以用 creation_time 和 web_id 排序是一样的效果 -->
         select
-        web_id, user_name, title, url, img, `desc`, creation_time, public
+        web_id, user_name, title, url, img, `desc`, creation_time, is_public
         from
         website
         <where>
-            `public` is true
+            `is_public` is true
             <if test="specUsername != null and specUsername != ''">
                 or user_name = #{specUsername}
             </if>
@@ -86,7 +86,7 @@
                img,
                `desc`,
                creation_time,
-               public
+               is_public
         from website
         where web_id = #{webId,jdbcType=INTEGER}
     </select>
@@ -99,7 +99,7 @@
                img,
                `desc`,
                creation_time,
-               public
+               is_public
         from website
         where url = #{url};
     </select>
@@ -108,7 +108,7 @@
         select count(web_id)
         from website
         <where>
-            `public` is true
+            `is_public` is true
             <if test="specUsername != null and specUsername != ''">
                 or user_name = #{specUsername}
             </if>
@@ -118,12 +118,12 @@
 
     <select id="getUserBookmarks" resultMap="BaseResultMap">
         select
-        web_id, user_name, title, url, img, `desc`, creation_time, public
+        web_id, user_name, title, url, img, `desc`, creation_time, is_public
         from website
         where user_name = #{userName}
-        <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 public 属性为 true 的 -->
+        <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 is_public 属性为 true 的 -->
         <if test="!shouldIncludePrivate">
-            and `public` is true
+            and `is_public` is true
         </if>
         order by web_id desc
         <if test="from!=null and size!=null">
@@ -136,7 +136,7 @@
         from website
         where user_name = #{userName}
         <if test="!shouldIncludePrivate">
-            and `public` is true
+            and `is_public` is true
         </if>
         ;
     </select>
@@ -145,16 +145,16 @@
             resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`
         from website
-        where `public` is true
+        where `is_public` is true
         group by url, title, `desc`, img;
     </select>
 
     <select id="getAllPublicSomePrivateExcludingSpecificUserBookmark" resultMap="BaseResultMap">
         select
-        web_id, user_name, title, url, img, `desc`, creation_time, public
+        web_id, user_name, title, url, img, `desc`, creation_time, is_public
         from website
         where user_name != #{excludeUsername}
-        and ( `public` is true
+        and ( `is_public` is true
         <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
             or user_name = #{includePrivateUsername}
         </if>
@@ -165,7 +165,7 @@
         select count(web_id)
         from website
         where user_name != #{excludeUsername}
-        and ( `public` is true
+        and ( `is_public` is true
         <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
             or user_name = #{includePrivateUsername}
         </if>
@@ -187,7 +187,7 @@
     <insert id="addBookmark" keyColumn="web_id" keyProperty="webId"
             parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
             useGeneratedKeys="true">
-        insert into website(user_name, title, url, img, `desc`, `creation_time`, `public`)
+        insert into website(user_name, title, url, img, `desc`, `creation_time`, `is_public`)
         values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
@@ -199,7 +199,7 @@
             img             = #{img,jdbcType=VARCHAR},
             `desc`          = #{desc,jdbcType=VARCHAR},
             `creation_time` = #{createTime,jdbcType=TIMESTAMP},
-            `public`        = #{isPublic,jdbcType=BOOLEAN}
+            `is_public`        = #{isPublic,jdbcType=BOOLEAN}
         where web_id = #{webId,jdbcType=INTEGER}
     </update>
 
@@ -210,7 +210,7 @@
     </select>
 
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
-        select w.user_name, w.title, w.url, w.public isPublic, v.web_id, v.views
+        select w.user_name, w.title, w.url, w.is_public isPublic, v.web_id, v.views
         from website_views v
                  left join website w on v.web_id = w.web_id
         order by v.views desc
