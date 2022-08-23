@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `website`
     `desc`          text,
     `creation_time` datetime     DEFAULT NULL,
     `is_public`     boolean      DEFAULT true,
+    `is_deleted`    boolean      DEFAULT false,
     PRIMARY KEY (`web_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
