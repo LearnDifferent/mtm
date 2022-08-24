@@ -18,12 +18,13 @@
         web_id, user_name, title, url, img, `desc`, creation_time, is_public
         from website
         <where>
-            `is_public` is true
             <if test="usernames != null and usernames.size() != 0">
-                <foreach collection="usernames" item="username" open="and (" close=")" separator="or">
+                <foreach collection="usernames" item="username" open="(" close=") and" separator="or">
                     user_name = #{username}
                 </foreach>
             </if>
+            `is_public` = 1
+            and `is_deleted` = 0
         </where>
         <!-- fromDatetime 和 toDatetime 表示时间范围 -->
         <if test="fromDatetime != null and toDatetime != null">
@@ -48,7 +49,8 @@
     <select id="getPopularPublicBookmarks" resultType="com.github.learndifferent.mtm.dto.PopularBookmarkDTO">
         select count(url) as count, url, title, `desc`, img
         from website
-        where `is_public` is true
+        where `is_public` = 1
+          and `is_deleted` = 0
         group by url, title, `desc`, img
         order by count desc
         limit #{from}, #{size};
@@ -57,7 +59,8 @@
     <select id="countDistinctPublicUrl" resultType="java.lang.Integer">
         select count(distinct url)
         from website
-        where `is_public` is true;
+        where `is_public` = 1
+          and `is_deleted` = 0
     </select>
 
     <select id="getAllPublicAndSpecificPrivateBookmarks" resultMap="BaseResultMap">
@@ -67,10 +70,11 @@
         from
         website
         <where>
-            `is_public` is true
+            `is_deleted` = 0 and (
             <if test="specUsername != null and specUsername != ''">
-                or user_name = #{specUsername}
+                `user_name` = #{specUsername} or
             </if>
+            `is_public` = 1 )
         </where>
         order by `web_id` desc
         <if test="from!=null and size!=null">
@@ -89,6 +93,7 @@
                is_public
         from website
         where web_id = #{webId,jdbcType=INTEGER}
+          and is_deleted = 0;
     </select>
 
     <select id="getBookmarksByUrl" resultMap="BaseResultMap">
@@ -101,17 +106,19 @@
                creation_time,
                is_public
         from website
-        where url = #{url};
+        where url = #{url}
+          and is_deleted = 0;
     </select>
 
     <select id="countAllPublicAndSpecificPrivateBookmarks" resultType="java.lang.Integer">
         select count(web_id)
         from website
         <where>
-            `is_public` is true
+            is_deleted = 0 and (`is_public` = 1
             <if test="specUsername != null and specUsername != ''">
                 or user_name = #{specUsername}
             </if>
+            )
         </where>
         ;
     </select>
@@ -123,8 +130,9 @@
         where user_name = #{userName}
         <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 is_public 属性为 true 的 -->
         <if test="!shouldIncludePrivate">
-            and `is_public` is true
+            and `is_public` = 1
         </if>
+        and is_deleted = 0
         order by web_id desc
         <if test="from!=null and size!=null">
             limit #{from},#{size}
@@ -136,8 +144,9 @@
         from website
         where user_name = #{userName}
         <if test="!shouldIncludePrivate">
-            and `is_public` is true
+            and `is_public` = 1
         </if>
+        and is_deleted = 0
         ;
     </select>
 
@@ -145,7 +154,8 @@
             resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`
         from website
-        where `is_public` is true
+        where `is_public` = 1
+          and is_deleted = 0
         group by url, title, `desc`, img;
     </select>
 
@@ -154,35 +164,36 @@
         web_id, user_name, title, url, img, `desc`, creation_time, is_public
         from website
         where user_name != #{excludeUsername}
-        and ( `is_public` is true
+        and ( `is_public` = 1
         <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
             or user_name = #{includePrivateUsername}
         </if>
-        ) order by web_id desc limit #{from}, #{size};
+        ) and is_deleted = 0
+        order by web_id desc limit #{from}, #{size};
     </select>
 
     <select id="countAllPublicSomePrivateExcludingSpecificUserBookmark" resultType="java.lang.Integer">
         select count(web_id)
         from website
         where user_name != #{excludeUsername}
-        and ( `is_public` is true
+        and ( `is_public` = 1
         <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
             or user_name = #{includePrivateUsername}
         </if>
-        );
+        ) and is_deleted = 0;
     </select>
 
-    <delete id="deleteBookmarkById" parameterType="java.lang.Integer">
-        delete
-        from website
-        where web_id = #{webId,jdbcType=INTEGER}
-    </delete>
+    <update id="deleteBookmarkById" parameterType="java.lang.Integer">
+        update website
+        set is_deleted = 1
+        where web_id = #{webId,jdbcType=INTEGER};
+    </update>
 
-    <delete id="deleteUserBookmarks">
-        delete
-        from website
-        where user_name = #{userName}
-    </delete>
+    <update id="deleteUserBookmarks" parameterType="java.lang.Integer">
+        update website
+        set is_deleted = 1
+        where user_name = #{userName};
+    </update>
 
     <insert id="addBookmark" keyColumn="web_id" keyProperty="webId"
             parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
@@ -199,20 +210,21 @@
             img             = #{img,jdbcType=VARCHAR},
             `desc`          = #{desc,jdbcType=VARCHAR},
             `creation_time` = #{createTime,jdbcType=TIMESTAMP},
-            `is_public`        = #{isPublic,jdbcType=BOOLEAN}
+            `is_public`     = #{isPublic,jdbcType=BOOLEAN}
         where web_id = #{webId,jdbcType=INTEGER}
     </update>
 
     <select id="getBookmarkOwnerName" resultType="java.lang.String">
         select user_name
         from website
-        where web_id = #{webId,jdbcType=INTEGER};
+        where web_id = #{webId,jdbcType=INTEGER} and is_deleted = 0;
     </select>
 
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
-        select w.user_name, w.title, w.url, w.is_public isPublic, v.web_id, v.views
+        select w.user_name, w.title, w.url, w.is_public, v.web_id, v.views
         from website_views v
                  left join website w on v.web_id = w.web_id
+        where is_deleted = 0
         order by v.views desc
         limit #{from},#{size};
     </select>
