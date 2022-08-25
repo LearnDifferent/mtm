@@ -14,12 +14,13 @@
         from website w
         left join user u on w.user_name = u.user_name
         <where>
-            w.public is true
+
             <if test="list != null and list.size() != 0">
-                <foreach collection="list" separator="or" open="and (" close=")" item="userName">
+                <foreach collection="list" separator="or" open="(" close=") and" item="userName">
                     u.user_name = #{userName}
                 </foreach>
             </if>
+            w.is_public = 1
         </where>
         group by userName
         order by bookmarkNumber desc;
