@@ -68,8 +68,9 @@ CREATE TABLE IF NOT EXISTS `website_views`
 
 CREATE TABLE IF NOT EXISTS `tag`
 (
-    `tag`    varchar(1024) not null,
-    `web_id` int(11)       not null
+    `tag`        varchar(1024) not null,
+    `web_id`     int(11)       not null,
+    `is_deleted` boolean DEFAULT false
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
