@@ -217,7 +217,8 @@
     <select id="getBookmarkOwnerName" resultType="java.lang.String">
         select user_name
         from website
-        where web_id = #{webId,jdbcType=INTEGER} and is_deleted = 0;
+        where web_id = #{webId,jdbcType=INTEGER}
+          and is_deleted = 0 limit 1;
     </select>
 
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
