@@ -13,15 +13,18 @@
         select tag, web_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
-          and web_id = #{webId,jdbcType=INTEGER};
+          and web_id = #{webId,jdbcType=INTEGER}
+          and is_deleted = 0
+        limit 1;
     </select>
     <select id="getTagsByWebId" resultType="java.lang.String">
         select distinct tag
         from tag
         <where>
             <if test="webId != null">
-                web_id = #{webId,jdbcType=INTEGER}
+                web_id = #{webId,jdbcType=INTEGER} and
             </if>
+            is_deleted = 0
         </where>
         limit #{from}, #{size};
     </select>
@@ -29,22 +32,26 @@
         select web_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
+          and is_deleted = 0
         limit #{from}, #{size};
     </select>
-    <delete id="deleteTag">
-        delete
-        from tag
+    <update id="deleteTag">
+        update tag
+        set is_deleted = 1
         where tag = #{tagName,jdbcType=VARCHAR}
           and web_id = #{webId,jdbcType=INTEGER};
-    </delete>
-    <delete id="deleteAllTags">
-        delete
-        from tag
+    </update>
+    <update id="deleteAllTags">
+        update tag
+        set is_deleted = 1
         where web_id = #{webId,jdbcType=INTEGER};
-    </delete>
+    </update>
     <select id="getTagAndCount" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
-        select count(web_id) as number, tag
-        from tag
+        select count(t.web_id) as number, `tag`
+        from tag t
+        left join website w
+            on t.web_id = w.web_id
+        where t.is_deleted = 0 and w.is_public = 1 and w.is_deleted = 0
         group by tag
         <if test="beMoreThanOne == true">
             having number > 1
@@ -56,11 +63,13 @@
     </select>
     <select id="countDistinctTags" resultType="java.lang.Integer">
         select count(distinct tag)
-        from tag;
+        from tag
+        where is_deleted = 0;
     </select>
     <select id="countTags" resultType="java.lang.Integer">
         select count(tag)
         from tag
-        where tag = #{tagName};
+        where tag = #{tagName}
+          and is_deleted = 0;
     </select>
 </mapper>
