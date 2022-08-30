@@ -14,13 +14,12 @@
         from website w
         left join user u on w.user_name = u.user_name
         <where>
-
             <if test="list != null and list.size() != 0">
                 <foreach collection="list" separator="or" open="(" close=") and" item="userName">
                     u.user_name = #{userName}
                 </foreach>
             </if>
-            w.is_public = 1
+            w.is_public = 1 and is_deleted = 0
         </where>
         group by userName
         order by bookmarkNumber desc;
@@ -33,40 +32,47 @@
                 #{createTime,jdbcType=TIMESTAMP}, #{role,jdbcType=VARCHAR})
     </insert>
 
-    <delete id="deleteUserByUserId">
-        delete
-        from user
+    <update id="deleteUserByUserId">
+        update user
+        set is_deleted = 1
         where user_id = #{userId};
-    </delete>
+    </update>
 
     <select id="getUserByNameAndPassword" resultMap="BaseResultMap">
         select user_id, user_name, `password`, creation_time, `role`
         from user
         where user_name = #{userName}
           and password = #{password}
+          and is_deleted = 0
         limit 1;
     </select>
 
     <select id="getUserRoleById" resultType="java.lang.String">
         select role
         from user
-        where user_id = #{userId};
+        where user_id = #{userId}
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getRoleByName" resultType="java.lang.String">
         select role
         from user
-        where user_name = #{userName};
+        where user_name = #{userName}
+          and is_deleted = 0
+        limit 1;
     </select>
     <select id="getUserByName" resultMap="BaseResultMap">
         select user_id, user_name, `password`, creation_time, `role`
         from user
         where user_name = #{userName}
+          and is_deleted = 0
         limit 1;
     </select>
     <select id="getUsers" resultMap="BaseResultMap">
         select user_id, user_name, `password`, creation_time, `role`
         from user
+        where is_deleted = 0
         order by creation_time desc
         <if test="from!=null and size!=null">
             limit #{from}, #{size}
@@ -76,18 +82,23 @@
     <select id="countUsers" resultType="java.lang.Integer">
         select count(*)
         from user
+        where is_deleted = 0;
     </select>
 
     <select id="getUserIdByNameAndPassword" resultType="java.lang.String">
         select user_id
         from user
         where user_name = #{userName}
-          and password = #{password};
+          and password = #{password}
+          and is_deleted = 0
+        limit 1;
     </select>
     <select id="getUserIdByName" resultType="java.lang.String">
         select user_id
         from user
-        where user_name = #{username};
+        where user_name = #{username}
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <update id="updateUser" parameterType="com.github.learndifferent.mtm.dto.UserDTO">
