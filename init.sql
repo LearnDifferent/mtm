@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `comment`
     `username`            varchar(50)      NOT NULL,
     `creation_time`       datetime         NOT NULL,
     `reply_to_comment_id` int(11) DEFAULT NULL,
+    `is_deleted`          boolean DEFAULT false,
     PRIMARY KEY (`comment_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
