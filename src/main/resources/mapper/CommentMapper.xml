@@ -14,19 +14,24 @@
         select comment_id, comment, web_id, username, creation_time, reply_to_comment_id
         from comment
         where comment_id = #{commentId,jdbcType=INTEGER}
+          and is_deleted = 0
         limit 1;
     </select>
 
     <select id="getCommentSenderName" resultType="java.lang.String">
         select username
         from comment
-        where comment_id = #{commentId,jdbcType=INTEGER};
+        where comment_id = #{commentId,jdbcType=INTEGER}
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getCommentTextById" resultType="java.lang.String">
         select `comment`
         from comment
-        where comment_id = #{commentId,jdbcType=INTEGER};
+        where comment_id = #{commentId,jdbcType=INTEGER}
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
@@ -41,7 +46,9 @@
             </if>
             <if test="replyToCommentId != null">
                 and reply_to_comment_id = #{replyToCommentId}
+
             </if>
+            and is_deleted = 0
         </where>
         order by `creation_time`
         <if test="isDesc != null and isDesc != false">
@@ -58,26 +65,28 @@
         where comment = #{comment}
           and username = #{username}
           and web_id = #{webId}
+          and is_deleted = 0
         limit 1;
     </select>
 
     <select id="countRepliesFromComment" resultType="java.lang.Integer">
         select count(*)
         from comment
-        where reply_to_comment_id = #{countRepliesFromCommentId};
+        where reply_to_comment_id = #{countRepliesFromCommentId}
+          and is_deleted = 0;
     </select>
 
-    <delete id="deleteCommentById" parameterType="java.lang.Integer">
-        delete
-        from comment
+    <update id="deleteCommentById" parameterType="java.lang.Integer">
+        update comment
+        set is_deleted = 1
         where comment_id = #{commentId,jdbcType=INTEGER}
-    </delete>
+    </update>
 
-    <delete id="deleteCommentsByUsername">
-        delete
-        from comment
+    <update id="deleteCommentsByUsername">
+        update comment
+        set is_deleted = 1
         where username = #{username};
-    </delete>
+    </update>
 
     <insert id="addComment" keyColumn="comment_id" keyProperty="commentId" useGeneratedKeys="true"
             parameterType="com.github.learndifferent.mtm.entity.CommentDO">
@@ -96,6 +105,7 @@
         select count(web_id)
         from comment
         where reply_to_comment_id is null
-          and web_id = #{webId};
+          and web_id = #{webId}
+          and is_deleted = 0;
     </select>
 </mapper>
