@@ -100,7 +100,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private List<BookmarkVO> getBookmarksByUsernameAndTag(String username, String tagName, int from, int size) {
-        List<Integer> ids = tagMapper.getWebIdByTagName(tagName, from, size);
+        List<Integer> ids = tagMapper.getWebIdsByTagName(tagName, from, size);
         throwExceptionIfEmpty(ids);
 
         return getBookmarks(username, ids);

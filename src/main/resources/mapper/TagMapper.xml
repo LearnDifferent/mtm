@@ -28,7 +28,7 @@
         </where>
         limit #{from}, #{size};
     </select>
-    <select id="getWebIdByTagName" resultType="java.lang.Integer">
+    <select id="getWebIdsByTagName" resultType="java.lang.Integer">
         select web_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}

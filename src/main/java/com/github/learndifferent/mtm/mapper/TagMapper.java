@@ -46,16 +46,16 @@ public interface TagMapper {
     List<String> getTagsByWebId(@Param("webId") Integer webId, @Param("from") int from, @Param("size") int size);
 
     /**
-     * Get Web ID by Tag Name
+     * Get Web IDs by Tag Name
      *
      * @param tagName name of the tag
      * @param from    from
      * @param size    size
      * @return Web IDs
      */
-    List<Integer> getWebIdByTagName(@Param("tagName") String tagName,
-                                    @Param("from") int from,
-                                    @Param("size") int size);
+    List<Integer> getWebIdsByTagName(@Param("tagName") String tagName,
+                                     @Param("from") int from,
+                                     @Param("size") int size);
 
     /**
      * Delete a tag
