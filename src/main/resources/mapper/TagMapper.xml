@@ -41,7 +41,7 @@
         where tag = #{tagName,jdbcType=VARCHAR}
           and web_id = #{webId,jdbcType=INTEGER};
     </update>
-    <update id="deleteAllTags">
+    <update id="deleteAllTagsByWebId">
         update tag
         set is_deleted = 1
         where web_id = #{webId,jdbcType=INTEGER};

@@ -71,7 +71,7 @@ public interface TagMapper {
      *
      * @param webId ID of the bookmarked website data
      */
-    void deleteAllTags(int webId);
+    void deleteAllTagsByWebId(int webId);
 
     /**
      * Get tags and count the numbers of bookmarks of tags.
