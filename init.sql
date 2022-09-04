@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `user`
 
 CREATE TABLE IF NOT EXISTS `website`
 (
-    `web_id`        int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `id`            int(11) unsigned NOT NULL AUTO_INCREMENT,
     `user_name`     varchar(50)      NOT NULL,
     `title`         varchar(255) DEFAULT NULL,
     `url`           varchar(600)     NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `website`
     `creation_time` datetime     DEFAULT NULL,
     `is_public`     boolean      DEFAULT true,
     `is_deleted`    boolean      DEFAULT false,
-    PRIMARY KEY (`web_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
