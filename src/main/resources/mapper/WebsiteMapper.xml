@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.WebsiteMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.WebsiteDO">
-        <id column="web_id" jdbcType="INTEGER" property="webId"/>
+        <id column="id" jdbcType="INTEGER" property="webId"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
@@ -15,7 +15,7 @@
     <select id="filterPublicBookmarks" resultMap="BaseResultMap"
             parameterType="com.github.learndifferent.mtm.dto.BookmarkFilterDTO">
         select
-        web_id, user_name, title, url, img, `desc`, creation_time, is_public
+        id, user_name, title, url, img, `desc`, creation_time, is_public
         from website
         <where>
             <if test="usernames != null and usernames.size() != 0">
@@ -64,9 +64,9 @@
     </select>
 
     <select id="getAllPublicAndSpecificPrivateBookmarks" resultMap="BaseResultMap">
-        <!-- 因为 web_id 也是根据时间顺序生成的，所以用 creation_time 和 web_id 排序是一样的效果 -->
+        <!-- 因为 id 也是根据时间顺序生成的，所以用 creation_time 和 id 排序是一样的效果 -->
         select
-        web_id, user_name, title, url, img, `desc`, creation_time, is_public
+        id, user_name, title, url, img, `desc`, creation_time, is_public
         from
         website
         <where>
@@ -76,14 +76,14 @@
             </if>
             `is_public` = 1 )
         </where>
-        order by `web_id` desc
+        order by `id` desc
         <if test="from!=null and size!=null">
             limit #{from},#{size}
         </if>
     </select>
 
     <select id="getBookmarkById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-        select web_id,
+        select id,
                user_name,
                title,
                url,
@@ -92,12 +92,12 @@
                creation_time,
                is_public
         from website
-        where web_id = #{webId,jdbcType=INTEGER}
+        where id = #{webId,jdbcType=INTEGER}
           and is_deleted = 0;
     </select>
 
     <select id="getBookmarksByUrl" resultMap="BaseResultMap">
-        select web_id,
+        select id,
                user_name,
                title,
                url,
@@ -111,7 +111,7 @@
     </select>
 
     <select id="countAllPublicAndSpecificPrivateBookmarks" resultType="java.lang.Integer">
-        select count(web_id)
+        select count(id)
         from website
         <where>
             is_deleted = 0 and (`is_public` = 1
@@ -125,7 +125,7 @@
 
     <select id="getUserBookmarks" resultMap="BaseResultMap">
         select
-        web_id, user_name, title, url, img, `desc`, creation_time, is_public
+        id, user_name, title, url, img, `desc`, creation_time, is_public
         from website
         where user_name = #{userName}
         <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 is_public 属性为 true 的 -->
@@ -133,7 +133,7 @@
             and `is_public` = 1
         </if>
         and is_deleted = 0
-        order by web_id desc
+        order by id desc
         <if test="from!=null and size!=null">
             limit #{from},#{size}
         </if>
@@ -161,7 +161,7 @@
 
     <select id="getAllPublicSomePrivateExcludingSpecificUserBookmark" resultMap="BaseResultMap">
         select
-        web_id, user_name, title, url, img, `desc`, creation_time, is_public
+        id, user_name, title, url, img, `desc`, creation_time, is_public
         from website
         where user_name != #{excludeUsername}
         and ( `is_public` = 1
@@ -169,11 +169,11 @@
             or user_name = #{includePrivateUsername}
         </if>
         ) and is_deleted = 0
-        order by web_id desc limit #{from}, #{size};
+        order by id desc limit #{from}, #{size};
     </select>
 
     <select id="countAllPublicSomePrivateExcludingSpecificUserBookmark" resultType="java.lang.Integer">
-        select count(web_id)
+        select count(id)
         from website
         where user_name != #{excludeUsername}
         and ( `is_public` = 1
@@ -186,7 +186,7 @@
     <update id="deleteBookmarkById" parameterType="java.lang.Integer">
         update website
         set is_deleted = 1
-        where web_id = #{webId,jdbcType=INTEGER};
+        where id = #{webId,jdbcType=INTEGER};
     </update>
 
     <update id="deleteUserBookmarks" parameterType="java.lang.Integer">
@@ -195,7 +195,7 @@
         where user_name = #{userName};
     </update>
 
-    <insert id="addBookmark" keyColumn="web_id" keyProperty="webId"
+    <insert id="addBookmark" keyColumn="id" keyProperty="webId"
             parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
             useGeneratedKeys="true">
         insert into website(user_name, title, url, img, `desc`, `creation_time`, `is_public`)
@@ -211,20 +211,21 @@
             `desc`          = #{desc,jdbcType=VARCHAR},
             `creation_time` = #{createTime,jdbcType=TIMESTAMP},
             `is_public`     = #{isPublic,jdbcType=BOOLEAN}
-        where web_id = #{webId,jdbcType=INTEGER}
+        where id = #{webId,jdbcType=INTEGER}
     </update>
 
     <select id="getBookmarkOwnerName" resultType="java.lang.String">
         select user_name
         from website
-        where web_id = #{webId,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+        where id = #{webId,jdbcType=INTEGER}
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
         select w.user_name, w.title, w.url, w.is_public, v.web_id, v.views
         from website_views v
-                 left join website w on v.web_id = w.web_id
+                 left join website w on v.web_id = w.id
         where is_deleted = 0
         order by v.views desc
         limit #{from},#{size};

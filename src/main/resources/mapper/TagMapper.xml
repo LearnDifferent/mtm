@@ -50,7 +50,7 @@
         select count(t.web_id) as number, `tag`
         from tag t
         left join website w
-            on t.web_id = w.web_id
+            on t.web_id = w.id
         where t.is_deleted = 0 and w.is_public = 1 and w.is_deleted = 0
         group by tag
         <if test="beMoreThanOne == true">

@@ -10,7 +10,7 @@
     </resultMap>
 
     <select id="getNamesAndPublicBookmarkNums" resultType="com.github.learndifferent.mtm.vo.UserBookmarkNumberVO">
-        select count(web_id) bookmarkNumber, u.user_name userName
+        select count(w.id) bookmarkNumber, u.user_name userName
         from website w
         left join user u on w.user_name = u.user_name
         <where>
