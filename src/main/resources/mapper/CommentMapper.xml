@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.CommentMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.CommentDO">
-        <id column="comment_id" jdbcType="INTEGER" property="commentId"/>
+        <id column="id" jdbcType="INTEGER" property="commentId"/>
         <result column="comment" jdbcType="VARCHAR" property="comment"/>
         <result column="web_id" jdbcType="INTEGER" property="webId"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
@@ -11,9 +11,9 @@
     </resultMap>
 
     <select id="getCommentById" resultMap="BaseResultMap">
-        select comment_id, comment, web_id, username, creation_time, reply_to_comment_id
+        select id, comment, web_id, username, creation_time, reply_to_comment_id
         from comment
-        where comment_id = #{commentId,jdbcType=INTEGER}
+        where id = #{commentId,jdbcType=INTEGER}
           and is_deleted = 0
         limit 1;
     </select>
@@ -21,7 +21,7 @@
     <select id="getCommentSenderName" resultType="java.lang.String">
         select username
         from comment
-        where comment_id = #{commentId,jdbcType=INTEGER}
+        where id = #{commentId,jdbcType=INTEGER}
           and is_deleted = 0
         limit 1;
     </select>
@@ -29,13 +29,13 @@
     <select id="getCommentTextById" resultType="java.lang.String">
         select `comment`
         from comment
-        where comment_id = #{commentId,jdbcType=INTEGER}
+        where id = #{commentId,jdbcType=INTEGER}
           and is_deleted = 0
         limit 1;
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
-        select comment_id, comment, web_id, username, creation_time, reply_to_comment_id
+        select id, comment, web_id, username, creation_time, reply_to_comment_id
         from comment
         <where>
             <if test="webId != null">
@@ -60,7 +60,7 @@
     </select>
 
     <select id="getSpecificComment" resultMap="BaseResultMap">
-        select comment_id, comment, web_id, username, creation_time, reply_to_comment_id
+        select id, comment, web_id, username, creation_time, reply_to_comment_id
         from comment
         where comment = #{comment}
           and username = #{username}
@@ -79,7 +79,7 @@
     <update id="deleteCommentById" parameterType="java.lang.Integer">
         update comment
         set is_deleted = 1
-        where comment_id = #{commentId,jdbcType=INTEGER}
+        where id = #{commentId,jdbcType=INTEGER}
     </update>
 
     <update id="deleteCommentsByUsername">
@@ -88,7 +88,7 @@
         where username = #{username};
     </update>
 
-    <insert id="addComment" keyColumn="comment_id" keyProperty="commentId" useGeneratedKeys="true"
+    <insert id="addComment" keyColumn="id" keyProperty="commentId" useGeneratedKeys="true"
             parameterType="com.github.learndifferent.mtm.entity.CommentDO">
         insert into comment (`comment`, web_id, `username`, creation_time, `reply_to_comment_id`)
         values (#{comment,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
@@ -98,7 +98,7 @@
     <update id="updateComment">
         update comment
         set comment = #{comment,jdbcType=VARCHAR}
-        where comment_id = #{commentId,jdbcType=INTEGER}
+        where id = #{commentId,jdbcType=INTEGER}
     </update>
 
     <select id="countCommentByWebId" resultType="java.lang.Integer">

@@ -31,14 +31,14 @@ CREATE TABLE IF NOT EXISTS `website`
 
 CREATE TABLE IF NOT EXISTS `comment`
 (
-    `comment_id`          int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `id`          int(11) unsigned NOT NULL AUTO_INCREMENT,
     `comment`             varchar(140)     NOT NULL,
     `web_id`              int(11)          NOT NULL,
     `username`            varchar(50)      NOT NULL,
     `creation_time`       datetime         NOT NULL,
     `reply_to_comment_id` int(11) DEFAULT NULL,
     `is_deleted`          boolean DEFAULT false,
-    PRIMARY KEY (`comment_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
