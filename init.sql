@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `user`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `website`
+CREATE TABLE IF NOT EXISTS `bookmark`
 (
     `id`            int(11) unsigned NOT NULL AUTO_INCREMENT,
     `user_name`     varchar(50)      NOT NULL,
