@@ -10,16 +10,16 @@
     </resultMap>
 
     <select id="getNamesAndPublicBookmarkNums" resultType="com.github.learndifferent.mtm.vo.UserBookmarkNumberVO">
-        select count(w.id) bookmarkNumber, u.user_name userName
-        from website w
-        left join user u on w.user_name = u.user_name
+        select count(b.id) bookmarkNumber, u.user_name userName
+        from bookmark b
+        left join user u on b.user_name = u.user_name
         <where>
             <if test="list != null and list.size() != 0">
                 <foreach collection="list" separator="or" open="(" close=") and" item="userName">
                     u.user_name = #{userName}
                 </foreach>
             </if>
-            w.is_public = 1 and is_deleted = 0
+            b.is_public = 1 and is_deleted = 0
         </where>
         group by userName
         order by bookmarkNumber desc;

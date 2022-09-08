@@ -16,7 +16,7 @@
             parameterType="com.github.learndifferent.mtm.dto.BookmarkFilterDTO">
         select
         id, user_name, title, url, img, `desc`, creation_time, is_public
-        from website
+        from bookmark
         <where>
             <if test="usernames != null and usernames.size() != 0">
                 <foreach collection="usernames" item="username" open="(" close=") and" separator="or">
@@ -48,7 +48,7 @@
 
     <select id="getPopularPublicBookmarks" resultType="com.github.learndifferent.mtm.dto.PopularBookmarkDTO">
         select count(url) as count, url, title, `desc`, img
-        from website
+        from bookmark
         where `is_public` = 1
           and `is_deleted` = 0
         group by url, title, `desc`, img
@@ -58,7 +58,7 @@
 
     <select id="countDistinctPublicUrl" resultType="java.lang.Integer">
         select count(distinct url)
-        from website
+        from bookmark
         where `is_public` = 1
           and `is_deleted` = 0
     </select>
@@ -68,7 +68,7 @@
         select
         id, user_name, title, url, img, `desc`, creation_time, is_public
         from
-        website
+        bookmark
         <where>
             `is_deleted` = 0 and (
             <if test="specUsername != null and specUsername != ''">
@@ -91,7 +91,7 @@
                `desc`,
                creation_time,
                is_public
-        from website
+        from bookmark
         where id = #{webId,jdbcType=INTEGER}
           and is_deleted = 0;
     </select>
@@ -105,14 +105,14 @@
                `desc`,
                creation_time,
                is_public
-        from website
+        from bookmark
         where url = #{url}
           and is_deleted = 0;
     </select>
 
     <select id="countAllPublicAndSpecificPrivateBookmarks" resultType="java.lang.Integer">
         select count(id)
-        from website
+        from bookmark
         <where>
             is_deleted = 0 and (`is_public` = 1
             <if test="specUsername != null and specUsername != ''">
@@ -126,7 +126,7 @@
     <select id="getUserBookmarks" resultMap="BaseResultMap">
         select
         id, user_name, title, url, img, `desc`, creation_time, is_public
-        from website
+        from bookmark
         where user_name = #{userName}
         <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 is_public 属性为 true 的 -->
         <if test="!shouldIncludePrivate">
@@ -141,7 +141,7 @@
 
     <select id="countUserBookmarks" resultType="java.lang.Integer">
         select count(user_name)
-        from website
+        from bookmark
         where user_name = #{userName}
         <if test="!shouldIncludePrivate">
             and `is_public` = 1
@@ -153,7 +153,7 @@
     <select id="getAllPublicBasicWebDataForSearch"
             resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`
-        from website
+        from bookmark
         where `is_public` = 1
           and is_deleted = 0
         group by url, title, `desc`, img;
@@ -162,7 +162,7 @@
     <select id="getAllPublicSomePrivateExcludingSpecificUserBookmark" resultMap="BaseResultMap">
         select
         id, user_name, title, url, img, `desc`, creation_time, is_public
-        from website
+        from bookmark
         where user_name != #{excludeUsername}
         and ( `is_public` = 1
         <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
@@ -174,7 +174,7 @@
 
     <select id="countAllPublicSomePrivateExcludingSpecificUserBookmark" resultType="java.lang.Integer">
         select count(id)
-        from website
+        from bookmark
         where user_name != #{excludeUsername}
         and ( `is_public` = 1
         <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
@@ -184,13 +184,13 @@
     </select>
 
     <update id="deleteBookmarkById" parameterType="java.lang.Integer">
-        update website
+        update bookmark
         set is_deleted = 1
         where id = #{webId,jdbcType=INTEGER};
     </update>
 
     <update id="deleteUserBookmarks" parameterType="java.lang.Integer">
-        update website
+        update bookmark
         set is_deleted = 1
         where user_name = #{userName};
     </update>
@@ -198,12 +198,12 @@
     <insert id="addBookmark" keyColumn="id" keyProperty="webId"
             parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
             useGeneratedKeys="true">
-        insert into website(user_name, title, url, img, `desc`, `creation_time`, `is_public`)
+        insert into bookmark(user_name, title, url, img, `desc`, `creation_time`, `is_public`)
         values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
     <update id="updateBookmark" parameterType="com.github.learndifferent.mtm.entity.WebsiteDO">
-        update website
+        update bookmark
         set user_name       = #{userName,jdbcType=VARCHAR},
             title           = #{title,jdbcType=VARCHAR},
             url             = #{url,jdbcType=VARCHAR},
@@ -216,7 +216,7 @@
 
     <select id="getBookmarkOwnerName" resultType="java.lang.String">
         select user_name
-        from website
+        from bookmark
         where id = #{webId,jdbcType=INTEGER}
           and is_deleted = 0
         limit 1;
@@ -225,7 +225,7 @@
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
         select w.user_name, w.title, w.url, w.is_public, v.web_id, v.views
         from website_views v
-                 left join website w on v.web_id = w.id
+                 left join bookmark w on v.web_id = w.id
         where is_deleted = 0
         order by v.views desc
         limit #{from},#{size};
