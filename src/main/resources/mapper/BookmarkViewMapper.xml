@@ -6,7 +6,7 @@
         <result column="views" jdbcType="INTEGER" property="views"/>
     </resultMap>
     <insert id="addAll" parameterType="com.github.learndifferent.mtm.entity.ViewDataDO">
-        insert into website_views (web_id, views)
+        insert into bookmark_view (web_id, views)
         values
         <foreach collection="set" item="webAndViews" separator=",">
             (#{webAndViews.webId,jdbcType=INTEGER}, #{webAndViews.views,jdbcType=INTEGER})
@@ -14,15 +14,15 @@
     </insert>
     <delete id="clearAll">
         delete
-        from website_views;
+        from bookmark_view;
     </delete>
     <select id="getAllViewData" resultType="com.github.learndifferent.mtm.entity.ViewDataDO">
         select web_id, views
-        from website_views;
+        from bookmark_view;
     </select>
     <delete id="deleteViewData">
         delete
-        from website_views
+        from bookmark_view
         where web_id = #{webId,jdbcType=INTEGER};
     </delete>
 </mapper>

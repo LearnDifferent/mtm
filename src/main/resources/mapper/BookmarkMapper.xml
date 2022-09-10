@@ -223,9 +223,9 @@
     </select>
 
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
-        select w.user_name, w.title, w.url, w.is_public, v.web_id, v.views
-        from website_views v
-                 left join bookmark w on v.web_id = w.id
+        select b.user_name, b.title, b.url, b.is_public, v.web_id, v.views
+        from bookmark_view v
+                 left join bookmark b on v.web_id = b.id
         where is_deleted = 0
         order by v.views desc
         limit #{from},#{size};
