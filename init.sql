@@ -31,9 +31,9 @@ CREATE TABLE IF NOT EXISTS `bookmark`
 
 CREATE TABLE IF NOT EXISTS `comment`
 (
-    `id`          int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `id`                  int(11) unsigned NOT NULL AUTO_INCREMENT,
     `comment`             varchar(140)     NOT NULL,
-    `web_id`              int(11)          NOT NULL,
+    `bookmark_id`         int(11)          NOT NULL,
     `username`            varchar(50)      NOT NULL,
     `creation_time`       datetime         NOT NULL,
     `reply_to_comment_id` int(11) DEFAULT NULL,
