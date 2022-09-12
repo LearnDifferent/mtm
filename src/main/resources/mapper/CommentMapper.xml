@@ -4,14 +4,14 @@
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.CommentDO">
         <id column="id" jdbcType="INTEGER" property="commentId"/>
         <result column="comment" jdbcType="VARCHAR" property="comment"/>
-        <result column="web_id" jdbcType="INTEGER" property="webId"/>
+        <result column="bookmark_id" jdbcType="INTEGER" property="webId"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="creation_time" jdbcType="TIMESTAMP" property="creationTime"/>
         <result column="reply_to_comment_id" jdbcType="INTEGER" property="replyToCommentId"/>
     </resultMap>
 
     <select id="getCommentById" resultMap="BaseResultMap">
-        select id, comment, web_id, username, creation_time, reply_to_comment_id
+        select id, comment, bookmark_id, username, creation_time, reply_to_comment_id
         from comment
         where id = #{commentId,jdbcType=INTEGER}
           and is_deleted = 0
@@ -35,11 +35,11 @@
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
-        select id, comment, web_id, username, creation_time, reply_to_comment_id
+        select id, comment, bookmark_id, username, creation_time, reply_to_comment_id
         from comment
         <where>
             <if test="webId != null">
-                web_id = #{webId,jdbcType=INTEGER}
+                bookmark_id = #{webId,jdbcType=INTEGER}
             </if>
             <if test="replyToCommentId == null">
                 and reply_to_comment_id is null
@@ -60,11 +60,11 @@
     </select>
 
     <select id="getSpecificComment" resultMap="BaseResultMap">
-        select id, comment, web_id, username, creation_time, reply_to_comment_id
+        select id, comment, bookmark_id, username, creation_time, reply_to_comment_id
         from comment
         where comment = #{comment}
           and username = #{username}
-          and web_id = #{webId}
+          and bookmark_id = #{webId}
           and is_deleted = 0
         limit 1;
     </select>
@@ -90,7 +90,7 @@
 
     <insert id="addComment" keyColumn="id" keyProperty="commentId" useGeneratedKeys="true"
             parameterType="com.github.learndifferent.mtm.entity.CommentDO">
-        insert into comment (`comment`, web_id, `username`, creation_time, `reply_to_comment_id`)
+        insert into comment (`comment`, bookmark_id, `username`, creation_time, `reply_to_comment_id`)
         values (#{comment,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
                 #{creationTime,jdbcType=TIMESTAMP}, #{replyToCommentId,jdbcType=INTEGER})
     </insert>
@@ -102,10 +102,10 @@
     </update>
 
     <select id="countCommentByWebId" resultType="java.lang.Integer">
-        select count(web_id)
+        select count(bookmark_id)
         from comment
         where reply_to_comment_id is null
-          and web_id = #{webId}
+          and bookmark_id = #{webId}
           and is_deleted = 0;
     </select>
 </mapper>
