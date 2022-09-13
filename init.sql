@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `system_log`
 
 CREATE TABLE IF NOT EXISTS `bookmark_view`
 (
-    `web_id` int(11) not null,
+    `bookmark_id` int(11) not null,
     `views`  int(11) not null
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
