@@ -2,11 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.BookmarkViewMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.ViewDataDO">
-        <result column="web_id" jdbcType="INTEGER" property="webId"/>
+        <result column="bookmark_id" jdbcType="INTEGER" property="webId"/>
         <result column="views" jdbcType="INTEGER" property="views"/>
     </resultMap>
     <insert id="addAll" parameterType="com.github.learndifferent.mtm.entity.ViewDataDO">
-        insert into bookmark_view (web_id, views)
+        insert into bookmark_view (bookmark_id, views)
         values
         <foreach collection="set" item="webAndViews" separator=",">
             (#{webAndViews.webId,jdbcType=INTEGER}, #{webAndViews.views,jdbcType=INTEGER})
@@ -17,12 +17,12 @@
         from bookmark_view;
     </delete>
     <select id="getAllViewData" resultType="com.github.learndifferent.mtm.entity.ViewDataDO">
-        select web_id, views
+        select bookmark_id, views
         from bookmark_view;
     </select>
     <delete id="deleteViewData">
         delete
         from bookmark_view
-        where web_id = #{webId,jdbcType=INTEGER};
+        where bookmark_id = #{webId,jdbcType=INTEGER};
     </delete>
 </mapper>
