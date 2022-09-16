@@ -3,17 +3,17 @@
 <mapper namespace="com.github.learndifferent.mtm.mapper.TagMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.TagDO">
         <result column="tag" jdbcType="VARCHAR" property="tag"/>
-        <result column="web_id" jdbcType="INTEGER" property="webId"/>
+        <result column="bookmark_id" jdbcType="INTEGER" property="webId"/>
     </resultMap>
     <insert id="addTag" parameterType="com.github.learndifferent.mtm.entity.TagDO">
-        insert into tag (tag, web_id)
+        insert into tag (tag, bookmark_id)
         values (#{tag,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER})
     </insert>
     <select id="getSpecificTagByTagTextAndWebId" resultType="com.github.learndifferent.mtm.entity.TagDO">
-        select tag, web_id
+        select tag, bookmark_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
-          and web_id = #{webId,jdbcType=INTEGER}
+          and bookmark_id = #{webId,jdbcType=INTEGER}
           and is_deleted = 0
         limit 1;
     </select>
@@ -22,14 +22,14 @@
         from tag
         <where>
             <if test="webId != null">
-                web_id = #{webId,jdbcType=INTEGER} and
+                bookmark_id = #{webId,jdbcType=INTEGER} and
             </if>
             is_deleted = 0
         </where>
         limit #{from}, #{size};
     </select>
     <select id="getWebIdsByTagName" resultType="java.lang.Integer">
-        select web_id
+        select bookmark_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
           and is_deleted = 0
@@ -39,18 +39,18 @@
         update tag
         set is_deleted = 1
         where tag = #{tagName,jdbcType=VARCHAR}
-          and web_id = #{webId,jdbcType=INTEGER};
+          and bookmark_id = #{webId,jdbcType=INTEGER};
     </update>
     <update id="deleteAllTagsByWebId">
         update tag
         set is_deleted = 1
-        where web_id = #{webId,jdbcType=INTEGER};
+        where bookmark_id = #{webId,jdbcType=INTEGER};
     </update>
     <select id="getTagAndCount" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
-        select count(t.web_id) as number, `tag`
+        select count(t.bookmark_id) as number, `tag`
         from tag t
         left join bookmark b
-            on t.web_id = b.id
+            on t.bookmark_id = b.id
         where t.is_deleted = 0 and b.is_public = 1 and b.is_deleted = 0
         group by tag
         <if test="beMoreThanOne == true">
