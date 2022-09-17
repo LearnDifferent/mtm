@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.service.impl;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ class WebsiteServiceImplTest {
     private WebsiteServiceImpl websiteService;
 
     @Mock
-    private WebsiteMapper websiteMapper;
+    private BookmarkMapper bookmarkMapper;
 
     @Test
     @DisplayName("should get the bookmarks and total pages")
@@ -42,9 +42,9 @@ class WebsiteServiceImplTest {
             list.add(new WebsiteDO());
         }
 
-        Mockito.when(websiteMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, currentUser))
+        Mockito.when(bookmarkMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, currentUser))
                 .thenReturn(list);
-        Mockito.when(websiteMapper.countAllPublicAndSpecificPrivateBookmarks(currentUser))
+        Mockito.when(bookmarkMapper.countAllPublicAndSpecificPrivateBookmarks(currentUser))
                 .thenReturn(totalNumber);
 
         BookmarksAndTotalPagesVO result = websiteService.getHomeTimeline(

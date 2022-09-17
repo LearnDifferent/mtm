@@ -7,7 +7,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -37,11 +37,11 @@ import org.springframework.stereotype.Component;
 @Order(2)
 public class CheckAndReturnBasicDataAspect {
 
-    private final WebsiteMapper websiteMapper;
+    private final BookmarkMapper bookmarkMapper;
 
     @Autowired
-    public CheckAndReturnBasicDataAspect(WebsiteMapper websiteMapper) {
-        this.websiteMapper = websiteMapper;
+    public CheckAndReturnBasicDataAspect(BookmarkMapper bookmarkMapper) {
+        this.bookmarkMapper = bookmarkMapper;
     }
 
     /**
@@ -95,7 +95,7 @@ public class CheckAndReturnBasicDataAspect {
         }
 
         // Get all bookmarks that have the given URL
-        List<WebsiteDO> bookmarks = websiteMapper.getBookmarksByUrl(url);
+        List<WebsiteDO> bookmarks = bookmarkMapper.getBookmarksByUrl(url);
 
         // If not found, do nothing
         if (bookmarks.isEmpty()) {

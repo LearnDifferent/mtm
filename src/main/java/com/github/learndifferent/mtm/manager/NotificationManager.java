@@ -10,7 +10,7 @@ import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -35,15 +35,15 @@ public class NotificationManager {
 
     private final StringRedisTemplate redisTemplate;
     private final CommentMapper commentMapper;
-    private final WebsiteMapper websiteMapper;
+    private final BookmarkMapper bookmarkMapper;
 
     @Autowired
     public NotificationManager(StringRedisTemplate redisTemplate,
                                CommentMapper commentMapper,
-                               WebsiteMapper websiteMapper) {
+                               BookmarkMapper bookmarkMapper) {
         this.redisTemplate = redisTemplate;
         this.commentMapper = commentMapper;
-        this.websiteMapper = websiteMapper;
+        this.bookmarkMapper = bookmarkMapper;
     }
 
     /**
@@ -109,7 +109,7 @@ public class NotificationManager {
         Integer webId = notification.getWebId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
-        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
+        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
 
         if (bookmark == null) {
             // if the bookmark does not exist,
@@ -154,7 +154,7 @@ public class NotificationManager {
         String receiveUsername;
 
         if (notifyWebsiteOwner) {
-            receiveUsername = websiteMapper.getBookmarkOwnerName(webId);
+            receiveUsername = bookmarkMapper.getBookmarkOwnerName(webId);
         } else {
             receiveUsername = commentMapper.getCommentSenderName(replyToCommentId);
         }

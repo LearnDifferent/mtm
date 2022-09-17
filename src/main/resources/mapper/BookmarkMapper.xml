@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.github.learndifferent.mtm.mapper.WebsiteMapper">
+<mapper namespace="com.github.learndifferent.mtm.mapper.BookmarkMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.WebsiteDO">
         <id column="id" jdbcType="INTEGER" property="webId"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
  * @date 2021/09/05
  */
 @Repository
-public interface WebsiteMapper {
+public interface BookmarkMapper {
 
     /**
      * Filter public bookmarked websites

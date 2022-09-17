@@ -32,7 +32,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.WebsiteService;
@@ -82,17 +82,17 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class WebsiteServiceImpl implements WebsiteService {
 
-    private final WebsiteMapper websiteMapper;
+    private final BookmarkMapper bookmarkMapper;
     private final ElasticsearchManager elasticsearchManager;
     private final DeleteViewManager deleteViewManager;
     private final DeleteTagManager deleteTagManager;
 
     @Autowired
-    public WebsiteServiceImpl(WebsiteMapper websiteMapper,
+    public WebsiteServiceImpl(BookmarkMapper bookmarkMapper,
                               ElasticsearchManager elasticsearchManager,
                               DeleteViewManager deleteViewManager,
                               DeleteTagManager deleteTagManager) {
-        this.websiteMapper = websiteMapper;
+        this.bookmarkMapper = bookmarkMapper;
         this.elasticsearchManager = elasticsearchManager;
         this.deleteViewManager = deleteViewManager;
         this.deleteTagManager = deleteTagManager;
@@ -108,7 +108,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
         BookmarkFilterDTO filter = BookmarkFilterDTO.of(
                 usernames.getUsernames(), load, fromTimestamp, toTimestamp, orderField, order);
-        List<WebsiteDO> bookmarks = websiteMapper.filterPublicBookmarks(filter);
+        List<WebsiteDO> bookmarks = bookmarkMapper.filterPublicBookmarks(filter);
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
@@ -132,7 +132,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, Privacy privacy) {
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
         WebsiteDO b = DozerUtils.convert(newBookmark, WebsiteDO.class);
-        return websiteMapper.addBookmark(b);
+        return bookmarkMapper.addBookmark(b);
     }
 
     @Override
@@ -248,8 +248,8 @@ public class WebsiteServiceImpl implements WebsiteService {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<PopularBookmarkDTO> bookmarks = websiteMapper.getPopularPublicBookmarks(from, size);
-        int totalCount = websiteMapper.countDistinctPublicUrl();
+        List<PopularBookmarkDTO> bookmarks = bookmarkMapper.getPopularPublicBookmarks(from, size);
+        int totalCount = bookmarkMapper.countDistinctPublicUrl();
         int totalPages = PaginationUtils.getTotalPages(totalCount, size);
         return PopularBookmarksVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
@@ -295,10 +295,10 @@ public class WebsiteServiceImpl implements WebsiteService {
                                                       int size,
                                                       AccessPrivilege privilege) {
 
-        int totalCounts = websiteMapper.countUserBookmarks(username, privilege.canAccessPrivateData());
+        int totalCounts = bookmarkMapper.countUserBookmarks(username, privilege.canAccessPrivateData());
         int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
 
-        List<WebsiteDO> b = websiteMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
+        List<WebsiteDO> b = bookmarkMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
         List<BookmarkVO> bookmarks = convertToBookmarkVO(b);
 
         return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
@@ -310,7 +310,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         List<BookmarkVO> bookmarks =
                 getAllPublicSomePrivateExcludingSpecificUserBookmark(currentUsername, requestedUsername, from, size);
 
-        int totalCount = websiteMapper
+        int totalCount = bookmarkMapper
                 .countAllPublicSomePrivateExcludingSpecificUserBookmark(currentUsername, requestedUsername);
         int totalPages = PaginationUtils.getTotalPages(totalCount, size);
         return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
@@ -330,7 +330,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     private List<BookmarkVO> getAllPublicSomePrivateExcludingSpecificUserBookmark(
             String includePrivateUsername, String excludeUsername, int from, int size) {
 
-        List<WebsiteDO> websites = websiteMapper.getAllPublicSomePrivateExcludingSpecificUserBookmark(
+        List<WebsiteDO> websites = bookmarkMapper.getAllPublicSomePrivateExcludingSpecificUserBookmark(
                 includePrivateUsername, excludeUsername, from, size);
 
         return convertToBookmarkVO(websites);
@@ -340,7 +340,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         List<BookmarkVO> bookmarks =
                 getAllPublicAndSpecificPrivateBookmarks(from, size, currentUsername);
 
-        int totalCount = websiteMapper.countAllPublicAndSpecificPrivateBookmarks(currentUsername);
+        int totalCount = bookmarkMapper.countAllPublicAndSpecificPrivateBookmarks(currentUsername);
         int totalPages = PaginationUtils.getTotalPages(totalCount, size);
         return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }
@@ -361,7 +361,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     private List<BookmarkVO> getAllPublicAndSpecificPrivateBookmarks(Integer from,
                                                                      Integer size,
                                                                      String specUsername) {
-        List<WebsiteDO> websites = websiteMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, specUsername);
+        List<WebsiteDO> websites = bookmarkMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, specUsername);
         return convertToBookmarkVO(websites);
     }
 
@@ -378,7 +378,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     @ModifyWebsitePermissionCheck
     public boolean deleteBookmark(@WebId Integer webId, @Username String userName) {
         // ID will not be null after checking by @ModifyWebsitePermissionCheck
-        boolean success = websiteMapper.deleteBookmarkById(webId);
+        boolean success = bookmarkMapper.deleteBookmarkById(webId);
         if (success) {
             // delete views
             deleteViewManager.deleteWebView(webId);
@@ -392,17 +392,17 @@ public class WebsiteServiceImpl implements WebsiteService {
     @ModifyWebsitePermissionCheck
     public boolean changePrivacySettings(@WebId Integer webId, @Username String userName) {
         // ID will not be null after checking by @ModifyWebsitePermissionCheck
-        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
+        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean newPrivacy = !bookmark.getIsPublic();
         WebsiteDO webWithNewPrivacy = bookmark.setIsPublic(newPrivacy);
-        return websiteMapper.updateBookmark(webWithNewPrivacy);
+        return bookmarkMapper.updateBookmark(webWithNewPrivacy);
     }
 
     @Override
     public BookmarkVO getBookmark(int webId, String userName) {
-        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
+        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
 
         // data does not exist
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
@@ -421,7 +421,7 @@ public class WebsiteServiceImpl implements WebsiteService {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
 
-        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
+        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();
@@ -495,7 +495,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     private List<BookmarkVO> getAllUserBookmarks(String userName, AccessPrivilege privilege) {
         // from 和 size 为 null 的时候，表示不分页，直接获取全部
         List<WebsiteDO> bookmarks =
-                websiteMapper.getUserBookmarks(userName, null, null, privilege.canAccessPrivateData());
+                bookmarkMapper.getUserBookmarks(userName, null, null, privilege.canAccessPrivateData());
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
@@ -602,7 +602,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     public List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        List<VisitedBookmarksVO> data = websiteMapper.getVisitedBookmarks(from, size);
+        List<VisitedBookmarksVO> data = bookmarkMapper.getVisitedBookmarks(from, size);
         return DozerUtils.convertList(data, VisitedBookmarksVO.class);
     }
 }

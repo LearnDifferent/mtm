@@ -17,7 +17,7 @@ import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
@@ -91,7 +91,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 public class ElasticsearchManager {
 
     private final RestHighLevelClient client;
-    private final WebsiteMapper websiteMapper;
+    private final BookmarkMapper bookmarkMapper;
     private final TrendingManager trendingManager;
     private final UserMapper userMapper;
     private final LanguageDetector languageDetector;
@@ -99,13 +99,13 @@ public class ElasticsearchManager {
 
     @Autowired
     public ElasticsearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
-                                WebsiteMapper websiteMapper,
+                                BookmarkMapper bookmarkMapper,
                                 TrendingManager trendingManager,
                                 UserMapper userMapper,
                                 LanguageDetector languageDetector,
                                 TagMapper tagMapper) {
         this.client = client;
-        this.websiteMapper = websiteMapper;
+        this.bookmarkMapper = bookmarkMapper;
         this.trendingManager = trendingManager;
         this.userMapper = userMapper;
         this.languageDetector = languageDetector;
@@ -160,7 +160,7 @@ public class ElasticsearchManager {
                 break;
             case WEB:
                 countEsDocsResult = countDocsAsync(EsConstant.INDEX_WEB);
-                databaseCount = websiteMapper.countDistinctPublicUrl();
+                databaseCount = bookmarkMapper.countDistinctPublicUrl();
                 break;
             default:
                 // return false if can't find the search mode, which means no changes
@@ -325,7 +325,7 @@ public class ElasticsearchManager {
 
         throwIfNotClear(EsConstant.INDEX_WEB);
 
-        List<WebForSearchDTO> data = websiteMapper.getAllPublicBasicWebDataForSearch();
+        List<WebForSearchDTO> data = bookmarkMapper.getAllPublicBasicWebDataForSearch();
 
         BulkRequest bulkRequest = new BulkRequest();
         data.forEach(b -> updateBulkRequest(bulkRequest, EsConstant.INDEX_WEB, b.getUrl(), JsonUtils.toJson(b)));
@@ -553,7 +553,7 @@ public class ElasticsearchManager {
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
         // the number of websites bookmarked by the user
-        int number = websiteMapper.countUserBookmarks(userName, false);
+        int number = bookmarkMapper.countUserBookmarks(userName, false);
 
         return UserForSearchWithMoreInfo.builder()
                 .userId(userId)

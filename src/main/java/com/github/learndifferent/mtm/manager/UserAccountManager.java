@@ -12,7 +12,7 @@ import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class UserAccountManager {
 
-    private final WebsiteMapper websiteMapper;
+    private final BookmarkMapper bookmarkMapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
     private final NotificationManager notificationManager;
@@ -39,12 +39,12 @@ public class UserAccountManager {
     @Autowired
     public UserAccountManager(ElasticsearchManager elasticsearchManager,
                               NotificationManager notificationManager,
-                              WebsiteMapper websiteMapper,
+                              BookmarkMapper bookmarkMapper,
                               UserMapper userMapper,
                               CommentMapper commentMapper) {
         this.elasticsearchManager = elasticsearchManager;
         this.notificationManager = notificationManager;
-        this.websiteMapper = websiteMapper;
+        this.bookmarkMapper = bookmarkMapper;
         this.userMapper = userMapper;
         this.commentMapper = commentMapper;
     }
@@ -67,7 +67,7 @@ public class UserAccountManager {
         String userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
 
         // Delete bookmarks related to the user
-        websiteMapper.deleteUserBookmarks(username);
+        bookmarkMapper.deleteUserBookmarks(username);
         // Delete comment data related to the user
         commentMapper.deleteCommentsByUsername(username);
 

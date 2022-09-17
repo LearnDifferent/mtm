@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -30,11 +30,11 @@ import org.springframework.util.StringUtils;
 @Component
 public class ModifyWebsitePermissionCheckAspect {
 
-    private final WebsiteMapper websiteMapper;
+    private final BookmarkMapper bookmarkMapper;
 
     @Autowired
-    public ModifyWebsitePermissionCheckAspect(WebsiteMapper websiteMapper) {
-        this.websiteMapper = websiteMapper;
+    public ModifyWebsitePermissionCheckAspect(BookmarkMapper bookmarkMapper) {
+        this.bookmarkMapper = bookmarkMapper;
     }
 
     @Before("@annotation(websitePermission)")
@@ -78,7 +78,7 @@ public class ModifyWebsitePermissionCheckAspect {
 
         ThrowExceptionUtils.throwIfTrue(webId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        WebsiteDO bookmark = websiteMapper.getBookmarkById(webId);
+        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean emptyUsername = StringUtils.isEmpty(username);

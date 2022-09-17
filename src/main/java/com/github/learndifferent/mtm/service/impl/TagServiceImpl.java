@@ -13,7 +13,7 @@ import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.mapper.TagMapper;
-import com.github.learndifferent.mtm.mapper.WebsiteMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
@@ -40,15 +40,15 @@ import org.springframework.util.CollectionUtils;
 public class TagServiceImpl implements TagService {
 
     private final TagMapper tagMapper;
-    private final WebsiteMapper websiteMapper;
+    private final BookmarkMapper bookmarkMapper;
     private final DeleteTagManager deleteTagManager;
 
     @Autowired
     public TagServiceImpl(TagMapper tagMapper,
-                          WebsiteMapper websiteMapper,
+                          BookmarkMapper bookmarkMapper,
                           DeleteTagManager deleteTagManager) {
         this.tagMapper = tagMapper;
-        this.websiteMapper = websiteMapper;
+        this.bookmarkMapper = bookmarkMapper;
         this.deleteTagManager = deleteTagManager;
     }
 
@@ -126,7 +126,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int webId) {
-        WebsiteDO b = websiteMapper.getBookmarkById(webId);
+        WebsiteDO b = bookmarkMapper.getBookmarkById(webId);
         if (b == null) {
             return;
         }
