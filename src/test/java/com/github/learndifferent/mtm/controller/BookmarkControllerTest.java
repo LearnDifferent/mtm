@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.config.mvc.CustomWebConfig;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
-import com.github.learndifferent.mtm.service.impl.WebsiteServiceImpl;
+import com.github.learndifferent.mtm.service.impl.BookmarkServiceImpl;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import java.net.URL;
 import java.nio.file.Files;
@@ -30,7 +30,7 @@ class BookmarkControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private WebsiteServiceImpl websiteService;
+    private BookmarkServiceImpl bookmarkService;
 
     @MockBean
     private CustomWebConfig config;
@@ -40,7 +40,7 @@ class BookmarkControllerTest {
     void shouldReturnResultCodeOf200() throws Exception {
 
         URL resource = BookmarkControllerTest.class.getClassLoader()
-                .getResource("request/bookmark/basic-website-data.json");
+                .getResource("request/bookmark/basic-bookmark-data.json");
         assert resource != null;
         Path path = Paths.get(resource.toURI());
         byte[] requestBody = Files.readAllBytes(path);
@@ -49,7 +49,7 @@ class BookmarkControllerTest {
 
             stpUtil.when(StpUtil::getLoginIdAsString).thenReturn("any");
 
-            BDDMockito.given(websiteService.addToBookmark(
+            BDDMockito.given(bookmarkService.addToBookmark(
                     ArgumentMatchers.any(BasicWebDataRequest.class), ArgumentMatchers.anyString()))
                     .willReturn(true);
 
@@ -75,7 +75,7 @@ class BookmarkControllerTest {
 
         try (MockedStatic<StpUtil> stpUtil = Mockito.mockStatic(StpUtil.class)) {
             stpUtil.when(StpUtil::getLoginIdAsString).thenReturn(currentUsername);
-            BDDMockito.given(websiteService.getBookmark(webId, currentUsername))
+            BDDMockito.given(bookmarkService.getBookmark(webId, currentUsername))
                     .willReturn(bookmark);
 
             mockMvc.perform(

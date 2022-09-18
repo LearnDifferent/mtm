@@ -22,12 +22,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Website Service
+ * Bookmark Service
  *
  * @author zhou
  * @date 2021/09/05
  */
-public interface WebsiteService {
+public interface BookmarkService {
 
     /**
      * Filter public bookmarked sites
@@ -146,12 +146,12 @@ public interface WebsiteService {
      * @param webId    ID of the bookmarked website data
      * @param userName name of user who trying to change the privacy settings
      * @return success or failure
-     * @throws ServiceException If the website data does not exist, the result code will be
+     * @throws ServiceException If the bookmark does not exist, the result code will be
      *                          {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}.
      *                          And {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
      *                          ModifyWebsitePermissionCheck} annotation
      *                          will throw exception with {@link ResultCode#PERMISSION_DENIED}
-     *                          if the user has no permission to change the website privacy settings.
+     *                          if the user has no permission to change the bookmark privacy settings.
      */
     boolean changePrivacySettings(Integer webId, String userName);
 

@@ -8,7 +8,7 @@ import com.github.learndifferent.mtm.constant.enums.OrderField;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.service.BookmarkService;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.HomePageVO;
@@ -32,11 +32,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/home")
 public class HomeController {
 
-    private final WebsiteService websiteService;
+    private final BookmarkService bookmarkService;
 
     @Autowired
-    public HomeController(WebsiteService websiteService) {
-        this.websiteService = websiteService;
+    public HomeController(BookmarkService bookmarkService) {
+        this.bookmarkService = bookmarkService;
     }
 
     /**
@@ -56,7 +56,7 @@ public class HomeController {
 
         String currentUser = StpUtil.getLoginIdAsString();
         BookmarksAndTotalPagesVO data =
-                websiteService.getHomeTimeline(currentUser, timeline, requestedUsername, pageInfo);
+                bookmarkService.getHomeTimeline(currentUser, timeline, requestedUsername, pageInfo);
 
         return HomePageVO.builder()
                 .currentUser(currentUser)
@@ -90,7 +90,7 @@ public class HomeController {
                                    @RequestParam(value = "toTimestamp", required = false) String toTimestamp,
                                    @RequestParam("orderField") OrderField orderField,
                                    @RequestParam("order") Order order) {
-        return websiteService.filterPublicBookmarks(usernames, load, fromTimestamp, toTimestamp, orderField, order);
+        return bookmarkService.filterPublicBookmarks(usernames, load, fromTimestamp, toTimestamp, orderField, order);
     }
 
     /**
@@ -103,6 +103,6 @@ public class HomeController {
     public PopularBookmarksVO getPopularBookmarks(
             @PageInfo(size = 12, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
-        return websiteService.getPopularBookmarksAndTotalPages(pageInfo);
+        return bookmarkService.getPopularBookmarksAndTotalPages(pageInfo);
     }
 }

@@ -35,7 +35,7 @@ import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.service.BookmarkService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
@@ -73,14 +73,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Website Service Implementation
+ * Bookmark Service Implementation
  *
  * @author zhou
  * @date 2021/09/05
  */
 @Service
 @Slf4j
-public class WebsiteServiceImpl implements WebsiteService {
+public class BookmarkServiceImpl implements BookmarkService {
 
     private final BookmarkMapper bookmarkMapper;
     private final ElasticsearchManager elasticsearchManager;
@@ -88,10 +88,10 @@ public class WebsiteServiceImpl implements WebsiteService {
     private final DeleteTagManager deleteTagManager;
 
     @Autowired
-    public WebsiteServiceImpl(BookmarkMapper bookmarkMapper,
-                              ElasticsearchManager elasticsearchManager,
-                              DeleteViewManager deleteViewManager,
-                              DeleteTagManager deleteTagManager) {
+    public BookmarkServiceImpl(BookmarkMapper bookmarkMapper,
+                               ElasticsearchManager elasticsearchManager,
+                               DeleteViewManager deleteViewManager,
+                               DeleteTagManager deleteTagManager) {
         this.bookmarkMapper = bookmarkMapper;
         this.elasticsearchManager = elasticsearchManager;
         this.deleteViewManager = deleteViewManager;
@@ -166,7 +166,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     private BookmarkingResultVO saveToDatabase(String username, BasicWebDataDTO basic, Privacy privacy) {
         // get the result of saving to database
-        WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+        BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
         boolean hasSavedToDatabase = bean.bookmarkWithBasicWebData(basic, username, privacy);
         // return the result of saving to database
         return BookmarkingResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
@@ -175,7 +175,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     private BasicWebDataDTO scrapeWebData(String url, String userName) {
 
         try {
-            WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+            BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
             return bean.scrapeWebDataFromUrl(url, userName);
         } catch (MalformedURLException e) {
             throw new ServiceException(ResultCode.URL_MALFORMED);
@@ -189,7 +189,7 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     public boolean addToBookmark(BasicWebDataRequest data, String username) {
         BasicWebDataDTO basicData = DozerUtils.convert(data, BasicWebDataDTO.class);
-        WebsiteServiceImpl bean = ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+        BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
         return bean.bookmarkWithBasicWebData(basicData, username, PUBLIC);
     }
 
@@ -561,10 +561,10 @@ public class WebsiteServiceImpl implements WebsiteService {
     }
 
     private boolean bookmarkAndGetResult(String username, BasicWebDataDTO web) {
-        WebsiteServiceImpl websiteService =
-                ApplicationContextUtils.getBean(WebsiteServiceImpl.class);
+        BookmarkServiceImpl bookmarkService =
+                ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
         // the imported bookmarks are public
-        return websiteService.bookmarkWithBasicWebData(web, username, PUBLIC);
+        return bookmarkService.bookmarkWithBasicWebData(web, username, PUBLIC);
     }
 
     private void updateImportingResult(int[] result, boolean success) {

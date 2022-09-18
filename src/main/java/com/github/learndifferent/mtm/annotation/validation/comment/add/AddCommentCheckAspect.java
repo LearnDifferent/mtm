@@ -8,7 +8,7 @@ import com.github.learndifferent.mtm.annotation.common.WebId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.service.BookmarkService;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -47,14 +47,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class AddCommentCheckAspect {
 
-    private final WebsiteService websiteService;
+    private final BookmarkService bookmarkService;
 
     private final CommentMapper commentMapper;
 
     @Autowired
-    public AddCommentCheckAspect(WebsiteService websiteService,
+    public AddCommentCheckAspect(BookmarkService bookmarkService,
                                  CommentMapper commentMapper) {
-        this.websiteService = websiteService;
+        this.bookmarkService = bookmarkService;
         this.commentMapper = commentMapper;
     }
 
@@ -119,7 +119,7 @@ public class AddCommentCheckAspect {
         checkComment(comment);
         // check if the bookmark exists
         // check whether the user has permission to comment (public or the user owns the bookmark)
-        websiteService.checkBookmarkExistsAndUserPermission(webId, username);
+        bookmarkService.checkBookmarkExistsAndUserPermission(webId, username);
         // 检查该用户是否已经对该网页进行了相同内容的评论
         checkCommentContentExists(comment, webId, username);
         // 如果是回复评论，需要检查回复的评论的 Comment ID 是否存在

@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.annotation.validation.comment.get;
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.WebId;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.service.BookmarkService;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.aspectj.lang.JoinPoint;
@@ -23,11 +23,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class GetCommentsCheckAspect {
 
-    private final WebsiteService websiteService;
+    private final BookmarkService bookmarkService;
 
     @Autowired
-    public GetCommentsCheckAspect(WebsiteService websiteService) {
-        this.websiteService = websiteService;
+    public GetCommentsCheckAspect(BookmarkService bookmarkService) {
+        this.bookmarkService = bookmarkService;
     }
 
     @Before("@annotation(getCommentsCheck)")
@@ -68,6 +68,6 @@ public class GetCommentsCheckAspect {
             }
         }
 
-        websiteService.checkBookmarkExistsAndUserPermission(webId, username);
+        bookmarkService.checkBookmarkExistsAndUserPermission(webId, username);
     }
 }

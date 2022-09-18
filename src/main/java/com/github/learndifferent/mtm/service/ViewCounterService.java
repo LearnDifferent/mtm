@@ -39,7 +39,7 @@ public interface ViewCounterService {
      * </p>
      *
      * @return Return a list of keys that failed to save
-     * @see WebsiteService#getVisitedBookmarks(PageInfoDTO)
+     * @see BookmarkService#getVisitedBookmarks(PageInfoDTO)
      */
     List<String> updateViewsAndReturnFailKeys();
 

@@ -18,10 +18,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class WebsiteServiceImplTest {
+class BookmarkServiceImplTest {
 
     @InjectMocks
-    private WebsiteServiceImpl websiteService;
+    private BookmarkServiceImpl bookmarkService;
 
     @Mock
     private BookmarkMapper bookmarkMapper;
@@ -47,7 +47,7 @@ class WebsiteServiceImplTest {
         Mockito.when(bookmarkMapper.countAllPublicAndSpecificPrivateBookmarks(currentUser))
                 .thenReturn(totalNumber);
 
-        BookmarksAndTotalPagesVO result = websiteService.getHomeTimeline(
+        BookmarksAndTotalPagesVO result = bookmarkService.getHomeTimeline(
                 currentUser, HomeTimeline.LATEST, "", pageInfo);
 
         Assertions.assertEquals(size - from, result.getBookmarks().size());

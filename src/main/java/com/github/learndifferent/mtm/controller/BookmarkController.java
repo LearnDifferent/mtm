@@ -13,7 +13,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
-import com.github.learndifferent.mtm.service.WebsiteService;
+import com.github.learndifferent.mtm.service.BookmarkService;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
@@ -40,11 +40,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/bookmark")
 public class BookmarkController {
 
-    private final WebsiteService websiteService;
+    private final BookmarkService bookmarkService;
 
     @Autowired
-    public BookmarkController(WebsiteService websiteService) {
-        this.websiteService = websiteService;
+    public BookmarkController(BookmarkService bookmarkService) {
+        this.bookmarkService = bookmarkService;
     }
 
     /**
@@ -72,7 +72,7 @@ public class BookmarkController {
                                         @RequestParam("privacy") Privacy privacy,
                                         @RequestParam("mode") AddDataMode mode) {
         String currentUsername = getCurrentUsername();
-        return websiteService.bookmark(url, currentUsername, privacy, mode);
+        return bookmarkService.bookmark(url, currentUsername, privacy, mode);
     }
 
     /**
@@ -87,7 +87,7 @@ public class BookmarkController {
     @PostMapping
     public ResultVO<ResultCode> addToBookmark(@RequestBody BasicWebDataRequest basicData) {
         String currentUsername = getCurrentUsername();
-        boolean success = websiteService.addToBookmark(basicData, currentUsername);
+        boolean success = bookmarkService.addToBookmark(basicData, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
@@ -96,14 +96,14 @@ public class BookmarkController {
      *
      * @param webId ID of the bookmarked website data
      * @return {@link ResultCode#DELETE_SUCCESS} if success. {@link ResultCode#DELETE_FAILED}
-     * @throws ServiceException {@link WebsiteService#deleteBookmark(Integer, String)} will throw
+     * @throws ServiceException {@link BookmarkService#deleteBookmark(Integer, String)} will throw
      *                          an exception if the user currently logged in does not have permission to delete,
      *                          the result code will be {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
     public ResultVO<ResultCode> deleteBookmark(@RequestParam("webId") Integer webId) {
         String currentUsername = getCurrentUsername();
-        boolean success = websiteService.deleteBookmark(webId, currentUsername);
+        boolean success = bookmarkService.deleteBookmark(webId, currentUsername);
         return success ? ResultCreator.result(ResultCode.DELETE_SUCCESS)
                 : ResultCreator.result(ResultCode.DELETE_FAILED);
     }
@@ -114,15 +114,15 @@ public class BookmarkController {
      *
      * @param webId ID of the bookmarked website data
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#UPDATE_FAILED} if failure.
-     * @throws ServiceException {@link WebsiteService#changePrivacySettings(Integer, String)}
+     * @throws ServiceException {@link BookmarkService#changePrivacySettings(Integer, String)}
      *                          will throw an exception with {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if the bookmark does not exist and with {@link ResultCode#PERMISSION_DENIED}
-     *                          if the user currently logged in has no permission to change the website privacy settings
+     *                          if the user currently logged in has no permission to change the bookmark privacy settings
      */
     @GetMapping("/privacy")
     public ResultVO<ResultCode> changePrivacySettings(@RequestParam("webId") Integer webId) {
         String currentUsername = getCurrentUsername();
-        boolean success = websiteService.changePrivacySettings(webId, currentUsername);
+        boolean success = bookmarkService.changePrivacySettings(webId, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.UPDATE_FAILED);
     }
 
@@ -139,7 +139,7 @@ public class BookmarkController {
     @GetMapping("/get")
     public BookmarkVO getBookmark(@RequestParam("webId") Integer webId) {
         String currentUsername = getCurrentUsername();
-        return websiteService.getBookmark(webId, currentUsername);
+        return bookmarkService.getBookmark(webId, currentUsername);
     }
 
     /**
@@ -152,7 +152,7 @@ public class BookmarkController {
     public BookmarksAndTotalPagesVO getCurrentUserBookmarks(@PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                     PageInfoDTO pageInfo) {
         String currentUsername = getCurrentUsername();
-        return websiteService.getUserBookmarks(currentUsername, pageInfo, AccessPrivilege.ALL);
+        return bookmarkService.getUserBookmarks(currentUsername, pageInfo, AccessPrivilege.ALL);
     }
 
     /**
@@ -166,7 +166,7 @@ public class BookmarkController {
     public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("username") String username,
                                                            @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                    PageInfoDTO pageInfo) {
-        return websiteService.getUserBookmarks(username, pageInfo, AccessPrivilege.LIMITED);
+        return bookmarkService.getUserBookmarks(username, pageInfo, AccessPrivilege.LIMITED);
     }
 
     /**
@@ -183,7 +183,7 @@ public class BookmarkController {
     @AdminValidation
     public List<VisitedBookmarksVO> getVisitedBookmarks(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
-        return websiteService.getVisitedBookmarks(pageInfo);
+        return bookmarkService.getVisitedBookmarks(pageInfo);
     }
 
     private String getCurrentUsername() {
