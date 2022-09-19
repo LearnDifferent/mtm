@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.DozerUtils;
@@ -95,7 +95,7 @@ public class CheckAndReturnBasicDataAspect {
         }
 
         // Get all bookmarks that have the given URL
-        List<WebsiteDO> bookmarks = bookmarkMapper.getBookmarksByUrl(url);
+        List<BookmarkDO> bookmarks = bookmarkMapper.getBookmarksByUrl(url);
 
         // If not found, do nothing
         if (bookmarks.isEmpty()) {
@@ -116,8 +116,8 @@ public class CheckAndReturnBasicDataAspect {
      * @throws ServiceException Throw an exception with the result code of {@link ResultCode#ALREADY_SAVED}
      *                          if the user has already bookmarked the website
      */
-    private void checkIfBookmarked(String username, List<WebsiteDO> websInDb) {
-        WebsiteDO bookmark = websInDb.stream()
+    private void checkIfBookmarked(String username, List<BookmarkDO> websInDb) {
+        BookmarkDO bookmark = websInDb.stream()
                 .filter(w -> w.getUserName().equals(username))
                 .findFirst()
                 .orElse(null);

@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
@@ -36,10 +36,10 @@ class BookmarkServiceImplTest {
         int totalNumber = 100;
         PageInfoDTO pageInfo = PageInfoDTO.builder().from(from).size(size).build();
 
-        List<WebsiteDO> list = new ArrayList<>();
+        List<BookmarkDO> list = new ArrayList<>();
         for (int i = from; i < size; i++) {
             // add empty data
-            list.add(new WebsiteDO());
+            list.add(new BookmarkDO());
         }
 
         Mockito.when(bookmarkMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, currentUser))

@@ -8,7 +8,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
@@ -109,7 +109,7 @@ public class NotificationManager {
         Integer webId = notification.getWebId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
-        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
 
         if (bookmark == null) {
             // if the bookmark does not exist,

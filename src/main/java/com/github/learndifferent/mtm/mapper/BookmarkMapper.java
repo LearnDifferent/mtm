@@ -3,14 +3,14 @@ package com.github.learndifferent.mtm.mapper;
 import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Website Mapper
+ * Bookmark Mapper
  *
  * @author zhou
  * @date 2021/09/05
@@ -19,12 +19,12 @@ import org.springframework.stereotype.Repository;
 public interface BookmarkMapper {
 
     /**
-     * Filter public bookmarked websites
+     * Filter public bookmark
      *
      * @param filter the filter
-     * @return filtered bookmarked websites
+     * @return filtered bookmarks
      */
-    List<WebsiteDO> filterPublicBookmarks(BookmarkFilterDTO filter);
+    List<BookmarkDO> filterPublicBookmarks(BookmarkFilterDTO filter);
 
     /**
      * Get the number of unique public URLs
@@ -43,7 +43,7 @@ public interface BookmarkMapper {
     List<PopularBookmarkDTO> getPopularPublicBookmarks(@Param("from") int from, @Param("size") int size);
 
     /**
-     * Get all public basic website data for search
+     * Get all public basic bookmark for search
      *
      * @return {@code List<WebForSearchDTO>}
      */
@@ -81,13 +81,13 @@ public interface BookmarkMapper {
      *                             <p>The result will not be paginated if {@code from} or {@code size} is null</p>
      * @param size                 size
      *                             <p>The result will not be paginated if {@code from} or {@code size} is null</p>
-     * @param shouldIncludePrivate true if include private website data
-     * @return A list of {@link WebsiteDO}
+     * @param shouldIncludePrivate true if include private bookmarks
+     * @return A list of {@link BookmarkDO}
      */
-    List<WebsiteDO> getUserBookmarks(@Param("userName") String userName,
-                                     @Param("from") Integer from,
-                                     @Param("size") Integer size,
-                                     @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
+    List<BookmarkDO> getUserBookmarks(@Param("userName") String userName,
+                                      @Param("from") Integer from,
+                                      @Param("size") Integer size,
+                                      @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
 
     /**
      * Get public bookmarks of all users and
@@ -100,7 +100,7 @@ public interface BookmarkMapper {
      * @param size                   size
      * @return bookmarks
      */
-    List<WebsiteDO> getAllPublicSomePrivateExcludingSpecificUserBookmark(
+    List<BookmarkDO> getAllPublicSomePrivateExcludingSpecificUserBookmark(
             @Param("includePrivateUsername") String includePrivateUsername,
             @Param("excludeUsername") String excludeUsername,
             @Param("from") int from,
@@ -123,9 +123,9 @@ public interface BookmarkMapper {
      * Get all bookmarks that have the given URL
      *
      * @param url URL
-     * @return {@code List<WebsiteDO>}
+     * @return {@code List<BookmarkDO>}
      */
-    List<WebsiteDO> getBookmarksByUrl(String url);
+    List<BookmarkDO> getBookmarksByUrl(String url);
 
     /**
      * Get public bookmarks of all users and private bookmarks of specific user
@@ -140,14 +140,14 @@ public interface BookmarkMapper {
      * @param specUsername username of the user whose public and private bookmarks will be shown
      * @return public bookmarks of all users and private bookmarks of specific user
      */
-    List<WebsiteDO> getAllPublicAndSpecificPrivateBookmarks(@Param("from") Integer from,
-                                                            @Param("size") Integer size,
-                                                            @Param("specUsername") String specUsername);
+    List<BookmarkDO> getAllPublicAndSpecificPrivateBookmarks(@Param("from") Integer from,
+                                                             @Param("size") Integer size,
+                                                             @Param("specUsername") String specUsername);
 
     /**
-     * Delete a bookmarked website
+     * Delete a bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param webId ID of the bookmark
      * @return true if success
      */
     boolean deleteBookmarkById(Integer webId);
@@ -165,15 +165,15 @@ public interface BookmarkMapper {
      * @param newBookmark the website to be bookmarked
      * @return true if success
      */
-    boolean addBookmark(WebsiteDO newBookmark);
+    boolean addBookmark(BookmarkDO newBookmark);
 
     /**
      * Find the bookmark by ID
      *
-     * @param webId ID of the bookmarked website data
-     * @return {@link WebsiteDO}
+     * @param webId ID of the bookmark
+     * @return {@link BookmarkDO}
      */
-    WebsiteDO getBookmarkById(Integer webId);
+    BookmarkDO getBookmarkById(Integer webId);
 
     /**
      * Update bookmark
@@ -181,12 +181,12 @@ public interface BookmarkMapper {
      * @param updatedBookmark updated bookmark data
      * @return true if success
      */
-    boolean updateBookmark(WebsiteDO updatedBookmark);
+    boolean updateBookmark(BookmarkDO updatedBookmark);
 
     /**
      * Get the username of the user who owns the bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param webId ID of the bookmark
      * @return username of the user who owns the bookmark
      */
     String getBookmarkOwnerName(int webId);

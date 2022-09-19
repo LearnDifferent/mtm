@@ -27,7 +27,7 @@ import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.NewBookmarkDTO;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
@@ -108,7 +108,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         BookmarkFilterDTO filter = BookmarkFilterDTO.of(
                 usernames.getUsernames(), load, fromTimestamp, toTimestamp, orderField, order);
-        List<WebsiteDO> bookmarks = bookmarkMapper.filterPublicBookmarks(filter);
+        List<BookmarkDO> bookmarks = bookmarkMapper.filterPublicBookmarks(filter);
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
@@ -131,7 +131,7 @@ public class BookmarkServiceImpl implements BookmarkService {
                    urlFieldNameInParamClass = "url")
     public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, Privacy privacy) {
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
-        WebsiteDO b = DozerUtils.convert(newBookmark, WebsiteDO.class);
+        BookmarkDO b = DozerUtils.convert(newBookmark, BookmarkDO.class);
         return bookmarkMapper.addBookmark(b);
     }
 
@@ -286,8 +286,8 @@ public class BookmarkServiceImpl implements BookmarkService {
         }
     }
 
-    private List<BookmarkVO> convertToBookmarkVO(List<WebsiteDO> websites) {
-        return DozerUtils.convertList(websites, BookmarkVO.class);
+    private List<BookmarkVO> convertToBookmarkVO(List<BookmarkDO> bookmarks) {
+        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
     private BookmarksAndTotalPagesVO getUserBookmarks(String username,
@@ -298,7 +298,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         int totalCounts = bookmarkMapper.countUserBookmarks(username, privilege.canAccessPrivateData());
         int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
 
-        List<WebsiteDO> b = bookmarkMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
+        List<BookmarkDO> b = bookmarkMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
         List<BookmarkVO> bookmarks = convertToBookmarkVO(b);
 
         return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
@@ -330,10 +330,10 @@ public class BookmarkServiceImpl implements BookmarkService {
     private List<BookmarkVO> getAllPublicSomePrivateExcludingSpecificUserBookmark(
             String includePrivateUsername, String excludeUsername, int from, int size) {
 
-        List<WebsiteDO> websites = bookmarkMapper.getAllPublicSomePrivateExcludingSpecificUserBookmark(
+        List<BookmarkDO> bookmarks = bookmarkMapper.getAllPublicSomePrivateExcludingSpecificUserBookmark(
                 includePrivateUsername, excludeUsername, from, size);
 
-        return convertToBookmarkVO(websites);
+        return convertToBookmarkVO(bookmarks);
     }
 
     private BookmarksAndTotalPagesVO getLatestBookmarks(String currentUsername, int from, int size) {
@@ -361,8 +361,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     private List<BookmarkVO> getAllPublicAndSpecificPrivateBookmarks(Integer from,
                                                                      Integer size,
                                                                      String specUsername) {
-        List<WebsiteDO> websites = bookmarkMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, specUsername);
-        return convertToBookmarkVO(websites);
+        List<BookmarkDO> bookmarks = bookmarkMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, specUsername);
+        return convertToBookmarkVO(bookmarks);
     }
 
     @Override
@@ -392,17 +392,17 @@ public class BookmarkServiceImpl implements BookmarkService {
     @ModifyWebsitePermissionCheck
     public boolean changePrivacySettings(@WebId Integer webId, @Username String userName) {
         // ID will not be null after checking by @ModifyWebsitePermissionCheck
-        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean newPrivacy = !bookmark.getIsPublic();
-        WebsiteDO webWithNewPrivacy = bookmark.setIsPublic(newPrivacy);
+        BookmarkDO webWithNewPrivacy = bookmark.setIsPublic(newPrivacy);
         return bookmarkMapper.updateBookmark(webWithNewPrivacy);
     }
 
     @Override
     public BookmarkVO getBookmark(int webId, String userName) {
-        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
 
         // data does not exist
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
@@ -421,7 +421,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
 
-        WebsiteDO bookmark = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();
@@ -494,7 +494,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     private List<BookmarkVO> getAllUserBookmarks(String userName, AccessPrivilege privilege) {
         // from 和 size 为 null 的时候，表示不分页，直接获取全部
-        List<WebsiteDO> bookmarks =
+        List<BookmarkDO> bookmarks =
                 bookmarkMapper.getUserBookmarks(userName, null, null, privilege.canAccessPrivateData());
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }

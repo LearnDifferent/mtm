@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.BookmarkMapper">
-    <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.WebsiteDO">
+    <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.BookmarkDO">
         <id column="id" jdbcType="INTEGER" property="webId"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
@@ -196,13 +196,13 @@
     </update>
 
     <insert id="addBookmark" keyColumn="id" keyProperty="webId"
-            parameterType="com.github.learndifferent.mtm.entity.WebsiteDO"
+            parameterType="com.github.learndifferent.mtm.entity.BookmarkDO"
             useGeneratedKeys="true">
         insert into bookmark(user_name, title, url, img, `desc`, `creation_time`, `is_public`)
         values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
-    <update id="updateBookmark" parameterType="com.github.learndifferent.mtm.entity.WebsiteDO">
+    <update id="updateBookmark" parameterType="com.github.learndifferent.mtm.entity.BookmarkDO">
         update bookmark
         set user_name       = #{userName,jdbcType=VARCHAR},
             title           = #{title,jdbcType=VARCHAR},

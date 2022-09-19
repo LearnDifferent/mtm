@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Website Data Object
+ * Bookmark Data Object
  *
  * @author zhou
  * @date 2021/09/05
@@ -17,10 +17,10 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class WebsiteDO implements Serializable {
+public class BookmarkDO implements Serializable {
 
     /**
-     * ID of the bookmarked website data
+     * ID of the bookmark
      */
     private Integer webId;
     /**

@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.annotation.validation.website.bookmarked;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.io.Serializable;
@@ -95,8 +95,8 @@ public class BookmarkCheckAspect {
 
     private void testIfUserAlreadyBookmarked(String userName, String url) {
 
-        List<WebsiteDO> bookmarks = bookmarkMapper.getBookmarksByUrl(url);
-        WebsiteDO bookmark = bookmarks.stream()
+        List<BookmarkDO> bookmarks = bookmarkMapper.getBookmarksByUrl(url);
+        BookmarkDO bookmark = bookmarks.stream()
                 .filter(w -> w.getUserName().equals(userName))
                 .findFirst().orElse(null);
 

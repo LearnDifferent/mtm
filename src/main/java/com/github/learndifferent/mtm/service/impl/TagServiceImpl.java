@@ -8,9 +8,9 @@ import com.github.learndifferent.mtm.annotation.validation.website.permission.Mo
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
-import com.github.learndifferent.mtm.entity.WebsiteDO;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
@@ -126,7 +126,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int webId) {
-        WebsiteDO b = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO b = bookmarkMapper.getBookmarkById(webId);
         if (b == null) {
             return;
         }
