@@ -22,7 +22,7 @@ public class BookmarkDO implements Serializable {
     /**
      * ID of the bookmark
      */
-    private Integer webId;
+    private Integer id;
     /**
      * name of the user who bookmarked the website
      */

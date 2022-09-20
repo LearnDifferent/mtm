@@ -147,10 +147,10 @@ public interface BookmarkMapper {
     /**
      * Delete a bookmark
      *
-     * @param webId ID of the bookmark
+     * @param id ID of the bookmark
      * @return true if success
      */
-    boolean deleteBookmarkById(Integer webId);
+    boolean deleteBookmarkById(Integer id);
 
     /**
      * Delete all bookmarks of the user
@@ -170,10 +170,10 @@ public interface BookmarkMapper {
     /**
      * Find the bookmark by ID
      *
-     * @param webId ID of the bookmark
+     * @param id ID of the bookmark
      * @return {@link BookmarkDO}
      */
-    BookmarkDO getBookmarkById(Integer webId);
+    BookmarkDO getBookmarkById(Integer id);
 
     /**
      * Update bookmark
@@ -186,10 +186,10 @@ public interface BookmarkMapper {
     /**
      * Get the username of the user who owns the bookmark
      *
-     * @param webId ID of the bookmark
+     * @param id ID of the bookmark
      * @return username of the user who owns the bookmark
      */
-    String getBookmarkOwnerName(int webId);
+    String getBookmarkOwnerName(int id);
 
     /**
      * Get visited bookmarks
