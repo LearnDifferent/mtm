@@ -52,9 +52,9 @@ public class ReplyNotificationDTO implements Serializable {
     private Integer commentId;
 
     /**
-     * Web ID
+     * ID of the bookmark
      */
-    private Integer webId;
+    private Integer bookmarkId;
 
     /**
      * The ID of the comment being replied to (null if not reply to any comment)

@@ -106,10 +106,10 @@ public class NotificationManager {
 
     private String getCommentTextIfWebsiteAndCommentExist(ReplyMessageNotificationVO notification) {
 
-        Integer webId = notification.getWebId();
+        Integer bookmarkId = notification.getWebId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
 
         if (bookmark == null) {
             // if the bookmark does not exist,
@@ -145,7 +145,7 @@ public class NotificationManager {
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
 
         Integer commentId = comment.getCommentId();
-        Integer webId = comment.getWebId();
+        Integer bookmarkId = comment.getWebId();
         Integer replyToCommentId = comment.getReplyToCommentId();
 
         // the notification belongs to the owner of the website data if replyToCommentId is null,
@@ -154,7 +154,7 @@ public class NotificationManager {
         String receiveUsername;
 
         if (notifyWebsiteOwner) {
-            receiveUsername = bookmarkMapper.getBookmarkOwnerName(webId);
+            receiveUsername = bookmarkMapper.getBookmarkOwnerName(bookmarkId);
         } else {
             receiveUsername = commentMapper.getCommentSenderName(replyToCommentId);
         }
@@ -167,7 +167,7 @@ public class NotificationManager {
                 .receiveUsername(receiveUsername)
                 .sendUsername(sendUsername)
                 .commentId(commentId)
-                .webId(webId)
+                .bookmarkId(bookmarkId)
                 .replyToCommentId(replyToCommentId)
                 .build();
     }
