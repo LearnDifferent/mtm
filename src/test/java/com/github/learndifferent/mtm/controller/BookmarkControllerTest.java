@@ -71,7 +71,7 @@ class BookmarkControllerTest {
         String currentUsername = "currentUsername";
         int webId = 1;
         BookmarkVO bookmark = new BookmarkVO();
-        bookmark.setWebId(webId);
+        bookmark.setId(webId);
 
         try (MockedStatic<StpUtil> stpUtil = Mockito.mockStatic(StpUtil.class)) {
             stpUtil.when(StpUtil::getLoginIdAsString).thenReturn(currentUsername);

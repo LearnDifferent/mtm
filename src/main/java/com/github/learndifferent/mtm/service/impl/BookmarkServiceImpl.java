@@ -376,23 +376,23 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @ModifyWebsitePermissionCheck
-    public boolean deleteBookmark(@WebId Integer webId, @Username String userName) {
+    public boolean deleteBookmark(@WebId Integer id, @Username String userName) {
         // ID will not be null after checking by @ModifyWebsitePermissionCheck
-        boolean success = bookmarkMapper.deleteBookmarkById(webId);
+        boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
             // delete views
-            deleteViewManager.deleteWebView(webId);
+            deleteViewManager.deleteWebView(id);
             // delete tags
-            deleteTagManager.deleteAllTagsByWebId(webId);
+            deleteTagManager.deleteAllTagsByWebId(id);
         }
         return success;
     }
 
     @Override
     @ModifyWebsitePermissionCheck
-    public boolean changePrivacySettings(@WebId Integer webId, @Username String userName) {
+    public boolean changePrivacySettings(@WebId Integer id, @Username String userName) {
         // ID will not be null after checking by @ModifyWebsitePermissionCheck
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean newPrivacy = !bookmark.getIsPublic();
@@ -401,8 +401,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public BookmarkVO getBookmark(int webId, String userName) {
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
+    public BookmarkVO getBookmark(int id, String userName) {
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
 
         // data does not exist
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
@@ -417,11 +417,11 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public void checkBookmarkExistsAndUserPermission(int webId, String username) {
+    public void checkBookmarkExistsAndUserPermission(int id, String username) {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
 
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();

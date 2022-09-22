@@ -55,10 +55,10 @@ public class TagServiceImpl implements TagService {
     @Override
     @ModifyWebsitePermissionCheck
     @TagCheck
-    @CachePut(value = "tag:a", key = "#webId", unless = "''.equals(#result)")
-    public String applyTag(@Username String username, @WebId Integer webId, @Tag String tagName) {
+    @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
+    public String applyTag(@Username String username, @WebId Integer bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
-        TagDO tagDO = TagDO.builder().tag(tag).webId(webId).build();
+        TagDO tagDO = TagDO.builder().tag(tag).webId(bookmarkId).build();
         tagMapper.addTag(tagDO);
         return tagDO.getTag();
     }
@@ -77,12 +77,12 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @Cacheable(value = "tag:a", key = "#webId")
-    public String getTagOrReturnEmpty(Integer webId) {
-        if (webId == null) {
+    @Cacheable(value = "tag:a", key = "#bookmarkId")
+    public String getTagOrReturnEmpty(Integer bookmarkId) {
+        if (bookmarkId == null) {
             return "";
         }
-        List<String> tags = tagMapper.getTagsByWebId(webId, 0, 1);
+        List<String> tags = tagMapper.getTagsByWebId(bookmarkId, 0, 1);
         return CollectionUtils.isEmpty(tags) ? "" : getFirstFromListOrReturnEmpty(tags);
     }
 
@@ -125,8 +125,8 @@ public class TagServiceImpl implements TagService {
         return result;
     }
 
-    private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int webId) {
-        BookmarkDO b = bookmarkMapper.getBookmarkById(webId);
+    private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int bookmarkId) {
+        BookmarkDO b = bookmarkMapper.getBookmarkById(bookmarkId);
         if (b == null) {
             return;
         }
@@ -151,11 +151,11 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @ModifyWebsitePermissionCheck
-    public boolean deleteTag(@Username String username, @WebId Integer webId, String tagName) {
+    public boolean deleteTag(@Username String username, @WebId Integer bookmarkId, String tagName) {
         // Web Id will not be null after checking by @ModifyWebsitePermissionCheck.
         // This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
         // stored in the cache if no exception is thrown.
-        return deleteTagManager.deleteTag(tagName, webId);
+        return deleteTagManager.deleteTag(tagName, bookmarkId);
     }
 
     @Override

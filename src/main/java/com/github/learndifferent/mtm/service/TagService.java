@@ -21,9 +21,9 @@ public interface TagService {
      * stored in the cache if no exception is thrown and the result is not empty.
      * </p>
      *
-     * @param username username of the user who wants to apply the tag
-     * @param webId    ID of the bookmarked website data that the user wants to apply the tag to
-     * @param tagName  the tag to apply
+     * @param username   username of the user who wants to apply the tag
+     * @param bookmarkId ID of the bookmark that the user wants to apply the tag to
+     * @param tagName    the tag to apply
      * @return Return the tag if applied successfully, or empty string if failed to apply
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method is annotated with
      *                                                                  {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
@@ -32,7 +32,7 @@ public interface TagService {
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS} if the bookmarked
      *                                                                  website data does not exist or the {@code
-     *                                                                  webId} is null.
+     *                                                                  bookmarkId} is null.
      *                                                                  <p>
      *                                                                  And if the user has no permission to apply the
      *                                                                  tag to this bookmark, the result code will be
@@ -57,7 +57,7 @@ public interface TagService {
      *                                                                  applied.
      *                                                                  </p>
      */
-    String applyTag(String username, Integer webId, String tagName);
+    String applyTag(String username, Integer bookmarkId, String tagName);
 
     /**
      * Get tags by the ID of the bookmarked website data
@@ -89,10 +89,10 @@ public interface TagService {
      * Note that every user can get tags without permissions.
      * </li>
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      * @return a tag, or return empty string if there is no tag
      */
-    String getTagOrReturnEmpty(Integer webId);
+    String getTagOrReturnEmpty(Integer bookmarkId);
 
     /**
      * Search bookmarks by a certain tag.
@@ -135,9 +135,9 @@ public interface TagService {
      * stored in the cache if no exception is thrown.
      * </p>
      *
-     * @param username username of the user who is deleting the tag
-     * @param webId    ID of the bookmarked website data that the tag applied to
-     * @param tagName  name of the tag to be deleted
+     * @param username   username of the user who is deleting the tag
+     * @param bookmarkId ID of the bookmark that the tag applied to
+     * @param tagName    name of the tag to be deleted
      * @return True if success. False if failure or the tag does not exist.
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method is annotated with
      *                                                                  {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
@@ -146,7 +146,7 @@ public interface TagService {
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS} if the bookmarked
      *                                                                  website data does not exist or the {@code
-     *                                                                  webId} is null.
+     *                                                                  bookmarkId} is null.
      *                                                                  <p>
      *                                                                  And if the user has no permission to delete the
      *                                                                  tag of this bookmark, the result code will be
@@ -154,7 +154,7 @@ public interface TagService {
      *                                                                  PERMISSION_DENIED}
      *                                                                  </p>
      */
-    boolean deleteTag(String username, Integer webId, String tagName);
+    boolean deleteTag(String username, Integer bookmarkId, String tagName);
 
     /**
      * Get popular tags.

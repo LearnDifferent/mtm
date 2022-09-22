@@ -129,7 +129,7 @@ public interface BookmarkService {
     /**
      * Delete a bookmarked website and its associated data
      *
-     * @param webId    ID of the bookmarked website data
+     * @param id    ID of the bookmark
      * @param userName username of the user who is deleting the bookmark
      * @return true if success
      * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
@@ -137,13 +137,13 @@ public interface BookmarkService {
      *                          an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if there is no permissions
      */
-    boolean deleteBookmark(Integer webId, String userName);
+    boolean deleteBookmark(Integer id, String userName);
 
     /**
      * Make the bookmarked website private if it's public
      * and make it public if it's private.
      *
-     * @param webId    ID of the bookmarked website data
+     * @param id    ID of the bookmark
      * @param userName name of user who trying to change the privacy settings
      * @return success or failure
      * @throws ServiceException If the bookmark does not exist, the result code will be
@@ -153,12 +153,12 @@ public interface BookmarkService {
      *                          will throw exception with {@link ResultCode#PERMISSION_DENIED}
      *                          if the user has no permission to change the bookmark privacy settings.
      */
-    boolean changePrivacySettings(Integer webId, String userName);
+    boolean changePrivacySettings(Integer id, String userName);
 
     /**
      * Get a bookmark
      *
-     * @param webId    ID of the bookmarked website data
+     * @param id    ID of the bookmark
      * @param userName username of the user
      * @return bookmark
      * @throws ServiceException If the user has no permission to get the bookmark,
@@ -167,18 +167,18 @@ public interface BookmarkService {
      *                          {@link ResultCode#PERMISSION_DENIED}
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
-    BookmarkVO getBookmark(int webId, String userName);
+    BookmarkVO getBookmark(int id, String userName);
 
     /**
      * Check if the bookmark exists and if the user has permission to access it
      *
-     * @param webId    ID of the bookmarked website data
+     * @param id    ID of the bookmark
      * @param username username of the user who is trying to access the bookmark
      * @throws ServiceException throw an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if the bookmark dose not exist, or {@link ResultCode#PERMISSION_DENIED}
      *                          if the user has no permission
      */
-    void checkBookmarkExistsAndUserPermission(int webId, String username);
+    void checkBookmarkExistsAndUserPermission(int id, String username);
 
     /**
      * Export user's bookmarks to a HTML file.
