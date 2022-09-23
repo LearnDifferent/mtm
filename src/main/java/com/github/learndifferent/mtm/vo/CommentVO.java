@@ -33,9 +33,9 @@ public class CommentVO implements Serializable {
     private String comment;
 
     /**
-     * ID of the bookmarked website data
+     * ID of the bookmark
      */
-    private Integer webId;
+    private Integer bookmarkId;
 
     /**
      * Username
