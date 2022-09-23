@@ -33,9 +33,9 @@ public class CommentDO implements Serializable {
     private String comment;
 
     /**
-     * Web id
+     * ID of the bookmark
      */
-    private Integer webId;
+    private Integer bookmarkId;
 
     /**
      * Username

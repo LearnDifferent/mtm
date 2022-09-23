@@ -145,7 +145,7 @@ public class NotificationManager {
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
 
         Integer commentId = comment.getCommentId();
-        Integer bookmarkId = comment.getWebId();
+        Integer bookmarkId = comment.getBookmarkId();
         Integer replyToCommentId = comment.getReplyToCommentId();
 
         // the notification belongs to the owner of the website data if replyToCommentId is null,

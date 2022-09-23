@@ -122,7 +122,7 @@ public class CommentServiceImpl implements CommentService {
                                                  @ReplyToCommentId Integer replyToCommentId) {
         // webId will not be null after checking by @AddCommentCheck
         CommentDO commentDO = CommentDO.builder()
-                .comment(comment).webId(webId).username(username)
+                .comment(comment).bookmarkId(webId).username(username)
                 .replyToCommentId(replyToCommentId)
                 .creationTime(Instant.now())
                 .build();
@@ -188,6 +188,6 @@ public class CommentServiceImpl implements CommentService {
         if (webId == null) {
             return 0;
         }
-        return commentMapper.countCommentByWebId(webId);
+        return commentMapper.countCommentByBookmarkId(webId);
     }
 }

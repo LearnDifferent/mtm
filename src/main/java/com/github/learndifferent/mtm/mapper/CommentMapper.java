@@ -33,13 +33,13 @@ public interface CommentMapper {
     /**
      * Get a specific comment
      *
-     * @param comment  comment content
-     * @param webId    ID of the bookmarked website data
-     * @param username username of the user who sent the comment
+     * @param comment    comment content
+     * @param bookmarkId ID of the bookmark
+     * @param username   username of the user who sent the comment
      * @return {@link CommentDO}
      */
     CommentDO getSpecificComment(@Param("comment") String comment,
-                                 @Param("webId") int webId,
+                                 @Param("bookmarkId") int bookmarkId,
                                  @Param("username") String username);
 
     /**
@@ -53,7 +53,7 @@ public interface CommentMapper {
     /**
      * Get comments of a bookmark
      *
-     * @param webId            ID of the bookmarked website data
+     * @param bookmarkId       ID of the bookmark
      * @param replyToCommentId ID of the comment to reply
      *                         <p>
      *                         null if this is not a reply
@@ -62,7 +62,7 @@ public interface CommentMapper {
      * @param isDesc           True if descending order
      * @return the comments
      */
-    List<CommentDO> getBookmarkComments(@Param("webId") Integer webId,
+    List<CommentDO> getBookmarkComments(@Param("bookmarkId") Integer bookmarkId,
                                         @Param("replyToCommentId") Integer replyToCommentId,
                                         @Param("load") Integer load,
                                         @Param("isDesc") Boolean isDesc);
@@ -109,10 +109,10 @@ public interface CommentMapper {
     boolean updateComment(@Param("commentId") int commentId, @Param("comment") String comment);
 
     /**
-     * Get the number of comments (exclude replies) of a bookmarked website
+     * Get the number of comments (exclude replies) of a bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      * @return number of comments of the bookmarked website
      */
-    int countCommentByWebId(int webId);
+    int countCommentByBookmarkId(int bookmarkId);
 }
