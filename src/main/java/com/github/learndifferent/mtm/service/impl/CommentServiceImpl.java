@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @GetCommentsCheck
     public CommentVO getCommentById(Integer commentId,
-                                    @WebId Integer webId,
+                                    @WebId Integer bookmarkId,
                                     @Username String username) {
         if (commentId == null) {
             return null;
@@ -72,13 +72,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @GetCommentsCheck
-    public List<BookmarkCommentVO> getBookmarkComments(@WebId Integer webId,
+    public List<BookmarkCommentVO> getBookmarkComments(@WebId Integer bookmarkId,
                                                        Integer replyToCommentId,
                                                        Integer load,
                                                        @Username String username,
                                                        Order order) {
         List<CommentDO> commentList = commentMapper.getBookmarkComments(
-                webId, replyToCommentId, load, order.isDesc());
+                bookmarkId, replyToCommentId, load, order.isDesc());
         List<BookmarkCommentVO> comments = DozerUtils.convertList(commentList, BookmarkCommentVO.class);
 
         comments.forEach(comment -> {
@@ -117,12 +117,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @AddCommentCheck
     public boolean addCommentAndSendNotification(@Comment String comment,
-                                                 @WebId Integer webId,
+                                                 @WebId Integer bookmarkId,
                                                  @Username String username,
                                                  @ReplyToCommentId Integer replyToCommentId) {
         // webId will not be null after checking by @AddCommentCheck
         CommentDO commentDO = CommentDO.builder()
-                .comment(comment).bookmarkId(webId).username(username)
+                .comment(comment).bookmarkId(bookmarkId).username(username)
                 .replyToCommentId(replyToCommentId)
                 .creationTime(Instant.now())
                 .build();
@@ -152,11 +152,11 @@ public class CommentServiceImpl implements CommentService {
     public boolean editComment(UpdateCommentRequest commentInfo, String username) {
         Integer commentId = commentInfo.getCommentId();
         String comment = commentInfo.getComment();
-        Integer webId = commentInfo.getWebId();
+        Integer bookmarkId = commentInfo.getWebId();
 
         CommentServiceImpl commentServiceImpl =
                 ApplicationContextUtils.getBean(CommentServiceImpl.class);
-        return commentServiceImpl.editComment(commentId, comment, username, webId);
+        return commentServiceImpl.editComment(commentId, comment, username, bookmarkId);
     }
 
     @AddCommentCheck
@@ -183,11 +183,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Cacheable(value = "comment:count", key = "#webId")
-    public int countCommentByWebId(Integer webId) {
-        if (webId == null) {
+    @Cacheable(value = "comment:count", key = "#bookmarkId")
+    public int countCommentByBookmarkId(Integer bookmarkId) {
+        if (bookmarkId == null) {
             return 0;
         }
-        return commentMapper.countCommentByBookmarkId(webId);
+        return commentMapper.countCommentByBookmarkId(bookmarkId);
     }
 }

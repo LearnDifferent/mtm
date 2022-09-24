@@ -17,9 +17,9 @@ public interface CommentService {
     /**
      * Get a comment by ID
      *
-     * @param commentId ID of the comment (Return null if {@code commentId} is null)
-     * @param webId     ID of the bookmarked website data
-     * @param username  Username of the user who is trying to get the comment
+     * @param commentId  ID of the comment (Return null if {@code commentId} is null)
+     * @param bookmarkId ID of the bookmark
+     * @param username   Username of the user who is trying to get the comment
      * @return the comment (null if comment does not exist)
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the website's
@@ -31,12 +31,12 @@ public interface CommentService {
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    CommentVO getCommentById(Integer commentId, Integer webId, String username);
+    CommentVO getCommentById(Integer commentId, Integer bookmarkId, String username);
 
     /**
      * Get comments of a bookmark
      *
-     * @param webId            ID of the bookmarked website data
+     * @param bookmarkId       ID of the bookmark
      * @param replyToCommentId ID of the comment to reply
      *                         <p>
      *                         null if this is not a reply
@@ -55,7 +55,7 @@ public interface CommentService {
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    List<BookmarkCommentVO> getBookmarkComments(Integer webId,
+    List<BookmarkCommentVO> getBookmarkComments(Integer bookmarkId,
                                                 Integer replyToCommentId,
                                                 Integer load,
                                                 String username,
@@ -82,7 +82,7 @@ public interface CommentService {
      * Add a comment and send a notification to the user who is about to receive it
      *
      * @param comment          comment
-     * @param webId            ID of the bookmarked website data
+     * @param bookmarkId       ID of the bookmark
      * @param username         username of the user who is trying to add the comment
      * @param replyToCommentId ID of the comment to reply
      *                         <p>
@@ -125,7 +125,10 @@ public interface CommentService {
      *                                                                  result code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
      *                                                                  </p>
      */
-    boolean addCommentAndSendNotification(String comment, Integer webId, String username, Integer replyToCommentId);
+    boolean addCommentAndSendNotification(String comment,
+                                          Integer bookmarkId,
+                                          String username,
+                                          Integer replyToCommentId);
 
     /**
      * Edit a comment
@@ -161,8 +164,8 @@ public interface CommentService {
      * Get the number of comments (exclude replies) of a bookmarked website
      * and the result will be stored in the cache
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      * @return number of comments of the bookmarked website
      */
-    int countCommentByWebId(Integer webId);
+    int countCommentByBookmarkId(Integer bookmarkId);
 }

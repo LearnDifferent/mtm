@@ -105,7 +105,7 @@ public class CommentController {
      */
     @GetMapping("/get/number/{webId}")
     public ResultVO<Integer> countComment(@PathVariable("webId") Integer webId) {
-        int number = commentService.countCommentByWebId(webId);
+        int number = commentService.countCommentByBookmarkId(webId);
         return ResultCreator.okResult(number);
     }
 
