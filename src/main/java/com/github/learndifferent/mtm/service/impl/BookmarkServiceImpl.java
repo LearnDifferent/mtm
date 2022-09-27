@@ -5,7 +5,7 @@ import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
 import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.common.WebId;
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.modify.bookmarking.CheckAndReturnBasicData;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
@@ -376,7 +376,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @ModifyWebsitePermissionCheck
-    public boolean deleteBookmark(@WebId Integer id, @Username String userName) {
+    public boolean deleteBookmark(@BookmarkId Integer id, @Username String userName) {
         // ID will not be null after checking by @ModifyWebsitePermissionCheck
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
@@ -390,7 +390,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @ModifyWebsitePermissionCheck
-    public boolean changePrivacySettings(@WebId Integer id, @Username String userName) {
+    public boolean changePrivacySettings(@BookmarkId Integer id, @Username String userName) {
         // ID will not be null after checking by @ModifyWebsitePermissionCheck
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);

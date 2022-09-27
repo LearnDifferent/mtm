@@ -6,11 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Website data ID
+ * Bookmark ID
  *
  * @author zhou
  * @date 2021/09/20
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WebId {}
+public @interface BookmarkId {}

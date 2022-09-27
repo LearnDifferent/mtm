@@ -1,12 +1,13 @@
 package com.github.learndifferent.mtm.annotation.validation.comment.add;
 
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation has to be used along with {@link com.github.learndifferent.mtm.annotation.common.WebId},
+ * This annotation has to be used along with {@link BookmarkId},
  * {@link com.github.learndifferent.mtm.annotation.common.Username},
  * {@link com.github.learndifferent.mtm.annotation.common.Comment},
  * and {@link com.github.learndifferent.mtm.annotation.common.ReplyToCommentId}.

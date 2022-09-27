@@ -4,7 +4,7 @@ import com.github.learndifferent.mtm.annotation.common.Comment;
 import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.common.WebId;
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @GetCommentsCheck
     public CommentVO getCommentById(Integer commentId,
-                                    @WebId Integer bookmarkId,
+                                    @BookmarkId Integer bookmarkId,
                                     @Username String username) {
         if (commentId == null) {
             return null;
@@ -72,7 +72,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @GetCommentsCheck
-    public List<BookmarkCommentVO> getBookmarkComments(@WebId Integer bookmarkId,
+    public List<BookmarkCommentVO> getBookmarkComments(@BookmarkId Integer bookmarkId,
                                                        Integer replyToCommentId,
                                                        Integer load,
                                                        @Username String username,
@@ -117,7 +117,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @AddCommentCheck
     public boolean addCommentAndSendNotification(@Comment String comment,
-                                                 @WebId Integer bookmarkId,
+                                                 @BookmarkId Integer bookmarkId,
                                                  @Username String username,
                                                  @ReplyToCommentId Integer replyToCommentId) {
         // webId will not be null after checking by @AddCommentCheck
@@ -165,7 +165,7 @@ public class CommentServiceImpl implements CommentService {
     public boolean editComment(@CommentId Integer commentId,
                                @Comment String comment,
                                @Username String username,
-                               @WebId Integer webId) {
+                               @BookmarkId Integer webId) {
         // commentId will not be null after checking by @ModifyCommentCheck
         boolean success = commentMapper.updateComment(commentId, comment);
         if (success) {

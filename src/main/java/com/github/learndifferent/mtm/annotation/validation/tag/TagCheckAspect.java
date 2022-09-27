@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.annotation.validation.tag;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Tag;
-import com.github.learndifferent.mtm.annotation.common.WebId;
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.mapper.TagMapper;
@@ -60,7 +60,7 @@ public class TagCheckAspect {
                     break;
                 }
                 if (helper.hasNotFoundIndex(1)
-                        && an instanceof WebId
+                        && an instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     webId = (int) args[i];

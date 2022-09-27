@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.annotation.validation.comment.get;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.common.WebId;
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.service.BookmarkService;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -46,7 +46,7 @@ public class GetCommentsCheckAspect {
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
                 if (helper.hasNotFoundIndex(0)
-                        && annotation instanceof WebId
+                        && annotation instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     webId = (int) args[i];

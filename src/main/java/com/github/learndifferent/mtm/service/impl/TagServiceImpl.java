@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.annotation.common.Tag;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.common.WebId;
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.tag.TagCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -56,7 +56,7 @@ public class TagServiceImpl implements TagService {
     @ModifyWebsitePermissionCheck
     @TagCheck
     @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
-    public String applyTag(@Username String username, @WebId Integer bookmarkId, @Tag String tagName) {
+    public String applyTag(@Username String username, @BookmarkId Integer bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
         TagDO tagDO = TagDO.builder().tag(tag).webId(bookmarkId).build();
         tagMapper.addTag(tagDO);
@@ -151,7 +151,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @ModifyWebsitePermissionCheck
-    public boolean deleteTag(@Username String username, @WebId Integer bookmarkId, String tagName) {
+    public boolean deleteTag(@Username String username, @BookmarkId Integer bookmarkId, String tagName) {
         // Web Id will not be null after checking by @ModifyWebsitePermissionCheck.
         // This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
         // stored in the cache if no exception is thrown.
