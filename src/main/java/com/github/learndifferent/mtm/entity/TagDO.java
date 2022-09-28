@@ -26,9 +26,9 @@ public class TagDO implements Serializable {
     private String tag;
 
     /**
-     * ID of the bookmarked website data that tag applied to
+     * ID of the bookmark that tag applied to
      */
-    private Integer webId;
+    private Integer bookmarkId;
 
     private static final long serialVersionUID = 1L;
 }
