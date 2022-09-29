@@ -24,54 +24,56 @@ public interface TagMapper {
     boolean addTag(TagDO tag);
 
     /**
-     * Get a specific tag by name of the tag and Web ID
+     * Get a specific tag by name of the tag and Bookmark ID
      *
-     * @param tagName name of the tag
-     * @param webId   ID of the bookmarked website data that the tag applied to
+     * @param tagName    name of the tag
+     * @param bookmarkId ID of the bookmark that the tag applied to
      * @return tag
      */
-    TagDO getSpecificTagByTagTextAndWebId(@Param("tagName") String tagName, @Param("webId") int webId);
+    TagDO getSpecificTagByTagTextAndBookmarkId(@Param("tagName") String tagName, @Param("bookmarkId") int bookmarkId);
 
     /**
-     * Get the tags by {@code webId}.
+     * Get the tags by {@code bookmarkId}.
      * <p>
      * Get all tags if the ID is null.
      * </p>
      *
-     * @param webId Web ID
-     * @param from  from
-     * @param size  size
+     * @param bookmarkId ID of the bookmark
+     * @param from       from
+     * @param size       size
      * @return tags
      */
-    List<String> getTagsByWebId(@Param("webId") Integer webId, @Param("from") int from, @Param("size") int size);
+    List<String> getTagsByBookmarkId(@Param("bookmarkId") Integer bookmarkId,
+                                     @Param("from") int from,
+                                     @Param("size") int size);
 
     /**
-     * Get Web IDs by Tag Name
+     * Get Bookmark IDs by Tag Name
      *
      * @param tagName name of the tag
      * @param from    from
      * @param size    size
-     * @return Web IDs
+     * @return Bookmark IDs
      */
-    List<Integer> getWebIdsByTagName(@Param("tagName") String tagName,
-                                     @Param("from") int from,
-                                     @Param("size") int size);
+    List<Integer> getBookmarkIdsByTagName(@Param("tagName") String tagName,
+                                          @Param("from") int from,
+                                          @Param("size") int size);
 
     /**
      * Delete a tag
      *
      * @param tagName name of the tag to be deleted
-     * @param webId   ID of the bookmarked website data that the tag applied to
+     * @param bookmarkId   ID of the bookmark that the tag applied to
      * @return True if success. False if failure or the tag does not exist.
      */
-    boolean deleteTag(@Param("tagName") String tagName, @Param("webId") int webId);
+    boolean deleteTag(@Param("tagName") String tagName, @Param("bookmarkId") int bookmarkId);
 
     /**
-     * Delete all tags of a bookmarked website
+     * Delete all tags of a bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      */
-    void deleteAllTagsByWebId(int webId);
+    void deleteAllTagsByBookmarkId(int bookmarkId);
 
     /**
      * Get tags and count the numbers of bookmarks of tags.

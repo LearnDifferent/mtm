@@ -58,7 +58,7 @@ public class TagServiceImpl implements TagService {
     @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
     public String applyTag(@Username String username, @BookmarkId Integer bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
-        TagDO tagDO = TagDO.builder().tag(tag).webId(bookmarkId).build();
+        TagDO tagDO = TagDO.builder().tag(tag).bookmarkId(bookmarkId).build();
         tagMapper.addTag(tagDO);
         return tagDO.getTag();
     }
@@ -70,7 +70,7 @@ public class TagServiceImpl implements TagService {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<String> tags = tagMapper.getTagsByWebId(webId, from, size);
+        List<String> tags = tagMapper.getTagsByBookmarkId(webId, from, size);
         throwExceptionIfEmpty(tags);
 
         return tags;
@@ -82,7 +82,7 @@ public class TagServiceImpl implements TagService {
         if (bookmarkId == null) {
             return "";
         }
-        List<String> tags = tagMapper.getTagsByWebId(bookmarkId, 0, 1);
+        List<String> tags = tagMapper.getTagsByBookmarkId(bookmarkId, 0, 1);
         return CollectionUtils.isEmpty(tags) ? "" : getFirstFromListOrReturnEmpty(tags);
     }
 
@@ -100,7 +100,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private List<BookmarkVO> getBookmarksByUsernameAndTag(String username, String tagName, int from, int size) {
-        List<Integer> ids = tagMapper.getWebIdsByTagName(tagName, from, size);
+        List<Integer> ids = tagMapper.getBookmarkIdsByTagName(tagName, from, size);
         throwExceptionIfEmpty(ids);
 
         return getBookmarks(username, ids);

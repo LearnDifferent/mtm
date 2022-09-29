@@ -3,32 +3,32 @@
 <mapper namespace="com.github.learndifferent.mtm.mapper.TagMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.TagDO">
         <result column="tag" jdbcType="VARCHAR" property="tag"/>
-        <result column="bookmark_id" jdbcType="INTEGER" property="webId"/>
+        <result column="bookmark_id" jdbcType="INTEGER" property="bookmarkId"/>
     </resultMap>
     <insert id="addTag" parameterType="com.github.learndifferent.mtm.entity.TagDO">
         insert into tag (tag, bookmark_id)
-        values (#{tag,jdbcType=VARCHAR}, #{webId,jdbcType=INTEGER})
+        values (#{tag,jdbcType=VARCHAR}, #{bookmarkId,jdbcType=INTEGER})
     </insert>
-    <select id="getSpecificTagByTagTextAndWebId" resultType="com.github.learndifferent.mtm.entity.TagDO">
+    <select id="getSpecificTagByTagTextAndBookmarkId" resultType="com.github.learndifferent.mtm.entity.TagDO">
         select tag, bookmark_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
-          and bookmark_id = #{webId,jdbcType=INTEGER}
+          and bookmark_id = #{bookmarkId,jdbcType=INTEGER}
           and is_deleted = 0
         limit 1;
     </select>
-    <select id="getTagsByWebId" resultType="java.lang.String">
+    <select id="getTagsByBookmarkId" resultType="java.lang.String">
         select distinct tag
         from tag
         <where>
-            <if test="webId != null">
-                bookmark_id = #{webId,jdbcType=INTEGER} and
+            <if test="bookmarkId != null">
+                bookmark_id = #{bookmarkId,jdbcType=INTEGER} and
             </if>
             is_deleted = 0
         </where>
         limit #{from}, #{size};
     </select>
-    <select id="getWebIdsByTagName" resultType="java.lang.Integer">
+    <select id="getBookmarkIdsByTagName" resultType="java.lang.Integer">
         select bookmark_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
@@ -39,12 +39,12 @@
         update tag
         set is_deleted = 1
         where tag = #{tagName,jdbcType=VARCHAR}
-          and bookmark_id = #{webId,jdbcType=INTEGER};
+          and bookmark_id = #{bookmarkId,jdbcType=INTEGER};
     </update>
-    <update id="deleteAllTagsByWebId">
+    <update id="deleteAllTagsByBookmarkId">
         update tag
         set is_deleted = 1
-        where bookmark_id = #{webId,jdbcType=INTEGER};
+        where bookmark_id = #{bookmarkId,jdbcType=INTEGER};
     </update>
     <select id="getTagAndCount" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
         select count(t.bookmark_id) as number, `tag`

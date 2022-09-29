@@ -33,6 +33,6 @@ public class DeleteTagManager {
             @CacheEvict(value = "tag:popular", allEntries = true)
     })
     public void deleteAllTagsByWebId(int webId) {
-        tagMapper.deleteAllTagsByWebId(webId);
+        tagMapper.deleteAllTagsByBookmarkId(webId);
     }
 }

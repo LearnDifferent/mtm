@@ -32,7 +32,7 @@ class TagServiceImplTest {
         PageInfoDTO pageInfo = PageInfoDTO.builder().from(from).size(size).build();
 
         // return empty list
-        Mockito.when(tagMapper.getWebIdsByTagName(tagName, from, size))
+        Mockito.when(tagMapper.getBookmarkIdsByTagName(tagName, from, size))
                 .thenReturn(new ArrayList<>());
 
         Assertions.assertThrows(ServiceException.class,

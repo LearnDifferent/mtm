@@ -83,7 +83,7 @@ public class TagCheckAspect {
     }
 
     private void checkTagExists(String tagText, int webId) {
-        TagDO tag = tagMapper.getSpecificTagByTagTextAndWebId(tagText, webId);
+        TagDO tag = tagMapper.getSpecificTagByTagTextAndBookmarkId(tagText, webId);
         ThrowExceptionUtils.throwIfNotNull(tag, ResultCode.TAG_EXISTS);
     }
 
