@@ -68,7 +68,7 @@ public interface TagService {
      * Note that every user can get tags without permissions.
      * </li>
      *
-     * @param webId    ID of the bookmarked website data
+     * @param bookmarkId    ID of the bookmark
      * @param pageInfo pagination information
      * @return tags
      * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
@@ -77,7 +77,7 @@ public interface TagService {
      *                                                                  if the bookmarked website data is NOT
      *                                                                  associated with any tags
      */
-    List<String> getTags(Integer webId, PageInfoDTO pageInfo);
+    List<String> getTags(Integer bookmarkId, PageInfoDTO pageInfo);
 
     /**
      * Get a tag of a bookmarked site

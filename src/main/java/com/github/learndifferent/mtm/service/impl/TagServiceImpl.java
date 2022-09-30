@@ -1,8 +1,8 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Tag;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.tag.TagCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -12,8 +12,8 @@ import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
-import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
+import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
@@ -64,13 +64,13 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @Cacheable(value = "tag:all", condition = "#webId == null")
-    public List<String> getTags(Integer webId, PageInfoDTO pageInfo) {
+    @Cacheable(value = "tag:all", condition = "#bookmarkId == null")
+    public List<String> getTags(Integer bookmarkId, PageInfoDTO pageInfo) {
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<String> tags = tagMapper.getTagsByBookmarkId(webId, from, size);
+        List<String> tags = tagMapper.getTagsByBookmarkId(bookmarkId, from, size);
         throwExceptionIfEmpty(tags);
 
         return tags;
@@ -152,7 +152,7 @@ public class TagServiceImpl implements TagService {
     @Override
     @ModifyWebsitePermissionCheck
     public boolean deleteTag(@Username String username, @BookmarkId Integer bookmarkId, String tagName) {
-        // Web Id will not be null after checking by @ModifyWebsitePermissionCheck.
+        // Bookmark Id will not be null after checking by @ModifyWebsitePermissionCheck.
         // This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
         // stored in the cache if no exception is thrown.
         return deleteTagManager.deleteTag(tagName, bookmarkId);

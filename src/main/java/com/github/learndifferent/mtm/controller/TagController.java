@@ -40,15 +40,15 @@ public class TagController {
     /**
      * Apply a tag
      *
-     * @param webId   ID of the bookmarked website data that the user currently logged in wants to apply the tag to
-     * @param tagName the tag to apply
+     * @param bookmarkId ID of the bookmark that the user currently logged in wants to apply the tag to
+     * @param tagName    the tag to apply
      * @return Return the tag if applied successfully, or empty string if failed to apply
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#applyTag(String, Integer,
      *                                                                  String)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS} if
-     *                                                                  the bookmarked website data does not exist or
-     *                                                                  the {@code webId} is null.
+     *                                                                  the bookmark does not exist or the {@code
+     *                                                                  bookmarkId} is null.
      *                                                                  <p>
      *                                                                  If the user has no permission to apply the
      *                                                                  tag to this bookmark, the result code will be
@@ -70,20 +70,21 @@ public class TagController {
      *                                                                  </p>
      */
     @GetMapping("/apply")
-    public ResultVO<String> applyTag(@RequestParam("webId") Integer webId, @RequestParam("tag") String tagName) {
+    public ResultVO<String> applyTag(@RequestParam("bookmarkId") Integer bookmarkId,
+                                     @RequestParam("tag") String tagName) {
         String currentUsername = getCurrentUsername();
-        String tag = tagService.applyTag(currentUsername, webId, tagName);
+        String tag = tagService.applyTag(currentUsername, bookmarkId, tagName);
         return ResultCreator.okResult(tag);
     }
 
     /**
      * Get tags by the ID of the bookmarked website data.
      * <p>
-     * Get all tags if the parameter {@code webId} is missing.
+     * Get all tags if the parameter {@code bookmarkId} is missing.
      * </p>
      *
-     * @param webId    ID of the bookmarked website data
-     * @param pageInfo pagination information
+     * @param bookmarkId ID of the bookmark
+     * @param pageInfo   pagination information
      * @return paginated tags
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(Integer, PageInfoDTO)}
      *                                                                  will throw an exception with the result code of
@@ -92,22 +93,22 @@ public class TagController {
      *                                                                  associated with any tags
      */
     @GetMapping
-    public ResultVO<List<String>> getTags(@RequestParam(value = "webId", required = false) Integer webId,
+    public ResultVO<List<String>> getTags(@RequestParam(value = "bookmarkId", required = false) Integer bookmarkId,
                                           @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
                                                   PageInfoDTO pageInfo) {
-        List<String> tags = tagService.getTags(webId, pageInfo);
+        List<String> tags = tagService.getTags(bookmarkId, pageInfo);
         return ResultCreator.okResult(tags);
     }
 
     /**
      * Get a tag of a bookmark, or return empty string if the bookmark has no tags
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      * @return a tag of the bookmark, or empty string if the bookmark has no tags
      */
     @GetMapping("/one")
-    public ResultVO<String> getTag(@RequestParam(value = "webId") Integer webId) {
-        String tag = tagService.getTagOrReturnEmpty(webId);
+    public ResultVO<String> getTag(@RequestParam(value = "bookmarkId") Integer bookmarkId) {
+        String tag = tagService.getTagOrReturnEmpty(bookmarkId);
         return ResultCreator.okResult(tag);
     }
 
@@ -179,8 +180,8 @@ public class TagController {
     /**
      * Delete a tag
      *
-     * @param webId   ID of the bookmarked website data that the tag applied to
-     * @param tagName name of the tag to be deleted
+     * @param bookmarkId ID of the bookmarked website data that the tag applied to
+     * @param tagName    name of the tag to be deleted
      * @return {@link ResultCreator#okResult()} if success.
      * {@link ResultCreator#defaultFailResult()} if failure or the tag does not exist.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#deleteTag(String, Integer,
@@ -188,7 +189,7 @@ public class TagController {
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS} if
      *                                                                  the bookmarked website data does not exist or
-     *                                                                  the {@code webId} is null.
+     *                                                                  the {@code bookmarkId} is null.
      *                                                                  <p>
      *                                                                  If the user has no permission to delete the
      *                                                                  tag of this bookmark, the result code will be
@@ -196,10 +197,10 @@ public class TagController {
      *                                                                  </p>
      */
     @DeleteMapping
-    public ResultVO<ResultCode> deleteTag(@RequestParam("webId") Integer webId,
+    public ResultVO<ResultCode> deleteTag(@RequestParam("bookmarkId") Integer bookmarkId,
                                           @RequestParam("tagName") String tagName) {
         String currentUsername = getCurrentUsername();
-        boolean success = tagService.deleteTag(currentUsername, webId, tagName);
+        boolean success = tagService.deleteTag(currentUsername, bookmarkId, tagName);
         return success ? ResultCreator.okResult() : ResultCreator.defaultFailResult();
     }
 
