@@ -92,44 +92,45 @@ public class BookmarkController {
     }
 
     /**
-     * Delete a bookmarked website
+     * Delete a bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param id ID of the bookmark
      * @return {@link ResultCode#DELETE_SUCCESS} if success. {@link ResultCode#DELETE_FAILED}
      * @throws ServiceException {@link BookmarkService#deleteBookmark(Integer, String)} will throw
      *                          an exception if the user currently logged in does not have permission to delete,
      *                          the result code will be {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
-    public ResultVO<ResultCode> deleteBookmark(@RequestParam("webId") Integer webId) {
+    public ResultVO<ResultCode> deleteBookmark(@RequestParam("id") Integer id) {
         String currentUsername = getCurrentUsername();
-        boolean success = bookmarkService.deleteBookmark(webId, currentUsername);
+        boolean success = bookmarkService.deleteBookmark(id, currentUsername);
         return success ? ResultCreator.result(ResultCode.DELETE_SUCCESS)
                 : ResultCreator.result(ResultCode.DELETE_FAILED);
     }
 
     /**
-     * Make the bookmarked website private if it's public
+     * Make the bookmark private if it's public
      * and make it public if it's private.
      *
-     * @param webId ID of the bookmarked website data
+     * @param id ID of the bookmark
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#UPDATE_FAILED} if failure.
      * @throws ServiceException {@link BookmarkService#changePrivacySettings(Integer, String)}
      *                          will throw an exception with {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if the bookmark does not exist and with {@link ResultCode#PERMISSION_DENIED}
-     *                          if the user currently logged in has no permission to change the bookmark privacy settings
+     *                          if the user currently logged in has no permission to change the bookmark privacy
+     *                          settings
      */
     @GetMapping("/privacy")
-    public ResultVO<ResultCode> changePrivacySettings(@RequestParam("webId") Integer webId) {
+    public ResultVO<ResultCode> changePrivacySettings(@RequestParam("id") Integer id) {
         String currentUsername = getCurrentUsername();
-        boolean success = bookmarkService.changePrivacySettings(webId, currentUsername);
+        boolean success = bookmarkService.changePrivacySettings(id, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.UPDATE_FAILED);
     }
 
     /**
      * Get a bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param id ID of the bookmark
      * @return {@link BookmarkVO the bookmark}
      * @throws ServiceException If the user currently logged in has no permission to get the bookmark,
      *                          or the bookmark doesn't exist, a {@link ServiceException}
@@ -137,9 +138,9 @@ public class BookmarkController {
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
     @GetMapping("/get")
-    public BookmarkVO getBookmark(@RequestParam("webId") Integer webId) {
+    public BookmarkVO getBookmark(@RequestParam("id") Integer id) {
         String currentUsername = getCurrentUsername();
-        return bookmarkService.getBookmark(webId, currentUsername);
+        return bookmarkService.getBookmark(id, currentUsername);
     }
 
     /**
