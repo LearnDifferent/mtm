@@ -106,7 +106,7 @@ public class NotificationManager {
 
     private String getCommentTextIfWebsiteAndCommentExist(ReplyMessageNotificationVO notification) {
 
-        Integer bookmarkId = notification.getWebId();
+        Integer bookmarkId = notification.getBookmarkId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);

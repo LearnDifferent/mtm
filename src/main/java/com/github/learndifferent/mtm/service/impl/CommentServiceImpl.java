@@ -57,9 +57,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @GetCommentsCheck
-    public CommentVO getCommentById(Integer commentId,
-                                    @BookmarkId Integer bookmarkId,
-                                    @Username String username) {
+    public CommentVO getCommentByIds(Integer commentId,
+                                     @BookmarkId Integer bookmarkId,
+                                     @Username String username) {
         if (commentId == null) {
             return null;
         }
@@ -109,9 +109,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @ModifyCommentCheck
-    public boolean deleteCommentById(@CommentId Integer commentId, @Username String username) {
+    public boolean deleteCommentById(@CommentId Integer id, @Username String username) {
         // commentId will not be null after checking by @ModifyCommentCheck
-        return commentMapper.deleteCommentById(commentId);
+        return commentMapper.deleteCommentById(id);
     }
 
     @Override
@@ -150,26 +150,26 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public boolean editComment(UpdateCommentRequest commentInfo, String username) {
-        Integer commentId = commentInfo.getCommentId();
+        Integer id = commentInfo.getId();
         String comment = commentInfo.getComment();
-        Integer bookmarkId = commentInfo.getWebId();
+        Integer bookmarkId = commentInfo.getBookmarkId();
 
         CommentServiceImpl commentServiceImpl =
                 ApplicationContextUtils.getBean(CommentServiceImpl.class);
-        return commentServiceImpl.editComment(commentId, comment, username, bookmarkId);
+        return commentServiceImpl.editComment(id, comment, username, bookmarkId);
     }
 
     @AddCommentCheck
     @ModifyCommentCheck
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean editComment(@CommentId Integer commentId,
+    public boolean editComment(@CommentId Integer id,
                                @Comment String comment,
                                @Username String username,
-                               @BookmarkId Integer webId) {
-        // commentId will not be null after checking by @ModifyCommentCheck
-        boolean success = commentMapper.updateComment(commentId, comment);
+                               @BookmarkId Integer bookmarkId) {
+        // id will not be null after checking by @ModifyCommentCheck
+        boolean success = commentMapper.updateComment(id, comment);
         if (success) {
-            CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment);
+            CommentHistoryDTO history = CommentHistoryDTO.of(id, comment);
             addHistory(history);
         }
         return success;

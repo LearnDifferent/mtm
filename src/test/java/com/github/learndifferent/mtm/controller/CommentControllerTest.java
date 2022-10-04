@@ -43,7 +43,7 @@ class CommentControllerTest {
 
         @BeforeEach
         void setUp() {
-            given(commentService.getCommentById(ID, WEB_ID, USER_NAME)).willReturn(COMMENT);
+            given(commentService.getCommentByIds(ID, WEB_ID, USER_NAME)).willReturn(COMMENT);
         }
 
         @Test

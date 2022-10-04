@@ -41,31 +41,31 @@ public class CommentController {
     /**
      * Get a comment
      *
-     * @param commentId ID of the comment.
-     *                  <p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>
-     * @param webId     ID of the bookmarked website data
+     * @param id  ID of the comment.
+     *                   <p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>
+     * @param bookmarkId ID of the bookmark
      * @return {@link ResultVO}<{@link CommentVO}> Return result code of {@link ResultCode#SUCCESS}
      * with the comment as data if the comment exists. If the comment does not exist, return the result code of
      * {@link ResultCode#FAILED}
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the
-     *                                                                  comments, {@link CommentService#getCommentById(Integer,
+     *                                                                  comments, {@link CommentService#getCommentByIds(Integer,
      *                                                                  Integer, String)} will throw an exception with
      *                                                                  the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @GetMapping
-    public ResultVO<CommentVO> getCommentById(@RequestParam(value = "commentId", required = false) Integer commentId,
-                                              @RequestParam("webId") Integer webId) {
+    public ResultVO<CommentVO> getCommentByIds(@RequestParam(value = "id", required = false) Integer id,
+                                               @RequestParam("bookmarkId") Integer bookmarkId) {
         String currentUsername = StpUtil.getLoginIdAsString();
-        CommentVO comment = commentService.getCommentById(commentId, webId, currentUsername);
+        CommentVO comment = commentService.getCommentByIds(id, bookmarkId, currentUsername);
         return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
     }
 
     /**
      * Get comment data of a bookmark
      *
-     * @param webId            ID of the bookmarked website data
+     * @param bookmarkId       ID of the bookmark
      * @param replyToCommentId ID of the comment to reply
      *                         <p>
      *                         Null if this is not a reply
@@ -82,15 +82,15 @@ public class CommentController {
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
-    @GetMapping("/get/{webId}")
-    public ResultVO<List<BookmarkCommentVO>> getComments(@PathVariable("webId") Integer webId,
+    @GetMapping("/bookmark")
+    public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("id") Integer bookmarkId,
                                                          @RequestParam(value = "replyToCommentId", required = false)
                                                                  Integer replyToCommentId,
                                                          @RequestParam("load") Integer load,
                                                          @RequestParam("order") Order order) {
         String currentUsername = StpUtil.getLoginIdAsString();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
-                webId, replyToCommentId, load, currentUsername, order);
+                bookmarkId, replyToCommentId, load, currentUsername, order);
 
         ResultCode code = CollectionUtils.isEmpty(comments) ? ResultCode.NO_RESULTS_FOUND
                 : ResultCode.SUCCESS;
@@ -98,14 +98,14 @@ public class CommentController {
     }
 
     /**
-     * Get the number of comments (exclude replies) of a bookmarked website
+     * Get the number of comments (exclude replies) of a bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      * @return number of comments of the bookmarked website
      */
-    @GetMapping("/get/number/{webId}")
-    public ResultVO<Integer> countComment(@PathVariable("webId") Integer webId) {
-        int number = commentService.countCommentByBookmarkId(webId);
+    @GetMapping("/bookmark/{id}")
+    public ResultVO<Integer> countComment(@PathVariable("id") Integer bookmarkId) {
+        int number = commentService.countCommentByBookmarkId(bookmarkId);
         return ResultCreator.okResult(number);
     }
 
@@ -113,7 +113,7 @@ public class CommentController {
      * Create a comment and send a notification to the user who is about to receive it
      *
      * @param comment          Comment
-     * @param webId            ID of the bookmarked website data
+     * @param bookmarkId       ID of the bookmark
      * @param replyToCommentId ID of the comment to reply
      *                         <p>
      *                         Null if this is not a reply
@@ -152,12 +152,12 @@ public class CommentController {
      */
     @GetMapping("/create")
     public ResultVO<ResultCode> createComment(@RequestParam("comment") String comment,
-                                              @RequestParam("webId") Integer webId,
+                                              @RequestParam("bookmarkId") Integer bookmarkId,
                                               @RequestParam(value = "replyToCommentId",
                                                             required = false) Integer replyToCommentId) {
         String currentUsername = StpUtil.getLoginIdAsString();
         boolean success = commentService.addCommentAndSendNotification(
-                comment, webId, currentUsername, replyToCommentId);
+                comment, bookmarkId, currentUsername, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
@@ -200,7 +200,7 @@ public class CommentController {
     /**
      * Delete a comment
      *
-     * @param commentId ID of the comment
+     * @param id ID of the comment
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#deleteCommentById(Integer,
      *                                                                  String)}
@@ -211,9 +211,9 @@ public class CommentController {
      *                                                                  no permissions to delete the comment
      */
     @DeleteMapping
-    public ResultVO<ResultCode> deleteComment(@RequestParam("commentId") Integer commentId) {
+    public ResultVO<ResultCode> deleteComment(@RequestParam("id") Integer id) {
         String currentUsername = StpUtil.getLoginIdAsString();
-        boolean success = commentService.deleteCommentById(commentId, currentUsername);
+        boolean success = commentService.deleteCommentById(id, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 }

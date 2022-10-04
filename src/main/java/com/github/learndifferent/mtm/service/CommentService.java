@@ -31,7 +31,7 @@ public interface CommentService {
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    CommentVO getCommentById(Integer commentId, Integer bookmarkId, String username);
+    CommentVO getCommentByIds(Integer commentId, Integer bookmarkId, String username);
 
     /**
      * Get comments of a bookmark
@@ -64,8 +64,8 @@ public interface CommentService {
     /**
      * Delete a comment by id
      *
-     * @param commentId ID of the comment
-     * @param username  username of the user who is trying to delete the comment
+     * @param id       ID of the comment
+     * @param username username of the user who is trying to delete the comment
      * @return true if success
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck
      *                                                                  ModifyCommentCheck} annotation will throw
@@ -76,7 +76,7 @@ public interface CommentService {
      *                                                                  exist or the user has no permissions to delete
      *                                                                  the comment
      */
-    boolean deleteCommentById(Integer commentId, String username);
+    boolean deleteCommentById(Integer id, String username);
 
     /**
      * Add a comment and send a notification to the user who is about to receive it

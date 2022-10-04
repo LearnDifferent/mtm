@@ -21,9 +21,9 @@ import lombok.experimental.Accessors;
 public class UpdateCommentRequest implements Serializable {
 
     /**
-     * Comment ID
+     * ID of the comment
      */
-    private Integer commentId;
+    private Integer id;
 
     /**
      * New comment
@@ -31,9 +31,9 @@ public class UpdateCommentRequest implements Serializable {
     private String comment;
 
     /**
-     * ID of the bookmarked website data
+     * ID of the bookmark
      */
-    private Integer webId;
+    private Integer bookmarkId;
 
     private static final long serialVersionUID = 1L;
 }
