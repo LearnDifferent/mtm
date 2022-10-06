@@ -37,7 +37,7 @@ class CommentControllerTest {
     class GetCommentById {
 
         private final int ID = 100;
-        private final CommentVO COMMENT = new CommentVO().setCommentId(ID);
+        private final CommentVO COMMENT = new CommentVO().setId(ID);
         private final Integer WEB_ID = 1;
         private final String USER_NAME = "user1";
 

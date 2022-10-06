@@ -65,6 +65,7 @@ public class CommentServiceImpl implements CommentService {
         }
         CommentDO commentDO = commentMapper.getCommentById(commentId);
         CommentVO comment = DozerUtils.convert(commentDO, CommentVO.class);
+        comment.setId(commentDO.getCommentId());
         List<CommentHistoryVO> history = getHistory(commentId);
         comment.setHistory(history);
         return comment;
