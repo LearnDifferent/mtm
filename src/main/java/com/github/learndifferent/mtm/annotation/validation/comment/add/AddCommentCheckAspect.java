@@ -68,7 +68,7 @@ public class AddCommentCheckAspect {
         Object[] args = joinPoint.getArgs();
 
         String comment = "";
-        int webId = -1;
+        int bookmarkId = -1;
         String username = "";
         Integer replyToCommentId = null;
 
@@ -88,7 +88,7 @@ public class AddCommentCheckAspect {
                         && annotation instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
-                    webId = (int) args[i];
+                    bookmarkId = (int) args[i];
                     helper.findIndex(1);
                     break;
                 }
@@ -119,9 +119,9 @@ public class AddCommentCheckAspect {
         checkComment(comment);
         // check if the bookmark exists
         // check whether the user has permission to comment (public or the user owns the bookmark)
-        bookmarkService.checkBookmarkExistsAndUserPermission(webId, username);
+        bookmarkService.checkBookmarkExistsAndUserPermission(bookmarkId, username);
         // 检查该用户是否已经对该网页进行了相同内容的评论
-        checkCommentContentExists(comment, webId, username);
+        checkCommentContentExists(comment, bookmarkId, username);
         // 如果是回复评论，需要检查回复的评论的 Comment ID 是否存在
         checkReplyToCommentId(replyToCommentId);
     }
@@ -134,8 +134,8 @@ public class AddCommentCheckAspect {
         ThrowExceptionUtils.throwIfTrue(tooLong, ResultCode.COMMENT_TOO_LONG);
     }
 
-    private void checkCommentContentExists(String comment, int webId, String username) {
-        CommentDO exist = commentMapper.getSpecificComment(comment, webId, username);
+    private void checkCommentContentExists(String comment, int bookmarkId, String username) {
+        CommentDO exist = commentMapper.getSpecificComment(comment, bookmarkId, username);
         ThrowExceptionUtils.throwIfNotNull(exist, ResultCode.COMMENT_EXISTS);
     }
 

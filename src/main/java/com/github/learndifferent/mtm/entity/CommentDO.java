@@ -23,9 +23,9 @@ import lombok.experimental.Accessors;
 public class CommentDO implements Serializable {
 
     /**
-     * Comment id
+     * ID of the comment
      */
-    private Integer commentId;
+    private Integer id;
 
     /**
      * content

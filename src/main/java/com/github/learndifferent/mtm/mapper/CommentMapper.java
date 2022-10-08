@@ -17,18 +17,18 @@ public interface CommentMapper {
     /**
      * Get a comment by id
      *
-     * @param commentId ID of the comment
+     * @param id ID of the comment
      * @return the comment
      */
-    CommentDO getCommentById(int commentId);
+    CommentDO getCommentById(int id);
 
     /**
      * Get username of the user who sent the comment
      *
-     * @param commentId ID of the comment
+     * @param id ID of the comment
      * @return username of the user who sent the comment
      */
-    String getCommentSenderName(int commentId);
+    String getCommentSenderName(int id);
 
     /**
      * Get a specific comment
@@ -45,10 +45,10 @@ public interface CommentMapper {
     /**
      * Get the text of the comment
      *
-     * @param commentId ID of the comment
+     * @param id ID of the comment
      * @return the text of the comment
      */
-    String getCommentTextById(int commentId);
+    String getCommentTextById(int id);
 
     /**
      * Get comments of a bookmark
@@ -79,10 +79,10 @@ public interface CommentMapper {
     /**
      * Delete a comment by id
      *
-     * @param commentId ID of the comment
+     * @param id ID of the comment
      * @return true if success
      */
-    boolean deleteCommentById(int commentId);
+    boolean deleteCommentById(int id);
 
     /**
      * Delete comments of the user
@@ -102,11 +102,11 @@ public interface CommentMapper {
     /**
      * Update a comment
      *
-     * @param commentId ID of the comment
-     * @param comment   comment
+     * @param id      ID of the comment
+     * @param comment comment
      * @return true if success
      */
-    boolean updateComment(@Param("commentId") int commentId, @Param("comment") String comment);
+    boolean updateComment(@Param("id") int id, @Param("comment") String comment);
 
     /**
      * Get the number of comments (exclude replies) of a bookmark

@@ -15,9 +15,9 @@ import java.util.List;
 public interface CommentService {
 
     /**
-     * Get a comment by ID
+     * Get a comment by IDs
      *
-     * @param commentId  ID of the comment (Return null if {@code commentId} is null)
+     * @param id         ID of the comment (Return null if {@code id} is null)
      * @param bookmarkId ID of the bookmark
      * @param username   Username of the user who is trying to get the comment
      * @return the comment (null if comment does not exist)
@@ -31,7 +31,7 @@ public interface CommentService {
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    CommentVO getCommentByIds(Integer commentId, Integer bookmarkId, String username);
+    CommentVO getCommentByIds(Integer id, Integer bookmarkId, String username);
 
     /**
      * Get comments of a bookmark

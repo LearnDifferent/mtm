@@ -144,7 +144,7 @@ public class NotificationManager {
 
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
 
-        Integer commentId = comment.getCommentId();
+        Integer commentId = comment.getId();
         Integer bookmarkId = comment.getBookmarkId();
         Integer replyToCommentId = comment.getReplyToCommentId();
 

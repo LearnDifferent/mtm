@@ -57,16 +57,15 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @GetCommentsCheck
-    public CommentVO getCommentByIds(Integer commentId,
+    public CommentVO getCommentByIds(Integer id,
                                      @BookmarkId Integer bookmarkId,
                                      @Username String username) {
-        if (commentId == null) {
+        if (id == null) {
             return null;
         }
-        CommentDO commentDO = commentMapper.getCommentById(commentId);
+        CommentDO commentDO = commentMapper.getCommentById(id);
         CommentVO comment = DozerUtils.convert(commentDO, CommentVO.class);
-        comment.setId(commentDO.getCommentId());
-        List<CommentHistoryVO> history = getHistory(commentId);
+        List<CommentHistoryVO> history = getHistory(id);
         comment.setHistory(history);
         return comment;
     }
@@ -139,7 +138,7 @@ public class CommentServiceImpl implements CommentService {
 
     private void recordHistoryAndSendNotification(CommentDO commentDO) {
         // add history
-        Integer commentId = commentDO.getCommentId();
+        Integer commentId = commentDO.getId();
         String comment = commentDO.getComment();
         Instant creationTime = commentDO.getCreationTime();
         CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment, creationTime);
