@@ -97,7 +97,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
 
         // save to Redis
         Map<String, String> kv = data.stream().collect(Collectors.toMap(
-                d -> KeyConstant.WEB_VIEW_COUNT_PREFIX + d.getWebId(),
+                d -> KeyConstant.WEB_VIEW_COUNT_PREFIX + d.getBookmarkId(),
                 d -> String.valueOf(d.getViews())));
         redisTemplate.opsForValue().multiSet(kv);
 
@@ -151,11 +151,11 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     private void updateViewsCollections(Set<ViewDataDO> set, String key, String val) {
         // get views
         int views = Integer.parseInt(val);
-        // get web id
-        String webIdString = key.substring(LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX);
-        int webId = Integer.parseInt(webIdString);
+        // get bookmark id
+        String bookmarkIdStr = key.substring(LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX);
+        int bookmarkId = Integer.parseInt(bookmarkIdStr);
         // create data
-        ViewDataDO data = ViewDataDO.builder().views(views).webId(webId).build();
+        ViewDataDO data = ViewDataDO.builder().views(views).bookmarkId(bookmarkId).build();
         // add data to set
         set.add(data);
     }

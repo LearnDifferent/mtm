@@ -18,9 +18,9 @@ public interface BookmarkViewMapper {
     /**
      * Add all view data to database
      *
-     * @param allWebDataViews all data
+     * @param allViewData all data
      */
-    void addAll(@Param("set") Set<ViewDataDO> allWebDataViews);
+    void addAll(@Param("set") Set<ViewDataDO> allViewData);
 
     /**
      * Clear all view data
@@ -37,10 +37,10 @@ public interface BookmarkViewMapper {
     List<ViewDataDO> getAllViewData();
 
     /**
-     * Delete view data by {@code webId}
+     * Delete view data by {@code bookmarkId}
      *
-     * @param webId ID
+     * @param bookmarkId ID
      * @return true if success
      */
-    boolean deleteViewData(int webId);
+    boolean deleteViewData(int bookmarkId);
 }

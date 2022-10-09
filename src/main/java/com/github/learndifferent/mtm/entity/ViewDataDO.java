@@ -21,9 +21,9 @@ import lombok.experimental.Accessors;
 public class ViewDataDO implements Serializable {
 
     /**
-     * ID of the bookmarked website data
+     * ID of the bookmark
      */
-    private Integer webId;
+    private Integer bookmarkId;
 
     /**
      * The number of views of the bookmark
