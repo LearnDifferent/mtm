@@ -4,7 +4,7 @@ import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
-import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -198,5 +198,5 @@ public interface BookmarkMapper {
      * @param size size
      * @return all visited bookmarks
      */
-    List<VisitedBookmarksVO> getVisitedBookmarks(@Param("from") int from, @Param("size") int size);
+    List<VisitedBookmarkVO> getVisitedBookmarks(@Param("from") int from, @Param("size") int size);
 }

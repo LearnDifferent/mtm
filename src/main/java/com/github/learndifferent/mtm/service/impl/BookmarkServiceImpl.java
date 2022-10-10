@@ -45,7 +45,7 @@ import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
-import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -599,10 +599,9 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Cacheable(value = "bookmarks:visited")
-    public List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo) {
+    public List<VisitedBookmarkVO> getVisitedBookmarks(PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        List<VisitedBookmarksVO> data = bookmarkMapper.getVisitedBookmarks(from, size);
-        return DozerUtils.convertList(data, VisitedBookmarksVO.class);
+        return bookmarkMapper.getVisitedBookmarks(from, size);
     }
 }

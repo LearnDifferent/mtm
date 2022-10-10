@@ -17,7 +17,7 @@ import com.github.learndifferent.mtm.service.BookmarkService;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
-import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -182,7 +182,7 @@ public class BookmarkController {
      */
     @GetMapping("/visited-bookmarks")
     @AdminValidation
-    public List<VisitedBookmarksVO> getVisitedBookmarks(
+    public List<VisitedBookmarkVO> getVisitedBookmarks(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         return bookmarkService.getVisitedBookmarks(pageInfo);
     }

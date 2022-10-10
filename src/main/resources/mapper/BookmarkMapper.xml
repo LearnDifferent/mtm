@@ -222,7 +222,7 @@
         limit 1;
     </select>
 
-    <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarksVO">
+    <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarkVO">
         select b.user_name, b.title, b.url, b.is_public, v.bookmark_id, v.views
         from bookmark_view v
                  left join bookmark b on v.bookmark_id = b.id

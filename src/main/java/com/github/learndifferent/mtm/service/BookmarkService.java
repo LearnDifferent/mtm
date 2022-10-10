@@ -16,7 +16,7 @@ import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
-import com.github.learndifferent.mtm.vo.VisitedBookmarksVO;
+import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -228,5 +228,5 @@ public interface BookmarkService {
      * @param pageInfo pagination information
      * @return visited bookmarks
      */
-    List<VisitedBookmarksVO> getVisitedBookmarks(PageInfoDTO pageInfo);
+    List<VisitedBookmarkVO> getVisitedBookmarks(PageInfoDTO pageInfo);
 }

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Visited Bookmarks
+ * Visited Bookmark
  *
  * @author zhou
  * @date 2022/3/25
@@ -18,7 +18,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Builder
-public class VisitedBookmarksVO implements Serializable {
+public class VisitedBookmarkVO implements Serializable {
 
     /**
      * Username
@@ -36,12 +36,12 @@ public class VisitedBookmarksVO implements Serializable {
     private String url;
 
     /**
-     * ID
+     * ID of the bookmark
      */
-    private Integer webId;
+    private Integer bookmarkId;
 
     /**
-     * True if this is a public bookmarks
+     * True if this is a public bookmark
      */
     private Boolean isPublic;
 
