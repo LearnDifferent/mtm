@@ -1,5 +1,9 @@
 package com.github.learndifferent.mtm.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.learndifferent.mtm.config.CustomInstantDeserializer;
+import com.github.learndifferent.mtm.config.CustomInstantSerializer;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
@@ -53,6 +57,8 @@ public class SysLog implements Serializable {
     /**
      * Creation time
      */
+    @JsonSerialize(using = CustomInstantSerializer.class)
+    @JsonDeserialize(using = CustomInstantDeserializer.class)
     private Instant optTime;
 
     private static final long serialVersionUID = 1L;
