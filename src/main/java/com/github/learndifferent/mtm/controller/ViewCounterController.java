@@ -31,11 +31,11 @@ public class ViewCounterController {
     /**
      * Increase the number of views of a bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      */
     @GetMapping
-    public void increaseViews(@RequestParam("webId") Integer webId) {
-        viewCounterService.increaseViewsAndAddToSet(webId);
+    public void increaseViews(@RequestParam("bookmarkId") Integer bookmarkId) {
+        viewCounterService.increaseViewsAndAddToSet(bookmarkId);
     }
 
     /**

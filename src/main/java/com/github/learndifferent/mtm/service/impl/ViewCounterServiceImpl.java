@@ -46,11 +46,11 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     }
 
     @Override
-    public void increaseViewsAndAddToSet(Integer webId) {
-        if (webId == null) {
+    public void increaseViewsAndAddToSet(Integer bookmarkId) {
+        if (bookmarkId == null) {
             return;
         }
-        String key = KeyConstant.WEB_VIEW_COUNT_PREFIX + webId;
+        String key = KeyConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId;
         redisTemplate.opsForValue().increment(key);
         // add the key to set
         redisTemplate.opsForSet().add(KeyConstant.VIEW_KEY_SET, key);

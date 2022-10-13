@@ -18,9 +18,9 @@ public interface ViewCounterService {
      * and will add the key that stores this view data to a set in Redis.
      * </p>
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      */
-    void increaseViewsAndAddToSet(Integer webId);
+    void increaseViewsAndAddToSet(Integer bookmarkId);
 
     /**
      * Count the number of views of a bookmark stored in Redis
