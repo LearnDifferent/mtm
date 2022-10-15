@@ -25,10 +25,10 @@ public interface ViewCounterService {
     /**
      * Count the number of views of a bookmark stored in Redis
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      * @return views
      */
-    int countViews(Integer webId);
+    int countViews(Integer bookmarkId);
 
     /**
      * Save the numbers of views from Redis to the database,

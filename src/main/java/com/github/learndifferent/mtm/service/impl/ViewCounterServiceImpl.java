@@ -57,13 +57,13 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     }
 
     @Override
-    public int countViews(Integer webId) {
+    public int countViews(Integer bookmarkId) {
 
-        if (webId == null) {
+        if (bookmarkId == null) {
             return 0;
         }
 
-        String views = redisTemplate.opsForValue().get(KeyConstant.WEB_VIEW_COUNT_PREFIX + webId);
+        String views = redisTemplate.opsForValue().get(KeyConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId);
         if (views == null) {
             return 0;
         }

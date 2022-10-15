@@ -41,12 +41,12 @@ public class ViewCounterController {
     /**
      * Count the number of views of a bookmark
      *
-     * @param webId ID of the bookmarked website data
+     * @param bookmarkId ID of the bookmark
      * @return views
      */
     @GetMapping("/count")
-    public ResultVO<Integer> countViews(@RequestParam("webId") Integer webId) {
-        int views = viewCounterService.countViews(webId);
+    public ResultVO<Integer> countViews(@RequestParam("bookmarkId") Integer bookmarkId) {
+        int views = viewCounterService.countViews(bookmarkId);
         return ResultCreator.okResult(views);
     }
 
