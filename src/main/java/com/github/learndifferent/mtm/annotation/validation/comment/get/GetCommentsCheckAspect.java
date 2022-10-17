@@ -39,7 +39,7 @@ public class GetCommentsCheckAspect {
         Object[] args = jp.getArgs();
 
         String username = "";
-        int webId = -1;
+        int bookmarkId = -1;
 
         AnnotationHelper helper = new AnnotationHelper(2);
 
@@ -49,7 +49,7 @@ public class GetCommentsCheckAspect {
                         && annotation instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
-                    webId = (int) args[i];
+                    bookmarkId = (int) args[i];
                     helper.findIndex(0);
                     break;
                 }
@@ -68,6 +68,6 @@ public class GetCommentsCheckAspect {
             }
         }
 
-        bookmarkService.checkBookmarkExistsAndUserPermission(webId, username);
+        bookmarkService.checkBookmarkExistsAndUserPermission(bookmarkId, username);
     }
 }
