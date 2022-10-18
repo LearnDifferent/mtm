@@ -47,7 +47,7 @@ public class TagCheckAspect {
         AnnotationHelper helper = new AnnotationHelper(2);
 
         String tagText = "";
-        int webId = -1;
+        int bookmarkId = -1;
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation an : parameterAnnotations[i]) {
@@ -63,7 +63,7 @@ public class TagCheckAspect {
                         && an instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
-                    webId = (int) args[i];
+                    bookmarkId = (int) args[i];
                     helper.findIndex(1);
                     break;
                 }
@@ -76,14 +76,14 @@ public class TagCheckAspect {
 
         // Check the existence of the website data should be done by @ModifyWebsitePermissionCheck
         // This is just a simple check
-        ThrowExceptionUtils.throwIfTrue(webId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        ThrowExceptionUtils.throwIfTrue(bookmarkId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         checkTagBasic(tagText, annotation.maxLength());
-        checkTagExists(tagText, webId);
+        checkTagExists(tagText, bookmarkId);
     }
 
-    private void checkTagExists(String tagText, int webId) {
-        TagDO tag = tagMapper.getSpecificTagByTagTextAndBookmarkId(tagText, webId);
+    private void checkTagExists(String tagText, int bookmarkId) {
+        TagDO tag = tagMapper.getSpecificTagByTagTextAndBookmarkId(tagText, bookmarkId);
         ThrowExceptionUtils.throwIfNotNull(tag, ResultCode.TAG_EXISTS);
     }
 
