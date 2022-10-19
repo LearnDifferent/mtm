@@ -46,7 +46,7 @@ public class ModifyWebsitePermissionCheckAspect {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Object[] args = joinPoint.getArgs();
 
-        int webId = -1;
+        int bookmarkId = -1;
         String username = "";
 
         AnnotationHelper helper = new AnnotationHelper(2);
@@ -57,7 +57,7 @@ public class ModifyWebsitePermissionCheckAspect {
                         && annotation instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
-                    webId = (int) args[i];
+                    bookmarkId = (int) args[i];
                     helper.findIndex(0);
                     break;
                 }
@@ -76,9 +76,9 @@ public class ModifyWebsitePermissionCheckAspect {
             }
         }
 
-        ThrowExceptionUtils.throwIfTrue(webId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        ThrowExceptionUtils.throwIfTrue(bookmarkId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(webId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean emptyUsername = StringUtils.isEmpty(username);
