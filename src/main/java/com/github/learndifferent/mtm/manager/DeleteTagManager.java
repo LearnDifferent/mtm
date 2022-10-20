@@ -22,17 +22,17 @@ public class DeleteTagManager {
         this.tagMapper = tagMapper;
     }
 
-    @CacheEvict(value = "tag:a", key = "#webId")
-    public boolean deleteTag(String tagName, int webId) {
-        return tagMapper.deleteTag(tagName, webId);
+    @CacheEvict(value = "tag:a", key = "#bookmarkId")
+    public boolean deleteTag(String tagName, int bookmarkId) {
+        return tagMapper.deleteTag(tagName, bookmarkId);
     }
 
     @Caching(evict = {
-            @CacheEvict(value = "tag:a", key = "#webId"),
+            @CacheEvict(value = "tag:a", key = "#bookmarkId"),
             @CacheEvict(value = "tag:all", allEntries = true),
             @CacheEvict(value = "tag:popular", allEntries = true)
     })
-    public void deleteAllTagsByWebId(int webId) {
-        tagMapper.deleteAllTagsByBookmarkId(webId);
+    public void deleteAllTagsByWebId(int bookmarkId) {
+        tagMapper.deleteAllTagsByBookmarkId(bookmarkId);
     }
 }
