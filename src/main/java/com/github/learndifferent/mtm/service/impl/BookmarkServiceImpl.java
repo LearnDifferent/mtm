@@ -383,7 +383,7 @@ public class BookmarkServiceImpl implements BookmarkService {
             // delete views
             deleteViewManager.deleteWebView(id);
             // delete tags
-            deleteTagManager.deleteAllTagsByWebId(id);
+            deleteTagManager.deleteAllTagsByBookmarkId(id);
         }
         return success;
     }
