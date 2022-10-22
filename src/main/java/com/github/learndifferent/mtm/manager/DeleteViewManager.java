@@ -26,15 +26,15 @@ public class DeleteViewManager {
     }
 
     /**
-     * Delete the view data of a web page
+     * Delete views of a bookmark
      *
-     * @param webId id of the web page
+     * @param id ID of the bookmark
      */
-    public void deleteWebView(int webId) {
-        boolean success = bookmarkViewMapper.deleteViewData(webId);
+    public void deleteBookmarkView(int id) {
+        boolean success = bookmarkViewMapper.deleteViewData(id);
         if (success) {
             // remove from Redis
-            String key = KeyConstant.WEB_VIEW_COUNT_PREFIX + webId;
+            String key = KeyConstant.WEB_VIEW_COUNT_PREFIX + id;
             redisTemplate.delete(key);
             redisTemplate.opsForSet().remove(KeyConstant.VIEW_KEY_SET, key);
         }

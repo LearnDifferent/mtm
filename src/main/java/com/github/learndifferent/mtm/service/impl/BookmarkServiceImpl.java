@@ -381,7 +381,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
             // delete views
-            deleteViewManager.deleteWebView(id);
+            deleteViewManager.deleteBookmarkView(id);
             // delete tags
             deleteTagManager.deleteAllTagsByBookmarkId(id);
         }
