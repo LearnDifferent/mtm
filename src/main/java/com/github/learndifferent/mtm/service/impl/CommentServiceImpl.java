@@ -120,7 +120,7 @@ public class CommentServiceImpl implements CommentService {
                                                  @BookmarkId Integer bookmarkId,
                                                  @Username String username,
                                                  @ReplyToCommentId Integer replyToCommentId) {
-        // webId will not be null after checking by @AddCommentCheck
+        // bookmarkId will not be null after checking by @AddCommentCheck
         CommentDO commentDO = CommentDO.builder()
                 .comment(comment).bookmarkId(bookmarkId).username(username)
                 .replyToCommentId(replyToCommentId)
