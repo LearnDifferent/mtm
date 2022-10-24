@@ -52,9 +52,9 @@ public class DeleteReplyNotificationRequest implements Serializable {
     private Integer commentId;
 
     /**
-     * ID of the bookmarked website data
+     * ID of the bookmark
      */
-    private Integer webId;
+    private Integer bookmarkId;
 
     /**
      * The ID of the comment being replied to
