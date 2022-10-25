@@ -4,7 +4,7 @@ import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Tag;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.tag.TagCheck;
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
@@ -53,7 +53,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @ModifyWebsitePermissionCheck
+    @ModifyBookmarkPermissionCheck
     @TagCheck
     @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
     public String applyTag(@Username String username, @BookmarkId Integer bookmarkId, @Tag String tagName) {
@@ -150,9 +150,9 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @ModifyWebsitePermissionCheck
+    @ModifyBookmarkPermissionCheck
     public boolean deleteTag(@Username String username, @BookmarkId Integer bookmarkId, String tagName) {
-        // Bookmark Id will not be null after checking by @ModifyWebsitePermissionCheck.
+        // Bookmark Id will not be null after checking by @ModifyBookmarkPermissionCheck.
         // This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
         // stored in the cache if no exception is thrown.
         return deleteTagManager.deleteTag(tagName, bookmarkId);

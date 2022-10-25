@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Verify whether the user has permission to modify the website data.
+ * Verify whether the user has permission to modify the bookmark.
  * This annotation has to be used along with {@link BookmarkId}
  * and {@link com.github.learndifferent.mtm.annotation.common.Username}
  *
@@ -16,4 +16,4 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ModifyWebsitePermissionCheck {}
+public @interface ModifyBookmarkPermissionCheck {}

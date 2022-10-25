@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
@@ -132,8 +133,8 @@ public interface BookmarkService {
      * @param id    ID of the bookmark
      * @param userName username of the user who is deleting the bookmark
      * @return true if success
-     * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
-     *                          ModifyWebsitePermissionCheck} annotation will check the permissions and throw
+     * @throws ServiceException {@link ModifyBookmarkPermissionCheck
+     *                          ModifyBookmarkPermissionCheck} annotation will check the permissions and throw
      *                          an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if there is no permissions
      */
@@ -148,8 +149,8 @@ public interface BookmarkService {
      * @return success or failure
      * @throws ServiceException If the bookmark does not exist, the result code will be
      *                          {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}.
-     *                          And {@link com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck
-     *                          ModifyWebsitePermissionCheck} annotation
+     *                          And {@link ModifyBookmarkPermissionCheck
+     *                          ModifyBookmarkPermissionCheck} annotation
      *                          will throw exception with {@link ResultCode#PERMISSION_DENIED}
      *                          if the user has no permission to change the bookmark privacy settings.
      */

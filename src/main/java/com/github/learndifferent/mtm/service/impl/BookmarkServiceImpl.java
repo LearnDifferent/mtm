@@ -12,7 +12,7 @@ import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.D
 import com.github.learndifferent.mtm.annotation.modify.url.UrlClean;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck;
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyWebsitePermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
@@ -375,9 +375,9 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @ModifyWebsitePermissionCheck
+    @ModifyBookmarkPermissionCheck
     public boolean deleteBookmark(@BookmarkId Integer id, @Username String userName) {
-        // ID will not be null after checking by @ModifyWebsitePermissionCheck
+        // ID will not be null after checking by @ModifyBookmarkPermissionCheck
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
             // delete views
@@ -389,9 +389,9 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @ModifyWebsitePermissionCheck
+    @ModifyBookmarkPermissionCheck
     public boolean changePrivacySettings(@BookmarkId Integer id, @Username String userName) {
-        // ID will not be null after checking by @ModifyWebsitePermissionCheck
+        // ID will not be null after checking by @ModifyBookmarkPermissionCheck
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 

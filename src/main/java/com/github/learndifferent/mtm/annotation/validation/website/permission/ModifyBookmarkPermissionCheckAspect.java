@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * Verify whether the user has permission to modify the website data.
+ * Verify whether the user has permission to modify the bookmark.
  *
  * @author zhou
  * @date 2021/09/05
@@ -28,17 +28,17 @@ import org.springframework.util.StringUtils;
 @Slf4j
 @Aspect
 @Component
-public class ModifyWebsitePermissionCheckAspect {
+public class ModifyBookmarkPermissionCheckAspect {
 
     private final BookmarkMapper bookmarkMapper;
 
     @Autowired
-    public ModifyWebsitePermissionCheckAspect(BookmarkMapper bookmarkMapper) {
+    public ModifyBookmarkPermissionCheckAspect(BookmarkMapper bookmarkMapper) {
         this.bookmarkMapper = bookmarkMapper;
     }
 
     @Before("@annotation(websitePermission)")
-    public void check(JoinPoint joinPoint, ModifyWebsitePermissionCheck websitePermission) {
+    public void check(JoinPoint joinPoint, ModifyBookmarkPermissionCheck websitePermission) {
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
