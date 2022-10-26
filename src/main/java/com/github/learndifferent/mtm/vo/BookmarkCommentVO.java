@@ -25,7 +25,7 @@ public class BookmarkCommentVO implements Serializable {
     /**
      * ID of the comment
      */
-    private Integer commentId;
+    private Integer id;
 
     /**
      * Content

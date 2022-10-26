@@ -83,7 +83,7 @@ public class CommentServiceImpl implements CommentService {
 
         comments.forEach(comment -> {
             // Get a count of the replies from this comment (comment id won't be null)
-            int id = comment.getCommentId();
+            int id = comment.getId();
             int repliesCount = commentMapper.countRepliesFromComment(id);
             comment.setRepliesCount(repliesCount);
             // Get the edit history of the comment
