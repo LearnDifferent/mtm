@@ -37,8 +37,8 @@ public class ModifyBookmarkPermissionCheckAspect {
         this.bookmarkMapper = bookmarkMapper;
     }
 
-    @Before("@annotation(websitePermission)")
-    public void check(JoinPoint joinPoint, ModifyBookmarkPermissionCheck websitePermission) {
+    @Before("@annotation(bookmarkPermission)")
+    public void check(JoinPoint joinPoint, ModifyBookmarkPermissionCheck bookmarkPermission) {
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
