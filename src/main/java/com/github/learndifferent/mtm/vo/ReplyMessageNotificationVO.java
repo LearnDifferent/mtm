@@ -37,7 +37,7 @@ public class ReplyMessageNotificationVO implements Serializable {
     /**
      * Name of the user, who is about to receive the notification.
      * If {@link #getReplyToCommentId()} is null,
-     * then the user is the owner of the website data.
+     * then the user is the owner of the bookmark.
      * If {@link #getReplyToCommentId()} is not null,
      * then the user is the author of the comment being replied to.
      */

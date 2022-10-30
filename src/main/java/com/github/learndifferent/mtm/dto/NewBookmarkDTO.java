@@ -49,23 +49,23 @@ public class NewBookmarkDTO implements Serializable {
     }
 
     /**
-     * name of the user who bookmarked the website
+     * Owner of the bookmark
      */
     private final String userName;
     /**
-     * title of the bookmarked website
+     * Title of the bookmark
      */
     private final String title;
     /**
-     * URL of the bookmarked website
+     * URL of the bookmark
      */
     private final String url;
     /**
-     * Image of the bookmarked website
+     * Image of the bookmark
      */
     private final String img;
     /**
-     * Description of the bookmarked website
+     * Description of the bookmark
      */
     private final String desc;
     /**

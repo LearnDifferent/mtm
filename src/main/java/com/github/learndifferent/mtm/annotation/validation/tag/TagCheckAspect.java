@@ -74,7 +74,7 @@ public class TagCheckAspect {
             }
         }
 
-        // Check the existence of the website data should be done by @ModifyBookmarkPermissionCheck
+        // Check the existence of the bookmark should be done by @ModifyBookmarkPermissionCheck
         // This is just a simple check
         ThrowExceptionUtils.throwIfTrue(bookmarkId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
