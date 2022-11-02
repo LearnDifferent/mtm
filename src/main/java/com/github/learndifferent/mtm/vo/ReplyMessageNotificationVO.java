@@ -1,14 +1,13 @@
 package com.github.learndifferent.mtm.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.github.learndifferent.mtm.config.CustomInstantDeserializer;
-import com.github.learndifferent.mtm.config.CustomInstantSerializer;
+import com.github.learndifferent.mtm.entity.ReplyNotification;
 import java.io.Serializable;
-import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+import lombok.experimental.SuperBuilder;
 
 /**
  * Notification with reply message
@@ -16,53 +15,19 @@ import lombok.NoArgsConstructor;
  * @author zhou
  * @date 2022/4/8
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReplyMessageNotificationVO implements Serializable {
+@SuperBuilder
+@Accessors(chain = true)
+public class ReplyMessageNotificationVO extends ReplyNotification implements Serializable {
 
     /**
-     * Reply Message
+     * Extend parameter: reply message
      * <p>Null if the bookmark, comment or reply has been deleted</p>
      */
     private String message;
-
-    /**
-     * Creation time
-     */
-    @JsonSerialize(using = CustomInstantSerializer.class)
-    @JsonDeserialize(using = CustomInstantDeserializer.class)
-    private Instant creationTime;
-
-    /**
-     * Name of the user, who is about to receive the notification.
-     * If {@link #getReplyToCommentId()} is null,
-     * then the user is the owner of the bookmark.
-     * If {@link #getReplyToCommentId()} is not null,
-     * then the user is the author of the comment being replied to.
-     */
-    private String receiveUsername;
-
-    /**
-     * Name of the user who sent the reply (or comment)
-     */
-    private String sendUsername;
-
-    /**
-     * ID of the comment
-     */
-    private Integer commentId;
-
-    /**
-     * ID of the bookmark
-     */
-    private Integer bookmarkId;
-
-    /**
-     * The ID of the comment being replied to
-     * <p>Not reply to any comment if null, which means this is a bookmark comment</p>
-     */
-    private Integer replyToCommentId;
 
     private static final long serialVersionUID = 1L;
 }
