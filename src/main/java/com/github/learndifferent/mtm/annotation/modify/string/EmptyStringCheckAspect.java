@@ -45,8 +45,8 @@ public class EmptyStringCheckAspect {
                 if (annotation instanceof DefaultValueIfEmpty
                         && String.class.isAssignableFrom(parameterTypes[i])) {
 
-                    // Check if the string is empty and replace it with default value if it's empty
-                    args[i] = replaceIfEmpty((String) args[i], (DefaultValueIfEmpty) annotation);
+                    // Check if the string is empty and replace it with default string value if it's empty
+                    args[i] = replaceIfEmpty((String) args[i], ((DefaultValueIfEmpty) annotation).value());
                     // Priority: @DefaultValueIfEmpty > @ExceptionIfEmpty
                     break;
                 }
@@ -63,10 +63,10 @@ public class EmptyStringCheckAspect {
         return joinPoint.proceed(args);
     }
 
-    private String replaceIfEmpty(String str, DefaultValueIfEmpty defaultValue) {
+    private String replaceIfEmpty(String str, String defString) {
 
         if (StringUtils.isEmpty(str)) {
-            return defaultValue.value();
+            return defString;
         }
 
         return str;
