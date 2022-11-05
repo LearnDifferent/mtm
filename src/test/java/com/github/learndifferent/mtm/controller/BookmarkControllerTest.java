@@ -69,23 +69,23 @@ class BookmarkControllerTest {
     @DisplayName("Should return the bookmark with the same ID")
     void shouldReturnTheBookmarkWithSameId() throws Exception {
         String currentUsername = "currentUsername";
-        int webId = 1;
+        int id = 1;
         BookmarkVO bookmark = new BookmarkVO();
-        bookmark.setId(webId);
+        bookmark.setId(id);
 
         try (MockedStatic<StpUtil> stpUtil = Mockito.mockStatic(StpUtil.class)) {
             stpUtil.when(StpUtil::getLoginIdAsString).thenReturn(currentUsername);
-            BDDMockito.given(bookmarkService.getBookmark(webId, currentUsername))
+            BDDMockito.given(bookmarkService.getBookmark(id, currentUsername))
                     .willReturn(bookmark);
 
             mockMvc.perform(
                     MockMvcRequestBuilders
                             .get("/bookmark/get")
-                            .param("webId", "1"))
+                            .param("id", "1"))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers
-                            .jsonPath("$.webId")
-                            .value(webId));
+                            .jsonPath("$.id")
+                            .value(id));
         }
     }
 }
