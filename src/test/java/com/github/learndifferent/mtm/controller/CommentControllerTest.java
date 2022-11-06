@@ -36,14 +36,18 @@ class CommentControllerTest {
     @Nested
     class GetCommentById {
 
+        /**
+         * Comment ID
+         */
         private final int ID = 100;
         private final CommentVO COMMENT = new CommentVO().setId(ID);
-        private final Integer WEB_ID = 1;
+        private final Integer BOOKMARK_ID = 1;
         private final String USER_NAME = "user1";
 
         @BeforeEach
         void setUp() {
-            given(commentService.getCommentByIds(ID, WEB_ID, USER_NAME)).willReturn(COMMENT);
+            given(commentService.getCommentByIds(ID, BOOKMARK_ID, USER_NAME))
+                    .willReturn(COMMENT);
         }
 
         @Test
@@ -54,11 +58,11 @@ class CommentControllerTest {
                 stpUtil.when(StpUtil::getLoginIdAsString).thenReturn(USER_NAME);
                 mockMvc.perform(
                         get("/comment")
-                                .param("commentId", String.valueOf(ID))
-                                .param("webId", String.valueOf(WEB_ID)))
+                                .param("id", String.valueOf(ID))
+                                .param("bookmarkId", String.valueOf(BOOKMARK_ID)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.code").value(200))
-                        .andExpect(jsonPath("$.data.commentId").value(ID));
+                        .andExpect(jsonPath("$.data.id").value(ID));
             }
         }
 
@@ -70,8 +74,8 @@ class CommentControllerTest {
                 stpUtil.when(StpUtil::getLoginIdAsString).thenReturn(USER_NAME);
                 mockMvc.perform(
                         get("/comment")
-                                .param("commentId", emptyId)
-                                .param("webId", String.valueOf(WEB_ID)))
+                                .param("id", emptyId)
+                                .param("bookmarkId", String.valueOf(BOOKMARK_ID)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.code").value(500));
             }
