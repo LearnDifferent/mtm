@@ -4,13 +4,13 @@ USE mtm;
 
 CREATE TABLE IF NOT EXISTS `user`
 (
-    `user_id`       varchar(255) NOT NULL,
+    `id`            varchar(255) NOT NULL,
     `user_name`     varchar(50)  NOT NULL,
     `password`      varchar(255) NOT NULL,
     `creation_time` datetime    DEFAULT NULL,
     `role`          varchar(10) DEFAULT 'guest',
     `is_deleted`    boolean     DEFAULT false,
-    PRIMARY KEY (`user_name`)
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
@@ -64,15 +64,15 @@ CREATE TABLE IF NOT EXISTS `system_log`
 CREATE TABLE IF NOT EXISTS `bookmark_view`
 (
     `bookmark_id` int(11) not null,
-    `views`  int(11) not null
+    `views`       int(11) not null
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `tag`
 (
-    `tag`        varchar(1024) not null,
-    `bookmark_id`     int(11)       not null,
-    `is_deleted` boolean DEFAULT false
+    `tag`         varchar(1024) not null,
+    `bookmark_id` int(11)       not null,
+    `is_deleted`  boolean DEFAULT false
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
