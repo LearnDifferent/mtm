@@ -18,14 +18,13 @@ import lombok.NoArgsConstructor;
 public class UserDO implements Serializable {
 
     /**
-     * Username is the primary key
+     * ID
+     */
+    private String id;
+    /**
+     * Username
      */
     private String userName;
-
-    /**
-     * User ID
-     */
-    private String userId;
     /**
      * Password
      */

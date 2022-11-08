@@ -151,7 +151,7 @@ public class UserAccountManager {
         // add to Elasticsearch asynchronously
         UserForSearchDTO data = UserForSearchDTO.builder()
                 .userName(user.getUserName())
-                .userId(user.getUserId())
+                .id(user.getId())
                 .createTime(user.getCreateTime())
                 .role(user.getRole())
                 .build();

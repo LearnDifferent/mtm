@@ -24,9 +24,9 @@ import lombok.experimental.SuperBuilder;
 public class UserForSearchDTO implements Serializable {
 
     /**
-     * User ID
+     * ID
      */
-    private String userId;
+    private String id;
 
     /**
      * Username

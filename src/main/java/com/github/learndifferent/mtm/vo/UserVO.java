@@ -18,14 +18,13 @@ import lombok.NoArgsConstructor;
 public class UserVO implements Serializable {
 
     /**
+     * ID
+     */
+    private String id;
+    /**
      * Username
      */
     private String userName;
-
-    /**
-     * User ID
-     */
-    private String userId;
     /**
      * Creation Time
      */

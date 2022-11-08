@@ -256,7 +256,7 @@ public class ElasticsearchManager {
 
     private IndexRequest getIndexRequest(UserForSearchDTO user) {
         IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
-        String userId = user.getUserId();
+        String userId = user.getId();
         String json = JsonUtils.toJson(user);
         request.id(userId).source(json, XContentType.JSON);
         return request;
@@ -316,7 +316,7 @@ public class ElasticsearchManager {
         List<UserForSearchDTO> users = DozerUtils.convertList(us, UserForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
-        users.forEach(u -> updateBulkRequest(bulkRequest, EsConstant.INDEX_USER, u.getUserId(), JsonUtils.toJson(u)));
+        users.forEach(u -> updateBulkRequest(bulkRequest, EsConstant.INDEX_USER, u.getId(), JsonUtils.toJson(u)));
 
         return sendBulkRequest(bulkRequest);
     }
@@ -556,7 +556,7 @@ public class ElasticsearchManager {
         int number = bookmarkMapper.countUserBookmarks(userName, false);
 
         return UserForSearchWithMoreInfo.builder()
-                .userId(userId)
+                .id(userId)
                 .userName(userName)
                 .role(role)
                 .createTime(creationTime)

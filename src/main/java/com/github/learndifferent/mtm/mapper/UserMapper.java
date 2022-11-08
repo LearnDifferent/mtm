@@ -73,10 +73,10 @@ public interface UserMapper {
     /**
      * Get user role by user ID
      *
-     * @param userId user ID
+     * @param id ID
      * @return user role
      */
-    String getUserRoleById(String userId);
+    String getUserRoleById(String id);
 
     /**
      * Get user by username
@@ -99,10 +99,10 @@ public interface UserMapper {
     /**
      * Delete user by user ID
      *
-     * @param userId user ID
+     * @param id ID
      * @return true if success
      */
-    boolean deleteUserByUserId(String userId);
+    boolean deleteUserByUserId(String id);
 
     /**
      * Update user

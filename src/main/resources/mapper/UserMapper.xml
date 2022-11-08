@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.UserMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.UserDO">
-        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="id" jdbcType="VARCHAR" property="id"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="creation_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -25,21 +25,21 @@
         order by bookmarkNumber desc;
     </select>
 
-    <insert id="addUser" parameterType="com.github.learndifferent.mtm.dto.UserDTO">
-        insert into user (user_id, user_name, `password`,
-                          creation_time, `role`)
-        values (#{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+    <insert id="addUser" keyColumn="id" keyProperty="id" useGeneratedKeys="true"
+            parameterType="com.github.learndifferent.mtm.dto.UserDTO">
+        insert into user (`user_name`, `password`, `creation_time`, `role`)
+        values (#{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{role,jdbcType=VARCHAR})
     </insert>
 
     <update id="deleteUserByUserId">
         update user
         set is_deleted = 1
-        where user_id = #{userId};
+        where id = #{id};
     </update>
 
     <select id="getUserByNameAndPassword" resultMap="BaseResultMap">
-        select user_id, user_name, `password`, creation_time, `role`
+        select id, user_name, `password`, creation_time, `role`
         from user
         where user_name = #{userName}
           and password = #{password}
@@ -50,7 +50,7 @@
     <select id="getUserRoleById" resultType="java.lang.String">
         select role
         from user
-        where user_id = #{userId}
+        where id = #{id}
           and is_deleted = 0
         limit 1;
     </select>
@@ -63,14 +63,14 @@
         limit 1;
     </select>
     <select id="getUserByName" resultMap="BaseResultMap">
-        select user_id, user_name, `password`, creation_time, `role`
+        select id, user_name, `password`, creation_time, `role`
         from user
         where user_name = #{userName}
           and is_deleted = 0
         limit 1;
     </select>
     <select id="getUsers" resultMap="BaseResultMap">
-        select user_id, user_name, `password`, creation_time, `role`
+        select id, user_name, `password`, creation_time, `role`
         from user
         where is_deleted = 0
         order by creation_time desc
@@ -86,7 +86,7 @@
     </select>
 
     <select id="getUserIdByNameAndPassword" resultType="java.lang.String">
-        select user_id
+        select id
         from user
         where user_name = #{userName}
           and password = #{password}
@@ -94,7 +94,7 @@
         limit 1;
     </select>
     <select id="getUserIdByName" resultType="java.lang.String">
-        select user_id
+        select id
         from user
         where user_name = #{username}
           and is_deleted = 0
@@ -114,6 +114,6 @@
                 `role` = #{role},
             </if>
         </set>
-        where user_id = #{userId};
+        where id = #{id};
     </update>
 </mapper>

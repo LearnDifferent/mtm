@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
         UserDO user = userAccountManager.getUserByNameAndPassword(userName, oldPassword);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.PASSWORD_INCORRECT);
 
-        UserDTO userDTO = UserDTO.ofPasswordUpdate(user.getUserId(), newPassword);
+        UserDTO userDTO = UserDTO.ofPasswordUpdate(user.getId(), newPassword);
         // update user
         return userMapper.updateUser(userDTO);
     }

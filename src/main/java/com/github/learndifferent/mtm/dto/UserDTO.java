@@ -2,7 +2,6 @@ package com.github.learndifferent.mtm.dto;
 
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.utils.Md5Util;
-import com.github.learndifferent.mtm.utils.UUIDUtils;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -16,27 +15,25 @@ import java.util.Objects;
 public class UserDTO implements Serializable {
 
     public static UserDTO ofNewUser(String username, String notEncryptedPassword, UserRole role) {
-        // get user ID
-        String userId = UUIDUtils.getUuid();
         // encrypt and set password
         String password = Md5Util.getMd5(notEncryptedPassword);
         // get creation time
         Instant creationTime = Instant.now();
-        return new UserDTO(userId, username, password, creationTime, role.role());
+        return new UserDTO(null, username, password, creationTime, role.role());
     }
 
-    public static UserDTO ofPasswordUpdate(String userId, String notEncryptedPassword) {
+    public static UserDTO ofPasswordUpdate(String id, String notEncryptedPassword) {
         // encrypt and set the new password
         String newPassword = Md5Util.getMd5(notEncryptedPassword);
-        return new UserDTO(userId, null, newPassword, null, null);
+        return new UserDTO(id, null, newPassword, null, null);
     }
 
-    public static UserDTO ofRoleUpdate(String userId, UserRole role) {
-        return new UserDTO(userId, null, null, null, role.role());
+    public static UserDTO ofRoleUpdate(String id, UserRole role) {
+        return new UserDTO(id, null, null, null, role.role());
     }
 
-    private UserDTO(String userId, String userName, String password, Instant createTime, String role) {
-        this.userId = userId;
+    private UserDTO(String id, String userName, String password, Instant createTime, String role) {
+        this.id = id;
         this.userName = userName;
         this.password = password;
         this.createTime = createTime;
@@ -44,9 +41,9 @@ public class UserDTO implements Serializable {
     }
 
     /**
-     * User ID
+     * ID
      */
-    private final String userId;
+    private final String id;
 
     /**
      * Username
@@ -68,8 +65,8 @@ public class UserDTO implements Serializable {
      */
     private final String role;
 
-    public String getUserId() {
-        return userId;
+    public String getId() {
+        return id;
     }
 
     public String getUserName() {
@@ -97,22 +94,20 @@ public class UserDTO implements Serializable {
             return false;
         }
         UserDTO userDTO = (UserDTO) o;
-        return Objects.equals(userId, userDTO.userId)
-                && Objects.equals(userName, userDTO.userName)
-                && Objects.equals(password, userDTO.password)
-                && Objects.equals(createTime, userDTO.createTime)
-                && Objects.equals(role, userDTO.role);
+        return Objects.equals(id, userDTO.id) && Objects.equals(userName, userDTO.userName)
+                && Objects.equals(password, userDTO.password) && Objects.equals(createTime,
+                userDTO.createTime) && Objects.equals(role, userDTO.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, userName, password, createTime, role);
+        return Objects.hash(id, userName, password, createTime, role);
     }
 
     @Override
     public String toString() {
         return "UserDTO{" +
-                "userId='" + userId + '\'' +
+                "id='" + id + '\'' +
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
                 ", createTime=" + createTime +

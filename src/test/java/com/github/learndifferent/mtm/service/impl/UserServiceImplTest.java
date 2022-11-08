@@ -64,7 +64,7 @@ class UserServiceImplTest {
 
             UserVO u = userService.getUserByName(USERNAME);
 
-            Assertions.assertAll(() -> assertEquals(USER_ID, u.getUserId()),
+            Assertions.assertAll(() -> assertEquals(USER_ID, u.getId()),
                     () -> assertEquals(USERNAME, u.getUserName()),
                     () -> assertEquals(CREATION_TIME, u.getCreateTime()),
                     () -> assertEquals(ROLE, USER.getRole()));
