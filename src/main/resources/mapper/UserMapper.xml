@@ -19,7 +19,7 @@
                     u.user_name = #{userName}
                 </foreach>
             </if>
-            b.is_public = 1 and is_deleted = 0
+            b.is_public = 1 and u.is_deleted = 0 and b.is_deleted = 0
         </where>
         group by userName
         order by bookmarkNumber desc;
