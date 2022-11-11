@@ -20,7 +20,7 @@ public class UserVO implements Serializable {
     /**
      * ID
      */
-    private String id;
+    private Integer id;
     /**
      * Username
      */

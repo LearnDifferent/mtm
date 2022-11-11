@@ -10,9 +10,9 @@ import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +64,7 @@ public class UserAccountManager {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean deleteAllDataRelatedToUser(String username, String notEncryptedPassword) {
 
-        String userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
+        int id = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
 
         // Delete bookmarks related to the user
         bookmarkMapper.deleteUserBookmarks(username);
@@ -77,10 +77,10 @@ public class UserAccountManager {
         notificationManager.deleteFromReadSysNot(username);
 
         // Remove user data from Elasticsearch asynchronously
-        elasticsearchManager.removeUserFromElasticsearchAsync(userId);
+        elasticsearchManager.removeUserFromElasticsearchAsync(id);
 
         // Remove user data from database (false if the user does not exist)
-        return userMapper.deleteUserByUserId(userId);
+        return userMapper.deleteUserByUserId(id);
     }
 
     /**
@@ -93,11 +93,11 @@ public class UserAccountManager {
      *                                                                  not exist, with the result code of {@link
      *                                                                  ResultCode#USER_NOT_EXIST}
      */
-    private String checkUserExistsAndReturnUserId(String username, String notEncryptedPassword) {
+    private int checkUserExistsAndReturnUserId(String username, String notEncryptedPassword) {
         String password = Md5Util.getMd5(notEncryptedPassword);
-        String userId = userMapper.getUserIdByNameAndPassword(username, password);
-        ThrowExceptionUtils.throwIfNull(userId, ResultCode.USER_NOT_EXIST);
-        return userId;
+        Integer id = userMapper.getUserIdByNameAndPassword(username, password);
+        ThrowExceptionUtils.throwIfNull(id, ResultCode.USER_NOT_EXIST);
+        return id;
     }
 
     /**

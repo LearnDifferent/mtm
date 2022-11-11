@@ -22,17 +22,17 @@ public class UserDTO implements Serializable {
         return new UserDTO(null, username, password, creationTime, role.role());
     }
 
-    public static UserDTO ofPasswordUpdate(String id, String notEncryptedPassword) {
+    public static UserDTO ofPasswordUpdate(Integer id, String notEncryptedPassword) {
         // encrypt and set the new password
         String newPassword = Md5Util.getMd5(notEncryptedPassword);
         return new UserDTO(id, null, newPassword, null, null);
     }
 
-    public static UserDTO ofRoleUpdate(String id, UserRole role) {
+    public static UserDTO ofRoleUpdate(Integer id, UserRole role) {
         return new UserDTO(id, null, null, null, role.role());
     }
 
-    private UserDTO(String id, String userName, String password, Instant createTime, String role) {
+    private UserDTO(Integer id, String userName, String password, Instant createTime, String role) {
         this.id = id;
         this.userName = userName;
         this.password = password;
@@ -43,7 +43,7 @@ public class UserDTO implements Serializable {
     /**
      * ID
      */
-    private final String id;
+    private final Integer id;
 
     /**
      * Username
@@ -65,7 +65,7 @@ public class UserDTO implements Serializable {
      */
     private final String role;
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -107,7 +107,7 @@ public class UserDTO implements Serializable {
     @Override
     public String toString() {
         return "UserDTO{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
                 ", createTime=" + createTime +

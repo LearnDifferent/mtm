@@ -223,7 +223,7 @@ public class UserController {
     /**
      * Change user role
      *
-     * @param userId  ID of the user
+     * @param id      ID of the user
      * @param newRole the new role of the user
      * @return Return {@link ResultCode#SUCCESS} if success.
      * <p>Return {@link ResultVO} with the result code of {@link ResultCode#PERMISSION_DENIED}
@@ -235,10 +235,10 @@ public class UserController {
      */
     @GetMapping("/role")
     @AdminValidation
-    public ResultVO<ResultCode> changeUserRole(@RequestParam("userId") String userId,
+    public ResultVO<ResultCode> changeUserRole(@RequestParam("id") Integer id,
                                                @RequestParam("newRole") String newRole) {
 
-        boolean success = userService.changeUserRoleAndRecordChanges(userId, newRole);
+        boolean success = userService.changeUserRoleAndRecordChanges(id, newRole);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.PERMISSION_DENIED);
     }
 

@@ -71,12 +71,12 @@ public interface UserMapper {
     String getRoleByName(String userName);
 
     /**
-     * Get user role by user ID
+     * Get user role by ID
      *
      * @param id ID
      * @return user role
      */
-    String getUserRoleById(String id);
+    String getUserRoleById(int id);
 
     /**
      * Get user by username
@@ -87,14 +87,14 @@ public interface UserMapper {
     UserDO getUserByName(String userName);
 
     /**
-     * Get user ID by username and password
+     * Get ID by username and password
      *
      * @param userName username
      * @param password password
      * @return user ID or null if not exists
      */
-    String getUserIdByNameAndPassword(@Param("userName") String userName,
-                                      @Param("password") String password);
+    Integer getUserIdByNameAndPassword(@Param("userName") String userName,
+                                       @Param("password") String password);
 
     /**
      * Delete user by user ID
@@ -102,7 +102,7 @@ public interface UserMapper {
      * @param id ID
      * @return true if success
      */
-    boolean deleteUserByUserId(String id);
+    boolean deleteUserByUserId(int id);
 
     /**
      * Update user

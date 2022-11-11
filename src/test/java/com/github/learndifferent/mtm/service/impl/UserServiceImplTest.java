@@ -37,11 +37,11 @@ class UserServiceImplTest {
 
         private final String USERNAME = "user1";
         private final String ROLE = UserRole.USER.role();
-        private final String USER_ID = "user_id";
+        private final Integer USER_ID = 10;
         private final String PASSWORD = "123456";
         private final Instant CREATION_TIME = Instant.now();
 
-        private final UserDO USER = new UserDO(USERNAME, USER_ID, PASSWORD, CREATION_TIME, ROLE);
+        private final UserDO USER = new UserDO(USER_ID, USERNAME, PASSWORD, CREATION_TIME, ROLE);
 
         @Test
         @DisplayName("Should return the username")

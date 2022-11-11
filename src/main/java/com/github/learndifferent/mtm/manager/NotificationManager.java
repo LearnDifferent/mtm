@@ -7,10 +7,10 @@ import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
-import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
-import com.github.learndifferent.mtm.mapper.CommentMapper;
+import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
+import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -265,16 +265,16 @@ public class NotificationManager {
     /**
      * Record the role changes of a user
      *
-     * @param userId     the user's id
+     * @param id         the user's id
      * @param formerRole the former role of the user
      * @param newRole    the new role that the user has been assigned to
      */
-    public void recordRoleChanges(String userId, UserRole formerRole, UserRole newRole) {
+    public void recordRoleChanges(int id, UserRole formerRole, UserRole newRole) {
         if (formerRole.equals(newRole)) {
             return;
         }
 
-        String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
+        String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + id;
         // put new role
         redisTemplate.opsForHash().put(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY, newRole.role());
         // put former role if absent: only record the first role

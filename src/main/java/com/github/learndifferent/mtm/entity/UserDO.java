@@ -20,7 +20,7 @@ public class UserDO implements Serializable {
     /**
      * ID
      */
-    private String id;
+    private Integer id;
     /**
      * Username
      */

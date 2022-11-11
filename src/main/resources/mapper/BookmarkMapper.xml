@@ -189,7 +189,7 @@
         where id = #{id,jdbcType=INTEGER};
     </update>
 
-    <update id="deleteUserBookmarks" parameterType="java.lang.Integer">
+    <update id="deleteUserBookmarks" parameterType="java.lang.String">
         update bookmark
         set is_deleted = 1
         where user_name = #{userName};

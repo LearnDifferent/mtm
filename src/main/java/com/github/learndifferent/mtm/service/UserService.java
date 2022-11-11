@@ -123,10 +123,10 @@ public interface UserService {
     /**
      * Change user role and record the changes
      *
-     * @param userId  ID of the user
+     * @param id  ID of the user
      * @param newRole the new role of the user
      * @return true if success
      * <p>false if failure, or the user role is neither {@code admin} nor {@code user}</p>
      */
-    boolean changeUserRoleAndRecordChanges(String userId, String newRole);
+    boolean changeUserRoleAndRecordChanges(Integer id, String newRole);
 }

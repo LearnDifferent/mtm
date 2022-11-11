@@ -85,7 +85,7 @@
         where is_deleted = 0;
     </select>
 
-    <select id="getUserIdByNameAndPassword" resultType="java.lang.String">
+    <select id="getUserIdByNameAndPassword" resultType="java.lang.Integer">
         select id
         from user
         where user_name = #{userName}

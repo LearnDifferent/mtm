@@ -112,12 +112,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changeUserRoleAndRecordChanges(String userId, String newRole) {
-        String curRole = userMapper.getUserRoleById(userId);
+    public boolean changeUserRoleAndRecordChanges(Integer id, String newRole) {
+        if (id == null) {
+            // return false if ID is null
+            return false;
+        }
+
+        String curRole = userMapper.getUserRoleById(id);
         try {
             UserRole currentRole = valueOf(curRole.toUpperCase());
             UserRole newUserRole = valueOf(newRole.toUpperCase());
-            return changeUserRoleAndRecordChanges(userId, currentRole, newUserRole);
+            return changeUserRoleAndRecordChanges(id, currentRole, newUserRole);
         } catch (IllegalArgumentException | NullPointerException e) {
             e.printStackTrace();
             // if can't get the role, return false
@@ -125,7 +130,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private boolean changeUserRoleAndRecordChanges(String userId, UserRole curRole, UserRole newRole) {
+    private boolean changeUserRoleAndRecordChanges(int id, UserRole curRole, UserRole newRole) {
         if (curRole.equals(newRole)) {
             // return true if no changes need to be done
             return true;
@@ -133,12 +138,12 @@ public class UserServiceImpl implements UserService {
 
         boolean success = false;
         if (isUpgradeOrDowngrade(curRole, newRole)) {
-            success = updateUserRole(userId, newRole);
+            success = updateUserRole(id, newRole);
         }
 
         if (success) {
             // record changes
-            notificationManager.recordRoleChanges(userId, curRole, newRole);
+            notificationManager.recordRoleChanges(id, curRole, newRole);
         }
         return success;
     }
@@ -148,8 +153,8 @@ public class UserServiceImpl implements UserService {
                 || (ADMIN.equals(curRole) && USER.equals(newRole));
     }
 
-    private boolean updateUserRole(String userId, UserRole role) {
-        UserDTO user = UserDTO.ofRoleUpdate(userId, role);
+    private boolean updateUserRole(Integer id, UserRole role) {
+        UserDTO user = UserDTO.ofRoleUpdate(id, role);
         return userMapper.updateUser(user);
     }
 }

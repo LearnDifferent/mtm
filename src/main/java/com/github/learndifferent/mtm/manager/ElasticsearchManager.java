@@ -15,9 +15,9 @@ import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
@@ -256,9 +256,9 @@ public class ElasticsearchManager {
 
     private IndexRequest getIndexRequest(UserForSearchDTO user) {
         IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
-        String userId = user.getId();
+        Integer id = user.getId();
         String json = JsonUtils.toJson(user);
-        request.id(userId).source(json, XContentType.JSON);
+        request.id(String.valueOf(id)).source(json, XContentType.JSON);
         return request;
     }
 
@@ -316,7 +316,8 @@ public class ElasticsearchManager {
         List<UserForSearchDTO> users = DozerUtils.convertList(us, UserForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
-        users.forEach(u -> updateBulkRequest(bulkRequest, EsConstant.INDEX_USER, u.getId(), JsonUtils.toJson(u)));
+        users.forEach(u -> updateBulkRequest(bulkRequest,
+                EsConstant.INDEX_USER, String.valueOf(u.getId()), JsonUtils.toJson(u)));
 
         return sendBulkRequest(bulkRequest);
     }
@@ -355,9 +356,9 @@ public class ElasticsearchManager {
     }
 
     @Async("asyncTaskExecutor")
-    public void removeUserFromElasticsearchAsync(String userId) {
+    public void removeUserFromElasticsearchAsync(int id) {
 
-        DeleteRequest request = new DeleteRequest(EsConstant.INDEX_USER, userId);
+        DeleteRequest request = new DeleteRequest(EsConstant.INDEX_USER, String.valueOf(id));
         try {
             client.delete(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
@@ -536,7 +537,7 @@ public class ElasticsearchManager {
     }
 
     private UserForSearchWithMoreInfo convertToUser(Map<String, Object> source) {
-        String userId = String.valueOf(source.get(EsConstant.USER_ID));
+        Integer id = (Integer) source.get(EsConstant.USER_ID);
         String userName = String.valueOf(source.get(EsConstant.USER_NAME));
         String role = String.valueOf(source.get(EsConstant.ROLE));
 
@@ -556,7 +557,7 @@ public class ElasticsearchManager {
         int number = bookmarkMapper.countUserBookmarks(userName, false);
 
         return UserForSearchWithMoreInfo.builder()
-                .id(userId)
+                .id(id)
                 .userName(userName)
                 .role(role)
                 .createTime(creationTime)
