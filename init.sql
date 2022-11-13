@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS `user`
     `creation_time` datetime    DEFAULT NULL,
     `role`          varchar(10) DEFAULT 'guest',
     `is_deleted`    boolean     DEFAULT false,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `user_name_unique` (`user_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
