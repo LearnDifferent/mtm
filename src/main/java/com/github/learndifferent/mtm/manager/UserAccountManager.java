@@ -133,7 +133,7 @@ public class UserAccountManager {
             return createUserAndGetUsername(user);
         } catch (DuplicateKeyException e) {
             // DuplicateKeyException is same as com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException
-            // the primary key is userName, so duplicate key means username is already taken
+            // the user_name is a unique key , so duplicate key means username is already taken
             throw new ServiceException(ResultCode.USER_ALREADY_EXIST);
         }
     }
