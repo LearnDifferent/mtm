@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS `user`
     `role`          varchar(10) DEFAULT 'guest',
     `is_deleted`    boolean     DEFAULT false,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `user_name_unique` (`user_name`)
+    UNIQUE KEY `user_name_unique` (`user_name`),
+    KEY `idx_user_name_password_creation_time_role` (`user_name`, `password`, `creation_time`, `role`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
