@@ -66,7 +66,22 @@ CREATE TABLE IF NOT EXISTS `system_log`
 CREATE TABLE IF NOT EXISTS `bookmark_view`
 (
     `bookmark_id` int(11) not null,
-    `views`       int(11) not null
+    `views`       int(11) not null,
+    /*
+        当 SQL 为：
+    ```sql
+    select
+        b.user_name, b.title, b.url, b.is_public, v.bookmark_id, v.views
+    from bookmark_view v
+    left join bookmark b
+      on v.bookmark_id = b.id
+    order by v.views desc;
+    ```
+        的时候，使用 `views`, `bookmark_id` 的联合索引，
+        可以达到 Backward index scan; Using index
+     */
+
+    KEY `idx_bookmark_view_views_bookmark_id` (`views`, `bookmark_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
