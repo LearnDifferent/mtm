@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS `comment_history`
 (
     `comment_id`    int(11) unsigned NOT NULL,
     `comment`       varchar(140)     NOT NULL,
-    `creation_time` datetime         NOT NULL
+    `creation_time` datetime         NOT NULL,
+    KEY `idx_comment_history_id_time` (`comment_id`, `creation_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
