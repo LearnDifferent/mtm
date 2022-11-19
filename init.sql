@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `comment`
     `reply_to_comment_id` int(11)    DEFAULT NULL,
     `is_deleted`          tinyint(1) DEFAULT '0',
     PRIMARY KEY (`id`),
+    KEY `idx_comment_bookmark_id_username` (`bookmark_id`, `username`),
     KEY `idx_comment_reply_to_comment_id_bookmark_id_creation_time` (`reply_to_comment_id`, `bookmark_id`, `creation_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
