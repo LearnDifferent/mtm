@@ -28,5 +28,5 @@ public @interface TagCheck {
      *
      * @return Max length of the tag
      */
-    int maxLength() default 16;
+    int maxLength() default 8;
 }

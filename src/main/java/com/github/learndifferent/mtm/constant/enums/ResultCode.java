@@ -131,7 +131,7 @@ public enum ResultCode {
     /**
      * Tag is too long
      */
-    TAG_TOO_LONG(3015, "Tag should not be longer than 16 characters"),
+    TAG_TOO_LONG(3015, "Tag should not be longer than 8 characters"),
     /**
      * Tag does not exist
      */
