@@ -14,44 +14,37 @@
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
           and bookmark_id = #{bookmarkId,jdbcType=INTEGER}
-          and is_deleted = 0
         limit 1;
     </select>
     <select id="getTagsByBookmarkId" resultType="java.lang.String">
-        select distinct tag
+        select tag
         from tag
-        <where>
-            <if test="bookmarkId != null">
-                bookmark_id = #{bookmarkId,jdbcType=INTEGER} and
-            </if>
-            is_deleted = 0
-        </where>
+        where bookmark_id = #{bookmarkId,jdbcType=INTEGER}
         limit #{from}, #{size};
     </select>
     <select id="getBookmarkIdsByTagName" resultType="java.lang.Integer">
         select bookmark_id
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
-          and is_deleted = 0
         limit #{from}, #{size};
     </select>
     <update id="deleteTag">
-        update tag
-        set is_deleted = 1
+        delete
+        from tag
         where tag = #{tagName,jdbcType=VARCHAR}
           and bookmark_id = #{bookmarkId,jdbcType=INTEGER};
     </update>
     <update id="deleteAllTagsByBookmarkId">
-        update tag
-        set is_deleted = 1
+        delete
+        from tag
         where bookmark_id = #{bookmarkId,jdbcType=INTEGER};
     </update>
     <select id="getTagAndCount" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
         select count(t.bookmark_id) as number, `tag`
         from tag t
         left join bookmark b
-            on t.bookmark_id = b.id
-        where t.is_deleted = 0 and b.is_public = 1 and b.is_deleted = 0
+        on t.bookmark_id = b.id
+        where b.is_public = 1 and b.is_deleted = 0
         group by tag
         <if test="beMoreThanOne == true">
             having number > 1
@@ -63,13 +56,11 @@
     </select>
     <select id="countDistinctTags" resultType="java.lang.Integer">
         select count(distinct tag)
-        from tag
-        where is_deleted = 0;
+        from tag;
     </select>
     <select id="countTags" resultType="java.lang.Integer">
         select count(tag)
         from tag
-        where tag = #{tagName}
-          and is_deleted = 0;
+        where tag = #{tagName};
     </select>
 </mapper>
