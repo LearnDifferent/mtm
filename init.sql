@@ -91,8 +91,7 @@ CREATE TABLE IF NOT EXISTS `bookmark_view`
 CREATE TABLE IF NOT EXISTS `tag`
 (
     `tag`         varchar(8) not null,
-    `bookmark_id` int(11)       not null,
-    `is_deleted`  boolean DEFAULT false
+    `bookmark_id` int(11)       not null
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
