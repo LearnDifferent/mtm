@@ -61,7 +61,7 @@ public interface TagService {
     String applyTag(String username, Integer bookmarkId, String tagName);
 
     /**
-     * Get tags by the ID of the bookmarked website data
+     * Get tags by the ID of the bookmark
      * <p>
      * Get all tags if the ID is null and store the result in cache for 10 seconds.
      * </p>
@@ -81,7 +81,7 @@ public interface TagService {
     List<String> getTags(Integer bookmarkId, PageInfoDTO pageInfo);
 
     /**
-     * Get a tag of a bookmarked site
+     * Get a tag of the bookmark
      * <p>
      * The result will be stored in the cache
      * as the tag (prefix of the key is "tag:a") of the bookmarked site

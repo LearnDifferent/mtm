@@ -16,6 +16,11 @@
           and bookmark_id = #{bookmarkId,jdbcType=INTEGER}
         limit 1;
     </select>
+    <select id="getAllTags" resultType="java.lang.String">
+        select distinct tag
+        from tag
+        limit #{from}, #{size};
+    </select>
     <select id="getTagsByBookmarkId" resultType="java.lang.String">
         select tag
         from tag

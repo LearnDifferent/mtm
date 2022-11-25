@@ -78,7 +78,7 @@ public class TagController {
     }
 
     /**
-     * Get tags by the ID of the bookmarked website data.
+     * Get tags by the ID of the bookmark
      * <p>
      * Get all tags if the parameter {@code bookmarkId} is missing.
      * </p>

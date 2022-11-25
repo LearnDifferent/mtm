@@ -70,9 +70,15 @@ public class TagServiceImpl implements TagService {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<String> tags = tagMapper.getTagsByBookmarkId(bookmarkId, from, size);
-        throwExceptionIfEmpty(tags);
+        List<String> tags;
 
+        if (bookmarkId == null) {
+            tags = tagMapper.getAllTags(from, size);
+        } else {
+            tags = tagMapper.getTagsByBookmarkId(bookmarkId, from, size);
+        }
+
+        throwExceptionIfEmpty(tags);
         return tags;
     }
 

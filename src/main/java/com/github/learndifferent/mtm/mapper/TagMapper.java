@@ -33,10 +33,17 @@ public interface TagMapper {
     TagDO getSpecificTagByTagTextAndBookmarkId(@Param("tagName") String tagName, @Param("bookmarkId") int bookmarkId);
 
     /**
+     * Get all tags
+     *
+     * @param from from
+     * @param size size
+     * @return tags
+     */
+    List<String> getAllTags(@Param("from") int from,
+                            @Param("size") int size);
+
+    /**
      * Get the tags by {@code bookmarkId}.
-     * <p>
-     * Get all tags if the ID is null.
-     * </p>
      *
      * @param bookmarkId ID of the bookmark
      * @param from       from
@@ -62,8 +69,8 @@ public interface TagMapper {
     /**
      * Delete a tag
      *
-     * @param tagName name of the tag to be deleted
-     * @param bookmarkId   ID of the bookmark that the tag applied to
+     * @param tagName    name of the tag to be deleted
+     * @param bookmarkId ID of the bookmark that the tag applied to
      * @return True if success. False if failure or the tag does not exist.
      */
     boolean deleteTag(@Param("tagName") String tagName, @Param("bookmarkId") int bookmarkId);
