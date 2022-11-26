@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.TagMapper;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -59,7 +61,12 @@ public class TagServiceImpl implements TagService {
     public String applyTag(@Username String username, @BookmarkId Integer bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
         TagDO tagDO = TagDO.builder().tag(tag).bookmarkId(bookmarkId).build();
-        tagMapper.addTag(tagDO);
+        try {
+            // 使用了 tag 和 bookmark_id 作为 unique index，所以如果重复了就会报错
+            tagMapper.addTag(tagDO);
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException(ResultCode.TAG_EXISTS);
+        }
         return tagDO.getTag();
     }
 
