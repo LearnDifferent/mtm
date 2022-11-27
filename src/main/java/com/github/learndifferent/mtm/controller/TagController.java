@@ -161,19 +161,21 @@ public class TagController {
     }
 
     /**
-     * Get popular tags
+     * Get popular tags.
      *
      * @param pageInfo pagination information
-     * @return a list of paginated popular tags
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getPopularTags(PageInfoDTO)}
-     *                                                                  will throw an exception
+     * @return a list of paginated tags, which are the tags of public bookmarks or the tags of
+     * bookmarks that owns by the current user, that appear more than once.
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getPopularTags(String,
+     *                                                                  PageInfoDTO)} will throw an exception
      *                                                                  with the result code of {@link ResultCode#NO_RESULTS_FOUND}
      *                                                                  if no results found
      */
     @GetMapping("/popular")
     public ResultVO<List<PopularTagDTO>> getPopularTags(@PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
                                                                 PageInfoDTO pageInfo) {
-        List<PopularTagDTO> popularTags = tagService.getPopularTags(pageInfo);
+        String currentUsername = getCurrentUsername();
+        List<PopularTagDTO> popularTags = tagService.getPopularTags(currentUsername, pageInfo);
         return ResultCreator.okResult(popularTags);
     }
 

@@ -28,7 +28,8 @@ public interface TagService {
      * @return Return the tag if applied successfully, or empty string if failed to apply
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method is annotated with
      *                                                                  {@link ModifyBookmarkPermissionCheck
-     *                                                                  ModifyBookmarkPermissionCheck} annotation, so it
+     *                                                                  ModifyBookmarkPermissionCheck} annotation, so
+     *                                                                  it
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS} if the bookmarked
@@ -69,8 +70,8 @@ public interface TagService {
      * Note that every user can get tags without permissions.
      * </li>
      *
-     * @param bookmarkId    ID of the bookmark
-     * @param pageInfo pagination information
+     * @param bookmarkId ID of the bookmark
+     * @param pageInfo   pagination information
      * @return tags
      * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
      *                                                                  code of
@@ -142,7 +143,8 @@ public interface TagService {
      * @return True if success. False if failure or the tag does not exist.
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method is annotated with
      *                                                                  {@link ModifyBookmarkPermissionCheck
-     *                                                                  ModifyBookmarkPermissionCheck} annotation, so it
+     *                                                                  ModifyBookmarkPermissionCheck} annotation, so
+     *                                                                  it
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS} if the bookmarked
@@ -163,11 +165,13 @@ public interface TagService {
      * The result will be cached for 10 seconds if no exception is thrown.
      * </p>
      *
+     * @param username username of the user who is searching for popular tags
      * @param pageInfo pagination information
-     * @return a list of paginated popular tags
+     * @return a list of paginated tags, which are the tags of public bookmarks or the tags of
+     * bookmarks that owns by the user who is searching for popular tags, that appear more than once.
      * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception
      *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
      *                                                                  NO_RESULTS_FOUND} if no results found
      */
-    List<PopularTagDTO> getPopularTags(PageInfoDTO pageInfo);
+    List<PopularTagDTO> getPopularTags(String username, PageInfoDTO pageInfo);
 }

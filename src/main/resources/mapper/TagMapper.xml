@@ -45,11 +45,10 @@
         where bookmark_id = #{bookmarkId,jdbcType=INTEGER};
     </update>
     <select id="getTagAndCount" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
-        select count(t.bookmark_id) as number, `tag`
+        select tag, count(bookmark_id) number
         from tag t
-        left join bookmark b
-        on t.bookmark_id = b.id
-        where b.is_public = 1 and b.is_deleted = 0
+        inner join bookmark b
+        on b.id = t.bookmark_id and b.is_public = 1 and b.is_deleted = 0
         group by tag
         <if test="beMoreThanOne == true">
             having number > 1
@@ -58,6 +57,17 @@
         <if test="size gte 0">
             limit #{from}, #{size};
         </if>
+    </select>
+    <select id="getPopularTags" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
+        select tag, count(bookmark_id) number
+        from tag t
+                 inner join bookmark b on b.id = t.bookmark_id and b.is_deleted = 0
+        where b.is_public = 1
+           or b.user_name = #{username}
+        group by tag
+        having number > 1
+        order by number desc
+        limit #{from}, #{size};
     </select>
     <select id="countDistinctTags" resultType="java.lang.Integer">
         select count(distinct tag)

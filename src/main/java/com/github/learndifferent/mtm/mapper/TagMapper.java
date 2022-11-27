@@ -96,6 +96,19 @@ public interface TagMapper {
                                        @Param("beMoreThanOne") boolean beMoreThanOne);
 
     /**
+     * Get popular tags.
+     *
+     * @param username username of the user who is searching for popular tags
+     * @param from     from
+     * @param size     size
+     * @return a list of paginated tags, which are the tags of public bookmarks or the tags of
+     * bookmarks that owns by the user who is searching for popular tags, that appear more than once.
+     */
+    List<TagAndCountDO> getPopularTags(@Param("username") String username,
+                                       @Param("from") int from,
+                                       @Param("size") int size);
+
+    /**
      * Get the number of unique tags
      *
      * @return number of unique tags
