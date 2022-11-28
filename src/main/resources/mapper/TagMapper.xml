@@ -44,19 +44,13 @@
         from tag
         where bookmark_id = #{bookmarkId,jdbcType=INTEGER};
     </update>
-    <select id="getTagAndCount" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
+    <select id="getAllTagsAndCountOfPublicBookmarks" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
         select tag, count(bookmark_id) number
         from tag t
         inner join bookmark b
         on b.id = t.bookmark_id and b.is_public = 1 and b.is_deleted = 0
         group by tag
-        <if test="beMoreThanOne == true">
-            having number > 1
-        </if>
         order by number desc
-        <if test="size gte 0">
-            limit #{from}, #{size};
-        </if>
     </select>
     <select id="getPopularTags" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
         select tag, count(bookmark_id) number

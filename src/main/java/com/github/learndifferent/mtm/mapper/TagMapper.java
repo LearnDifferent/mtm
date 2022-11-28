@@ -83,20 +83,14 @@ public interface TagMapper {
     void deleteAllTagsByBookmarkId(int bookmarkId);
 
     /**
-     * Get tags and count the numbers of bookmarks of tags.
-     * The result will not be paginated if the {@code size} is less than 0.
+     * Get all the tags and count the numbers of public bookmarks
      *
-     * @param from          from
-     * @param size          size
-     * @param beMoreThanOne true if the numbers should be greater than 1
-     * @return a list of popular tags
+     * @return a list of tags and count the numbers of public bookmarks
      */
-    List<TagAndCountDO> getTagAndCount(@Param("from") int from,
-                                       @Param("size") int size,
-                                       @Param("beMoreThanOne") boolean beMoreThanOne);
+    List<TagAndCountDO> getAllTagsAndCountOfPublicBookmarks();
 
     /**
-     * Get popular tags.
+     * Get popular tags
      *
      * @param username username of the user who is searching for popular tags
      * @param from     from

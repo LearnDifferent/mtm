@@ -294,7 +294,7 @@ public class ElasticsearchManager {
     public boolean generateTagData() {
         throwIfNotClear(EsConstant.INDEX_TAG);
 
-        List<TagAndCountDO> data = tagMapper.getTagAndCount(0, -1, false);
+        List<TagAndCountDO> data = tagMapper.getAllTagsAndCountOfPublicBookmarks();
         List<TagForSearchDTO> tcs = DozerUtils.convertList(data, TagForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
