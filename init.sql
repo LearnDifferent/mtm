@@ -38,8 +38,8 @@ CREATE TABLE IF NOT EXISTS `comment`
     `bookmark_id`         int(11)          NOT NULL,
     `username`            varchar(50)      NOT NULL,
     `creation_time`       datetime         NOT NULL,
-    `reply_to_comment_id` int(11)    DEFAULT NULL,
-    `is_deleted`          tinyint(1) DEFAULT '0',
+    `reply_to_comment_id` int(11)          NOT NULL DEFAULT -1,
+    `is_deleted`          tinyint(1)                DEFAULT 0,
     PRIMARY KEY (`id`),
     KEY `idx_comment_bookmark_id_username` (`bookmark_id`, `username`),
     KEY `idx_comment_reply_to_comment_id_bookmark_id_creation_time` (`reply_to_comment_id`, `bookmark_id`, `creation_time`)
