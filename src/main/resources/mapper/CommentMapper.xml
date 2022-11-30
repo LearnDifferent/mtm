@@ -11,7 +11,7 @@
     </resultMap>
 
     <select id="getCommentById" resultMap="BaseResultMap">
-        select id, comment, bookmark_id, username, creation_time, reply_to_comment_id
+        select id, comment, bookmark_id, username, creation_time, if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
         from comment
         where id = #{id,jdbcType=INTEGER}
           and is_deleted = 0
@@ -35,19 +35,13 @@
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
-        select id, comment, bookmark_id, username, creation_time, reply_to_comment_id
+        select id, comment, bookmark_id, username, creation_time, if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
         from comment
         <where>
             <if test="bookmarkId != null">
-                bookmark_id = #{bookmarkId,jdbcType=INTEGER}
+                bookmark_id = #{bookmarkId,jdbcType=INTEGER} and
             </if>
-            <if test="replyToCommentId == null">
-                and reply_to_comment_id is null
-            </if>
-            <if test="replyToCommentId != null">
-                and reply_to_comment_id = #{replyToCommentId}
-
-            </if>
+            reply_to_comment_id = if(#{replyToCommentId} is null, -1, #{replyToCommentId})
             and is_deleted = 0
         </where>
         order by `creation_time`
@@ -60,7 +54,7 @@
     </select>
 
     <select id="getSpecificComment" resultMap="BaseResultMap">
-        select id, comment, bookmark_id, username, creation_time, reply_to_comment_id
+        select id, comment, bookmark_id, username, creation_time, if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
         from comment
         where comment = #{comment}
           and username = #{username}
@@ -72,7 +66,7 @@
     <select id="countRepliesFromComment" resultType="java.lang.Integer">
         select count(*)
         from comment
-        where reply_to_comment_id = #{countRepliesFromCommentId}
+        where reply_to_comment_id = if(#{countRepliesFromCommentId} is null, -1, #{countRepliesFromCommentId})
           and is_deleted = 0;
     </select>
 
@@ -92,7 +86,7 @@
             parameterType="com.github.learndifferent.mtm.entity.CommentDO">
         insert into comment (`comment`, bookmark_id, `username`, creation_time, `reply_to_comment_id`)
         values (#{comment,jdbcType=VARCHAR}, #{bookmarkId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
-                #{creationTime,jdbcType=TIMESTAMP}, #{replyToCommentId,jdbcType=INTEGER})
+                #{creationTime,jdbcType=TIMESTAMP}, if(#{replyToCommentId} is null, -1, #{replyToCommentId}))
     </insert>
 
     <update id="updateComment">
@@ -104,7 +98,7 @@
     <select id="countCommentByBookmarkId" resultType="java.lang.Integer">
         select count(bookmark_id)
         from comment
-        where reply_to_comment_id is null
+        where reply_to_comment_id = -1
           and bookmark_id = #{bookmarkId}
           and is_deleted = 0;
     </select>
