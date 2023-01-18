@@ -57,7 +57,7 @@ public class SystemController {
     }
 
     /**
-     * Send a system notification
+     * Send a system notification when the user is admin
      * <p>
      * The notification will be a push notification if the {@code priority} is 0
      * </p>
@@ -65,8 +65,12 @@ public class SystemController {
      * @param message  the message to send
      * @param priority 0 if the message has the highest priority
      * @return {@link ResultCode#SUCCESS} if success
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw an exception if the
+     *                                                                  user is a guest with the result code of
+     *                                                                  {@link ResultCode#PERMISSION_DENIED}
      */
     @GetMapping("/send")
+    @AdminValidation
     @SystemLog(title = "Notification", optsType = OptsType.CREATE)
     public ResultVO<ResultCode> sendSystemNotification(@RequestParam("message") String message,
                                                        @RequestParam(value = "priority", required = false)
