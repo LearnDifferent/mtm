@@ -9,7 +9,6 @@ import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -60,21 +59,25 @@ public class SystemController {
     /**
      * Send a system notification
      * <p>
-     * The notification will be a push notification if the message is from {@link UserRole#ADMIN}
+     * The notification will be a push notification if the {@code priority} is 0
      * </p>
      *
-     * @param message the message to send
+     * @param message  the message to send
+     * @param priority 0 if the message has the highest priority
      * @return {@link ResultCode#SUCCESS} if success
      */
     @GetMapping("/send")
     @SystemLog(title = "Notification", optsType = OptsType.CREATE)
-    public ResultVO<ResultCode> sendSystemNotification(@RequestParam("message") String message) {
-        // only the message from the admin has the highest priority
-        boolean isAdmin = StpUtil.hasRole(UserRole.ADMIN.role());
-        PriorityLevel priority = isAdmin ? PriorityLevel.URGENT : PriorityLevel.LOW;
+    public ResultVO<ResultCode> sendSystemNotification(@RequestParam("message") String message,
+                                                       @RequestParam(value = "priority", required = false)
+                                                               Integer priority) {
+        // the message has the highest priority only when the priority is 0
+        boolean isHighestPriority = Integer.valueOf(0).equals(priority);
+        PriorityLevel priorityLevel = isHighestPriority ? PriorityLevel.URGENT : PriorityLevel.LOW;
+
         // send the message
         String currentUsername = StpUtil.getLoginIdAsString();
-        notificationService.sendSystemNotification(currentUsername, message, priority);
+        notificationService.sendSystemNotification(currentUsername, message, priorityLevel);
         return ResultCreator.okResult();
     }
 
