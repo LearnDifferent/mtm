@@ -65,9 +65,10 @@ public class SystemController {
      * @param message  the message to send
      * @param priority 0 if the message has the highest priority
      * @return {@link ResultCode#SUCCESS} if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw an exception if the
-     *                                                                  user is a guest with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
      */
     @GetMapping("/send")
     @AdminValidation
@@ -89,12 +90,13 @@ public class SystemController {
      * Delete system notifications
      *
      * @return {@link ResultCode#SUCCESS} if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} will throw an exception if the
-     *                                                                  user is a guest with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED}
+     *                                                                  if the user is not admin
      */
     @DeleteMapping
-    @NotGuest
+    @AdminValidation
     @SystemLog(title = "Notification", optsType = OptsType.DELETE)
     public ResultVO<ResultCode> deleteSystemNotifications() {
         notificationService.deleteSystemNotifications();
