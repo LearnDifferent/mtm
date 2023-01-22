@@ -79,12 +79,7 @@ public class NotificationServiceImpl implements NotificationService {
         String msg = ShortenUtils.flatten(message);
         String m = ShortenUtils.shorten(msg, 30);
         // send notification
-        notificationManager.sendSystemNotification(username + ": " + m);
-
-        // delete all saved usernames to make it a push notification if necessary
-        if (PriorityLevel.URGENT.equals(priority)) {
-            notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
-        }
+        notificationManager.sendSystemNotification(username + ": " + m, priority);
     }
 
     @Override

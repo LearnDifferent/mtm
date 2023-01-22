@@ -4,6 +4,7 @@ import static com.github.learndifferent.mtm.constant.enums.UserRole.ADMIN;
 import static com.github.learndifferent.mtm.constant.enums.UserRole.USER;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
@@ -182,9 +183,18 @@ public class NotificationManager {
     /**
      * Send System Notification and ensure the limit is 20
      *
-     * @param message the message to send
+     * @param message  the message to send
+     * @param priority priority level
      */
-    public void sendSystemNotification(String message) {
+    public void sendSystemNotification(String message, PriorityLevel priority) {
+        if (PriorityLevel.URGENT.equals(priority)) {
+            // if this is an urgent message
+            // delete all saved usernames to make it a push notification
+            deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
+            // add <span style='color: #e84a5f'> </span> to the message
+            message = "<span style='color: #e84a5f'>" + message + "</span>";
+        }
+
         redisTemplate.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, message);
         redisTemplate.opsForList().trim(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
     }
