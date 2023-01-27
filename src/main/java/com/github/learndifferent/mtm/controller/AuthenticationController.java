@@ -36,21 +36,26 @@ public class AuthenticationController {
      * @param userIdentification Request body that contains username and password entered by the user
      * @param token              token for verification code
      * @param code               verification code
+     * @param isAdmin            check whether the user is the administrator if {@code isAdmin} is true
      * @return {@code ResultVO<SaTokenInfo>} Token information
      * @throws com.github.learndifferent.mtm.exception.ServiceException Throw an exception with the result code of
      *                                                                  {@link ResultCode#VERIFICATION_CODE_FAILED} if
-     *                                                                  the verification code is invalid and with the
+     *                                                                  the verification code is invalid or with the
      *                                                                  result code of {@link ResultCode#USER_NOT_EXIST}
-     *                                                                  if username and password do not match
+     *                                                                  if username and password do not match.
+     *                                                                  When {@code isAdmin} is true the user is not an
+     *                                                                  administrator, the result code
+     *                                                                  will be {@link ResultCode#PERMISSION_DENIED}
      */
     @PostMapping("/login")
     @SystemNotification(messageType = MessageType.LOGIN)
     public ResultVO<SaTokenInfo> login(@RequestBody UserIdentificationRequest userIdentification,
                                        @RequestParam("token") String token,
-                                       @RequestParam("code") String code) {
+                                       @RequestParam("code") String code,
+                                       @RequestParam(value = "isAdmin", required = false) Boolean isAdmin) {
 
         // verify login information and get the username
-        String username = verificationService.verifyLoginInfoAndGetUsername(userIdentification, token, code);
+        String username = verificationService.verifyLoginInfoAndGetUsername(userIdentification, token, code, isAdmin);
 
         // set username as login ID
         StpUtil.setLoginId(username);

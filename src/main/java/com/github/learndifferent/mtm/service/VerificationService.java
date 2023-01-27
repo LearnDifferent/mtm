@@ -41,13 +41,20 @@ public interface VerificationService {
      * @param userIdentification Request body that contains username and password entered by the user
      * @param token              Token for verification code
      * @param code               Verification code
+     * @param isAdmin            check whether the user is the administrator if {@code isAdmin} is true
      * @return username of the user
      * @throws ServiceException Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED
-     *                          VERIFICATION_CODE_FAILED} if the verification code is invalid and with the result code
+     *                          VERIFICATION_CODE_FAILED} if the verification code is invalid, or with the result code
      *                          of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST
-     *                          USER_NOT_EXIST} if username and password do not match
+     *                          USER_NOT_EXIST} if username and password do not match.
+     *                          When {@code isAdmin} is true the user is not an
+     *                          administrator, the result code will be
+     *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
-    String verifyLoginInfoAndGetUsername(UserIdentificationRequest userIdentification, String token, String code);
+    String verifyLoginInfoAndGetUsername(UserIdentificationRequest userIdentification,
+                                         String token,
+                                         String code,
+                                         Boolean isAdmin);
 
     /**
      * Generate invitation code, store the code in cache for 20 minutes),

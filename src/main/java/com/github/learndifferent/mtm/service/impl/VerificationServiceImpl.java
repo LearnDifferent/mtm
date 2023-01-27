@@ -111,13 +111,23 @@ public class VerificationServiceImpl implements VerificationService {
     @Override
     public String verifyLoginInfoAndGetUsername(UserIdentificationRequest userIdentification,
                                                 String token,
-                                                String code) {
+                                                String code,
+                                                Boolean isAdmin) {
         checkCode(token, code, ResultCode.VERIFICATION_CODE_FAILED);
 
         String username = userIdentification.getUserName();
         String password = userIdentification.getPassword();
+
+        // 查看是否有该用户
         UserDO user = userAccountManager.getUserByNameAndPassword(username, password);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
+
+        // 需要检查用户是否为管理员的时候
+        if (Boolean.TRUE.equals(isAdmin)) {
+            boolean notAdmin = CustomStringUtils
+                    .notEqualsIgnoreCase(UserRole.ADMIN.role(), user.getRole());
+            ThrowExceptionUtils.throwIfTrue(notAdmin, ResultCode.PERMISSION_DENIED);
+        }
 
         return user.getUserName();
     }
