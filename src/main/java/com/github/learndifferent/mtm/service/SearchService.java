@@ -14,12 +14,13 @@ import java.util.Set;
 public interface SearchService {
 
     /**
-     * Check the existent of data
+     * Check the existent of data in Elasticsearch
      *
      * @param mode Check user data if {@link SearchMode#USER},
      *             tag data if {@link SearchMode#TAG}
      *             and bookmark data if {@link SearchMode#WEB}
      * @return true if exists
+     * @throws com.github.learndifferent.mtm.exception.ServiceException in case unable to connect to Elasticsearch
      */
     boolean existsData(SearchMode mode);
 

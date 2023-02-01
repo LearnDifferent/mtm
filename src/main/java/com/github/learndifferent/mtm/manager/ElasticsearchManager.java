@@ -117,6 +117,7 @@ public class ElasticsearchManager {
      *
      * @param indexName name of the index
      * @return true if exists
+     * @throws ServiceException in case unable to connect to Elasticsearch
      */
     public boolean existsIndex(String indexName) {
         try {

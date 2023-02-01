@@ -97,6 +97,7 @@ public class SearchController {
      * Get trending searches, existent of bookmark data for search and the update information.
      *
      * @return {@link FindPageVO} trending searches, existent of bookmark data for search and update information
+     * @throws com.github.learndifferent.mtm.exception.ServiceException in case unable to connect to Elasticsearch
      */
     @SystemLog(optsType = OptsType.READ)
     @GetMapping("/load")
@@ -123,6 +124,7 @@ public class SearchController {
      *             bookmark data if {@link SearchMode#WEB}
      *             and tag data if {@link SearchMode#TAG}
      * @return data status
+     * @throws com.github.learndifferent.mtm.exception.ServiceException in case unable to connect to Elasticsearch
      */
     @GetMapping("/status")
     public SearchDataStatusVO checkDataStatus(@RequestParam("mode") SearchMode mode) {
