@@ -12,17 +12,29 @@ import com.github.learndifferent.mtm.constant.consist.EsConstant;
 public enum SearchMode implements ConvertByNames {
 
     /**
-     * Search for bookmarked websites
+     * Search for bookmarked websites in Elasticsearch
      */
     WEB(EsConstant.INDEX_WEB),
     /**
-     * Search for tags
+     * Search for tags in Elasticsearch
      */
     TAG(EsConstant.INDEX_TAG),
     /**
-     * Search for users
+     * Search for users in Elasticsearch
      */
-    USER(EsConstant.INDEX_USER);
+    USER(EsConstant.INDEX_USER),
+    /**
+     * Search for bookmarks in MySQL
+     */
+    BOOKMARK_MYSQL("bookmark_mysql"),
+    /**
+     * Search for tags in MySQL
+     */
+    TAG_MYSQL("tag_mysql"),
+    /**
+     * Search for users in MySQL
+     */
+    USER_MYSQL("user_mysql");
 
     private final String mode;
 
