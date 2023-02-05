@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.mapper;
 
 import com.github.learndifferent.mtm.dto.UserDTO;
+import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import java.util.List;
@@ -119,4 +120,24 @@ public interface UserMapper {
      * @return User ID or null if there is no user with that username
      */
     String getUserIdByName(String username);
+
+    /**
+     * Search user data by keyword
+     *
+     * @param keyword keyword
+     * @param from    from
+     * @param size    size
+     * @return user data
+     */
+    List<UserForSearchWithMoreInfo> searchUserDataByKeyword(@Param("keyword") String keyword,
+                                                            @Param("from") int from,
+                                                            @Param("size") int size);
+
+    /**
+     * Count the number of users by keyword
+     *
+     * @param keyword keyword
+     * @return the number of users
+     */
+    Long countUserByKeyword(String keyword);
 }

@@ -100,6 +100,22 @@
           and is_deleted = 0
         limit 1;
     </select>
+    <select id="searchUserDataByKeyword"
+            resultType="com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo">
+        select u.id, u.user_name, u.creation_time as createTime, role, count(b.id) as bookmarkNumber
+        from user u
+                 left join bookmark b on u.user_name = b.user_name and b.is_deleted = 0
+        where u.user_name like concat(#{keyword}, '%')
+          and u.is_deleted = 0
+        group by u.id, u.user_name, u.creation_time, role
+        order by bookmarkNumber desc;
+    </select>
+    <select id="countUserByKeyword" resultType="java.lang.Long">
+        select count(*)
+        from user
+        where user_name like concat(#{keyword}, '%')
+          and is_deleted = 0;
+    </select>
 
     <update id="updateUser" parameterType="com.github.learndifferent.mtm.dto.UserDTO">
         update user

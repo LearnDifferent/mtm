@@ -43,9 +43,12 @@ public class SearchController {
     /**
      * Search
      *
-     * @param mode      search users if the search mode is {@link SearchMode#USER},
-     *                  search bookmarks if the search mode is {@link SearchMode#WEB}
-     *                  and search tags if the search mode is {@link SearchMode#TAG}
+     * @param mode      Search for users in Elasticsearch if the search mode is {@link SearchMode#USER},
+     *                  search for bookmarked websites in Elasticsearch if the search mode is {@link SearchMode#WEB},
+     *                  search for tags in Elasticsearch if the search mode is {@link SearchMode#TAG},
+     *                  search for bookmarks in MySQL if the search mode is {@link SearchMode#BOOKMARK_MYSQL},
+     *                  search for tags in MySQL if the search mode is {@link SearchMode#TAG_MYSQL},
+     *                  and search for users in MySQL if the search mode is {@link SearchMode#USER_MYSQL}.
      * @param keyword   keyword (accept empty string and null)
      * @param pageInfo  pagination information
      * @param rangeFrom lower range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
@@ -56,17 +59,17 @@ public class SearchController {
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
      *                                                                  NO_RESULTS_FOUND} will be thrown if there are
-     *                                                                  no
-     *                                                                  results that
-     *                                                                  match the keyword
+     *                                                                  no results that match the keyword
      */
     @GetMapping
     public ResultVO<SearchResultsDTO> search(@RequestParam("mode") SearchMode mode,
                                              @RequestParam("keyword") String keyword,
                                              @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
                                                      PageInfoDTO pageInfo,
-                                             @RequestParam(required = false, value = "rangeFrom") Integer rangeFrom,
-                                             @RequestParam(required = false, value = "rangeTo") Integer rangeTo) {
+                                             @RequestParam(required = false, value = "rangeFrom")
+                                                     Integer rangeFrom,
+                                             @RequestParam(required = false, value = "rangeTo")
+                                                     Integer rangeTo) {
 
         SearchResultsDTO results = searchService.search(mode, keyword, pageInfo, rangeFrom, rangeTo);
         return ResultCreator.okResult(results);

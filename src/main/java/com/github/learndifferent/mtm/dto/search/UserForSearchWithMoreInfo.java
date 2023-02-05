@@ -26,7 +26,7 @@ public class UserForSearchWithMoreInfo extends UserForSearchDTO implements Searc
     /**
      * The number of websites bookmarked by the user
      */
-    private Integer webCount;
+    private Integer bookmarkNumber;
 
     /**
      * Highlighted fields

@@ -61,14 +61,18 @@ public interface SearchService {
     boolean generateDataForSearch(SearchMode mode);
 
     /**
-     * Search
+     * Search in Elasticsearch
      * <p>
      * Add the keyword to trending list if the search mode is {@link SearchMode#WEB}
+     * or {@link SearchMode#BOOKMARK_MYSQL}.
      * </p>
      *
-     * @param mode      search users if the search mode is {@link SearchMode#USER},
-     *                  search bookmarks if the search mode is {@link SearchMode#WEB}
-     *                  and search tags if the search mode is {@link SearchMode#TAG}
+     * @param mode      Search for users in Elasticsearch if the search mode is {@link SearchMode#USER},
+     *                  search for bookmarked websites in Elasticsearch if the search mode is {@link SearchMode#WEB},
+     *                  search for tags in Elasticsearch if the search mode is {@link SearchMode#TAG},
+     *                  search for bookmarks in MySQL if the search mode is {@link SearchMode#BOOKMARK_MYSQL},
+     *                  search for tags in MySQL if the search mode is {@link SearchMode#TAG_MYSQL},
+     *                  and search for users in MySQL if the search mode is {@link SearchMode#USER_MYSQL}.
      * @param keyword   keyword
      * @param pageInfo  pagination information
      * @param rangeFrom lower range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates

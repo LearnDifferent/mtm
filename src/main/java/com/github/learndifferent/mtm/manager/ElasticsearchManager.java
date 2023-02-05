@@ -402,21 +402,23 @@ public class ElasticsearchManager {
                                         Integer rangeTo) throws IOException {
 
         switch (mode) {
+            case USER_MYSQL:
+                return searchUsersMySql(keyword, from, size);
             case TAG:
-                return searchTags(keyword, from, size, rangeFrom, rangeTo);
+                return searchTagsElasticsearch(keyword, from, size, rangeFrom, rangeTo);
             case USER:
-                return searchUsers(keyword, from, size);
+                return searchUsersElasticsearch(keyword, from, size);
             case WEB:
             default:
-                return searchBookmarks(keyword, from, size);
+                return searchBookmarksElasticsearch(keyword, from, size);
         }
     }
 
-    private SearchResultsDTO searchTags(String keyword,
-                                        int from,
-                                        int size,
-                                        Integer rangeFrom,
-                                        Integer rangeTo) throws IOException {
+    private SearchResultsDTO searchTagsElasticsearch(String keyword,
+                                                     int from,
+                                                     int size,
+                                                     Integer rangeFrom,
+                                                     Integer rangeTo) throws IOException {
 
         SearchRequest searchRequest = getTagSearchRequest(keyword, from, size, rangeFrom, rangeTo);
         SearchHits hits = searchAndGetHits(searchRequest);
@@ -475,7 +477,22 @@ public class ElasticsearchManager {
         }).collect(Collectors.toList());
     }
 
-    private SearchResultsDTO searchUsers(String keyword, int from, int size) throws IOException {
+    private SearchResultsDTO searchUsersMySql(String keyword, int from, int size) {
+        List<UserForSearchWithMoreInfo> userData = userMapper
+                .searchUserDataByKeyword(keyword, from, size);
+
+        Long count = userMapper.countUserByKeyword(keyword);
+        long totalCount = Optional.ofNullable(count).orElse(0L);
+        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
+
+        return SearchResultsDTO.builder()
+                .paginatedResults(userData)
+                .totalCount(totalCount)
+                .totalPage(totalPages)
+                .build();
+    }
+
+    private SearchResultsDTO searchUsersElasticsearch(String keyword, int from, int size) throws IOException {
         SearchRequest searchRequest = getUserSearchRequest(keyword, from, size);
 
         SearchHits hits = searchAndGetHits(searchRequest);
@@ -562,11 +579,11 @@ public class ElasticsearchManager {
                 .userName(userName)
                 .role(role)
                 .createTime(creationTime)
-                .webCount(number)
+                .bookmarkNumber(number)
                 .build();
     }
 
-    private SearchResultsDTO searchBookmarks(String keyword, int from, int size)
+    private SearchResultsDTO searchBookmarksElasticsearch(String keyword, int from, int size)
             throws IOException {
 
         addToTrendingList(keyword);
