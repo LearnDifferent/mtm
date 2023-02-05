@@ -199,4 +199,24 @@ public interface BookmarkMapper {
      * @return all visited bookmarks
      */
     List<VisitedBookmarkVO> getVisitedBookmarks(@Param("from") int from, @Param("size") int size);
+
+    /**
+     * Search website data by keyword
+     *
+     * @param keyword keyword
+     * @param from    from
+     * @param size    size
+     * @return website data
+     */
+    List<WebForSearchDTO> searchWebDataByKeyword(@Param("keyword") String keyword,
+                                                 @Param("from") int from,
+                                                 @Param("size") int size);
+
+    /**
+     * get the number of website data by keyword
+     *
+     * @param keyword keyword
+     * @return the number of website data
+     */
+    long countWebDataByKeyword(String keyword);
 }

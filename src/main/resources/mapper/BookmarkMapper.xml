@@ -230,4 +230,26 @@
         order by v.views desc
         limit #{from},#{size};
     </select>
+    <select id="searchWebDataByKeyword" resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
+        select url, title, img, `desc`
+        from bookmark
+        where (
+                title like concat('%', #{keyword}, '%')
+                or `desc` like concat('%', #{keyword}, '%')
+            )
+          and `is_public` = 1
+          and is_deleted = 0
+        group by url, title, `desc`, img
+        limit #{from}, #{size};
+    </select>
+    <select id="countWebDataByKeyword" resultType="java.lang.Long">
+        select count(distinct url, title, img, `desc`)
+        from bookmark
+        where (
+                title like concat('%', #{keyword}, '%')
+                or `desc` like concat('%', #{keyword}, '%')
+            )
+          and `is_public` = 1
+          and is_deleted = 0;
+    </select>
 </mapper>

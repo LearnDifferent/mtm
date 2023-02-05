@@ -402,6 +402,8 @@ public class ElasticsearchManager {
                                         Integer rangeTo) throws IOException {
 
         switch (mode) {
+            case BOOKMARK_MYSQL:
+                return searchBookmarksMySql(keyword, from, size);
             case USER_MYSQL:
                 return searchUsersMySql(keyword, from, size);
             case TAG_MYSQL:
@@ -601,6 +603,22 @@ public class ElasticsearchManager {
                 .role(role)
                 .createTime(creationTime)
                 .bookmarkNumber(number)
+                .build();
+    }
+
+    private SearchResultsDTO searchBookmarksMySql(String keyword, int from, int size) {
+
+        addToTrendingList(keyword);
+
+        List<WebForSearchDTO> paginatedResults = bookmarkMapper
+                .searchWebDataByKeyword(keyword, from, size);
+        long totalCount = bookmarkMapper.countWebDataByKeyword(keyword);
+        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
+
+        return SearchResultsDTO.builder()
+                .paginatedResults(paginatedResults)
+                .totalCount(totalCount)
+                .totalPage(totalPages)
                 .build();
     }
 
