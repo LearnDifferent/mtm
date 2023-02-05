@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.manager;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
@@ -425,9 +426,10 @@ public class ElasticsearchManager {
             rangeTo = tmp;
         }
 
+        String username = StpUtil.getLoginIdAsString();
         List<TagForSearchDTO> tagData = tagMapper
-                .searchTagDataByKeywordAndRange(keyword, rangeFrom, rangeTo, from, size);
-        long totalCount = tagMapper.countTagDataByKeywordAndRange(keyword, rangeFrom, rangeTo);
+                .searchTagDataByKeywordAndRange(keyword, username, rangeFrom, rangeTo, from, size);
+        long totalCount = tagMapper.countTagDataByKeywordAndRange(keyword, username, rangeFrom, rangeTo);
         int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
 
         return SearchResultsDTO.builder()

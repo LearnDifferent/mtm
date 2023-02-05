@@ -76,7 +76,9 @@
             resultType="com.github.learndifferent.mtm.dto.search.TagForSearchDTO">
         select `tag`, count(bookmark_id) number
         from tag t
-        inner join bookmark b on b.id = t.bookmark_id and b.is_public = 1 and b.is_deleted = 0
+        inner join bookmark b on b.id = t.bookmark_id
+        and b.is_deleted = 0
+        and (b.user_name = #{username} or b.is_public = 1)
         where tag like concat(#{keyword}, '%')
         group by tag
         <if test="rangeFrom != null and rangeTo != null">
@@ -96,7 +98,9 @@
         (
         select distinct tag, count(bookmark_id) over(partition by tag) as number
         from tag t
-        inner join bookmark b on b.id = t.bookmark_id and b.is_public = 1 and b.is_deleted = 0
+        inner join bookmark b on b.id = t.bookmark_id
+        and b.is_deleted = 0
+        and (b.user_name = #{username} or b.is_public = 1)
         WHERE tag like concat(#{keyword}, '%')
         ) t
         <where>
