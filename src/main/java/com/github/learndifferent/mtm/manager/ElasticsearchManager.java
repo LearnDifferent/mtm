@@ -404,6 +404,8 @@ public class ElasticsearchManager {
         switch (mode) {
             case USER_MYSQL:
                 return searchUsersMySql(keyword, from, size);
+            case TAG_MYSQL:
+                return searchTagMySql(keyword, from, size, rangeFrom, rangeTo);
             case TAG:
                 return searchTagsElasticsearch(keyword, from, size, rangeFrom, rangeTo);
             case USER:
@@ -412,6 +414,25 @@ public class ElasticsearchManager {
             default:
                 return searchBookmarksElasticsearch(keyword, from, size);
         }
+    }
+
+    private SearchResultsDTO searchTagMySql(String keyword, int from, int size, Integer rangeFrom, Integer rangeTo) {
+        if (rangeFrom != null && rangeTo != null && rangeFrom > rangeTo) {
+            Integer tmp = rangeFrom;
+            rangeFrom = rangeTo;
+            rangeTo = tmp;
+        }
+
+        List<TagForSearchDTO> tagData = tagMapper
+                .searchTagDataByKeywordAndRange(keyword, rangeFrom, rangeTo, from, size);
+        long totalCount = tagMapper.countTagDataByKeywordAndRange(keyword, rangeFrom, rangeTo);
+        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
+
+        return SearchResultsDTO.builder()
+                .paginatedResults(tagData)
+                .totalCount(totalCount)
+                .totalPage(totalPages)
+                .build();
     }
 
     private SearchResultsDTO searchTagsElasticsearch(String keyword,

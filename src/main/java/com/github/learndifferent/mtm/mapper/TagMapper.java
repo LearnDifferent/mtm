@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import java.util.List;
@@ -116,4 +117,36 @@ public interface TagMapper {
      * @return The number of times the tag appears in database
      */
     int countTags(String tagName);
+
+    /**
+     * Search tag data by keyword within an range of number
+     *
+     * @param keyword   keyword
+     * @param rangeFrom greater than or equal to the number of bookmarks of this tag.
+     *                  don't filter if {@code rangeFrom} or {@code rangeTo} is null.
+     * @param rangeTo   less than or equal to the number of bookmarks of this tag
+     *                  don't filter if {@code rangeFrom} or {@code rangeTo} is null.
+     * @param from      from
+     * @param size      size
+     * @return tag data
+     */
+    List<TagForSearchDTO> searchTagDataByKeywordAndRange(@Param("keyword") String keyword,
+                                                         @Param("rangeFrom") Integer rangeFrom,
+                                                         @Param("rangeTo") Integer rangeTo,
+                                                         @Param("from") int from,
+                                                         @Param("size") int size);
+
+    /**
+     * Count the number of tags by keyword within an range of number
+     *
+     * @param keyword   keyword
+     * @param rangeFrom greater than or equal to the number of bookmarks of this tag.
+     *                  don't filter if {@code rangeFrom} or {@code rangeTo} is null.
+     * @param rangeTo   less than or equal to the number of bookmarks of this tag
+     *                  don't filter if {@code rangeFrom} or {@code rangeTo} is null.
+     * @return the number of tags
+     */
+    long countTagDataByKeywordAndRange(@Param("keyword") String keyword,
+                                       @Param("rangeFrom") Integer rangeFrom,
+                                       @Param("rangeTo") Integer rangeTo);
 }

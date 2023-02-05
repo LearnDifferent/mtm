@@ -47,8 +47,8 @@
     <select id="getAllTagsAndCountOfPublicBookmarks" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
         select tag, count(bookmark_id) number
         from tag t
-        inner join bookmark b
-        on b.id = t.bookmark_id and b.is_public = 1 and b.is_deleted = 0
+                 inner join bookmark b
+                            on b.id = t.bookmark_id and b.is_public = 1 and b.is_deleted = 0
         group by tag
         order by number desc
     </select>
@@ -71,5 +71,41 @@
         select count(tag)
         from tag
         where tag = #{tagName};
+    </select>
+    <select id="searchTagDataByKeywordAndRange"
+            resultType="com.github.learndifferent.mtm.dto.search.TagForSearchDTO">
+        select `tag`, count(bookmark_id) number
+        from tag t
+        inner join bookmark b on b.id = t.bookmark_id and b.is_public = 1 and b.is_deleted = 0
+        where tag like concat(#{keyword}, '%')
+        group by tag
+        <if test="rangeFrom != null and rangeTo != null">
+            having number <![CDATA[ >= ]]> #{rangeFrom} and number <![CDATA[ <= ]]> #{rangeTo}
+        </if>
+        <if test="rangeFrom != null and rangeTo == null">
+            having number <![CDATA[ >= ]]> #{rangeFrom}
+        </if>
+        <if test="rangeFrom == null and rangeTo != null">
+            having number <![CDATA[ <= ]]> #{rangeTo}
+        </if>
+        order by number desc
+        limit #{from}, #{size};
+    </select>
+    <select id="countTagDataByKeywordAndRange" resultType="java.lang.Long">
+        select count(*) from
+        (
+        select distinct tag, count(bookmark_id) over(partition by tag) as number
+        from tag t
+        inner join bookmark b on b.id = t.bookmark_id and b.is_public = 1 and b.is_deleted = 0
+        WHERE tag like concat(#{keyword}, '%')
+        ) t
+        <where>
+            <if test="rangeFrom != null">
+                number <![CDATA[ >= ]]> #{rangeFrom}
+            </if>
+            <if test="rangeTo != null">
+                and number <![CDATA[ <= ]]> #{rangeTo}
+            </if>
+        </where>
     </select>
 </mapper>
