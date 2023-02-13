@@ -17,6 +17,6 @@ FROM anapsix/alpine-java:8u202b08_server-jre
 
 COPY --from=mtm-maven /tmp/target/mtm-1.0.jar /app.jar
 
-EXPOSE 80
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 CMD ["--spring.profiles.active=prod"]
