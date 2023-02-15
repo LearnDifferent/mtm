@@ -4,9 +4,9 @@ USE mtm;
 
 CREATE TABLE IF NOT EXISTS `user`
 (
-    `id`            varchar(255) NOT NULL,
-    `user_name`     varchar(50)  NOT NULL,
-    `password`      varchar(255) NOT NULL,
+    `id`            int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `user_name`     varchar(50)      NOT NULL,
+    `password`      varchar(255)     NOT NULL,
     `creation_time` datetime    DEFAULT NULL,
     `role`          varchar(10) DEFAULT 'guest',
     `is_deleted`    boolean     DEFAULT false,
@@ -97,6 +97,5 @@ CREATE TABLE IF NOT EXISTS `tag`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-
-insert into user
-values ('first_user', 'Guest', '0bb2b8178920142d4598bd4b61924a2c', CURRENT_DATE(), 'guest');
+insert into user(user_name, password, creation_time, role)
+values ('Guest', '0bb2b8178920142d4598bd4b61924a2c', CURRENT_DATE(), 'guest');
