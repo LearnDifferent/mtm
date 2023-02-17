@@ -1,7 +1,7 @@
 version: "3"
 services:
-  web:
-    container_name: web
+  mtm:
+    container_name: mtm
     build:
       context: .
       dockerfile: Dockerfile
