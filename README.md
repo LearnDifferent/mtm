@@ -226,9 +226,15 @@ Deploy with docker-compose:
 docker compose up -d
 ```
 
+Deploy the Front End Application:
+
+> Go to [mtm-ui](https://github.com/LearnDifferent/mtm-ui) and deploy the front end application.
+
 Navigate to MTM:
 
-Visit [localhost:80](http://localhost:80) in your browser.
+- Visit [localhost:8080](http://localhost:8080) in your browser.
+- The [backend server](https://github.com/LearnDifferent/mtm) is now running on [localhost:8080](http://localhost:8080)
+- The [frontend client](https://github.com/LearnDifferent/mtm-ui) is now running on [localhost:80](http://localhost:80)
 
 <br/>
 
@@ -248,7 +254,7 @@ Visit [localhost:80](http://localhost:80) in your browser.
 
 <summary>More</summary>
 
-> Note that the Maven Docker Image in [Dockerfile](./Dockerfile) is [Maven Docker Image with Aliyun Mirror](https://github.com/AliyunContainerService/maven-image), because it will speed up the Maven Build.
+> Note that the Maven Docker Image in [Dockerfile](./Dockerfile) is [Maven Docker Image with Aliyun Mirror](https://github.com/AliyunContainerService/maven-image), which will speed up the Maven Build.
 >
 > You can replace it with the official image by using `FROM maven:3.8.4-jdk-11-slim AS mtm-maven`.
 
@@ -262,7 +268,7 @@ Ensure pre-requisites are installed:
 
 - Java 8+
 - Maven 3+
-- MySQL 5.7.33
+- MySQL 8.0.17
 - Redis 5.0.5
 - Elasticsearch 7.8.0
 
@@ -336,9 +342,7 @@ custom-redis:
 
 ### Run the Application
 
-> Please don't forget to start MySQL, Redis and Elasticsearch before running the application
->
-> Note: The application has already integrated the [frontend code](https://github.com/LearnDifferent/mtm-ui)
+> Please don't forget to start [mtm-ui](https://github.com/LearnDifferent/mtm-ui), MySQL, Redis and Elasticsearch before running the application
 
 Run it from Maven directly using the Spring Boot Maven plugin:
 
@@ -346,7 +350,7 @@ Run it from Maven directly using the Spring Boot Maven plugin:
 ./mvnw spring-boot:run -P dev
 ```
 
-The application is now running on [localhost:80](http://localhost:80)
+The [backend service](https://github.com/LearnDifferent/mtm) is now running on [localhost:8080](http://localhost:8080) and the [frontend client](https://github.com/LearnDifferent/mtm-ui) is running on [localhost:80](http://localhost:80)
 
 ## License
 
