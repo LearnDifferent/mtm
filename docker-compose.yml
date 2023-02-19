@@ -14,7 +14,7 @@ services:
       - es
       - mid
   db:
-    image: mysql:5.7.33
+    image: mysql:8.0.17
     container_name: db
     ports:
       - "3306:3306"

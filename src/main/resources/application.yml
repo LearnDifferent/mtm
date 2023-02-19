@@ -2,10 +2,10 @@ spring:
   profiles:
     active: @profileActive@
   application:
-    name: web
+    name: mtm
   datasource:
-    #  driver-class-name: com.mysql.cj.jdbc.Driver # MySQL Version 8
-    driver-class-name: com.mysql.jdbc.Driver # MySQL Version 5
+    #driver-class-name: com.mysql.jdbc.Driver # MySQL Version 5
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL Version 8
     type: com.alibaba.druid.pool.DruidDataSource
   mail:
     username: # Your Email Address. For Instance: abc@email.com
