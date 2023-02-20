@@ -223,7 +223,7 @@ cd mtm
 Deploy with docker-compose:
 
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
 
 Deploy the Front End Application:
@@ -232,9 +232,8 @@ Deploy the Front End Application:
 
 Navigate to MTM:
 
-- Visit [localhost:8080](http://localhost:8080) in your browser.
-- The [backend server](https://github.com/LearnDifferent/mtm) is now running on [localhost:8080](http://localhost:8080)
-- The [frontend client](https://github.com/LearnDifferent/mtm-ui) is now running on [localhost:80](http://localhost:80)
+- Visit [localhost:80](http://localhost:80) in your browser.
+- The [backend server](https://github.com/LearnDifferent/mtm) is running on [localhost:8080](http://localhost:8080)
 
 <br/>
 
@@ -344,7 +343,7 @@ custom-redis:
 
 > Please don't forget to start [mtm-ui](https://github.com/LearnDifferent/mtm-ui), MySQL, Redis and Elasticsearch before running the application
 
-Run it from Maven directly using the Spring Boot Maven plugin:
+Run the backend service from Maven directly using the Spring Boot Maven plugin:
 
 ```bash
 ./mvnw spring-boot:run -P dev
