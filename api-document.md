@@ -1,7 +1,7 @@
 # mtm
 Version |  Update Time  | Status | Author |  Description
 ---|---|---|---|---
-v2022-05-08 22:06:27|2022-05-08 22:06:27|auto|@zhou|Created by smart-doc
+v2023-02-21 19:39:16|2023-02-21 19:39:16|auto|@zhou|Created by smart-doc
 
 
 
@@ -23,6 +23,7 @@ Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 token|string|             token for verification code|true|-
 code|string|              verification code|true|-
+isAdmin|boolean|           check whether the user is the administrator if {@code isAdmin} is true|false|-
 
 **Body-parameters:**
 
@@ -127,7 +128,7 @@ msg|string|Message|-
 data|object|Data|-
 
 
-### Delete a bookmarked website
+### Delete a bookmark
 **URL:** http://127.0.0.1/bookmark/
 
 **Type:** DELETE
@@ -136,13 +137,13 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Delete a bookmarked website
+**Description:** Delete a bookmark
 
 **Query-parameters:**
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|ID of the bookmarked website data|true|-
+id|int32|ID of the bookmark|true|-
 
 **Response-fields:**
 
@@ -153,7 +154,7 @@ msg|string|Message|-
 data|object|Data|-
 
 
-### Make the bookmarked website private if it's publicand make it public if it's private.
+### Make the bookmark private if it's publicand make it public if it's private.
 **URL:** http://127.0.0.1/bookmark/privacy
 
 **Type:** GET
@@ -162,14 +163,14 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Make the bookmarked website private if it's public
+**Description:** Make the bookmark private if it's public
 and make it public if it's private.
 
 **Query-parameters:**
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|ID of the bookmarked website data|true|-
+id|int32|ID of the bookmark|true|-
 
 **Response-fields:**
 
@@ -195,13 +196,13 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|ID of the bookmarked website data|true|-
+id|int32|ID of the bookmark|true|-
 
 **Response-fields:**
 
 Field | Type|Description|Since
 ---|---|---|---
-webId|int32|ID of the bookmarked website data|-
+id|int32|ID of the bookmark|-
 userName|string|name of the user who bookmarked the website|-
 title|string|title of the bookmarked website|-
 url|string|URL of the bookmarked website|-
@@ -236,7 +237,7 @@ size|int32|Size|false|-
 Field | Type|Description|Since
 ---|---|---|---
 bookmarks|array|Paginated bookmarks|-
-└─webId|int32|ID of the bookmarked website data|-
+└─id|int32|ID of the bookmark|-
 └─userName|string|name of the user who bookmarked the website|-
 └─title|string|title of the bookmarked website|-
 └─url|string|URL of the bookmarked website|-
@@ -278,7 +279,7 @@ size|int32|Size|false|-
 Field | Type|Description|Since
 ---|---|---|---
 bookmarks|array|Paginated bookmarks|-
-└─webId|int32|ID of the bookmarked website data|-
+└─id|int32|ID of the bookmark|-
 └─userName|string|name of the user who bookmarked the website|-
 └─title|string|title of the bookmarked website|-
 └─url|string|URL of the bookmarked website|-
@@ -316,8 +317,8 @@ Field | Type|Description|Since
 userName|string|Username|-
 title|string|Title|-
 url|string|Url|-
-webId|int32|ID|-
-isPublic|boolean|True if this is a public bookmarks|-
+bookmarkId|int32|ID of the bookmark|-
+isPublic|boolean|True if this is a public bookmark|-
 views|int32|The number of views of this bookmark|-
 
 
@@ -343,15 +344,15 @@ lastIndex|int32|index of the last element of the reply notification list|true|-
 
 Field | Type|Description|Since
 ---|---|---|---
-message|string|Reply Message<br><p>Null if the bookmark, comment or reply has been deleted</p>|-
 creationTime|object|Creation time|-
 └─seconds|int64|No comments found.|-
 └─nanos|int32|No comments found.|-
 receiveUsername|string|Name of the user, who is about to receive the notification.<br>If {@link #getReplyToCommentId()} is null,<br>then the user is the owner of the website data.<br>If {@link #getReplyToCommentId()} is not null,<br>then the user is the author of the comment being replied to.|-
 sendUsername|string|Name of the user who sent the reply (or comment)|-
 commentId|int32|ID of the comment|-
-webId|int32|ID of the bookmarked website data|-
+bookmarkId|int32|ID of the bookmark|-
 replyToCommentId|int32|The ID of the comment being replied to<br><p>Not reply to any comment if null, which means this is a bookmark comment</p>|-
+message|string|Extend parameter: reply message<br><p>Null if the bookmark, comment or reply has been deleted</p>|-
 
 
 ### Delete a reply notification
@@ -375,7 +376,7 @@ creationTime|object|Creation time|false|-
 receiveUsername|string|Name of the user, who is about to receive the notification.<br>If {@link #getReplyToCommentId()} is null,<br>then the user is the owner of the website data.<br>If {@link #getReplyToCommentId()} is not null,<br>then the user is the author of the comment being replied to.|false|-
 sendUsername|string|Name of the user who sent the reply (or comment)|false|-
 commentId|int32|ID of the comment|false|-
-webId|int32|ID of the bookmarked website data|false|-
+bookmarkId|int32|ID of the bookmark|false|-
 replyToCommentId|int32|The ID of the comment being replied to<br><p>Not reply to any comment if null, which means this is a bookmark comment</p>|false|-
 
 
@@ -483,8 +484,8 @@ turn off notifications if the current user turned on notifications
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|  ID of the bookmarked website data that the user currently logged in wants to apply the tag to|true|-
-tag|string|the tag to apply|true|-
+bookmarkId|int32|ID of the bookmark that the user currently logged in wants to apply the tag to|true|-
+tag|string|   the tag to apply|true|-
 
 **Response-fields:**
 
@@ -495,7 +496,7 @@ msg|string|Message|-
 data|object|Data|-
 
 
-### Get tags by the ID of the bookmarked website data.&lt;p&gt;Get all tags if the parameter {@code webId} is missing.&lt;/p&gt;
+### Get tags by the ID of the bookmark&lt;p&gt;Get all tags if the parameter {@code bookmarkId} is missing.&lt;/p&gt;
 **URL:** http://127.0.0.1/tag/
 
 **Type:** GET
@@ -504,16 +505,16 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Get tags by the ID of the bookmarked website data.
+**Description:** Get tags by the ID of the bookmark
 <p>
-Get all tags if the parameter {@code webId} is missing.
+Get all tags if the parameter {@code bookmarkId} is missing.
 </p>
 
 **Query-parameters:**
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|   ID of the bookmarked website data|false|-
+bookmarkId|int32|ID of the bookmark|false|-
 from|int32|From|false|-
 size|int32|Size|false|-
 
@@ -541,7 +542,7 @@ data|array|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|ID of the bookmarked website data|true|-
+bookmarkId|int32|ID of the bookmark|true|-
 
 **Response-fields:**
 
@@ -579,7 +580,7 @@ size|int32|Size|false|-
 
 Field | Type|Description|Since
 ---|---|---|---
-webId|int32|ID of the bookmarked website data|-
+id|int32|ID of the bookmark|-
 userName|string|name of the user who bookmarked the website|-
 title|string|title of the bookmarked website|-
 url|string|URL of the bookmarked website|-
@@ -624,7 +625,7 @@ size|int32|Size|false|-
 Field | Type|Description|Since
 ---|---|---|---
 bookmarks|array|Paginated bookmarks associated with the chosen tag|-
-└─webId|int32|ID of the bookmarked website data|-
+└─id|int32|ID of the bookmark|-
 └─userName|string|name of the user who bookmarked the website|-
 └─title|string|title of the bookmarked website|-
 └─url|string|URL of the bookmarked website|-
@@ -637,7 +638,7 @@ bookmarks|array|Paginated bookmarks associated with the chosen tag|-
 totalPages|int32|Total pages|-
 
 
-### Get popular tags
+### Get popular tags.
 **URL:** http://127.0.0.1/tag/popular
 
 **Type:** GET
@@ -646,7 +647,7 @@ totalPages|int32|Total pages|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Get popular tags
+**Description:** Get popular tags.
 
 **Query-parameters:**
 
@@ -681,8 +682,8 @@ data|array|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|  ID of the bookmarked website data that the tag applied to|true|-
-tagName|string|name of the tag to be deleted|true|-
+bookmarkId|int32|ID of the bookmarked website data that the tag applied to|true|-
+tagName|string|   name of the tag to be deleted|true|-
 
 **Response-fields:**
 
@@ -709,9 +710,9 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-commentId|int32|ID of the comment.
-                 <p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>|false|-
-webId|int32|    ID of the bookmarked website data|true|-
+id|int32| ID of the comment.
+                  <p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>|false|-
+bookmarkId|int32|ID of the bookmark|true|-
 
 **Response-fields:**
 
@@ -720,9 +721,9 @@ Field | Type|Description|Since
 code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
-└─commentId|int32|ID of the comment|-
+└─id|int32|ID of the comment|-
 └─comment|string|Content|-
-└─webId|int32|ID of the bookmarked website data|-
+└─bookmarkId|int32|ID of the bookmark|-
 └─username|string|Username|-
 └─creationTime|object|Creation time|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─seconds|int64|No comments found.|-
@@ -736,7 +737,7 @@ data|object|Data|-
 
 
 ### Get comment data of a bookmark
-**URL:** http://127.0.0.1/comment/get/{webId}
+**URL:** http://127.0.0.1/comment/bookmark
 
 **Type:** GET
 
@@ -746,16 +747,11 @@ data|object|Data|-
 
 **Description:** Get comment data of a bookmark
 
-**Path-parameters:**
-
-Parameter | Type|Description|Required|Since
----|---|---|---|---
-webId|int32|           ID of the bookmarked website data|true|-
-
 **Query-parameters:**
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
+id|int32|      ID of the bookmark|true|-
 replyToCommentId|int32|ID of the comment to reply
                         <p>
                         Null if this is not a reply
@@ -770,7 +766,7 @@ Field | Type|Description|Since
 code|int32|Result Code|-
 msg|string|Message|-
 data|array|Data|-
-└─commentId|int32|ID of the comment|-
+└─id|int32|ID of the comment|-
 └─comment|string|Content|-
 └─username|string|Username|-
 └─creationTime|object|Creation time|-
@@ -785,8 +781,8 @@ data|array|Data|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─nanos|int32|No comments found.|-
 
 
-### Get the number of comments (exclude replies) of a bookmarked website
-**URL:** http://127.0.0.1/comment/get/number/{webId}
+### Get the number of comments (exclude replies) of a bookmark
+**URL:** http://127.0.0.1/comment/bookmark/{id}
 
 **Type:** GET
 
@@ -794,13 +790,13 @@ data|array|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Get the number of comments (exclude replies) of a bookmarked website
+**Description:** Get the number of comments (exclude replies) of a bookmark
 
 **Path-parameters:**
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|ID of the bookmarked website data|true|-
+id|int32|ID of the bookmark|true|-
 
 **Response-fields:**
 
@@ -827,7 +823,7 @@ data|object|Data|-
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 comment|string|         Comment|true|-
-webId|int32|           ID of the bookmarked website data|true|-
+bookmarkId|int32|      ID of the bookmark|true|-
 replyToCommentId|int32|ID of the comment to reply
                         <p>
                         Null if this is not a reply
@@ -857,9 +853,9 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-commentId|int32|Comment ID|false|-
+id|int32|ID of the comment|false|-
 comment|string|New comment|false|-
-webId|int32|ID of the bookmarked website data|false|-
+bookmarkId|int32|ID of the bookmark|false|-
 
 **Response-fields:**
 
@@ -885,7 +881,7 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-commentId|int32|ID of the comment|true|-
+id|int32|ID of the comment|true|-
 
 **Response-fields:**
 
@@ -912,7 +908,7 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|ID of the bookmarked website data|true|-
+bookmarkId|int32|ID of the bookmark|true|-
 
 
 
@@ -931,7 +927,7 @@ webId|int32|ID of the bookmarked website data|true|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-webId|int32|ID of the bookmarked website data|true|-
+bookmarkId|int32|ID of the bookmark|true|-
 
 **Response-fields:**
 
@@ -984,7 +980,7 @@ msg|string|Message|-
 data|object|Data|-
 
 
-### Send a system notification&lt;p&gt;The notification will be a push notification if the message is from {@link UserRole#ADMIN}&lt;/p&gt;
+### Send a system notification when the user is admin&lt;p&gt;The notification will be a push notification if the {@code priority} is 0&lt;/p&gt;
 **URL:** http://127.0.0.1/system/send
 
 **Type:** GET
@@ -993,16 +989,17 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Send a system notification
+**Description:** Send a system notification when the user is admin
 <p>
-The notification will be a push notification if the message is from {@link UserRole#ADMIN}
+The notification will be a push notification if the {@code priority} is 0
 </p>
 
 **Query-parameters:**
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-message|string|the message to send|true|-
+message|string| the message to send|true|-
+priority|int32|0 if the message has the highest priority|false|-
 
 **Response-fields:**
 
@@ -1139,7 +1136,7 @@ data|array|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>|true|-
+mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(bookmark_mysql)<br/>TAG_MYSQL -(tag_mysql)<br/>USER_MYSQL -(user_mysql)<br/>|true|-
 keyword|string|  keyword (accept empty string and null)|true|-
 from|int32|From|false|-
 size|int32|Size|false|-
@@ -1175,7 +1172,7 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>|true|-
+mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(bookmark_mysql)<br/>TAG_MYSQL -(tag_mysql)<br/>USER_MYSQL -(user_mysql)<br/>|true|-
 
 **Response-fields:**
 
@@ -1221,7 +1218,7 @@ hasNewUpdate|boolean|True if the website data in database is different from the 
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>|true|-
+mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(bookmark_mysql)<br/>TAG_MYSQL -(tag_mysql)<br/>USER_MYSQL -(user_mysql)<br/>|true|-
 
 **Response-fields:**
 
@@ -1246,7 +1243,7 @@ hasChanges|boolean|Changes of data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>|true|-
+mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(bookmark_mysql)<br/>TAG_MYSQL -(tag_mysql)<br/>USER_MYSQL -(user_mysql)<br/>|true|-
 
 **Response-fields:**
 
@@ -1420,7 +1417,7 @@ Field | Type|Description|Since
 currentUser|string|Username of the user that is currently logged in|-
 bookmarksAndTotalPages|object|Paginated bookmarks and total pages|-
 └─bookmarks|array|Paginated bookmarks|-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─webId|int32|ID of the bookmarked website data|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─id|int32|ID of the bookmark|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─userName|string|name of the user who bookmarked the website|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─title|string|title of the bookmarked website|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─url|string|URL of the bookmarked website|-
@@ -1471,7 +1468,7 @@ usernames|array|Usernames|false|-
 
 Field | Type|Description|Since
 ---|---|---|---
-webId|int32|ID of the bookmarked website data|-
+id|int32|ID of the bookmark|-
 userName|string|name of the user who bookmarked the website|-
 title|string|title of the bookmarked website|-
 url|string|URL of the bookmarked website|-
@@ -1597,8 +1594,8 @@ data|object|Data|-
 Field | Type|Description|Since
 ---|---|---|---
 user|object|User information|-
+└─id|int32|ID|-
 └─userName|string|Username|-
-└─userId|string|User ID|-
 └─createTime|object|Creation Time|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─seconds|int64|No comments found.|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─nanos|int32|No comments found.|-
@@ -1629,8 +1626,8 @@ size|int32|Size|false|-
 
 Field | Type|Description|Since
 ---|---|---|---
+id|int32|ID|-
 userName|string|Username|-
-userId|string|User ID|-
 createTime|object|Creation Time|-
 └─seconds|int64|No comments found.|-
 └─nanos|int32|No comments found.|-
@@ -1709,7 +1706,7 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-userId|string| ID of the user|true|-
+id|int32|     ID of the user|true|-
 newRole|string|the new role of the user|true|-
 
 **Response-fields:**
