@@ -11,7 +11,12 @@
     </resultMap>
 
     <select id="getCommentById" resultMap="BaseResultMap">
-        select id, comment, bookmark_id, username, creation_time, if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
+        select id,
+               comment,
+               bookmark_id,
+               username,
+               creation_time,
+               if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
         from comment
         where id = #{id,jdbcType=INTEGER}
           and is_deleted = 0
@@ -35,7 +40,8 @@
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
-        select id, comment, bookmark_id, username, creation_time, if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
+        select id, comment, bookmark_id, username, creation_time, if(reply_to_comment_id = -1, null,
+        reply_to_comment_id) as reply_to_comment_id
         from comment
         <where>
             <if test="bookmarkId != null">
@@ -53,14 +59,13 @@
         </if>;
     </select>
 
-    <select id="getSpecificComment" resultMap="BaseResultMap">
-        select id, comment, bookmark_id, username, creation_time, if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
-        from comment
-        where comment = #{comment}
-          and username = #{username}
-          and bookmark_id = #{bookmarkId}
-          and is_deleted = 0
-        limit 1;
+    <select id="checkIfCommentExists" resultType="java.lang.Boolean">
+        select exists(select null
+                      from comment
+                      where comment = #{comment}
+                        and username = #{username}
+                        and bookmark_id = #{bookmarkId}
+                        and is_deleted = 0)
     </select>
 
     <select id="countRepliesFromComment" resultType="java.lang.Integer">

@@ -1,10 +1,10 @@
 package com.github.learndifferent.mtm.annotation.validation.comment.add;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Comment;
 import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
@@ -135,8 +135,8 @@ public class AddCommentCheckAspect {
     }
 
     private void checkCommentContentExists(String comment, int bookmarkId, String username) {
-        CommentDO exist = commentMapper.getSpecificComment(comment, bookmarkId, username);
-        ThrowExceptionUtils.throwIfNotNull(exist, ResultCode.COMMENT_EXISTS);
+        boolean isExists = commentMapper.checkIfCommentExists(comment, bookmarkId, username);
+        ThrowExceptionUtils.throwIfTrue(isExists, ResultCode.COMMENT_EXISTS);
     }
 
     private void checkReplyToCommentId(Integer replyToCommentId) {

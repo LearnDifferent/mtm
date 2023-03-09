@@ -31,14 +31,14 @@ public interface CommentMapper {
     String getCommentSenderName(int id);
 
     /**
-     * Get a specific comment
+     * Check if a comment exists
      *
      * @param comment    comment content
      * @param bookmarkId ID of the bookmark
      * @param username   username of the user who sent the comment
-     * @return {@link CommentDO}
+     * @return true if a comment exists
      */
-    CommentDO getSpecificComment(@Param("comment") String comment,
+    boolean checkIfCommentExists(@Param("comment") String comment,
                                  @Param("bookmarkId") int bookmarkId,
                                  @Param("username") String username);
 
