@@ -47,7 +47,7 @@
             <if test="bookmarkId != null">
                 bookmark_id = #{bookmarkId,jdbcType=INTEGER} and
             </if>
-            reply_to_comment_id = if(#{replyToCommentId} is null, -1, #{replyToCommentId})
+            reply_to_comment_id = ifnull(#{replyToCommentId}, -1)
             and is_deleted = 0
         </where>
         order by `creation_time`
@@ -71,7 +71,7 @@
     <select id="countRepliesFromComment" resultType="java.lang.Integer">
         select count(*)
         from comment
-        where reply_to_comment_id = if(#{countRepliesFromCommentId} is null, -1, #{countRepliesFromCommentId})
+        where reply_to_comment_id = ifnull(#{countRepliesFromCommentId}, -1)
           and is_deleted = 0;
     </select>
 
@@ -91,7 +91,7 @@
             parameterType="com.github.learndifferent.mtm.entity.CommentDO">
         insert into comment (`comment`, bookmark_id, `username`, creation_time, `reply_to_comment_id`)
         values (#{comment,jdbcType=VARCHAR}, #{bookmarkId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
-                #{creationTime,jdbcType=TIMESTAMP}, if(#{replyToCommentId} is null, -1, #{replyToCommentId}))
+                #{creationTime,jdbcType=TIMESTAMP}, ifnull(#{replyToCommentId}, -1))
     </insert>
 
     <update id="updateComment">
