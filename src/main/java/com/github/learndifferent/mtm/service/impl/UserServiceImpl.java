@@ -7,6 +7,7 @@ import static com.github.learndifferent.mtm.constant.enums.UserRole.valueOf;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
@@ -47,6 +48,11 @@ public class UserServiceImpl implements UserService {
         this.userMapper = userMapper;
         this.userAccountManager = userAccountManager;
         this.notificationManager = notificationManager;
+    }
+
+    @Override
+    public List<UserBookmarkRankingByRoleDTO> getRankingBookmarkNumByRole() {
+        return userMapper.getRankingBookmarkNumByRole();
     }
 
     @Override

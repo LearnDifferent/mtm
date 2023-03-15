@@ -11,6 +11,7 @@ import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
@@ -198,6 +199,16 @@ public class UserController {
     @PostMapping("/usernames-and-bookmarks")
     public List<UserBookmarkNumberVO> getNamesAndPublicBookmarkNums(UsernamesRequest usernames) {
         return userService.getNamesAndPublicBookmarkNums(usernames.getUsernames());
+    }
+
+    /**
+     * Retrieve the ranking of the number of bookmarks for each role
+     *
+     * @return the ranking of the number of bookmarks for each role
+     */
+    @GetMapping("/bookmarks-ranking-by-role")
+    public List<UserBookmarkRankingByRoleDTO> getRankingBookmarkNumByRole() {
+        return userService.getRankingBookmarkNumByRole();
     }
 
     /**

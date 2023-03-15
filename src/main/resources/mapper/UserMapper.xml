@@ -9,7 +9,7 @@
         <result column="role" jdbcType="VARCHAR" property="role"/>
     </resultMap>
 
-    <select id="getRankingBookmarkNumByRole">
+    <select id="getRankingBookmarkNumByRole" resultType="com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO">
         select
             -- 按照用户角色分组、以用户收藏数倒序排序
             row_number() over (partition by role order by bookmarkNumber desc) as ranking,

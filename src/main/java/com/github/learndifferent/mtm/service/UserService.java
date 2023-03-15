@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
@@ -16,6 +17,13 @@ import java.util.List;
  * @date 2021/09/05
  */
 public interface UserService {
+
+    /**
+     * Retrieve the ranking of the number of bookmarks for each role
+     *
+     * @return the ranking of the number of bookmarks for each role
+     */
+    List<UserBookmarkRankingByRoleDTO> getRankingBookmarkNumByRole();
 
     /**
      * Get usernames of the users and the total numbers of their public bookmarks

@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.entity.UserDO;
@@ -16,6 +17,13 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface UserMapper {
+
+    /**
+     * Get the ranking of the number of bookmarks for each role
+     *
+     * @return the ranking of the number of bookmarks for each role
+     */
+    List<UserBookmarkRankingByRoleDTO> getRankingBookmarkNumByRole();
 
     /**
      * Get usernames of the users and the total numbers of their public bookmarks
