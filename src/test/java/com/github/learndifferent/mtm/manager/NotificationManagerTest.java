@@ -16,15 +16,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+/**
+ * 下文中的注释来自 Cursor 的 AI 和 Codeium。
+ * 下面的 @ExtendWith(MockitoExtension.class) 注解表示使用 Mockito 框架进行测试。
+ */
 @ExtendWith(MockitoExtension.class)
 class NotificationManagerTest {
 
+    // 创建Mock对象
     @Mock
     private StringRedisTemplate redisTemplate;
 
     @Mock
     private SetOperations<String, String> redisSetOperations;
 
+    // 将 Mock 对象注入到当前类的对象中
     @InjectMocks
     private NotificationManager notificationManager;
 
@@ -49,6 +55,7 @@ class NotificationManagerTest {
 
         notificationManager.turnOnTurnOffNotifications(username);
 
+        // 使用 verify() 方法，验证预期方法被调用的次数。
         verify(redisSetOperations, times(0)).remove(MUTE_NOTIFICATIONS, username);
         verify(redisSetOperations, times(1)).add(MUTE_NOTIFICATIONS, username);
     }
