@@ -168,14 +168,6 @@ public interface BookmarkMapper {
     boolean addBookmark(BookmarkDO newBookmark);
 
     /**
-     * Find the bookmark by ID
-     *
-     * @param id ID of the bookmark
-     * @return {@link BookmarkDO}
-     */
-    BookmarkDO getBookmarkById(Integer id);
-
-    /**
      * Update bookmark
      *
      * @param updatedBookmark updated bookmark data

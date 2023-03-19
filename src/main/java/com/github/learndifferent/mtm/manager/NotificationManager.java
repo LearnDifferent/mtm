@@ -10,6 +10,7 @@ import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
@@ -37,14 +38,16 @@ public class NotificationManager {
     private final StringRedisTemplate redisTemplate;
     private final CommentMapper commentMapper;
     private final BookmarkMapper bookmarkMapper;
+    private final BookmarkDoMapper bookmarkDoMapper;
 
     @Autowired
     public NotificationManager(StringRedisTemplate redisTemplate,
                                CommentMapper commentMapper,
-                               BookmarkMapper bookmarkMapper) {
+                               BookmarkMapper bookmarkMapper, BookmarkDoMapper bookmarkDoMapper) {
         this.redisTemplate = redisTemplate;
         this.commentMapper = commentMapper;
         this.bookmarkMapper = bookmarkMapper;
+        this.bookmarkDoMapper = bookmarkDoMapper;
     }
 
     /**
@@ -110,7 +113,7 @@ public class NotificationManager {
         Integer bookmarkId = notification.getBookmarkId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
+        BookmarkDO bookmark = bookmarkDoMapper.selectById(bookmarkId);
 
         if (bookmark == null) {
             // if the bookmark does not exist,

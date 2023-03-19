@@ -3,9 +3,9 @@ package com.github.learndifferent.mtm.service.impl;
 import static com.github.learndifferent.mtm.constant.enums.AddDataMode.ADD_TO_DATABASE_AND_ELASTICSEARCH;
 import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
+import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.modify.bookmarking.CheckAndReturnBasicData;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
@@ -32,6 +32,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
@@ -86,16 +87,18 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final ElasticsearchManager elasticsearchManager;
     private final DeleteViewManager deleteViewManager;
     private final DeleteTagManager deleteTagManager;
+    private final BookmarkDoMapper bookmarkDoMapper;
 
     @Autowired
     public BookmarkServiceImpl(BookmarkMapper bookmarkMapper,
                                ElasticsearchManager elasticsearchManager,
                                DeleteViewManager deleteViewManager,
-                               DeleteTagManager deleteTagManager) {
+                               DeleteTagManager deleteTagManager, BookmarkDoMapper bookmarkDoMapper) {
         this.bookmarkMapper = bookmarkMapper;
         this.elasticsearchManager = elasticsearchManager;
         this.deleteViewManager = deleteViewManager;
         this.deleteTagManager = deleteTagManager;
+        this.bookmarkDoMapper = bookmarkDoMapper;
     }
 
     @Override
@@ -392,7 +395,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     @ModifyBookmarkPermissionCheck
     public boolean changePrivacySettings(@BookmarkId Integer id, @Username String userName) {
         // ID will not be null after checking by @ModifyBookmarkPermissionCheck
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
+        BookmarkDO bookmark = bookmarkDoMapper.selectById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean newPrivacy = !bookmark.getIsPublic();
@@ -402,7 +405,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public BookmarkVO getBookmark(int id, String userName) {
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
+        BookmarkDO bookmark = bookmarkDoMapper.selectById(id);
 
         // data does not exist
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
@@ -421,7 +424,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
 
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
+        BookmarkDO bookmark = bookmarkDoMapper.selectById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();

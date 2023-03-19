@@ -13,7 +13,7 @@ import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
-import com.github.learndifferent.mtm.mapper.BookmarkMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
@@ -42,16 +42,14 @@ import org.springframework.util.CollectionUtils;
 public class TagServiceImpl implements TagService {
 
     private final TagMapper tagMapper;
-    private final BookmarkMapper bookmarkMapper;
     private final DeleteTagManager deleteTagManager;
+    private final BookmarkDoMapper bookmarkDoMapper;
 
     @Autowired
-    public TagServiceImpl(TagMapper tagMapper,
-                          BookmarkMapper bookmarkMapper,
-                          DeleteTagManager deleteTagManager) {
+    public TagServiceImpl(TagMapper tagMapper, DeleteTagManager deleteTagManager, BookmarkDoMapper bookmarkDoMapper) {
         this.tagMapper = tagMapper;
-        this.bookmarkMapper = bookmarkMapper;
         this.deleteTagManager = deleteTagManager;
+        this.bookmarkDoMapper = bookmarkDoMapper;
     }
 
     @Override
@@ -139,7 +137,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int bookmarkId) {
-        BookmarkDO b = bookmarkMapper.getBookmarkById(bookmarkId);
+        BookmarkDO b = bookmarkDoMapper.selectById(bookmarkId);
         if (b == null) {
             return;
         }

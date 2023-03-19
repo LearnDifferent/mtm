@@ -1,11 +1,11 @@
 package com.github.learndifferent.mtm.annotation.validation.website.permission;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
-import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
+import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
-import com.github.learndifferent.mtm.mapper.BookmarkMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
@@ -30,11 +30,11 @@ import org.springframework.util.StringUtils;
 @Component
 public class ModifyBookmarkPermissionCheckAspect {
 
-    private final BookmarkMapper bookmarkMapper;
+    private final BookmarkDoMapper bookmarkDoMapper;
 
     @Autowired
-    public ModifyBookmarkPermissionCheckAspect(BookmarkMapper bookmarkMapper) {
-        this.bookmarkMapper = bookmarkMapper;
+    public ModifyBookmarkPermissionCheckAspect(BookmarkDoMapper bookmarkDoMapper) {
+        this.bookmarkDoMapper = bookmarkDoMapper;
     }
 
     @Before("@annotation(bookmarkPermission)")
@@ -78,7 +78,7 @@ public class ModifyBookmarkPermissionCheckAspect {
 
         ThrowExceptionUtils.throwIfTrue(bookmarkId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
+        BookmarkDO bookmark = bookmarkDoMapper.selectById(bookmarkId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean emptyUsername = StringUtils.isEmpty(username);
