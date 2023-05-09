@@ -1,7 +1,7 @@
 # mtm
 Version |  Update Time  | Status | Author |  Description
 ---|---|---|---|---
-v2023-02-21 19:39:16|2023-02-21 19:39:16|auto|@zhou|Created by smart-doc
+v2023-05-09 22:25:23|2023-05-09 22:25:23|auto|@zhou|Created by smart-doc
 
 
 
@@ -1661,6 +1661,27 @@ Field | Type|Description|Since
 ---|---|---|---
 userName|string|Username|-
 bookmarkNumber|int32|Total number of the user's public bookmarks|-
+
+
+### Retrieve the ranking of the number of bookmarks for each role
+**URL:** http://127.0.0.1/user/bookmarks-ranking-by-role
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Retrieve the ranking of the number of bookmarks for each role
+
+**Response-fields:**
+
+Field | Type|Description|Since
+---|---|---|---
+ranking|int32|Ranking|-
+role|string|Role of the user|-
+bookmarkNumber|int32|Number of bookmarks|-
+userName|string|Username of the user|-
 
 
 ### Change Password
