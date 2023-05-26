@@ -22,7 +22,7 @@
 
 <h3 align="center">
 	<a name="tech">
-		<img src="https://img.shields.io/badge/-Java-000?&logo=Java&logoColor=007396&style=flat-square"/>
+		<img src="https://img.shields.io/badge/-Java-000?&logo=openjdk&logoColor=007396&style=flat-square"/>
 		<img src="https://img.shields.io/badge/-Spring%20Boot-000?&logo=springboot&style=flat-square)"/>
 		<img src="https://img.shields.io/badge/-Redis-000?&logo=Redis&style=flat-square)"/>
 		<img src="https://img.shields.io/badge/-Mysql%20&%20MyBatis-000?&logo=mysql&style=flat-square)"/>
@@ -37,11 +37,11 @@
 
 MTM is a social bookmarking site built with Spring Boot, MySQL, MyBatis, Redis, Elasticsearch, Vue and Docker
 
-👉 [Online Demo](http://mtm-demo.top) 👈
+<!-- 👉 [Online Demo](http://mtm-demo.top) 👈 -->
 
 ## Table of Contents
 
-- [Live Demo](#live-demo)
+<!-- - [Live Demo](#live-demo) -->
 - [Technology Stack](#technology-stack)
 - [Features](#features)
 - [API Documentation](#api-documentation)
@@ -57,9 +57,9 @@ MTM is a social bookmarking site built with Spring Boot, MySQL, MyBatis, Redis, 
 	- [Run the Application](#run-the-application)
 - [License](#license)
 
-## Live Demo
+<!-- ## Live Demo -->
 
-⭐️ **A working live demo of MTM is available here: [http://mtm-demo.top](http://mtm-demo.top)** ⭐️
+<!-- ⭐️ **A working live demo of MTM is available here: [http://mtm-demo.top](http://mtm-demo.top)** ⭐️ -->
 
 ## Technology Stack
 
