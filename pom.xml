@@ -252,6 +252,11 @@
             <artifactId>dozer-core</artifactId>
             <version>6.5.0</version>
         </dependency>
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
