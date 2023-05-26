@@ -34,6 +34,10 @@ public class ResultCreator {
         return result(ResultCode.FAILED, null);
     }
 
+    public static <T> ResultVO<T> failResult(final String msg) {
+        return failResult(msg, null);
+    }
+
     public static <T> ResultVO<T> failResult(final T data) {
         return result(ResultCode.FAILED, data);
     }
