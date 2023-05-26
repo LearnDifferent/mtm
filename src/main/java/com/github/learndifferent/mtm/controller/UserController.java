@@ -27,6 +27,9 @@ import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -223,7 +226,19 @@ public class UserController {
      */
     @NotGuest
     @PostMapping("/change-password")
-    public ResultVO<ResultCode> changePassword(@RequestBody ChangePasswordRequest passwordInfo) {
+    public ResultVO<ResultCode> changePassword(@RequestBody @Validated ChangePasswordRequest passwordInfo,
+                                               BindingResult bindingResult) {
+
+        // Check if there is any field error in ChangePasswordRequest
+        boolean hasFieldErrors = bindingResult.hasFieldErrors();
+        if (hasFieldErrors) {
+            // Get error list if there is any field errors
+            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+            // Get the first error message
+            String errorMsg = fieldErrors.get(0).getDefaultMessage();
+            // Return the first error message
+            return ResultCreator.failResult(errorMsg);
+        }
 
         boolean success = userService.changePassword(passwordInfo);
 

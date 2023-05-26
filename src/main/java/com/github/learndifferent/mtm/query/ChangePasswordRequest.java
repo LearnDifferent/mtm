@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.query;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,15 +20,18 @@ public class ChangePasswordRequest implements Serializable {
     /**
      * Username
      */
-    String userName;
+    @NotBlank(message = "Username cannot be empty")
+    private String userName;
     /**
      * Old password
      */
-    String oldPassword;
+    @NotBlank(message = "Old password cannot be empty")
+    private String oldPassword;
     /**
      * New password
      */
-    String newPassword;
+    @NotBlank(message = "New password cannot be empty")
+    private String newPassword;
 
     private static final long serialVersionUID = 1L;
 }
