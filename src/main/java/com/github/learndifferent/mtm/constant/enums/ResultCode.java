@@ -149,6 +149,10 @@ public enum ResultCode {
      */
     PASSWORD_TOO_SHORT(3019, "Password must be greater than 8 characters"),
     /**
+     * Validation Failed
+     */
+    VALIDATION_FAILED(3020, "Validation Failed"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
