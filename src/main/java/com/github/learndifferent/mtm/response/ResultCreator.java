@@ -11,7 +11,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 public class ResultCreator {
 
     public static <T> ResultVO<T> result(ResultCode resultCode, final T data) {
-        return new ResultVO<T>(resultCode.value(), resultCode.msg(), data);
+        return new ResultVO<>(resultCode.value(), resultCode.msg(), data);
     }
 
     public static <T> ResultVO<T> result(ResultCode resultCode) {
@@ -27,26 +27,14 @@ public class ResultCreator {
     }
 
     public static <T> ResultVO<T> okResult(String msg, final T data) {
-        return new ResultVO<T>(ResultCode.SUCCESS.value(), msg, data);
+        return new ResultVO<>(ResultCode.SUCCESS.value(), msg, data);
     }
 
     public static <T> ResultVO<T> failResult() {
         return result(ResultCode.FAILED, null);
     }
 
-    public static <T> ResultVO<T> failResult(final String msg) {
-        return failResult(msg, null);
-    }
-
-    public static <T> ResultVO<T> failResult(final T data) {
-        return result(ResultCode.FAILED, data);
-    }
-
     public static <T> ResultVO<T> defaultFailResult() {
-        return new ResultVO<T>(ResultCode.FAILED.value(), "Something went wrong. Please try again later.", null);
-    }
-
-    public static <T> ResultVO<T> failResult(String msg, final T data) {
-        return new ResultVO<T>(ResultCode.FAILED.value(), msg, data);
+        return new ResultVO<>(ResultCode.FAILED.value(), "Something went wrong. Please try again later.", null);
     }
 }
