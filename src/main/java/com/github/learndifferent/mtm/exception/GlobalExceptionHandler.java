@@ -5,7 +5,10 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -26,7 +29,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    /**
+     * 处理添加到实体类上的校验参数注解抛出的异常
+     *
+     * @param e {@link MethodArgumentNotValidException}
+     * @return {@link ResultVO}
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResultVO<?> handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
 
@@ -42,6 +51,27 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.toList());
 
         return ResultCreator.result(ResultCode.VALIDATION_FAILED, errorMessages);
+    }
+
+    /**
+     * 处理直接添加到入参的校验参数注解抛出的异常
+     *
+     * @param e {@link ConstraintViolationException}
+     * @return {@link ResultVO}
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResultVO<?> handleConstraintViolationException(final ConstraintViolationException e) {
+
+        log.error("ConstraintViolationException", e);
+
+        Set<ConstraintViolation<?>> constraintViolations = e.getConstraintViolations();
+
+        List<String> messages = constraintViolations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.toList());
+
+        return ResultCreator.result(ResultCode.VALIDATION_FAILED, messages);
     }
 
     /**
