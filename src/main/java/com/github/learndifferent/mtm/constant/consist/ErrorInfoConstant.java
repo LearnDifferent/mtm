@@ -22,4 +22,6 @@ public final class ErrorInfoConstant {
     public static final String USERNAME_EMPTY = "Username cannot be empty";
 
     public static final String USERNAME_LENGTH = "Username must be between {min} and {max} characters long";
+
+    public static final String URL_INVALID = "The URL you entered is invalid";
 }
