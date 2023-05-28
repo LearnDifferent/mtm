@@ -1,7 +1,7 @@
 # mtm
 Version |  Update Time  | Status | Author |  Description
 ---|---|---|---|---
-v2023-05-09 22:25:23|2023-05-09 22:25:23|auto|@zhou|Created by smart-doc
+v2023-05-28 18:38:45|2023-05-28 18:38:45|auto|@zhou|Created by smart-doc
 
 
 
@@ -29,8 +29,8 @@ isAdmin|boolean|           check whether the user is the administrator if {@code
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-userName|string|Username|false|-
-password|string|Password|false|-
+userName|string|Username|true|-
+password|string|Password|true|-
 
 **Response-fields:**
 
@@ -115,7 +115,7 @@ hasSavedToElasticsearch|boolean|True if Elasticsearch saved the data successfull
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 title|string|Title|false|-
-url|string|Url|false|-
+url|string|Url|true|-
 img|string|Image|false|-
 desc|string|Description|false|-
 
@@ -1539,8 +1539,8 @@ invitationToken|string|   token for invitation code
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-userName|string|Username|false|-
-password|string|Password|false|-
+userName|string|Username|true|-
+password|string|Password|true|-
 
 **Response-fields:**
 
@@ -1699,9 +1699,9 @@ userName|string|Username of the user|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-userName|string|Username|false|-
-oldPassword|string|Old password|false|-
-newPassword|string|New password|false|-
+userName|string|Username|true|-
+oldPassword|string|Old password|true|-
+newPassword|string|New password|true|-
 
 **Response-fields:**
 
