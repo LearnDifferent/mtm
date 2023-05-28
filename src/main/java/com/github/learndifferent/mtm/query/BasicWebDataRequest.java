@@ -1,9 +1,12 @@
 package com.github.learndifferent.mtm.query;
 
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import java.io.Serializable;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.URL;
 
 /**
  * Request body that contains title, URL, image and description
@@ -23,6 +26,8 @@ public class BasicWebDataRequest implements Serializable {
     /**
      * Url
      */
+    @URL(message = ErrorInfoConstant.URL_INVALID)
+    @NotBlank(message = ErrorInfoConstant.URL_INVALID)
     private String url;
     /**
      * Image

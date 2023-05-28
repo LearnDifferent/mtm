@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
@@ -19,7 +20,9 @@ import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.util.List;
+import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/bookmark")
+@Validated
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;
@@ -68,7 +72,8 @@ public class BookmarkController {
      *                          when an error occurred during an IO operation
      */
     @GetMapping
-    public BookmarkingResultVO bookmark(@RequestParam("url") String url,
+    public BookmarkingResultVO bookmark(@RequestParam("url")
+                                        @URL(message = ErrorInfoConstant.URL_INVALID) String url,
                                         @RequestParam("privacy") Privacy privacy,
                                         @RequestParam("mode") AddDataMode mode) {
         String currentUsername = getCurrentUsername();
@@ -85,7 +90,7 @@ public class BookmarkController {
      *                          if something goes wrong
      */
     @PostMapping
-    public ResultVO<ResultCode> addToBookmark(@RequestBody BasicWebDataRequest basicData) {
+    public ResultVO<ResultCode> addToBookmark(@RequestBody @Validated BasicWebDataRequest basicData) {
         String currentUsername = getCurrentUsername();
         boolean success = bookmarkService.addToBookmark(basicData, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
