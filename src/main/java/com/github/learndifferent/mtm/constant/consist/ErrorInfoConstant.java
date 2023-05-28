@@ -11,6 +11,12 @@ public final class ErrorInfoConstant {
     private ErrorInfoConstant() {
     }
 
+    public static final String PASSWORD_EMPTY = "Password cannot be empty";
+
+    public static final String PASSWORD_LENGTH = "Password must be between {min} and {max} characters long";
+
+    public static final String VERIFICATION_CODE_EMPTY = "Please enter verification code";
+
     public static final String OLD_PASSWORD_EMPTY = "Old password cannot be empty";
 
     public static final String OLD_PASSWORD_LENGTH = "Old password must be between {min} and {max} characters long";
