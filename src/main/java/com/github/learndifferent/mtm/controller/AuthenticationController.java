@@ -4,11 +4,14 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.VerificationService;
+import javax.validation.constraints.NotBlank;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2022/4/12
  */
 @RestController
+@Validated
 public class AuthenticationController {
 
     private final VerificationService verificationService;
@@ -49,9 +53,13 @@ public class AuthenticationController {
      */
     @PostMapping("/login")
     @SystemNotification(messageType = MessageType.LOGIN)
-    public ResultVO<SaTokenInfo> login(@RequestBody UserIdentificationRequest userIdentification,
-                                       @RequestParam("token") String token,
-                                       @RequestParam("code") String code,
+    public ResultVO<SaTokenInfo> login(@RequestBody @Validated UserIdentificationRequest userIdentification,
+                                       @RequestParam("token")
+                                       @NotBlank(message = "Please ensure that the browser is working properly")
+                                               String token,
+                                       @RequestParam("code")
+                                       @NotBlank(message = ErrorInfoConstant.VERIFICATION_CODE_EMPTY)
+                                               String code,
                                        @RequestParam(value = "isAdmin", required = false) Boolean isAdmin) {
 
         // verify login information and get the username
