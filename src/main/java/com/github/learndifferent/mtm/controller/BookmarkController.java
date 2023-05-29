@@ -20,6 +20,7 @@ import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -73,7 +74,8 @@ public class BookmarkController {
      */
     @GetMapping
     public BookmarkingResultVO bookmark(@RequestParam("url")
-                                        @URL(message = ErrorInfoConstant.URL_INVALID) String url,
+                                            @URL(message = ErrorInfoConstant.URL_INVALID)
+                                            @NotBlank(message = ErrorInfoConstant.URL_INVALID) String url,
                                         @RequestParam("privacy") Privacy privacy,
                                         @RequestParam("mode") AddDataMode mode) {
         String currentUsername = getCurrentUsername();
