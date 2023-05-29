@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 public @interface PageInfo {
 
     /**
-     * If the parameter is is {@link PageInfoParam#CURRENT_PAGE currentPage}, then the string
+     * If the parameter is {@link PageInfoParam#CURRENT_PAGE currentPage}, then the string
      * value will be recognized as current page and will be calculated to be the "from"
      * field of {@link com.github.learndifferent.mtm.dto.PageInfoDTO PageInfoDTO}.
      * <p>

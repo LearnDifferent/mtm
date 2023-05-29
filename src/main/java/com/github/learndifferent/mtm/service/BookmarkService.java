@@ -119,7 +119,7 @@ public interface BookmarkService {
      * Include all private bookmarks if {@code shouldIncludePrivate} is true
      * </p>
      *
-     * @param username  username of the user whose bookmarks is being requested
+     * @param username  username of the user whose bookmarks are being requested
      * @param pageInfo  pagination info
      * @param privilege {@link AccessPrivilege#LIMITED} if only public data can be accessed.
      *                  {@link AccessPrivilege#ALL} if public and private data can be accessed.
