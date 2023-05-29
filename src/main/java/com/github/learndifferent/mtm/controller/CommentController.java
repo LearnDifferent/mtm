@@ -1,6 +1,8 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
@@ -10,8 +12,11 @@ import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/comment")
+@Validated
 public class CommentController {
 
     private final CommentService commentService;
@@ -41,7 +47,7 @@ public class CommentController {
     /**
      * Get a comment
      *
-     * @param id  ID of the comment.
+     * @param id         ID of the comment.
      *                   <p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>
      * @param bookmarkId ID of the bookmark
      * @return {@link ResultVO}<{@link CommentVO}> Return result code of {@link ResultCode#SUCCESS}
@@ -151,7 +157,11 @@ public class CommentController {
      *                                                                  </p>
      */
     @GetMapping("/create")
-    public ResultVO<ResultCode> createComment(@RequestParam("comment") String comment,
+    public ResultVO<ResultCode> createComment(@RequestParam("comment")
+                                              @NotBlank(message = ErrorInfoConstant.COMMENT_EMPTY)
+                                              @Length(max = ConstraintConstant.COMMENT_MAX_LENGTH,
+                                                      message = "Comment should not be longer than {max} characters")
+                                                      String comment,
                                               @RequestParam("bookmarkId") Integer bookmarkId,
                                               @RequestParam(value = "replyToCommentId",
                                                             required = false) Integer replyToCommentId) {
@@ -191,7 +201,7 @@ public class CommentController {
      *                                                                  </p>
      */
     @PostMapping
-    public ResultVO<ResultCode> updateComment(@RequestBody UpdateCommentRequest commentInfo) {
+    public ResultVO<ResultCode> updateComment(@RequestBody @Validated UpdateCommentRequest commentInfo) {
         String currentUsername = StpUtil.getLoginIdAsString();
         boolean success = commentService.editComment(commentInfo, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();

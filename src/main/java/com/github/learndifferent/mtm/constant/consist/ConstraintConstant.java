@@ -18,4 +18,6 @@ public final class ConstraintConstant {
     public static final int USERNAME_MIN_LENGTH = 1;
 
     public static final int USERNAME_MAX_LENGTH = 30;
+
+    public static final int COMMENT_MAX_LENGTH = 140;
 }
