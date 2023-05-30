@@ -1,7 +1,7 @@
 # mtm
 Version |  Update Time  | Status | Author |  Description
 ---|---|---|---|---
-v2023-05-28 18:38:45|2023-05-28 18:38:45|auto|@zhou|Created by smart-doc
+v2023-05-30 21:52:28|2023-05-30 21:52:28|auto|@zhou|Created by smart-doc
 
 
 
@@ -710,7 +710,7 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-id|int32| ID of the comment.
+id|int32|        ID of the comment.
                   <p>Return {@link ResultCode#FAILED} if {@code commentId} is null.</p>|false|-
 bookmarkId|int32|ID of the bookmark|true|-
 
@@ -853,9 +853,9 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-id|int32|ID of the comment|false|-
-comment|string|New comment|false|-
-bookmarkId|int32|ID of the bookmark|false|-
+id|int32|ID of the comment|true|-
+comment|string|New comment|true|-
+bookmarkId|int32|ID of the bookmark|true|-
 
 **Response-fields:**
 
