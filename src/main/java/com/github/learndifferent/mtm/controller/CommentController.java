@@ -13,6 +13,8 @@ import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -92,7 +94,10 @@ public class CommentController {
     public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("id") Integer bookmarkId,
                                                          @RequestParam(value = "replyToCommentId", required = false)
                                                                  Integer replyToCommentId,
-                                                         @RequestParam("load") Integer load,
+                                                         @RequestParam("load")
+                                                             @NotNull(message = ErrorInfoConstant.NO_DATA)
+                                                             @Positive(message = ErrorInfoConstant.NO_DATA)
+                                                                     Integer load,
                                                          @RequestParam("order") Order order) {
         String currentUsername = StpUtil.getLoginIdAsString();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(

@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.OrderField;
@@ -14,7 +15,10 @@ import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.HomePageVO;
 import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
 import java.util.List;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/home")
+@Validated
 public class HomeController {
 
     private final BookmarkService bookmarkService;
@@ -85,7 +90,10 @@ public class HomeController {
      */
     @PostMapping("/filter")
     public List<BookmarkVO> filter(@RequestBody UsernamesRequest usernames,
-                                   @RequestParam("load") Integer load,
+                                   @RequestParam("load")
+                                   @NotNull(message = ErrorInfoConstant.NO_DATA)
+                                   @Positive(message = ErrorInfoConstant.NO_DATA)
+                                           Integer load,
                                    @RequestParam(value = "fromTimestamp", required = false) String fromTimestamp,
                                    @RequestParam(value = "toTimestamp", required = false) String toTimestamp,
                                    @RequestParam("orderField") OrderField orderField,

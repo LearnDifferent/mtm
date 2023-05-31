@@ -38,4 +38,6 @@ public final class ErrorInfoConstant {
     public static final String BOOKMARK_NOT_FOUND = "Can't find the bookmark";
 
     public static final String USER_NOT_FOUND = "Can't find the user";
+
+    public static final String NO_DATA = "No data available";
 }
