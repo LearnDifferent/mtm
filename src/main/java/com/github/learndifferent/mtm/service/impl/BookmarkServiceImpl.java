@@ -56,6 +56,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -504,6 +505,10 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public String importBookmarksFromHtmlFile(MultipartFile htmlFile, String username) {
+
+        Optional.ofNullable(htmlFile)
+                .orElseThrow(() -> new ServiceException(ResultCode.HTML_FILE_NO_BOOKMARKS));
+
         // [Success][Failure][Existing]
         int[] result = new int[3];
 

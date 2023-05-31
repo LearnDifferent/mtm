@@ -1,9 +1,11 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.BookmarkService;
+import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +34,7 @@ public class FileController {
     }
 
     /**
-     * Export user's bookmarks to a HTML file.
+     * Export user's bookmarks to an HTML file.
      * <p>Export bookmarks belonging to the user that is currently logged in
      * if the username is missing.</p>
      *
@@ -42,8 +44,7 @@ public class FileController {
      *                                                                  String, HttpServletResponse)}
      *                                                                  will throw an exception if an IO Exception
      *                                                                  occurs. The Result Code is {@link
-     *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#CONNECTION_ERROR
-     *                                                                  CONNECTION_ERROR}
+     *                                                                  ResultCode#CONNECTION_ERROR CONNECTION_ERROR}
      */
     @GetMapping
     public void export(@RequestParam(value = "username", required = false) String username,
@@ -53,18 +54,22 @@ public class FileController {
     }
 
     /**
-     * Import a HTML file that contains bookmarks
+     * Import an HTML file that contains bookmarks
      *
      * @param htmlFile a file that contains bookmarks in HTML format
      * @return the message of the result
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link BookmarkService#importBookmarksFromHtmlFile(MultipartFile,
      *                                                                  String)} will throw an exception with the
-     *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#HTML_FILE_NO_BOOKMARKS
+     *                                                                  result code of {@link ResultCode#HTML_FILE_NO_BOOKMARKS
      *                                                                  HTML_FILE_NO_BOOKMARKS} if it's not a valid
      *                                                                  HTML file that contains bookmarks
      */
     @PostMapping
     public ResultVO<String> importFile(@RequestBody MultipartFile htmlFile) {
+        if (Objects.isNull(htmlFile)) {
+            return ResultCreator.result(ResultCode.HTML_FILE_NO_BOOKMARKS);
+        }
+
         String currentUser = getCurrentUser();
         String msg = bookmarkService.importBookmarksFromHtmlFile(htmlFile, currentUser);
         return ResultCreator.okResult(msg);
