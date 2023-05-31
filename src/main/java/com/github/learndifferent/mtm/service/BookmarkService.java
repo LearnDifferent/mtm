@@ -130,7 +130,7 @@ public interface BookmarkService {
     /**
      * Delete a bookmarked website and its associated data
      *
-     * @param id    ID of the bookmark
+     * @param id       ID of the bookmark
      * @param userName username of the user who is deleting the bookmark
      * @return true if success
      * @throws ServiceException {@link ModifyBookmarkPermissionCheck
@@ -144,7 +144,7 @@ public interface BookmarkService {
      * Make the bookmarked website private if it's public
      * and make it public if it's private.
      *
-     * @param id    ID of the bookmark
+     * @param id       ID of the bookmark
      * @param userName name of user who trying to change the privacy settings
      * @return success or failure
      * @throws ServiceException If the bookmark does not exist, the result code will be
@@ -159,7 +159,7 @@ public interface BookmarkService {
     /**
      * Get a bookmark
      *
-     * @param id    ID of the bookmark
+     * @param id       ID of the bookmark
      * @param userName username of the user
      * @return bookmark
      * @throws ServiceException If the user has no permission to get the bookmark,
@@ -173,7 +173,7 @@ public interface BookmarkService {
     /**
      * Check if the bookmark exists and if the user has permission to access it
      *
-     * @param id    ID of the bookmark
+     * @param id       ID of the bookmark
      * @param username username of the user who is trying to access the bookmark
      * @throws ServiceException throw an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if the bookmark dose not exist, or {@link ResultCode#PERMISSION_DENIED}
