@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
@@ -21,6 +22,9 @@ import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -75,7 +79,8 @@ public class BookmarkController {
     @GetMapping
     public BookmarkingResultVO bookmark(@RequestParam("url")
                                             @URL(message = ErrorInfoConstant.URL_INVALID)
-                                            @NotBlank(message = ErrorInfoConstant.URL_INVALID) String url,
+                                            @NotBlank(message = ErrorInfoConstant.URL_INVALID)
+                                                    String url,
                                         @RequestParam("privacy") Privacy privacy,
                                         @RequestParam("mode") AddDataMode mode) {
         String currentUsername = getCurrentUsername();
@@ -108,7 +113,10 @@ public class BookmarkController {
      *                          the result code will be {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
-    public ResultVO<ResultCode> deleteBookmark(@RequestParam("id") Integer id) {
+    public ResultVO<ResultCode> deleteBookmark(@RequestParam("id")
+                                               @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                               @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                       Integer id) {
         String currentUsername = getCurrentUsername();
         boolean success = bookmarkService.deleteBookmark(id, currentUsername);
         return success ? ResultCreator.result(ResultCode.DELETE_SUCCESS)
@@ -128,7 +136,10 @@ public class BookmarkController {
      *                          settings
      */
     @GetMapping("/privacy")
-    public ResultVO<ResultCode> changePrivacySettings(@RequestParam("id") Integer id) {
+    public ResultVO<ResultCode> changePrivacySettings(@RequestParam("id")
+                                                      @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                      @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                              Integer id) {
         String currentUsername = getCurrentUsername();
         boolean success = bookmarkService.changePrivacySettings(id, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.UPDATE_FAILED);
@@ -145,7 +156,10 @@ public class BookmarkController {
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
     @GetMapping("/get")
-    public BookmarkVO getBookmark(@RequestParam("id") Integer id) {
+    public BookmarkVO getBookmark(@RequestParam("id")
+                                  @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                  @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                          Integer id) {
         String currentUsername = getCurrentUsername();
         return bookmarkService.getBookmark(id, currentUsername);
     }
@@ -171,7 +185,12 @@ public class BookmarkController {
      * @return paginated public bookmarks of the user and the total pages
      */
     @GetMapping("/get/user/{username}")
-    public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("username") String username,
+    public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("username")
+                                                           @NotBlank(message = ErrorInfoConstant.USER_NOT_FOUND)
+                                                           @Length(min = ConstraintConstant.USERNAME_MIN_LENGTH,
+                                                                   max = ConstraintConstant.USERNAME_MAX_LENGTH,
+                                                                   message = ErrorInfoConstant.USERNAME_LENGTH)
+                                                                   String username,
                                                            @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                    PageInfoDTO pageInfo) {
         return bookmarkService.getUserBookmarks(username, pageInfo, AccessPrivilege.LIMITED);
