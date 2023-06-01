@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
 
@@ -24,24 +25,35 @@ public class ConvertByNamesConverterFactory implements ConverterFactory<String, 
 
 class ConvertByNamesConverter<E extends ConvertByNames> implements Converter<String, E> {
 
-    private final Map<String, E> names;
+    private final Map<String, E> namesEnumMap;
 
     public ConvertByNamesConverter(Class<E> type) {
-        names = new HashMap<>();
+        namesEnumMap = new HashMap<>();
         E[] es = type.getEnumConstants();
         Arrays.stream(es).forEach(e -> {
-            String[] nfc = e.namesForConverter();
-            Arrays.stream(nfc).forEach(n -> names.put(n, e));
+            String[] names = e.namesForConverter();
+            Arrays.stream(names).forEach(name -> namesEnumMap.put(name, e));
         });
     }
 
     @Override
     public E convert(String source) {
-        E e1 = names.get(source.toLowerCase());
-        E e2 = names.get(source.toUpperCase());
-        if (e1 == null && e2 == null) {
-            throw new ServiceException("Can't convert " + source);
+        E e1 = namesEnumMap.get(source.toLowerCase());
+        E e2 = namesEnumMap.get(source.toUpperCase());
+        E e3 = namesEnumMap.get(source);
+
+        if (Objects.nonNull(e1)) {
+            return e1;
         }
-        return e1 != null ? e1 : e2;
+
+        if (Objects.nonNull(e2)) {
+            return e2;
+        }
+
+        if (Objects.nonNull(e3)) {
+            return e3;
+        }
+
+        throw new ServiceException("Can't convert " + source);
     }
 }
