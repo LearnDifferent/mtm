@@ -64,7 +64,10 @@ public class CommentController {
      */
     @GetMapping
     public ResultVO<CommentVO> getCommentByIds(@RequestParam(value = "id", required = false) Integer id,
-                                               @RequestParam("bookmarkId") Integer bookmarkId) {
+                                               @RequestParam("bookmarkId")
+                                               @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                               @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                       Integer bookmarkId) {
         String currentUsername = StpUtil.getLoginIdAsString();
         CommentVO comment = commentService.getCommentByIds(id, bookmarkId, currentUsername);
         return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
@@ -91,13 +94,16 @@ public class CommentController {
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @GetMapping("/bookmark")
-    public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("id") Integer bookmarkId,
+    public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("id")
+                                                         @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                         @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                                 Integer bookmarkId,
                                                          @RequestParam(value = "replyToCommentId", required = false)
                                                                  Integer replyToCommentId,
                                                          @RequestParam("load")
-                                                             @NotNull(message = ErrorInfoConstant.NO_DATA)
-                                                             @Positive(message = ErrorInfoConstant.NO_DATA)
-                                                                     Integer load,
+                                                         @NotNull(message = ErrorInfoConstant.NO_DATA)
+                                                         @Positive(message = ErrorInfoConstant.NO_DATA)
+                                                                 Integer load,
                                                          @RequestParam("order") Order order) {
         String currentUsername = StpUtil.getLoginIdAsString();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
@@ -115,7 +121,10 @@ public class CommentController {
      * @return number of comments of the bookmarked website
      */
     @GetMapping("/bookmark/{id}")
-    public ResultVO<Integer> countComment(@PathVariable("id") Integer bookmarkId) {
+    public ResultVO<Integer> countComment(@PathVariable("id")
+                                          @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                          @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                  Integer bookmarkId) {
         int number = commentService.countCommentByBookmarkId(bookmarkId);
         return ResultCreator.okResult(number);
     }
@@ -167,7 +176,10 @@ public class CommentController {
                                               @Length(max = ConstraintConstant.COMMENT_MAX_LENGTH,
                                                       message = "Comment should not be longer than {max} characters")
                                                       String comment,
-                                              @RequestParam("bookmarkId") Integer bookmarkId,
+                                              @RequestParam("bookmarkId")
+                                              @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                              @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                      Integer bookmarkId,
                                               @RequestParam(value = "replyToCommentId",
                                                             required = false) Integer replyToCommentId) {
         String currentUsername = StpUtil.getLoginIdAsString();
@@ -226,7 +238,10 @@ public class CommentController {
      *                                                                  no permissions to delete the comment
      */
     @DeleteMapping
-    public ResultVO<ResultCode> deleteComment(@RequestParam("id") Integer id) {
+    public ResultVO<ResultCode> deleteComment(@RequestParam("id")
+                                              @NotNull(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
+                                              @Positive(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
+                                                      Integer id) {
         String currentUsername = StpUtil.getLoginIdAsString();
         boolean success = commentService.deleteCommentById(id, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
