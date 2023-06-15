@@ -47,7 +47,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<ReplyMessageNotificationVO> getReplyNotifications(String receiveUsername, int lastIndex) {
+    public List<ReplyMessageNotificationVO> getReplyNotifications(String receiveUsername, int size) {
+        boolean illegalSize = size <= 0;
+        ThrowExceptionUtils.throwIfTrue(illegalSize, ResultCode.NO_RESULTS_FOUND);
+
+        int lastIndex = size - 1;
         return notificationManager.getReplyMessageNotification(receiveUsername, 0, lastIndex);
     }
 

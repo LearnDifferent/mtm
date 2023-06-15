@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -8,8 +9,10 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
+import javax.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/notification")
+@Validated
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -38,7 +42,7 @@ public class NotificationController {
     /**
      * Get reply notifications
      *
-     * @param lastIndex index of the last element of the reply notification list
+     * @param size size of the reply notification list
      * @return reply notifications
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotificationService#getReplyNotifications(String,
      *                                                                  int)} will throw an exception with
@@ -46,11 +50,11 @@ public class NotificationController {
      *                                                                  if there is no notifications found
      */
     @GetMapping
-    public List<ReplyMessageNotificationVO> getReplyNotifications(
-            @RequestParam(value = "lastIndex", defaultValue = "10") int lastIndex) {
-
+    public List<ReplyMessageNotificationVO> getReplyNotifications(@RequestParam(value = "size", defaultValue = "10")
+                                                                  @Positive(message = ErrorInfoConstant.NO_DATA)
+                                                                          int size) {
         String username = StpUtil.getLoginIdAsString();
-        return notificationService.getReplyNotifications(username, lastIndex);
+        return notificationService.getReplyNotifications(username, size);
     }
 
     /**
