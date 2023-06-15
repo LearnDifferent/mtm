@@ -4,6 +4,7 @@ import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
@@ -15,7 +16,9 @@ import com.github.learndifferent.mtm.service.SearchService;
 import com.github.learndifferent.mtm.vo.FindPageVO;
 import com.github.learndifferent.mtm.vo.SearchDataStatusVO;
 import java.util.Set;
+import javax.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/search")
+@Validated
 public class SearchController {
 
     private final SearchService searchService;
@@ -49,7 +53,7 @@ public class SearchController {
      *                  search for bookmarks in MySQL if the search mode is {@link SearchMode#BOOKMARK_MYSQL},
      *                  search for tags in MySQL if the search mode is {@link SearchMode#TAG_MYSQL},
      *                  and search for users in MySQL if the search mode is {@link SearchMode#USER_MYSQL}.
-     * @param keyword   keyword (accept empty string and null)
+     * @param keyword   keyword
      * @param pageInfo  pagination information
      * @param rangeFrom lower range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
      *                  unbounded.
@@ -63,13 +67,15 @@ public class SearchController {
      */
     @GetMapping
     public ResultVO<SearchResultsDTO> search(@RequestParam("mode") SearchMode mode,
-                                             @RequestParam("keyword") String keyword,
+                                             @RequestParam("keyword")
+                                             @NotBlank(message = ErrorInfoConstant.NO_DATA)
+                                                     String keyword,
                                              @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
-                                                     PageInfoDTO pageInfo,
+                                                         PageInfoDTO pageInfo,
                                              @RequestParam(required = false, value = "rangeFrom")
-                                                     Integer rangeFrom,
+                                                         Integer rangeFrom,
                                              @RequestParam(required = false, value = "rangeTo")
-                                                     Integer rangeTo) {
+                                                         Integer rangeTo) {
 
         SearchResultsDTO results = searchService.search(mode, keyword, pageInfo, rangeFrom, rangeTo);
         return ResultCreator.okResult(results);
