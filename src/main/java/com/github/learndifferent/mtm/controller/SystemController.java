@@ -15,7 +15,9 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/system")
+@Validated
 public class SystemController {
 
     private final SystemLogService logService;
@@ -72,7 +75,9 @@ public class SystemController {
     @GetMapping("/send")
     @AdminValidation
     @SystemLog(title = "Notification", optsType = OptsType.CREATE)
-    public ResultVO<ResultCode> sendSystemNotification(@RequestParam("message") String message,
+    public ResultVO<ResultCode> sendSystemNotification(@RequestParam("message")
+                                                       @NotBlank(message = "Message cannot be empty")
+                                                               String message,
                                                        @RequestParam(value = "priority", required = false)
                                                                Integer priority) {
         // the message has the highest priority only when the priority is 0
