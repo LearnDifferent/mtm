@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -15,6 +16,7 @@ import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -80,6 +82,9 @@ public class TagController {
                                              Integer bookmarkId,
                                      @RequestParam("tag")
                                      @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
+                                     @Length(min = ConstraintConstant.TAG_MIN_LENGTH,
+                                             max = ConstraintConstant.TAG_MAX_LENGTH,
+                                             message = ErrorInfoConstant.TAG_LENGTH)
                                              String tagName) {
         String currentUsername = getCurrentUsername();
         String tag = tagService.applyTag(currentUsername, bookmarkId, tagName);

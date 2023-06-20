@@ -29,6 +29,8 @@ public final class ErrorInfoConstant {
 
     public static final String USERNAME_LENGTH = "Username must be between {min} and {max} characters long";
 
+    public static final String TAG_LENGTH = "Tag must be between {min} and {max} characters long";
+
     public static final String URL_INVALID = "The URL you entered is invalid";
 
     public static final String COMMENT_EMPTY = "Comment cannot be empty";
