@@ -33,6 +33,8 @@ public final class ErrorInfoConstant {
 
     public static final String COMMENT_EMPTY = "Comment cannot be empty";
 
+    public static final String TAG_EMPTY = "Tag cannot be empty";
+
     public static final String COMMENT_NOT_FOUND = "Can't find the comment";
 
     public static final String BOOKMARK_NOT_FOUND = "Can't find the bookmark";

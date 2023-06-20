@@ -13,6 +13,7 @@ import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -74,8 +75,12 @@ public class TagController {
      *                                                                  </p>
      */
     @GetMapping("/apply")
-    public ResultVO<String> applyTag(@RequestParam("bookmarkId") Integer bookmarkId,
-                                     @RequestParam("tag") String tagName) {
+    public ResultVO<String> applyTag(@RequestParam("bookmarkId")
+                                     @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                             Integer bookmarkId,
+                                     @RequestParam("tag")
+                                     @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
+                                             String tagName) {
         String currentUsername = getCurrentUsername();
         String tag = tagService.applyTag(currentUsername, bookmarkId, tagName);
         return ResultCreator.okResult(tag);
@@ -98,7 +103,7 @@ public class TagController {
      */
     @GetMapping
     public ResultVO<List<String>> getTags(@RequestParam(value = "bookmarkId", required = false)
-                                          @Positive(message = ErrorInfoConstant.NO_DATA)
+                                              @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                   Integer bookmarkId,
                                           @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
                                                   PageInfoDTO pageInfo) {
