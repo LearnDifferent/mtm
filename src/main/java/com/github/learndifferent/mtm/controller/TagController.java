@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
@@ -12,7 +13,9 @@ import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
+import javax.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/tag")
+@Validated
 public class TagController {
 
     private final TagService tagService;
@@ -93,7 +97,9 @@ public class TagController {
      *                                                                  associated with any tags
      */
     @GetMapping
-    public ResultVO<List<String>> getTags(@RequestParam(value = "bookmarkId", required = false) Integer bookmarkId,
+    public ResultVO<List<String>> getTags(@RequestParam(value = "bookmarkId", required = false)
+                                          @Positive(message = ErrorInfoConstant.NO_DATA)
+                                                  Integer bookmarkId,
                                           @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
                                                   PageInfoDTO pageInfo) {
         List<String> tags = tagService.getTags(bookmarkId, pageInfo);
