@@ -1,5 +1,7 @@
 package com.github.learndifferent.mtm.constant.enums;
 
+import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
+
 /**
  * Result Code
  *
@@ -87,11 +89,13 @@ public enum ResultCode {
     /**
      * Username is too long
      */
-    USERNAME_TOO_LONG(3004, "Username must be less than 30 characters"),
+    USERNAME_TOO_LONG(3004, "Username must be less than "
+            + ConstraintConstant.USERNAME_MAX_LENGTH + " characters"),
     /**
      * Password is too long
      */
-    PASSWORD_TOO_LONG(3005, "Password must be less than 50 characters"),
+    PASSWORD_TOO_LONG(3005, "Password must be less than "
+            + ConstraintConstant.PASSWORD_MAX_LENGTH + " characters"),
     /**
      * Username is empty
      */
@@ -115,7 +119,8 @@ public enum ResultCode {
     /**
      * Comment is too long
      */
-    COMMENT_TOO_LONG(3011, "Comment should not be longer than 140 characters."),
+    COMMENT_TOO_LONG(3011, "Comment should not be longer than "
+            + ConstraintConstant.COMMENT_MAX_LENGTH + " characters."),
     /**
      * Comment does not exist
      */
@@ -131,7 +136,8 @@ public enum ResultCode {
     /**
      * Tag is too long
      */
-    TAG_TOO_LONG(3015, "Tag should not be longer than 8 characters"),
+    TAG_TOO_LONG(3015, "Tag should not be longer than "
+            + ConstraintConstant.TAG_MAX_LENGTH + " characters"),
     /**
      * Tag does not exist
      */
@@ -147,7 +153,8 @@ public enum ResultCode {
     /**
      * Password is too short
      */
-    PASSWORD_TOO_SHORT(3019, "Password must be greater than 8 characters"),
+    PASSWORD_TOO_SHORT(3019, "Password must be greater than "
+            + ConstraintConstant.PASSWORD_MIN_LENGTH + " characters"),
     /**
      * Validation Failed
      */
