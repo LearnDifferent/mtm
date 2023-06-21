@@ -108,7 +108,7 @@ public class TagController {
      */
     @GetMapping
     public ResultVO<List<String>> getTags(@RequestParam(value = "bookmarkId", required = false)
-                                              @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                          @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                   Integer bookmarkId,
                                           @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
                                                   PageInfoDTO pageInfo) {
@@ -145,7 +145,12 @@ public class TagController {
      *                                                                  if no results found
      */
     @GetMapping("/search")
-    public List<BookmarkVO> getBookmarksByTagName(@RequestParam("tagName") String tagName,
+    public List<BookmarkVO> getBookmarksByTagName(@RequestParam("tagName")
+                                                  @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
+                                                  @Length(min = ConstraintConstant.TAG_MIN_LENGTH,
+                                                          max = ConstraintConstant.TAG_MAX_LENGTH,
+                                                          message = ErrorInfoConstant.TAG_LENGTH)
+                                                          String tagName,
                                                   @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
                                                           PageInfoDTO pageInfo) {
         String currentUsername = getCurrentUsername();
