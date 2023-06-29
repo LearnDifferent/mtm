@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.config.mvc.CustomWebConfig;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.service.impl.BookmarkServiceImpl;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
+import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,7 +54,9 @@ class BookmarkControllerTest {
 
         // 从资源文件中读取请求体数据
         URL resource = BookmarkControllerTest.class.getClassLoader()
-                .getResource("request/bookmark/basic-bookmark-data.json");
+                .getResource("request" + File.separator
+                        + "bookmark" + File.separator
+                        + "basic-bookmark-data.json");
         assert resource != null;
         Path path = Paths.get(resource.toURI());
         byte[] requestBody = Files.readAllBytes(path);
