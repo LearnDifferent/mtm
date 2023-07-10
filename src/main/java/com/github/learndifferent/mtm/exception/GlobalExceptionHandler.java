@@ -29,6 +29,28 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(IdempotencyException.class)
+    public ResultVO<?> handleIdempotencyException(final IdempotencyException e) {
+
+        ResultCode resultCode = e.getResultCode();
+        String key = e.getIdempotencyKey();
+
+        switch (resultCode) {
+            case IDEMPOTENCY_KEY_BLANK:
+                log.error("Idempotency key cannot be blank: {}", key);
+                break;
+            case IDEMPOTENCY_KEY_CONFLICT:
+                log.error("Idempotency key conflict: {}", key);
+                break;
+            default:
+                log.error("Idempotency Exception. The key is {}", key);
+                break;
+        }
+
+        return ResultCreator.result(resultCode, key);
+    }
+
     /**
      * 处理添加到实体类上的校验参数注解抛出的异常
      *

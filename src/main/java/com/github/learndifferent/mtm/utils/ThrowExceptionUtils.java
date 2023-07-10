@@ -1,10 +1,11 @@
 package com.github.learndifferent.mtm.utils;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.exception.IdempotencyException;
 import com.github.learndifferent.mtm.exception.ServiceException;
 
 /**
- * An utility class that can throw {@link ServiceException}
+ * A utility class that can throw {@link ServiceException} and {@link IdempotencyException}
  *
  * @author zhou
  * @date 2021/10/19
@@ -47,6 +48,18 @@ public class ThrowExceptionUtils {
     public static void throwIfTrue(boolean expression, ResultCode resultCode) {
         if (expression) {
             throw new ServiceException(resultCode);
+        }
+    }
+
+    /**
+     * Throw a {@link IdempotencyException} if the expression is true
+     *
+     * @param expression expression
+     * @param resultCode {@link ResultCode}
+     */
+    public static void throwIfTrue(boolean expression, ResultCode resultCode, String idempotencyKey) {
+        if (expression) {
+            throw new IdempotencyException(resultCode, idempotencyKey);
         }
     }
 }
