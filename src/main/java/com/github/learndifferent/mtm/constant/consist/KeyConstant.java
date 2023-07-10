@@ -60,4 +60,9 @@ public final class KeyConstant {
      * Usernames of the users who turned off notifications
      */
     public static final String MUTE_NOTIFICATIONS = "mute:notifications";
+
+    /**
+     * IdempotencyCheck key prefix
+     */
+    public static final String IDEMPOTENCY_KEY_PREFIX = "idempotency:";
 }
