@@ -48,3 +48,7 @@ custom-redis:
     "system:log": 40
     "[bookmarks:visited]": 0
     "[tag:a]": 0
+# IdempotencyCheck Configuration
+idempotency-config:
+  timeout: 3
+  key: mtm-idempotency-key
