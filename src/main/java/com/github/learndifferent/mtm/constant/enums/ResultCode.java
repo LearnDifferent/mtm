@@ -160,6 +160,14 @@ public enum ResultCode {
      */
     VALIDATION_FAILED(3020, "Validation Failed"),
     /**
+     * Idempotency key cannot be blank
+     */
+    IDEMPOTENCY_KEY_BLANK(3021, "Idempotency key cannot be blank"),
+    /**
+     * Idempotency key conflict
+     */
+    IDEMPOTENCY_KEY_CONFLICT(3022, "Idempotency key conflict"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
