@@ -2,14 +2,12 @@ package com.github.learndifferent.mtm.annotation.general.idempotency;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,28 +46,45 @@ public class IdempotencyCheckAspect {
 
     private final StringRedisTemplate redisTemplate;
 
-    private final SystemLogService logService;
-
     @Before("@annotation(annotation)")
-    public void check(JoinPoint jp, IdempotencyCheck annotation) {
+    public void check(IdempotencyCheck annotation) {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
 
         // get the key from the header
         String key = request.getHeader(idempotencyKeyHeader);
 
-        // check if the key is blank
-        boolean isKeyBlank = StringUtils.isBlank(key);
-        ThrowExceptionUtils.throwIfTrue(isKeyBlank, ResultCode.IDEMPOTENCY_KEY_BLANK, key);
+        // check if the key is valid
+        checkIfKeyValid(key);
 
-        // check if the key already exists in Redis
-        String redisKey = KeyConstant.IDEMPOTENCY_KEY_PREFIX + request.getContextPath() + key;
+        // check if the key conflicts
+        checkIfKeyConflict(request, key);
+    }
+
+    private void checkIfKeyConflict(HttpServletRequest request, String key) {
+        String method = request.getMethod();
+        String path = request.getContextPath();
+
+        String redisKey = KeyConstant.IDEMPOTENCY_CHECK_PREFIX + method + path + key;
         Boolean success = redisTemplate.opsForValue()
                 .setIfAbsent(redisKey, "", timeout, TimeUnit.SECONDS);
         // throw an exception if the key conflicts
         ThrowExceptionUtils.throwIfTrue(
                 BooleanUtils.isNotTrue(success),
                 ResultCode.IDEMPOTENCY_KEY_CONFLICT,
+                key);
+    }
+
+    private void checkIfKeyValid(String key) {
+        boolean isKeyBlank = StringUtils.isBlank(key);
+        ThrowExceptionUtils.throwIfTrue(isKeyBlank, ResultCode.IDEMPOTENCY_KEY_BLANK, key);
+
+        String redisKey = KeyConstant.IDEMPOTENCY_KEY_PREFIX + key;
+        Boolean hasKey = redisTemplate.hasKey(redisKey);
+        boolean notValid = BooleanUtils.isNotTrue(hasKey);
+        ThrowExceptionUtils.throwIfTrue(
+                notValid,
+                ResultCode.IDEMPOTENCY_KEY_NOT_VALID,
                 key);
     }
 }

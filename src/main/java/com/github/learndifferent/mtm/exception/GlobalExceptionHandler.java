@@ -38,13 +38,16 @@ public class GlobalExceptionHandler {
 
         switch (resultCode) {
             case IDEMPOTENCY_KEY_BLANK:
-                log.error("Idempotency key cannot be blank: {}", key);
+                log.error("Idempotency key cannot be blank: {}", key, e);
                 break;
             case IDEMPOTENCY_KEY_CONFLICT:
-                log.error("Idempotency key conflict: {}", key);
+                log.error("Idempotency key conflict: {}", key, e);
+                break;
+            case IDEMPOTENCY_KEY_NOT_VALID:
+                log.error("Idempotency key is not valid: {}", key, e);
                 break;
             default:
-                log.error("Idempotency Exception. The key is {}", key);
+                log.error("Idempotency Exception. The key is {}", key, e);
                 break;
         }
 
