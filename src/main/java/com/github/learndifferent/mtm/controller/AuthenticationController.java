@@ -85,6 +85,19 @@ public class AuthenticationController {
     }
 
     /**
+     * Retrieve information about the idempotency key for the authenticated user.
+     * The key is used to ensure that duplicate requests are not processed multiple times.
+     *
+     * @return {@link ResultVO<IdempotencyKeyInfoDTO>} Information about the idempotency key
+     */
+    @GetMapping("/idempotency-key")
+    public ResultVO<IdempotencyKeyInfoDTO> getIdempotencyKeyInfo() {
+        long timeout = StpUtil.getTokenTimeout();
+        IdempotencyKeyInfoDTO info = verificationService.getIdempotencyKeyInfo(timeout);
+        return ResultCreator.okResult(info);
+    }
+
+    /**
      * Logout
      *
      * @return {@link ResultCode#SUCCESS}
