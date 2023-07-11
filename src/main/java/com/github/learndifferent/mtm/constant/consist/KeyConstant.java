@@ -62,7 +62,12 @@ public final class KeyConstant {
     public static final String MUTE_NOTIFICATIONS = "mute:notifications";
 
     /**
-     * IdempotencyCheck key prefix
+     * {@link com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck} key prefix
      */
-    public static final String IDEMPOTENCY_KEY_PREFIX = "idempotency:";
+    public static final String IDEMPOTENCY_CHECK_PREFIX = "idempotency:check:";
+
+    /**
+     * Idempotency key prefix
+     */
+    public static final String IDEMPOTENCY_KEY_PREFIX = "idempotency:key:";
 }
