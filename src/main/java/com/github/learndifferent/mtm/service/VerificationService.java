@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.dto.IdempotencyKeyInfoDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 
@@ -72,4 +73,12 @@ public interface VerificationService {
      *                          error.
      */
     void sendInvitationCode(String token, String email);
+
+    /**
+     * Retrieve information about an idempotency key for a given time-to-live (TTL)
+     *
+     * @param timeout The maximum time (in second) that the idempotency key is allowed to live
+     * @return Idempotency key information
+     */
+    IdempotencyKeyInfoDTO getIdempotencyKeyInfo(long timeout);
 }

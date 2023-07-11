@@ -1,7 +1,9 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.dto.IdempotencyKeyInfoDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.SendEmailManager;
@@ -14,9 +16,11 @@ import com.github.learndifferent.mtm.utils.UUIDUtils;
 import com.github.learndifferent.mtm.utils.VerifyCodeUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
@@ -34,6 +38,9 @@ public class VerificationServiceImpl implements VerificationService {
     private final StringRedisTemplate redisTemplate;
     private final SendEmailManager sendEmailManager;
     private final UserAccountManager userAccountManager;
+
+    @Value("${idempotency-config.key}")
+    private String idempotencyKeyHeader;
 
     @Autowired
     public VerificationServiceImpl(StringRedisTemplate redisTemplate,
@@ -157,5 +164,22 @@ public class VerificationServiceImpl implements VerificationService {
                 "Invitation Code：<p style=\"color: red\">"
                         + invitationCode
                         + "</p>");
+    }
+
+    @Override
+    public IdempotencyKeyInfoDTO getIdempotencyKeyInfo(long timeout) {
+
+        // generate idempotency key
+        UUID key = UUID.randomUUID();
+
+        // set idempotency key
+        String redisKey = KeyConstant.IDEMPOTENCY_KEY_PREFIX + key;
+        redisTemplate.opsForValue()
+                .set(redisKey, "", timeout, TimeUnit.SECONDS);
+
+        return IdempotencyKeyInfoDTO.builder()
+                .idempotencyKey(key)
+                .idempotencyKeyHeaderName(idempotencyKeyHeader)
+                .build();
     }
 }
