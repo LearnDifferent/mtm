@@ -6,10 +6,12 @@ import com.github.learndifferent.mtm.annotation.general.notification.SystemNotif
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.IdempotencyKeyInfoDTO;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.VerificationService;
+import com.github.learndifferent.mtm.vo.AuthenticationVO;
 import javax.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +43,7 @@ public class AuthenticationController {
      * @param token              token for verification code
      * @param code               verification code
      * @param isAdmin            check whether the user is the administrator if {@code isAdmin} is true
-     * @return {@code ResultVO<SaTokenInfo>} Token information
+     * @return {@link ResultVO<AuthenticationVO>} token information and idempotency key information
      * @throws com.github.learndifferent.mtm.exception.ServiceException Throw an exception with the result code of
      *                                                                  {@link ResultCode#VERIFICATION_CODE_FAILED} if
      *                                                                  the verification code is invalid or with the
@@ -53,14 +55,14 @@ public class AuthenticationController {
      */
     @PostMapping("/login")
     @SystemNotification(messageType = MessageType.LOGIN)
-    public ResultVO<SaTokenInfo> login(@RequestBody @Validated UserIdentificationRequest userIdentification,
-                                       @RequestParam("token")
-                                       @NotBlank(message = "Please ensure that the browser is working properly")
-                                               String token,
-                                       @RequestParam("code")
-                                       @NotBlank(message = ErrorInfoConstant.VERIFICATION_CODE_EMPTY)
-                                               String code,
-                                       @RequestParam(value = "isAdmin", required = false) Boolean isAdmin) {
+    public ResultVO<AuthenticationVO> login(@RequestBody @Validated UserIdentificationRequest userIdentification,
+                                            @RequestParam("token")
+                                            @NotBlank(message = "Please ensure that the browser is working properly")
+                                                    String token,
+                                            @RequestParam("code")
+                                            @NotBlank(message = ErrorInfoConstant.VERIFICATION_CODE_EMPTY)
+                                                    String code,
+                                            @RequestParam(value = "isAdmin", required = false) Boolean isAdmin) {
 
         // verify login information and get the username
         String username = verificationService.verifyLoginInfoAndGetUsername(userIdentification, token, code, isAdmin);
@@ -68,9 +70,18 @@ public class AuthenticationController {
         // set username as login ID
         StpUtil.setLoginId(username);
 
-        // return token information
+        // token information
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
-        return ResultCreator.okResult(tokenInfo);
+
+        // idempotency key information
+        long timeout = StpUtil.getTokenTimeout();
+        IdempotencyKeyInfoDTO idempotencyKeyInfo = verificationService.getIdempotencyKeyInfo(timeout);
+
+        AuthenticationVO authentication = AuthenticationVO.builder()
+                .idempotencyKeyInfo(idempotencyKeyInfo)
+                .saTokenInfo(tokenInfo)
+                .build();
+        return ResultCreator.okResult(authentication);
     }
 
     /**
