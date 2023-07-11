@@ -168,6 +168,10 @@ public enum ResultCode {
      */
     IDEMPOTENCY_KEY_CONFLICT(3022, "Idempotency key conflict"),
     /**
+     * Idempotency key is not valid
+     */
+    IDEMPOTENCY_KEY_NOT_VALID(3023, "Idempotency key is not valid"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
