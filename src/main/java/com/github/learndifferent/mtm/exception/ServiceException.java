@@ -31,6 +31,15 @@ public class ServiceException extends BaseException {
         this.data = null;
     }
 
+    public ServiceException(final Throwable e,
+                            final ResultCode resultCode,
+                            final String message,
+                            final Object data) {
+        super(message, e);
+        this.resultCode = resultCode;
+        this.data = data;
+    }
+
     public ServiceException(final ResultCode resultCode,
                             final String message,
                             final Object data) {
