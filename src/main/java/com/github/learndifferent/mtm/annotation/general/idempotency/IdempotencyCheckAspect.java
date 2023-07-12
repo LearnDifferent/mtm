@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.annotation.general.idempotency;
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -66,8 +67,15 @@ public class IdempotencyCheckAspect {
         String method = request.getMethod();
         // request path
         String path = request.getServletPath();
+        // request params
+        StringBuilder params = new StringBuilder(":");
+        request.getParameterMap()
+                .forEach((k, v) ->
+                        params.append(k).append("-").append(Arrays.toString(v)));
+        params.append(":");
 
-        String redisKey = KeyConstant.IDEMPOTENCY_CHECK_PREFIX + method + path + key;
+        String redisKey = KeyConstant.IDEMPOTENCY_CHECK_PREFIX
+                + method + path + params + key;
         Boolean success = redisTemplate.opsForValue()
                 .setIfAbsent(redisKey, "", timeout, TimeUnit.SECONDS);
         // throw an exception if the key conflicts
