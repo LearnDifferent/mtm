@@ -62,8 +62,10 @@ public class IdempotencyCheckAspect {
     }
 
     private void checkIfKeyConflict(HttpServletRequest request, String key) {
+        // method: get, post....
         String method = request.getMethod();
-        String path = request.getContextPath();
+        // request path
+        String path = request.getServletPath();
 
         String redisKey = KeyConstant.IDEMPOTENCY_CHECK_PREFIX + method + path + key;
         Boolean success = redisTemplate.opsForValue()
