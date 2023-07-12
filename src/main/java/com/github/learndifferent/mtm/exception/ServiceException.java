@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.exception;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 
 /**
- * 可以根据 ResultCode 自定义的服务错误
+ * A custom exception class that represents a service error
  *
  * @author zhou
  * @date 2021/09/05
@@ -12,6 +12,12 @@ public class ServiceException extends BaseException {
 
     private final ResultCode resultCode;
     private final Object data;
+
+    public ServiceException(final Throwable e) {
+        super(e);
+        this.resultCode = ResultCode.FAILED;
+        this.data = null;
+    }
 
     public ServiceException(final String message) {
         super(message);
