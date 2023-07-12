@@ -3,10 +3,10 @@ package com.github.learndifferent.mtm.annotation.general.log;
 import com.github.learndifferent.mtm.constant.enums.LogStatus;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
 import com.github.learndifferent.mtm.entity.SysLog;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import java.lang.reflect.Method;
 import java.time.Instant;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,7 +21,6 @@ import org.springframework.util.StringUtils;
  * @author zhou
  * @date 2021/09/05
  */
-@Slf4j
 @Aspect
 @Component
 public class SystemLogAspect {
@@ -60,13 +59,20 @@ public class SystemLogAspect {
             Object result = pjp.proceed();
             logService.saveSystemLogAsync(sysLog.build());
             return result;
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        } catch (Throwable e) {
             sysLog.status(LogStatus.ERROR.status())
-                    .msg(throwable.getMessage());
+                    .msg(e.getMessage());
             logService.saveSystemLogAsync(sysLog.build());
 
-            throw new RuntimeException(throwable);
+            if (e instanceof ServiceException) {
+                ServiceException se = (ServiceException) e;
+                throw new ServiceException(
+                        se.getResultCode(),
+                        se.getMessage(),
+                        se.getData());
+            } else {
+                throw new ServiceException(e);
+            }
         }
     }
 }
