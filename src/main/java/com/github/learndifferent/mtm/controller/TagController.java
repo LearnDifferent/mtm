@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
@@ -77,6 +78,7 @@ public class TagController {
      *                                                                  </p>
      */
     @GetMapping("/apply")
+    @IdempotencyCheck
     public ResultVO<String> applyTag(@RequestParam("bookmarkId")
                                      @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                              Integer bookmarkId,
@@ -220,6 +222,7 @@ public class TagController {
      *                                                                  </p>
      */
     @DeleteMapping
+    @IdempotencyCheck
     public ResultVO<ResultCode> deleteTag(@RequestParam("bookmarkId") Integer bookmarkId,
                                           @RequestParam("tagName") String tagName) {
         String currentUsername = getCurrentUsername();

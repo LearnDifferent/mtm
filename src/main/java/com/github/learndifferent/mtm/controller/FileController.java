@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -47,6 +48,7 @@ public class FileController {
      *                                                                  ResultCode#CONNECTION_ERROR CONNECTION_ERROR}
      */
     @GetMapping
+    @IdempotencyCheck
     public void export(@RequestParam(value = "username", required = false) String username,
                        HttpServletResponse response) {
         String currentUsername = getCurrentUser();
@@ -65,6 +67,7 @@ public class FileController {
      *                                                                  HTML file that contains bookmarks
      */
     @PostMapping
+    @IdempotencyCheck
     public ResultVO<String> importFile(@RequestBody MultipartFile htmlFile) {
         if (Objects.isNull(htmlFile)) {
             return ResultCreator.result(ResultCode.HTML_FILE_NO_BOOKMARKS);

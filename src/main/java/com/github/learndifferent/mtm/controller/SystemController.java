@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
@@ -75,6 +76,7 @@ public class SystemController {
     @GetMapping("/send")
     @AdminValidation
     @SystemLog(title = "Notification", optsType = OptsType.CREATE)
+    @IdempotencyCheck
     public ResultVO<ResultCode> sendSystemNotification(@RequestParam("message")
                                                        @NotBlank(message = "Message cannot be empty")
                                                                String message,
@@ -102,6 +104,7 @@ public class SystemController {
     @DeleteMapping
     @AdminValidation
     @SystemLog(title = "Notification", optsType = OptsType.DELETE)
+    @IdempotencyCheck
     public ResultVO<ResultCode> deleteSystemNotifications() {
         notificationService.deleteSystemNotifications();
         return ResultCreator.okResult();

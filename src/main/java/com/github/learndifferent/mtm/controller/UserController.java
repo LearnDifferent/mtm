@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
@@ -93,6 +94,7 @@ public class UserController {
      *                                                                  </p>
      */
     @PostMapping
+    @IdempotencyCheck
     @SystemNotification(priority = PriorityLevel.URGENT, messageType = MessageType.NEW_USER)
     public ResultVO<String> createUser(@RequestBody UserIdentificationRequest userIdentification,
                                        @RequestParam("code") String code,
@@ -136,6 +138,7 @@ public class UserController {
      */
     @DeleteMapping
     @NotGuest
+    @IdempotencyCheck
     public ResultVO<ResultCode> deleteUser(@RequestParam("userName") String userName,
                                            @RequestParam("password") String password) {
 
@@ -224,6 +227,7 @@ public class UserController {
      */
     @NotGuest
     @PostMapping("/change-password")
+    @IdempotencyCheck
     public ResultVO<ResultCode> changePassword(@RequestBody @Validated ChangePasswordRequest passwordInfo) {
 
         boolean success = userService.changePassword(passwordInfo);
@@ -247,6 +251,7 @@ public class UserController {
      */
     @GetMapping("/role")
     @AdminValidation
+    @IdempotencyCheck
     public ResultVO<ResultCode> changeUserRole(@RequestParam("id") Integer id,
                                                @RequestParam("newRole") String newRole) {
 

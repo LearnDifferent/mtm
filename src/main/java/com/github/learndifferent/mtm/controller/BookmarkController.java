@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
@@ -77,10 +78,11 @@ public class BookmarkController {
      *                          when an error occurred during an IO operation
      */
     @GetMapping
+    @IdempotencyCheck
     public BookmarkingResultVO bookmark(@RequestParam("url")
-                                            @URL(message = ErrorInfoConstant.URL_INVALID)
-                                            @NotBlank(message = ErrorInfoConstant.URL_INVALID)
-                                                    String url,
+                                        @URL(message = ErrorInfoConstant.URL_INVALID)
+                                        @NotBlank(message = ErrorInfoConstant.URL_INVALID)
+                                                String url,
                                         @RequestParam("privacy") Privacy privacy,
                                         @RequestParam("mode") AddDataMode mode) {
         String currentUsername = getCurrentUsername();
@@ -97,6 +99,7 @@ public class BookmarkController {
      *                          if something goes wrong
      */
     @PostMapping
+    @IdempotencyCheck
     public ResultVO<ResultCode> addToBookmark(@RequestBody @Validated BasicWebDataRequest basicData) {
         String currentUsername = getCurrentUsername();
         boolean success = bookmarkService.addToBookmark(basicData, currentUsername);
@@ -113,6 +116,7 @@ public class BookmarkController {
      *                          the result code will be {@link ResultCode#PERMISSION_DENIED}
      */
     @DeleteMapping
+    @IdempotencyCheck
     public ResultVO<ResultCode> deleteBookmark(@RequestParam("id")
                                                @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
@@ -136,6 +140,7 @@ public class BookmarkController {
      *                          settings
      */
     @GetMapping("/privacy")
+    @IdempotencyCheck
     public ResultVO<ResultCode> changePrivacySettings(@RequestParam("id")
                                                       @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                       @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)

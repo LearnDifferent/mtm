@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.Order;
@@ -171,6 +172,7 @@ public class CommentController {
      *                                                                  </p>
      */
     @GetMapping("/create")
+    @IdempotencyCheck
     public ResultVO<ResultCode> createComment(@RequestParam("comment")
                                               @NotBlank(message = ErrorInfoConstant.COMMENT_EMPTY)
                                               @Length(max = ConstraintConstant.COMMENT_MAX_LENGTH,
@@ -218,6 +220,7 @@ public class CommentController {
      *                                                                  </p>
      */
     @PostMapping
+    @IdempotencyCheck
     public ResultVO<ResultCode> updateComment(@RequestBody @Validated UpdateCommentRequest commentInfo) {
         String currentUsername = StpUtil.getLoginIdAsString();
         boolean success = commentService.editComment(commentInfo, currentUsername);
@@ -238,6 +241,7 @@ public class CommentController {
      *                                                                  no permissions to delete the comment
      */
     @DeleteMapping
+    @IdempotencyCheck
     public ResultVO<ResultCode> deleteComment(@RequestParam("id")
                                               @NotNull(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
                                               @Positive(message = ErrorInfoConstant.COMMENT_NOT_FOUND)

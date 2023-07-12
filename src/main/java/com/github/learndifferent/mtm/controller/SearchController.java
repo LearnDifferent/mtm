@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.controller;
 
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
@@ -97,6 +98,7 @@ public class SearchController {
      */
     @DeleteMapping
     @AdminValidation
+    @IdempotencyCheck
     public ResultVO<Boolean> deleteDataForSearch(@RequestParam("mode") SearchMode mode) {
         boolean isDeleted = searchService.checkAndDeleteIndex(mode);
         return ResultCreator.okResult(isDeleted);
@@ -151,6 +153,7 @@ public class SearchController {
      * @return true if success
      */
     @GetMapping("/build")
+    @IdempotencyCheck
     public ResultVO<Boolean> generateSearchDataBasedOnDatabase(@RequestParam("mode") SearchMode mode) {
         boolean success = searchService.generateDataForSearch(mode);
         return ResultCreator.okResult(success);
@@ -169,6 +172,7 @@ public class SearchController {
     @NotGuest
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/trending/{word}")
+    @IdempotencyCheck
     public ResultVO<Boolean> deleteTrendingWord(@PathVariable("word") String word) {
         boolean success = searchService.deleteTrendingWord(word);
         return ResultCreator.okResult(success);
@@ -186,6 +190,7 @@ public class SearchController {
     @NotGuest
     @SystemLog(optsType = OptsType.DELETE)
     @DeleteMapping("/trending")
+    @IdempotencyCheck
     public ResultVO<Boolean> deleteTrending() {
         boolean success = searchService.deleteTrending();
         return ResultCreator.okResult(success);

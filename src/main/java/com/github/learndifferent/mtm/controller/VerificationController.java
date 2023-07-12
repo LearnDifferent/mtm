@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.controller;
 
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.service.VerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,7 @@ public class VerificationController {
      *                                                                  if there is an email setting error.
      */
     @GetMapping("/invitation-code")
+    @IdempotencyCheck
     public void send(@RequestParam("token") String token,
                      @RequestParam("email") String email) {
 

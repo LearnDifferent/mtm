@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
@@ -67,6 +68,7 @@ public class NotificationController {
      *                                                                  the owner of the notification to delete
      */
     @PostMapping
+    @IdempotencyCheck
     public void deleteReplyNotification(@RequestBody DeleteReplyNotificationRequest data) {
         String currentUsername = StpUtil.getLoginIdAsString();
         notificationService.deleteReplyNotification(data, currentUsername);
@@ -105,6 +107,7 @@ public class NotificationController {
      * Delete role change notification for current user
      */
     @DeleteMapping("/role-changed")
+    @IdempotencyCheck
     public void deleteRoleChangeNotification() {
         String currentUsername = StpUtil.getLoginIdAsString();
         notificationService.deleteRoleChangeNotification(currentUsername);
@@ -128,6 +131,7 @@ public class NotificationController {
      * turn off notifications if the current user turned on notifications
      */
     @GetMapping("/mute/switch")
+    @IdempotencyCheck
     public void turnOnTurnOffNotifications() {
         String currentUsername = StpUtil.getLoginIdAsString();
         notificationService.turnOnTurnOffNotifications(currentUsername);
