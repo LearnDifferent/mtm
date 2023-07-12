@@ -67,6 +67,7 @@ public class SystemLogAspect {
             if (e instanceof ServiceException) {
                 ServiceException se = (ServiceException) e;
                 throw new ServiceException(
+                        e,
                         se.getResultCode(),
                         se.getMessage(),
                         se.getData());
