@@ -50,5 +50,5 @@ custom-redis:
     "[tag:a]": 0
 # IdempotencyCheck Configuration
 idempotency-config:
-  timeout: 3
+  timeout: 35
   key: mtm-idempotency-key
