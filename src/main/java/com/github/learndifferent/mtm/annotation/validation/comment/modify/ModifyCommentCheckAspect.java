@@ -45,29 +45,29 @@ public class ModifyCommentCheckAspect {
         String username = "";
         int commentId = -1;
 
-        AnnotationHelper helper = new AnnotationHelper(2);
+        AnnotationHelper helper = new AnnotationHelper(CommentId.class, Username.class);
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (helper.hasNotFoundIndex(0)
+                if (helper.hasNotFoundAnnotation(CommentId.class)
                         && annotation instanceof CommentId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     commentId = (int) args[i];
-                    helper.findIndex(0);
+                    helper.findAnnotation(CommentId.class);
                     break;
                 }
-                if (helper.hasNotFoundIndex(1)
+                if (helper.hasNotFoundAnnotation(Username.class)
                         && annotation instanceof Username
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
-                    helper.findIndex(1);
+                    helper.findAnnotation(Username.class);
                     break;
                 }
             }
 
-            if (helper.hasFoundAll()) {
+            if (helper.hasFoundAllRequiredAnnotations()) {
                 break;
             }
         }

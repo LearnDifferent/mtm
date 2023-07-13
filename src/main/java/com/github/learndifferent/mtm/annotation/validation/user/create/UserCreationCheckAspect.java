@@ -54,29 +54,29 @@ public class UserCreationCheckAspect {
         String username = "";
         String password = "";
 
-        AnnotationHelper helper = new AnnotationHelper(2);
+        AnnotationHelper helper = new AnnotationHelper(Username.class, Password.class);
 
         for (int i = 0; i < annotations.length; i++) {
             for (Annotation a : annotations[i]) {
-                if (helper.hasNotFoundIndex(0)
+                if (helper.hasNotFoundAnnotation(Username.class)
                         && a instanceof Username
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
-                    helper.findIndex(0);
+                    helper.findAnnotation(Username.class);
                     break;
                 }
-                if (helper.hasNotFoundIndex(1)
+                if (helper.hasNotFoundAnnotation(Password.class)
                         && a instanceof Password
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     password = (String) args[i];
-                    helper.findIndex(1);
+                    helper.findAnnotation(Password.class);
                     break;
                 }
             }
 
-            if (helper.hasFoundAll()) {
+            if (helper.hasFoundAllRequiredAnnotations()) {
                 break;
             }
         }

@@ -1,8 +1,8 @@
 package com.github.learndifferent.mtm.annotation.validation.tag;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
-import com.github.learndifferent.mtm.annotation.common.Tag;
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
+import com.github.learndifferent.mtm.annotation.common.Tag;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.mapper.TagMapper;
@@ -44,32 +44,32 @@ public class TagCheckAspect {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Object[] args = joinPoint.getArgs();
 
-        AnnotationHelper helper = new AnnotationHelper(2);
+        AnnotationHelper helper = new AnnotationHelper(Tag.class, BookmarkId.class);
 
         String tagText = "";
         int bookmarkId = -1;
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation an : parameterAnnotations[i]) {
-                if (helper.hasNotFoundIndex(0)
+                if (helper.hasNotFoundAnnotation(Tag.class)
                         && an instanceof Tag
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     tagText = (String) args[i];
-                    helper.findIndex(0);
+                    helper.findAnnotation(Tag.class);
                     break;
                 }
-                if (helper.hasNotFoundIndex(1)
+                if (helper.hasNotFoundAnnotation(BookmarkId.class)
                         && an instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     bookmarkId = (int) args[i];
-                    helper.findIndex(1);
+                    helper.findAnnotation(BookmarkId.class);
                     break;
                 }
             }
 
-            if (helper.hasFoundAll()) {
+            if (helper.hasFoundAllRequiredAnnotations()) {
                 break;
             }
         }

@@ -1,55 +1,69 @@
 package com.github.learndifferent.mtm.annotation.common;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * A helper class for annotation
+ * Helper class to keep track of found annotations.
  *
  * @author zhou
- * @date 2022/3/7
+ * @date 2023/7/12
  */
+@Slf4j
 public class AnnotationHelper {
 
-    /**
-     * {@code hasAnnotation[i]} will be true if the {@code i}th annotation is found
-     */
-    private final boolean[] hasAnnotation;
-    /**
-     * Count how many annotations has not been found yet
-     */
-    private int count;
+    private final Set<Class<? extends Annotation>> requiredAnnotations;
 
-    public AnnotationHelper(int totalAnnotations) {
-        hasAnnotation = new boolean[totalAnnotations];
-        count = hasAnnotation.length;
+    private final Set<Class<? extends Annotation>> foundAnnotations;
+
+    @SafeVarargs
+    public AnnotationHelper(Class<? extends Annotation>... requiredAnnotations) {
+        this.requiredAnnotations = Arrays.stream(requiredAnnotations).collect(Collectors.toSet());
+        this.foundAnnotations = new HashSet<>();
     }
 
     /**
-     * The {@code i}th annotation is found
+     * Add an annotation class to the found set if it is required.
      *
-     * @param annotationIndex the index of the {@code i}th annotation
+     * @param annotation The annotation class to find
      */
-    public void findIndex(int annotationIndex) {
-        if (!hasAnnotation[annotationIndex]) {
-            hasAnnotation[annotationIndex] = true;
-            count--;
+    public void findAnnotation(Class<? extends Annotation> annotation) {
+        if (requiredAnnotations.contains(annotation)) {
+            foundAnnotations.add(annotation);
+        } else {
+            log.warn("Annotation not required: " + annotation.getSimpleName());
         }
     }
 
     /**
-     * True if the {@code i}th annotation is not found
+     * Check if an annotation has not been found yet
      *
-     * @param annotationIndex the index of the {@code i}th annotation
-     * @return true if the {@code i}th annotation is not found
+     * @param annotation The annotation class to check
+     * @return boolean True if the annotation has not been found yet,
+     * false if it has already been found
      */
-    public boolean hasNotFoundIndex(int annotationIndex) {
-        return !hasAnnotation[annotationIndex];
+    public boolean hasNotFoundAnnotation(Class<? extends Annotation> annotation) {
+        if (requiredAnnotations.contains(annotation)) {
+            // Check if the annotation has been found in the found set
+            // Return true if not found yet
+            return !foundAnnotations.contains(annotation);
+        } else {
+            log.warn("Annotation not required: " + annotation.getSimpleName());
+            return true;
+        }
     }
 
     /**
-     * Check if all annotations are found
+     * Check if all required annotations have been found.
      *
-     * @return true if all annotations are found
+     * @return true if all required annotations have been found
      */
-    public boolean hasFoundAll() {
-        return count == 0;
+    public boolean hasFoundAllRequiredAnnotations() {
+        return foundAnnotations.containsAll(requiredAnnotations);
     }
+
 }

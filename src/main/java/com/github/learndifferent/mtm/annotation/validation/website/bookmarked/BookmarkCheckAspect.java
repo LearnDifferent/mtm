@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.annotation.validation.website.bookmarked;
 
-import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
@@ -52,27 +51,16 @@ public class BookmarkCheckAspect {
         String url = "";
         String username = "";
 
-        AnnotationHelper helper = new AnnotationHelper(2);
-
         for (int i = 0; i < parameterNames.length; i++) {
-            if (helper.hasNotFoundIndex(0)
-                    && classContainsUrl.isAssignableFrom(parameterTypes[i])
+            if (classContainsUrl.isAssignableFrom(parameterTypes[i])
                     && args[i] != null) {
-
                 url = getUrl(urlFieldName, args[i]);
-                helper.findIndex(0);
             }
 
-            if (helper.hasNotFoundIndex(1)
-                    && usernameParamName.equals(parameterNames[i])
+            if (usernameParamName.equals(parameterNames[i])
                     && args[i] != null
                     && String.class.isAssignableFrom(parameterTypes[i])) {
                 username = (String) args[i];
-                helper.findIndex(1);
-            }
-
-            if (helper.hasFoundAll()) {
-                break;
             }
         }
 

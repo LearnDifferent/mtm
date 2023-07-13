@@ -49,29 +49,29 @@ public class ModifyBookmarkPermissionCheckAspect {
         int bookmarkId = -1;
         String username = "";
 
-        AnnotationHelper helper = new AnnotationHelper(2);
+        AnnotationHelper helper = new AnnotationHelper(BookmarkId.class, Username.class);
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (helper.hasNotFoundIndex(0)
+                if (helper.hasNotFoundAnnotation(BookmarkId.class)
                         && annotation instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     bookmarkId = (int) args[i];
-                    helper.findIndex(0);
+                    helper.findAnnotation(BookmarkId.class);
                     break;
                 }
-                if (helper.hasNotFoundIndex(1)
+                if (helper.hasNotFoundAnnotation(Username.class)
                         && annotation instanceof Username
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
-                    helper.findIndex(1);
+                    helper.findAnnotation(Username.class);
                     break;
                 }
             }
 
-            if (helper.hasFoundAll()) {
+            if (helper.hasFoundAllRequiredAnnotations()) {
                 break;
             }
         }

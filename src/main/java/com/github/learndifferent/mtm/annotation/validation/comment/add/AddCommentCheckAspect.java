@@ -72,45 +72,46 @@ public class AddCommentCheckAspect {
         String username = "";
         Integer replyToCommentId = null;
 
-        AnnotationHelper helper = new AnnotationHelper(4);
+        AnnotationHelper helper = new AnnotationHelper(Comment.class,
+                BookmarkId.class, Username.class, ReplyToCommentId.class);
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
-                if (helper.hasNotFoundIndex(0)
+                if (helper.hasNotFoundAnnotation(Comment.class)
                         && annotation instanceof Comment
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     comment = (String) args[i];
-                    helper.findIndex(0);
+                    helper.findAnnotation(Comment.class);
                     break;
                 }
-                if (helper.hasNotFoundIndex(1)
+                if (helper.hasNotFoundAnnotation(BookmarkId.class)
                         && annotation instanceof BookmarkId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     bookmarkId = (int) args[i];
-                    helper.findIndex(1);
+                    helper.findAnnotation(BookmarkId.class);
                     break;
                 }
-                if (helper.hasNotFoundIndex(2)
+                if (helper.hasNotFoundAnnotation(Username.class)
                         && annotation instanceof Username
                         && args[i] != null
                         && String.class.isAssignableFrom(args[i].getClass())) {
                     username = (String) args[i];
-                    helper.findIndex(2);
+                    helper.findAnnotation(Username.class);
                     break;
                 }
-                if (helper.hasNotFoundIndex(3)
+                if (helper.hasNotFoundAnnotation(ReplyToCommentId.class)
                         && annotation instanceof ReplyToCommentId
                         && args[i] != null
                         && Integer.class.isAssignableFrom(args[i].getClass())) {
                     replyToCommentId = (Integer) args[i];
-                    helper.findIndex(3);
+                    helper.findAnnotation(ReplyToCommentId.class);
                     break;
                 }
             }
 
-            if (helper.hasFoundAll()) {
+            if (helper.hasFoundAllRequiredAnnotations()) {
                 break;
             }
         }
