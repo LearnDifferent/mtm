@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -40,7 +39,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Order(0)
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class IdempotencyCheckAspect {
 
     /**
