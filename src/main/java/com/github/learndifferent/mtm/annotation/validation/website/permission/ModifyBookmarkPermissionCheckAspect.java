@@ -10,7 +10,6 @@ import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -25,7 +24,6 @@ import org.springframework.util.StringUtils;
  * @author zhou
  * @date 2021/09/05
  */
-@Slf4j
 @Aspect
 @Component
 public class ModifyBookmarkPermissionCheckAspect {
