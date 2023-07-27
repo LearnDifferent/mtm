@@ -292,7 +292,6 @@ public class VerifyCodeUtils {
     /**
      * 生成一张验证码图片，并保存到项目的verifyCodeImg文件夹下
      */
-    @SuppressWarnings("finally")
     public static String createOneCodeImage() {
         String imgName = "";
         try {
