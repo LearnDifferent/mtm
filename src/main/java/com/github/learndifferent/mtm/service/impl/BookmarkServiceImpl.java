@@ -62,7 +62,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -81,7 +80,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @date 2021/09/05
  */
 @Service
-@Slf4j
 public class BookmarkServiceImpl implements BookmarkService {
 
     private final BookmarkMapper bookmarkMapper;
