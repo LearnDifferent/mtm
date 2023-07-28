@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.entity;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Builder
 @Accessors(chain = true)
-public class TagAndCountDO {
+public class TagAndCountDO implements Serializable {
 
     /**
      * Tag
