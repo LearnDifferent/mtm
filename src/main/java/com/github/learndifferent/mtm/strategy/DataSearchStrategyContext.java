@@ -1,8 +1,6 @@
 package com.github.learndifferent.mtm.strategy;
 
-import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
-import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
@@ -27,19 +25,22 @@ public class DataSearchStrategyContext {
         });
     }
 
-    private DataSearchStrategy verifyAndGetStrategy(SearchMode mode) {
-        boolean notSupport = !strategies.containsKey(mode);
-        ThrowExceptionUtils.throwIfTrue(notSupport, ResultCode.NO_RESULTS_FOUND);
-        return strategies.get(mode);
+    private DataSearchStrategy getStrategy(SearchMode mode) {
+        if (strategies.containsKey(mode)) {
+            return strategies.get(mode);
+        }
+
+        // return default strategy if not found
+        return strategies.get(SearchMode.WEB);
     }
 
     public boolean verifyDataExistence(SearchMode mode) {
-        DataSearchStrategy strategy = verifyAndGetStrategy(mode);
+        DataSearchStrategy strategy = getStrategy(mode);
         return strategy.verifyDataExistence();
     }
 
     public boolean checkAndDeleteIndex(SearchMode mode) {
-        DataSearchStrategy strategy = verifyAndGetStrategy(mode);
+        DataSearchStrategy strategy = getStrategy(mode);
         return strategy.checkAndDeleteIndex();
     }
 }
