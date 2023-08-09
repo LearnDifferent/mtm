@@ -7,8 +7,9 @@ import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.manager.TrendingManager;
 import com.github.learndifferent.mtm.service.SearchService;
+import com.github.learndifferent.mtm.strategy.DataExistenceVerification;
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,28 +19,16 @@ import org.springframework.stereotype.Service;
  * @date 2021/9/21
  */
 @Service
+@RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
 
     private final ElasticsearchManager elasticsearchManager;
     private final TrendingManager trendingManager;
-
-    @Autowired
-    public SearchServiceImpl(ElasticsearchManager elasticsearchManager, TrendingManager trendingManager) {
-        this.elasticsearchManager = elasticsearchManager;
-        this.trendingManager = trendingManager;
-    }
+    private final DataExistenceVerification dataExistenceVerification;
 
     @Override
     public boolean existsData(SearchMode mode) {
-        switch (mode) {
-            case USER:
-                return elasticsearchManager.existsIndex(EsConstant.INDEX_USER);
-            case TAG:
-                return elasticsearchManager.existsIndex(EsConstant.INDEX_TAG);
-            case WEB:
-            default:
-                return elasticsearchManager.existsIndex(EsConstant.INDEX_WEB);
-        }
+        return dataExistenceVerification.verify(mode);
     }
 
     @Override
