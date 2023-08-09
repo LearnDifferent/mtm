@@ -43,4 +43,8 @@ public class DataSearchStrategyContext {
         DataSearchStrategy strategy = getStrategy(mode);
         return strategy.checkAndDeleteIndex();
     }
+
+    public boolean generateDataForSearch(SearchMode mode) {
+        return getStrategy(mode).generateDataForSearch();
+    }
 }

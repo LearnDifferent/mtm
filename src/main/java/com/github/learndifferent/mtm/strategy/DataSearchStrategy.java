@@ -22,4 +22,11 @@ public interface DataSearchStrategy {
      * @return true if deleted
      */
     boolean checkAndDeleteIndex();
+
+    /**
+     * Data generation for Elasticsearch based on database
+     *
+     * @return true if success
+     */
+    boolean generateDataForSearch();
 }

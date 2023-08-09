@@ -42,15 +42,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public boolean generateDataForSearch(SearchMode mode) {
-        switch (mode) {
-            case USER:
-                return elasticsearchManager.generateUserData();
-            case TAG:
-                return elasticsearchManager.generateTagData();
-            case WEB:
-            default:
-                return elasticsearchManager.generateBasicWebData();
-        }
+        return dataSearchStrategyContext.generateDataForSearch(mode);
     }
 
     @Override

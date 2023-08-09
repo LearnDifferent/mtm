@@ -26,4 +26,9 @@ public class TagDataSearchStrategy implements DataSearchStrategy {
     public boolean checkAndDeleteIndex() {
         return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_TAG);
     }
+
+    @Override
+    public boolean generateDataForSearch() {
+        return elasticsearchManager.generateTagData();
+    }
 }

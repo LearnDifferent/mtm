@@ -32,4 +32,9 @@ public class UserDataSearchStrategy implements DataSearchStrategy {
     public boolean checkAndDeleteIndex() {
         return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_USER);
     }
+
+    @Override
+    public boolean generateDataForSearch() {
+        return elasticsearchManager.generateUserData();
+    }
 }

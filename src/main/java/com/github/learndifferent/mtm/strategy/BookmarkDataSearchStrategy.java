@@ -26,4 +26,9 @@ public class BookmarkDataSearchStrategy implements DataSearchStrategy {
     public boolean checkAndDeleteIndex() {
         return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_WEB);
     }
+
+    @Override
+    public boolean generateDataForSearch() {
+        return elasticsearchManager.generateBasicWebData();
+    }
 }
