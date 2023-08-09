@@ -7,14 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Verify the existence of user data in Elasticsearch
+ * User data search strategy
  *
  * @author zhou
  * @date 2023/8/8
  */
 @Component(EsConstant.INDEX_USER)
 @RequiredArgsConstructor
-public class UserDataExistenceVerification implements DataExistenceVerificationStrategy {
+public class UserDataSearchStrategy implements DataSearchStrategy {
 
     private ElasticsearchManager elasticsearchManager;
 
@@ -26,5 +26,10 @@ public class UserDataExistenceVerification implements DataExistenceVerificationS
     @Override
     public boolean verifyDataExistence() {
         return elasticsearchManager.existsIndex(EsConstant.INDEX_USER);
+    }
+
+    @Override
+    public boolean checkAndDeleteIndex() {
+        return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_USER);
     }
 }

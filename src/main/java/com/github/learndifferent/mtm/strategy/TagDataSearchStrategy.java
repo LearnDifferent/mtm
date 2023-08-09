@@ -6,19 +6,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Verify the existence of tag data in Elasticsearch
+ * Tag data search strategy
  *
  * @author zhou
  * @date 2023/8/8
  */
 @Component(EsConstant.INDEX_TAG)
 @RequiredArgsConstructor
-public class TagDataExistenceVerification implements DataExistenceVerificationStrategy {
+public class TagDataSearchStrategy implements DataSearchStrategy {
 
     private final ElasticsearchManager elasticsearchManager;
 
     @Override
     public boolean verifyDataExistence() {
         return elasticsearchManager.existsIndex(EsConstant.INDEX_TAG);
+    }
+
+    @Override
+    public boolean checkAndDeleteIndex() {
+        return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_TAG);
     }
 }

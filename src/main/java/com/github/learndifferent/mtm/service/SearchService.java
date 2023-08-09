@@ -38,9 +38,8 @@ public interface SearchService {
     boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean existIndex);
 
     /**
-     * Check whether the index exists.
-     * If not exists, return true.
-     * If exists, delete the index and return whether the deletion is success.
+     * Check if the index exists. If the index does not exist, return true.
+     * If the index exists, delete it and return whether the deletion was successful.
      *
      * @param mode delete user data if {@link SearchMode#USER},
      *             bookmark data if {@link SearchMode#WEB}

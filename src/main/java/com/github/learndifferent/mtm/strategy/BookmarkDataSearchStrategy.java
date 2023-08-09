@@ -6,19 +6,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Verify the existence of bookmark data in Elasticsearch
+ * Bookmark data search strategy
  *
  * @author zhou
  * @date 2023/8/8
  */
 @Component(EsConstant.INDEX_WEB)
 @RequiredArgsConstructor
-public class BookmarkDataExistenceVerification implements DataExistenceVerificationStrategy {
+public class BookmarkDataSearchStrategy implements DataSearchStrategy {
 
     private final ElasticsearchManager elasticsearchManager;
 
     @Override
     public boolean verifyDataExistence() {
         return elasticsearchManager.existsIndex(EsConstant.INDEX_WEB);
+    }
+
+    @Override
+    public boolean checkAndDeleteIndex() {
+        return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_WEB);
     }
 }

@@ -265,9 +265,8 @@ public class ElasticsearchManager {
     }
 
     /**
-     * Check whether the index exists.
-     * If not exists, return true.
-     * If exists, delete the index and return whether the deletion is success.
+     * Check if the index exists. If the index does not exist, return true.
+     * If the index exists, delete it and return whether the deletion was successful.
      *
      * @return true if deleted
      */

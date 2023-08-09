@@ -1,13 +1,12 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.manager.TrendingManager;
 import com.github.learndifferent.mtm.service.SearchService;
-import com.github.learndifferent.mtm.strategy.DataExistenceVerification;
+import com.github.learndifferent.mtm.strategy.DataSearchStrategyContext;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,11 +23,11 @@ public class SearchServiceImpl implements SearchService {
 
     private final ElasticsearchManager elasticsearchManager;
     private final TrendingManager trendingManager;
-    private final DataExistenceVerification dataExistenceVerification;
+    private final DataSearchStrategyContext dataSearchStrategyContext;
 
     @Override
     public boolean existsData(SearchMode mode) {
-        return dataExistenceVerification.verify(mode);
+        return dataSearchStrategyContext.verifyDataExistence(mode);
     }
 
     @Override
@@ -38,15 +37,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public boolean checkAndDeleteIndex(SearchMode mode) {
-        switch (mode) {
-            case USER:
-                return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_USER);
-            case TAG:
-                return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_TAG);
-            case WEB:
-            default:
-                return elasticsearchManager.checkAndDeleteIndex(EsConstant.INDEX_WEB);
-        }
+        return dataSearchStrategyContext.checkAndDeleteIndex(mode);
     }
 
     @Override
