@@ -11,7 +11,7 @@ import com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
-import com.github.learndifferent.mtm.manager.UserAccountManager;
+import com.github.learndifferent.mtm.manager.UserManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
@@ -38,15 +38,15 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
-    private final UserAccountManager userAccountManager;
+    private final UserManager userManager;
     private final NotificationManager notificationManager;
 
     @Autowired
     public UserServiceImpl(UserMapper userMapper,
-                           UserAccountManager userAccountManager,
+                           UserManager userManager,
                            NotificationManager notificationManager) {
         this.userMapper = userMapper;
-        this.userAccountManager = userAccountManager;
+        this.userManager = userManager;
         this.notificationManager = notificationManager;
     }
 
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
         String newPassword = info.getNewPassword();
 
         // if user does not exist, it will be considered as wrong password
-        UserDO user = userAccountManager.getUserByNameAndPassword(userName, oldPassword);
+        UserDO user = userManager.getUserByNameAndPassword(userName, oldPassword);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.PASSWORD_INCORRECT);
 
         UserDTO userDTO = UserDTO.ofPasswordUpdate(user.getId(), newPassword);
@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
         String username = userIdentification.getUserName();
         String notEncryptedPassword = userIdentification.getPassword();
-        return userAccountManager.createUserAndGetUsername(username, notEncryptedPassword, role);
+        return userManager.createUserAndGetUsername(username, notEncryptedPassword, role);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService {
                                                String notEncryptedPassword) {
         boolean hasNoPermission = CustomStringUtils.notEqualsIgnoreCase(currentUsername, userName);
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
-        return userAccountManager.deleteAllDataRelatedToUser(userName, notEncryptedPassword);
+        return userManager.deleteAllDataRelatedToUser(userName, notEncryptedPassword);
     }
 
     @Override

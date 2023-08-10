@@ -7,7 +7,7 @@ import com.github.learndifferent.mtm.dto.IdempotencyKeyInfoDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.SendEmailManager;
-import com.github.learndifferent.mtm.manager.UserAccountManager;
+import com.github.learndifferent.mtm.manager.UserManager;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.service.VerificationService;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
@@ -37,7 +37,7 @@ public class VerificationServiceImpl implements VerificationService {
 
     private final StringRedisTemplate redisTemplate;
     private final SendEmailManager sendEmailManager;
-    private final UserAccountManager userAccountManager;
+    private final UserManager userManager;
 
     @Value("${idempotency-config.key}")
     private String idempotencyKeyHeader;
@@ -45,10 +45,10 @@ public class VerificationServiceImpl implements VerificationService {
     @Autowired
     public VerificationServiceImpl(StringRedisTemplate redisTemplate,
                                    SendEmailManager sendEmailManager,
-                                   UserAccountManager userAccountManager) {
+                                   UserManager userManager) {
         this.redisTemplate = redisTemplate;
         this.sendEmailManager = sendEmailManager;
-        this.userAccountManager = userAccountManager;
+        this.userManager = userManager;
     }
 
     @Override
@@ -126,7 +126,7 @@ public class VerificationServiceImpl implements VerificationService {
         String password = userIdentification.getPassword();
 
         // 查看是否有该用户
-        UserDO user = userAccountManager.getUserByNameAndPassword(username, password);
+        UserDO user = userManager.getUserByNameAndPassword(username, password);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
 
         // 需要检查用户是否为管理员的时候

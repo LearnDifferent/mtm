@@ -15,7 +15,7 @@ import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,26 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 2021/10/22
  */
 @Component
-public class UserAccountManager {
+@RequiredArgsConstructor
+public class UserManager {
 
     private final BookmarkMapper bookmarkMapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
     private final NotificationManager notificationManager;
     private final ElasticsearchManager elasticsearchManager;
-
-    @Autowired
-    public UserAccountManager(ElasticsearchManager elasticsearchManager,
-                              NotificationManager notificationManager,
-                              BookmarkMapper bookmarkMapper,
-                              UserMapper userMapper,
-                              CommentMapper commentMapper) {
-        this.elasticsearchManager = elasticsearchManager;
-        this.notificationManager = notificationManager;
-        this.bookmarkMapper = bookmarkMapper;
-        this.userMapper = userMapper;
-        this.commentMapper = commentMapper;
-    }
 
     /**
      * Delete all data related to the user

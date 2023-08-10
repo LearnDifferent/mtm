@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.entity.UserDO;
-import com.github.learndifferent.mtm.manager.UserAccountManager;
+import com.github.learndifferent.mtm.manager.UserManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.vo.UserVO;
@@ -29,7 +29,7 @@ class UserServiceImplTest {
     private UserMapper userMapper;
 
     @Mock
-    private UserAccountManager userAccountManager;
+    private UserManager userManager;
 
     @Nested
     @DisplayName("Check user")
@@ -48,7 +48,7 @@ class UserServiceImplTest {
         void shouldReturnTheUsername() {
             UserRole userRole = UserRole.USER;
 
-            Mockito.when(userAccountManager.createUserAndGetUsername(USERNAME, PASSWORD, userRole))
+            Mockito.when(userManager.createUserAndGetUsername(USERNAME, PASSWORD, userRole))
                     .thenReturn(USERNAME);
 
             UserIdentificationRequest request = new UserIdentificationRequest(USERNAME, PASSWORD);

@@ -15,10 +15,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class UserAccountManagerTest {
+class UserManagerTest {
 
     @InjectMocks
-    private UserAccountManager userAccountManager;
+    private UserManager userManager;
 
     @Mock
     private UserMapper userMapper;
@@ -35,14 +35,14 @@ class UserAccountManagerTest {
                 .thenReturn(id);
 
         Method method = getCheckUserExistsAndReturnUserIdMethod();
-        Object result = method.invoke(userAccountManager, username, password);
+        Object result = method.invoke(userManager, username, password);
         Integer userId = (Integer) result;
         Assertions.assertEquals(id, userId);
     }
 
     private Method getCheckUserExistsAndReturnUserIdMethod() throws ServiceException, NoSuchMethodException {
 
-        Method method = UserAccountManager.class.getDeclaredMethod(
+        Method method = UserManager.class.getDeclaredMethod(
                 "checkUserExistsAndReturnUserId", String.class, String.class);
         method.setAccessible(true);
         return method;
