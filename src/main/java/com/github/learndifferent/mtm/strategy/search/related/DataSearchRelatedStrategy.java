@@ -1,12 +1,12 @@
-package com.github.learndifferent.mtm.strategy.search;
+package com.github.learndifferent.mtm.strategy.search.related;
 
 /**
- * Data search strategy
+ * Data search-related strategy
  *
  * @author zhou
  * @date 2023/8/8
  */
-public interface DataSearchStrategy {
+public interface DataSearchRelatedStrategy {
 
     /**
      * Verify data existence

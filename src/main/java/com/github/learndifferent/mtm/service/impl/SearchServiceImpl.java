@@ -1,12 +1,19 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
+import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
+import com.github.learndifferent.mtm.constant.consist.SearchConstant;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.manager.TrendingManager;
 import com.github.learndifferent.mtm.service.SearchService;
-import com.github.learndifferent.mtm.strategy.search.DataSearchStrategyContext;
+import com.github.learndifferent.mtm.strategy.search.main.DataSearchStrategyContext;
+import com.github.learndifferent.mtm.strategy.search.related.DataSearchRelatedStrategyContext;
+import java.io.IOException;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,11 +30,12 @@ public class SearchServiceImpl implements SearchService {
 
     private final ElasticsearchManager elasticsearchManager;
     private final TrendingManager trendingManager;
+    private final DataSearchRelatedStrategyContext dataSearchRelatedStrategyContext;
     private final DataSearchStrategyContext dataSearchStrategyContext;
 
     @Override
     public boolean existsData(SearchMode mode) {
-        return dataSearchStrategyContext.verifyDataExistence(mode);
+        return dataSearchRelatedStrategyContext.verifyDataExistence(mode);
     }
 
     @Override
@@ -37,23 +45,30 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public boolean checkAndDeleteIndex(SearchMode mode) {
-        return dataSearchStrategyContext.checkAndDeleteIndex(mode);
+        return dataSearchRelatedStrategyContext.checkAndDeleteIndex(mode);
     }
 
     @Override
     public boolean generateDataForSearch(SearchMode mode) {
-        return dataSearchStrategyContext.generateDataForSearch(mode);
+        return dataSearchRelatedStrategyContext.generateDataForSearch(mode);
     }
 
     @Override
+    @EmptyStringCheck
     public SearchResultsDTO search(SearchMode mode,
-                                   String keyword,
+                                   @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
                                    PageInfoDTO pageInfo,
                                    Integer rangeFrom,
                                    Integer rangeTo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        return elasticsearchManager.search(keyword, from, size, mode, rangeFrom, rangeTo);
+        try {
+            String strategyName = SearchConstant.SEARCH_STRATEGY_BEAN_NAME_PREFIX + mode.mode();
+            return this.dataSearchStrategyContext.search(strategyName, keyword.trim(), from, size, rangeFrom, rangeTo);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new ServiceException(ResultCode.CONNECTION_ERROR);
+        }
     }
 
     @Override

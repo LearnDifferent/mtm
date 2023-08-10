@@ -4,12 +4,15 @@ package com.github.learndifferent.mtm.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.strategy.search.main.DataSearchStrategyContext;
+import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,6 +31,9 @@ class SearchServiceImplTest {
     @Mock
     private ElasticsearchManager elasticsearchManager;
 
+    @Mock
+    private DataSearchStrategyContext dataSearchStrategyContext;
+
     @Nested
     class search {
 
@@ -40,8 +46,9 @@ class SearchServiceImplTest {
 
         @Test
         @DisplayName("Should get the search result")
-        void shouldGetTheSearchResult() {
-            Mockito.when(elasticsearchManager.search(KEYWORD, FROM, SIZE, MODE, null, null))
+        void shouldGetTheSearchResult() throws IOException {
+            String strategyName = SearchConstant.SEARCH_STRATEGY_BEAN_NAME_PREFIX + MODE.mode();
+            Mockito.when(dataSearchStrategyContext.search(strategyName, KEYWORD, FROM, SIZE, null, null))
                     .thenReturn(RESULT);
 
             SearchResultsDTO searchResult = searchService.search(MODE, KEYWORD, PAGE_INFO, null, null);
@@ -50,9 +57,10 @@ class SearchServiceImplTest {
 
         @Test
         @DisplayName("Should throw an exception")
-        void shouldThrowAnException() {
-            Mockito.when(elasticsearchManager
-                    .search(KEYWORD, FROM, SIZE, MODE, null, null))
+        void shouldThrowAnException() throws IOException {
+            String strategyName = SearchConstant.SEARCH_STRATEGY_BEAN_NAME_PREFIX + MODE.mode();
+            Mockito.when(dataSearchStrategyContext
+                            .search(strategyName, KEYWORD, FROM, SIZE, null, null))
                     .thenThrow(new ServiceException(ResultCode.CONNECTION_ERROR));
 
             assertThrows(ServiceException.class,

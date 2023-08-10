@@ -1,17 +1,12 @@
 package com.github.learndifferent.mtm.manager;
 
-import cn.dev33.satoken.stp.StpUtil;
-import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
-import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
-import com.github.learndifferent.mtm.constant.consist.EsConstant;
+import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
-import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
-import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.UserDO;
@@ -22,23 +17,15 @@ import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
-import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -58,22 +45,10 @@ import org.elasticsearch.client.indices.AnalyzeRequest;
 import org.elasticsearch.client.indices.AnalyzeResponse;
 import org.elasticsearch.client.indices.AnalyzeResponse.AnalyzeToken;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
-import org.elasticsearch.search.sort.SortOrder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -95,22 +70,20 @@ public class ElasticsearchManager {
     private final BookmarkMapper bookmarkMapper;
     private final TrendingManager trendingManager;
     private final UserMapper userMapper;
-    private final LanguageDetector languageDetector;
     private final TagMapper tagMapper;
+    private final LanguageDetector languageDetector;
 
-    @Autowired
     public ElasticsearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
                                 BookmarkMapper bookmarkMapper,
                                 TrendingManager trendingManager,
                                 UserMapper userMapper,
-                                LanguageDetector languageDetector,
-                                TagMapper tagMapper) {
+                                TagMapper tagMapper, LanguageDetector languageDetector) {
         this.client = client;
         this.bookmarkMapper = bookmarkMapper;
         this.trendingManager = trendingManager;
         this.userMapper = userMapper;
-        this.languageDetector = languageDetector;
         this.tagMapper = tagMapper;
+        this.languageDetector = languageDetector;
     }
 
     /**
@@ -153,15 +126,15 @@ public class ElasticsearchManager {
 
         switch (mode) {
             case USER:
-                countEsDocsResult = countDocsAsync(EsConstant.INDEX_USER);
+                countEsDocsResult = countDocsAsync(SearchConstant.INDEX_USER);
                 databaseCount = userMapper.countUsers();
                 break;
             case TAG:
-                countEsDocsResult = countDocsAsync(EsConstant.INDEX_TAG);
+                countEsDocsResult = countDocsAsync(SearchConstant.INDEX_TAG);
                 databaseCount = tagMapper.countDistinctTags();
                 break;
             case WEB:
-                countEsDocsResult = countDocsAsync(EsConstant.INDEX_WEB);
+                countEsDocsResult = countDocsAsync(SearchConstant.INDEX_WEB);
                 databaseCount = bookmarkMapper.countDistinctPublicUrl();
                 break;
             default:
@@ -238,7 +211,7 @@ public class ElasticsearchManager {
 
         WebForSearchDTO data = DozerUtils.convert(bookmark, WebForSearchDTO.class);
         String json = JsonUtils.toJson(data);
-        IndexRequest request = new IndexRequest(EsConstant.INDEX_WEB);
+        IndexRequest request = new IndexRequest(SearchConstant.INDEX_WEB);
         request.id(data.getUrl());
         request.timeout(new TimeValue(8, TimeUnit.SECONDS));
         request.source(json, XContentType.JSON);
@@ -257,7 +230,7 @@ public class ElasticsearchManager {
     }
 
     private IndexRequest getIndexRequest(UserForSearchDTO user) {
-        IndexRequest request = new IndexRequest(EsConstant.INDEX_USER);
+        IndexRequest request = new IndexRequest(SearchConstant.INDEX_USER);
         Integer id = user.getId();
         String json = JsonUtils.toJson(user);
         request.id(String.valueOf(id)).source(json, XContentType.JSON);
@@ -293,13 +266,13 @@ public class ElasticsearchManager {
      * @return true if success
      */
     public boolean generateTagData() {
-        throwIfNotClear(EsConstant.INDEX_TAG);
+        throwIfNotClear(SearchConstant.INDEX_TAG);
 
         List<TagAndCountDO> data = tagMapper.getAllTagsAndCountOfPublicBookmarks();
         List<TagForSearchDTO> tcs = DozerUtils.convertList(data, TagForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
-        tcs.forEach(tc -> updateBulkRequest(bulkRequest, EsConstant.INDEX_TAG, tc.getTag(), JsonUtils.toJson(tc)));
+        tcs.forEach(tc -> updateBulkRequest(bulkRequest, SearchConstant.INDEX_TAG, tc.getTag(), JsonUtils.toJson(tc)));
 
         return sendBulkRequest(bulkRequest);
     }
@@ -311,26 +284,26 @@ public class ElasticsearchManager {
      */
     public boolean generateUserData() {
 
-        throwIfNotClear(EsConstant.INDEX_USER);
+        throwIfNotClear(SearchConstant.INDEX_USER);
 
         List<UserDO> us = userMapper.getUsers(null, null);
         List<UserForSearchDTO> users = DozerUtils.convertList(us, UserForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
         users.forEach(u -> updateBulkRequest(bulkRequest,
-                EsConstant.INDEX_USER, String.valueOf(u.getId()), JsonUtils.toJson(u)));
+                SearchConstant.INDEX_USER, String.valueOf(u.getId()), JsonUtils.toJson(u)));
 
         return sendBulkRequest(bulkRequest);
     }
 
     public boolean generateBasicWebData() {
 
-        throwIfNotClear(EsConstant.INDEX_WEB);
+        throwIfNotClear(SearchConstant.INDEX_WEB);
 
         List<WebForSearchDTO> data = bookmarkMapper.getAllPublicBasicWebDataForSearch();
 
         BulkRequest bulkRequest = new BulkRequest();
-        data.forEach(b -> updateBulkRequest(bulkRequest, EsConstant.INDEX_WEB, b.getUrl(), JsonUtils.toJson(b)));
+        data.forEach(b -> updateBulkRequest(bulkRequest, SearchConstant.INDEX_WEB, b.getUrl(), JsonUtils.toJson(b)));
         return sendBulkRequest(bulkRequest);
     }
 
@@ -359,7 +332,7 @@ public class ElasticsearchManager {
     @Async("asyncTaskExecutor")
     public void removeUserFromElasticsearchAsync(int id) {
 
-        DeleteRequest request = new DeleteRequest(EsConstant.INDEX_USER, String.valueOf(id));
+        DeleteRequest request = new DeleteRequest(SearchConstant.INDEX_USER, String.valueOf(id));
         try {
             client.delete(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
@@ -367,334 +340,9 @@ public class ElasticsearchManager {
         }
     }
 
-    private SearchHits searchAndGetHits(SearchRequest searchRequest) throws IOException {
+    public SearchHits searchAndGetHits(SearchRequest searchRequest) throws IOException {
         SearchResponse response = client.search(searchRequest, RequestOptions.DEFAULT);
         return response.getHits();
-    }
-
-    private long getTotalCount(SearchHits hits) {
-        long totalCount = hits.getTotalHits().value;
-        // check total number
-        ThrowExceptionUtils.throwIfTrue(totalCount <= 0, ResultCode.NO_RESULTS_FOUND);
-        return totalCount;
-    }
-
-    @EmptyStringCheck
-    public SearchResultsDTO search(@ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String keyword,
-                                   int from,
-                                   int size,
-                                   SearchMode mode,
-                                   Integer rangeFrom,
-                                   Integer rangeTo) {
-        try {
-            return searchData(keyword.trim(), from, size, mode, rangeFrom, rangeTo);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
-    }
-
-    private SearchResultsDTO searchData(String keyword,
-                                        int from,
-                                        int size,
-                                        SearchMode mode,
-                                        Integer rangeFrom,
-                                        Integer rangeTo) throws IOException {
-
-        switch (mode) {
-            case BOOKMARK_MYSQL:
-                return searchBookmarksMySql(keyword, from, size);
-            case USER_MYSQL:
-                return searchUsersMySql(keyword, from, size);
-            case TAG_MYSQL:
-                return searchTagMySql(keyword, from, size, rangeFrom, rangeTo);
-            case TAG:
-                return searchTagsElasticsearch(keyword, from, size, rangeFrom, rangeTo);
-            case USER:
-                return searchUsersElasticsearch(keyword, from, size);
-            case WEB:
-            default:
-                return searchBookmarksElasticsearch(keyword, from, size);
-        }
-    }
-
-    private SearchResultsDTO searchTagMySql(String keyword, int from, int size, Integer rangeFrom, Integer rangeTo) {
-        if (rangeFrom != null && rangeTo != null && rangeFrom > rangeTo) {
-            Integer tmp = rangeFrom;
-            rangeFrom = rangeTo;
-            rangeTo = tmp;
-        }
-
-        String username = StpUtil.getLoginIdAsString();
-        List<TagForSearchDTO> tagData = tagMapper
-                .searchTagDataByKeywordAndRange(keyword, username, rangeFrom, rangeTo, from, size);
-        long totalCount = tagMapper.countTagDataByKeywordAndRange(keyword, username, rangeFrom, rangeTo);
-        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
-
-        return SearchResultsDTO.builder()
-                .paginatedResults(tagData)
-                .totalCount(totalCount)
-                .totalPage(totalPages)
-                .build();
-    }
-
-    private SearchResultsDTO searchTagsElasticsearch(String keyword,
-                                                     int from,
-                                                     int size,
-                                                     Integer rangeFrom,
-                                                     Integer rangeTo) throws IOException {
-
-        SearchRequest searchRequest = getTagSearchRequest(keyword, from, size, rangeFrom, rangeTo);
-        SearchHits hits = searchAndGetHits(searchRequest);
-        // get total number of hits
-        long totalCount = getTotalCount(hits);
-        // get total pages
-        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
-        // get results
-        List<TagForSearchDTO> paginatedResults = getTagResults(hits);
-        return SearchResultsDTO.builder()
-                .paginatedResults(paginatedResults)
-                .totalCount(totalCount)
-                .totalPage(totalPages)
-                .build();
-    }
-
-    private SearchRequest getTagSearchRequest(String keyword, int from, int size, Integer rangeFrom, Integer rangeTo) {
-
-        // wildcard search query
-        WildcardQueryBuilder wildcardQuery =
-                QueryBuilders.wildcardQuery(EsConstant.TAG_NAME, keyword + "*");
-
-        if (rangeFrom != null && rangeTo != null && rangeFrom > rangeTo) {
-            // swap
-            Integer tmp = rangeFrom;
-            rangeFrom = rangeTo;
-            rangeTo = tmp;
-        }
-        // range query
-        RangeQueryBuilder rangeQuery =
-                QueryBuilders.rangeQuery(EsConstant.TAG_NUMBER).gte(rangeFrom).lte(rangeTo);
-
-        BoolQueryBuilder boolQuery = new BoolQueryBuilder()
-                .must(wildcardQuery)
-                .must(rangeQuery);
-
-        SearchSourceBuilder source = new SearchSourceBuilder();
-        source.query(boolQuery)
-                .timeout(new TimeValue(1, TimeUnit.MINUTES))
-                .from(from)
-                .size(size)
-                .sort(EsConstant.TAG_NUMBER, SortOrder.DESC);
-
-        SearchRequest searchRequest = new SearchRequest();
-        return searchRequest.indices(EsConstant.INDEX_TAG).source(source);
-    }
-
-    private List<TagForSearchDTO> getTagResults(SearchHits hits) {
-        SearchHit[] hitsArray = hits.getHits();
-        return Arrays.stream(hitsArray).map(h -> {
-            Map<String, Object> map = h.getSourceAsMap();
-            String tagName = String.valueOf(map.get(EsConstant.TAG_NAME));
-            String tagNum = String.valueOf(map.get(EsConstant.TAG_NUMBER));
-            Integer number = Integer.valueOf(tagNum);
-            return TagForSearchDTO.builder().tag(tagName).number(number).build();
-        }).collect(Collectors.toList());
-    }
-
-    private SearchResultsDTO searchUsersMySql(String keyword, int from, int size) {
-        List<UserForSearchWithMoreInfo> userData = userMapper
-                .searchUserDataByKeyword(keyword, from, size);
-
-        Long count = userMapper.countUserByKeyword(keyword);
-        long totalCount = Optional.ofNullable(count).orElse(0L);
-        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
-
-        return SearchResultsDTO.builder()
-                .paginatedResults(userData)
-                .totalCount(totalCount)
-                .totalPage(totalPages)
-                .build();
-    }
-
-    private SearchResultsDTO searchUsersElasticsearch(String keyword, int from, int size) throws IOException {
-        SearchRequest searchRequest = getUserSearchRequest(keyword, from, size);
-
-        SearchHits hits = searchAndGetHits(searchRequest);
-        long totalCount = getTotalCount(hits);
-        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
-        List<UserForSearchWithMoreInfo> paginatedResults = getUserResults(hits);
-
-        return SearchResultsDTO.builder()
-                .paginatedResults(paginatedResults)
-                .totalCount(totalCount)
-                .totalPage(totalPages)
-                .build();
-    }
-
-    private SearchRequest getUserSearchRequest(String keyword, int from, int size) {
-        // 模糊查询
-        WildcardQueryBuilder wildcardQueryUsername = QueryBuilders
-                .wildcardQuery(EsConstant.USER_NAME, keyword + "*")
-                .boost(2.0F);
-
-        WildcardQueryBuilder wildcardQueryUserId = QueryBuilders
-                .wildcardQuery(EsConstant.USER_ID, keyword + "*");
-
-        // 复合查询
-        BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder()
-                .should(wildcardQueryUsername)
-                .should(wildcardQueryUserId)
-                .minimumShouldMatch(1);
-
-        SearchSourceBuilder source = new SearchSourceBuilder();
-        source.query(boolQueryBuilder)
-                .highlighter(new HighlightBuilder()
-                        .field(EsConstant.USER_NAME)
-                        .field(EsConstant.USER_ID)
-                        .numOfFragments(0))
-                .timeout(new TimeValue(1, TimeUnit.MINUTES))
-                .from(from)
-                .size(size);
-
-        // search request
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices(EsConstant.INDEX_USER).source(source);
-        return searchRequest;
-    }
-
-    private List<UserForSearchWithMoreInfo> getUserResults(SearchHits hits) {
-        SearchHit[] hitsArray = hits.getHits();
-        return Arrays.stream(hitsArray).map(h -> {
-            // get user
-            Map<String, Object> sourceAsMap = h.getSourceAsMap();
-            UserForSearchWithMoreInfo user = convertToUser(sourceAsMap);
-
-            // set highlighted fields
-            Map<String, HighlightField> highlightFields = h.getHighlightFields();
-            Set<String> fields = highlightFields.keySet();
-            user.setHighlightedFields(new ArrayList<>(fields));
-
-            return user;
-        }).collect(Collectors.toList());
-    }
-
-    private UserForSearchWithMoreInfo convertToUser(Map<String, Object> source) {
-        Integer id = (Integer) source.get(EsConstant.USER_ID);
-        String userName = String.valueOf(source.get(EsConstant.USER_NAME));
-        String role = String.valueOf(source.get(EsConstant.ROLE));
-
-        String time = String.valueOf(source.get(EsConstant.CREATION_TIME));
-
-        Instant creationTime;
-        try {
-            creationTime = Instant.parse(time);
-        } catch (DateTimeParseException e) {
-            e.printStackTrace();
-            throw new ServiceException(ResultCode.NO_RESULTS_FOUND);
-        }
-
-        ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
-
-        // the number of websites bookmarked by the user
-        int number = bookmarkMapper.countUserBookmarks(userName, false);
-
-        return UserForSearchWithMoreInfo.builder()
-                .id(id)
-                .userName(userName)
-                .role(role)
-                .createTime(creationTime)
-                .bookmarkNumber(number)
-                .build();
-    }
-
-    private SearchResultsDTO searchBookmarksMySql(String keyword, int from, int size) {
-
-        addToTrendingList(keyword);
-
-        List<WebForSearchDTO> paginatedResults = bookmarkMapper
-                .searchWebDataByKeyword(keyword, from, size);
-        long totalCount = bookmarkMapper.countWebDataByKeyword(keyword);
-        int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
-
-        return SearchResultsDTO.builder()
-                .paginatedResults(paginatedResults)
-                .totalCount(totalCount)
-                .totalPage(totalPages)
-                .build();
-    }
-
-    private SearchResultsDTO searchBookmarksElasticsearch(String keyword, int from, int size)
-            throws IOException {
-
-        addToTrendingList(keyword);
-
-        SearchRequest searchRequest = getBookmarkSearchRequest(keyword, from, size);
-
-        SearchHits hits = searchAndGetHits(searchRequest);
-        long totalCount = getTotalCount(hits);
-        int totalPage = PaginationUtils.getTotalPages((int) totalCount, size);
-
-        List<WebForSearchDTO> paginatedResults = getBookmarkResults(hits);
-
-        return SearchResultsDTO.builder()
-                .paginatedResults(paginatedResults)
-                .totalCount(totalCount)
-                .totalPage(totalPage)
-                .build();
-    }
-
-    private SearchRequest getBookmarkSearchRequest(String keyword, int from, int size) {
-        // 多字段匹配，title 的权限提高，设置分词器
-        MultiMatchQueryBuilder multiMatchQuery = QueryBuilders
-                .multiMatchQuery(keyword, EsConstant.DESC, EsConstant.TITLE)
-                .field(EsConstant.TITLE, 2.0F);
-
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
-                .query(multiMatchQuery)
-                .timeout(new TimeValue(1, TimeUnit.MINUTES))
-                .highlighter(new HighlightBuilder()
-                        .field(EsConstant.DESC)
-                        .field(EsConstant.TITLE)
-                        .preTags(EsConstant.PRE_TAGS)
-                        .postTags(EsConstant.POST_TAGS)
-                        .numOfFragments(0))
-                .from(from).size(size);
-
-        return new SearchRequest(EsConstant.INDEX_WEB).source(sourceBuilder);
-    }
-
-    private void addToTrendingList(String keyword) {
-        // 检测 keyword 的语言并选择合适的分词器
-        String analyzer = detectLanguageAndGetAnalyzer(keyword);
-        // 将搜索词分词后放入热搜统计
-        ElasticsearchManager elasticsearchManager = ApplicationContextUtils.getBean(ElasticsearchManager.class);
-        elasticsearchManager.analyzeAndAddTrendingAsync(keyword, analyzer);
-    }
-
-    /**
-     * 识别是哪国的语言，然后返回需要的 ES 分词器（目前支持英语、中文和日语）
-     *
-     * @param keyword 被检测的关键词
-     * @return 需要的分词器
-     */
-    private String detectLanguageAndGetAnalyzer(String keyword) {
-
-        Language lan = languageDetector.detectLanguageOf(keyword);
-
-        // 默认使用英文分词器
-        String analyzer = "english";
-
-        if (Language.JAPANESE.equals(lan)) {
-            // 如果是日语，使用日语的分词器
-            analyzer = EsConstant.ANALYZER_JAPANESE;
-        }
-
-        if (Language.CHINESE.equals(lan)) {
-            // 如果是中文，使用中文的分词器
-            analyzer = EsConstant.ANALYZER_CHINESE;
-        }
-
-        return analyzer;
     }
 
     /**
@@ -710,7 +358,7 @@ public class ElasticsearchManager {
             return;
         }
 
-        AnalyzeRequest request = AnalyzeRequest.withIndexAnalyzer(EsConstant.INDEX_WEB, analyzer, keyword);
+        AnalyzeRequest request = AnalyzeRequest.withIndexAnalyzer(SearchConstant.INDEX_WEB, analyzer, keyword);
         try {
             AnalyzeResponse analyze = client.indices().analyze(request, RequestOptions.DEFAULT);
             List<AnalyzeResponse.AnalyzeToken> tokens = analyze.getTokens();
@@ -730,54 +378,37 @@ public class ElasticsearchManager {
         }
     }
 
-    private List<WebForSearchDTO> getBookmarkResults(SearchHits hits) {
-
-        SearchHit[] hitsArray = hits.getHits();
-        return Arrays.stream(hitsArray)
-                .map(this::convertToBookmark)
-                .collect(Collectors.toList());
-    }
-
-    private WebForSearchDTO convertToBookmark(SearchHit hit) {
-        Map<String, Object> source = hitHighlightAndGetSource(hit, EsConstant.DESC, EsConstant.TITLE);
-
-        String title = String.valueOf(source.get(EsConstant.TITLE));
-        String url = String.valueOf(source.get(EsConstant.URL));
-        String img = String.valueOf(source.get(EsConstant.IMG));
-        String desc = String.valueOf(source.get(EsConstant.DESC));
-
-        return WebForSearchDTO.builder()
-                .title(title)
-                .url(url)
-                .img(img)
-                .desc(desc)
-                .build();
+    public void addToTrendingList(String keyword) {
+        // 检测 keyword 的语言并选择合适的分词器
+        String analyzer = detectLanguageAndGetAnalyzer(keyword);
+        // 将搜索词分词后放入热搜统计
+        ElasticsearchManager elasticsearchManager = ApplicationContextUtils.getBean(ElasticsearchManager.class);
+        elasticsearchManager.analyzeAndAddTrendingAsync(keyword, analyzer);
     }
 
     /**
-     * 实现高亮
+     * 识别是哪国的语言，然后返回需要的 ES 分词器（目前支持英语、中文和日语）
      *
-     * @param hit    搜索结果
-     * @param fields 需要高亮的字段
-     * @return 高亮后的结果
+     * @param keyword 被检测的关键词
+     * @return 需要的分词器
      */
-    private Map<String, Object> hitHighlightAndGetSource(SearchHit hit, String... fields) {
+    private String detectLanguageAndGetAnalyzer(String keyword) {
 
-        Map<String, Object> source = hit.getSourceAsMap();
-        Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-        Arrays.stream(fields).forEach(f -> updateSource(source, highlightFields, f));
-        return source;
-    }
+        Language lan = this.languageDetector.detectLanguageOf(keyword);
 
-    private void updateSource(Map<String, Object> source, Map<String, HighlightField> highlightFields, String field) {
-        HighlightField highlightField = highlightFields.get(field);
-        if (highlightField == null) {
-            return;
+        // 默认使用英文分词器
+        String analyzer = "english";
+
+        if (Language.JAPANESE.equals(lan)) {
+            // 如果是日语，使用日语的分词器
+            analyzer = SearchConstant.ANALYZER_JAPANESE;
         }
 
-        Text[] texts = highlightField.fragments();
-        StringBuilder sb = new StringBuilder();
-        Arrays.stream(texts).forEach(sb::append);
-        source.put(field, sb.toString());
+        if (Language.CHINESE.equals(lan)) {
+            // 如果是中文，使用中文的分词器
+            analyzer = SearchConstant.ANALYZER_CHINESE;
+        }
+
+        return analyzer;
     }
 }

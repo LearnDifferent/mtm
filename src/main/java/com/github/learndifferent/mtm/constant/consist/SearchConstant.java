@@ -1,17 +1,25 @@
 package com.github.learndifferent.mtm.constant.consist;
 
 /**
- * Constants related Elasticsearch
+ * Constants related to search functionality
  *
  * @author zhou
  * @date 2021/09/05
  */
-public final class EsConstant {
+public final class SearchConstant {
 
-    private EsConstant() {
+    private SearchConstant() {
     }
 
-    public static final String STRATEGY_BEAN_NAME_PREFIX = "search-";
+    public static final String SEARCH_STRATEGY_BEAN_NAME_PREFIX = "search-";
+
+    public static final String SEARCH_RELATED_STRATEGY_BEAN_NAME_PREFIX = "search-related-";
+
+    public static final String SEARCH_BOOKMARK_IN_MYSQL = "bookmark_mysql";
+
+    public static final String SEARCH_TAG_IN_MYSQL = "tag_mysql";
+
+    public static final String SEARCH_USER_IN_MYSQL = "user_mysql";
 
     public static final String INDEX_WEB = "web";
 

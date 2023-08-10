@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.constant.enums;
 
-import com.github.learndifferent.mtm.constant.consist.EsConstant;
+import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 
 /**
  * Search Mode
@@ -14,27 +14,27 @@ public enum SearchMode implements ConvertByNames {
     /**
      * Search for bookmarked websites in Elasticsearch
      */
-    WEB(EsConstant.INDEX_WEB),
+    WEB(SearchConstant.INDEX_WEB),
     /**
      * Search for tags in Elasticsearch
      */
-    TAG(EsConstant.INDEX_TAG),
+    TAG(SearchConstant.INDEX_TAG),
     /**
      * Search for users in Elasticsearch
      */
-    USER(EsConstant.INDEX_USER),
+    USER(SearchConstant.INDEX_USER),
     /**
      * Search for bookmarks in MySQL
      */
-    BOOKMARK_MYSQL("bookmark_mysql"),
+    BOOKMARK_MYSQL(SearchConstant.SEARCH_BOOKMARK_IN_MYSQL),
     /**
      * Search for tags in MySQL
      */
-    TAG_MYSQL("tag_mysql"),
+    TAG_MYSQL(SearchConstant.SEARCH_TAG_IN_MYSQL),
     /**
      * Search for users in MySQL
      */
-    USER_MYSQL("user_mysql");
+    USER_MYSQL(SearchConstant.SEARCH_USER_IN_MYSQL);
 
     private final String mode;
 

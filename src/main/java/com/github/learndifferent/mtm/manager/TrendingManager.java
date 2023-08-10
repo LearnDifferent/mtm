@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.manager;
 
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.ExceptionIfEmpty;
-import com.github.learndifferent.mtm.constant.consist.EsConstant;
+import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import java.util.Optional;
@@ -34,7 +34,7 @@ public class TrendingManager {
      */
     public Set<String> getTop20Trending() {
 
-        return redisTemplate.opsForZSet().reverseRange(EsConstant.TRENDING, 0, 19);
+        return redisTemplate.opsForZSet().reverseRange(SearchConstant.TRENDING, 0, 19);
     }
 
     /**
@@ -48,7 +48,7 @@ public class TrendingManager {
     public boolean deleteTrendingWord(
             @ExceptionIfEmpty(errorMessage = "Please choose a word to delete") String word) {
 
-        Long success = redisTemplate.opsForZSet().remove(EsConstant.TRENDING, word);
+        Long success = redisTemplate.opsForZSet().remove(SearchConstant.TRENDING, word);
 
         return success != null && success != 0;
     }
@@ -59,7 +59,7 @@ public class TrendingManager {
      * @return true if success
      */
     public boolean deleteTrending() {
-        Boolean success = redisTemplate.delete(EsConstant.TRENDING);
+        Boolean success = redisTemplate.delete(SearchConstant.TRENDING);
         return Optional.ofNullable(success).orElse(false);
     }
 
@@ -72,6 +72,6 @@ public class TrendingManager {
     public void addToTrendingList(
             @ExceptionIfEmpty(resultCode = ResultCode.NO_RESULTS_FOUND) String word) {
 
-        redisTemplate.opsForZSet().incrementScore(EsConstant.TRENDING, word, 1);
+        redisTemplate.opsForZSet().incrementScore(SearchConstant.TRENDING, word, 1);
     }
 }

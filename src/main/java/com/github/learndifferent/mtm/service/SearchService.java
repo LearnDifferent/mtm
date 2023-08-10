@@ -60,7 +60,7 @@ public interface SearchService {
     boolean generateDataForSearch(SearchMode mode);
 
     /**
-     * Search in Elasticsearch
+     * Search
      * <p>
      * Add the keyword to trending list if the search mode is {@link SearchMode#WEB}
      * or {@link SearchMode#BOOKMARK_MYSQL}.
