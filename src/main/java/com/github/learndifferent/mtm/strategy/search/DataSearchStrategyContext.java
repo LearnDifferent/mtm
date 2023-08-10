@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.strategy.search;
 
+import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,9 @@ public class DataSearchStrategyContext {
         // Map<String, DataSearchStrategy> map: key -> bean name; value -> bean
         strategies = new HashMap<>();
         map.forEach((k, v) -> {
-            SearchMode searchMode = SearchMode.valueOf(k.toUpperCase());
+            String strategyBeanNameReplacement = k.replaceFirst(EsConstant.STRATEGY_BEAN_NAME_PREFIX, "");
+            String modeName = strategyBeanNameReplacement.toUpperCase();
+            SearchMode searchMode = SearchMode.valueOf(modeName);
             strategies.put(searchMode, v);
         });
     }

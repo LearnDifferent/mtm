@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @author zhou
  * @date 2023/8/8
  */
-@Component(EsConstant.INDEX_TAG)
+@Component(EsConstant.STRATEGY_BEAN_NAME_PREFIX + EsConstant.INDEX_TAG)
 @RequiredArgsConstructor
 public class TagDataSearchStrategy implements DataSearchStrategy {
 

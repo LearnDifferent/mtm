@@ -11,6 +11,8 @@ public final class EsConstant {
     private EsConstant() {
     }
 
+    public static final String STRATEGY_BEAN_NAME_PREFIX = "search-";
+
     public static final String INDEX_WEB = "web";
 
     public static final String INDEX_USER = "user";

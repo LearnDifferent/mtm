@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author zhou
  * @date 2023/8/8
  */
-@Component(EsConstant.INDEX_USER)
+@Component(EsConstant.STRATEGY_BEAN_NAME_PREFIX + EsConstant.INDEX_USER)
 @RequiredArgsConstructor
 public class UserDataSearchStrategy implements DataSearchStrategy {
 
