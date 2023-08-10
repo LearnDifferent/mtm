@@ -42,7 +42,7 @@ public class UserManager {
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
     private final NotificationManager notificationManager;
-    private final ElasticsearchManager elasticsearchManager;
+    private final SearchManager searchManager;
 
     public BookmarksAndTotalPagesVO getUserBookmarks(String username,
                                                      int from,
@@ -86,7 +86,7 @@ public class UserManager {
         notificationManager.deleteFromReadSysNot(username);
 
         // Remove user data from Elasticsearch asynchronously
-        elasticsearchManager.removeUserFromElasticsearchAsync(id);
+        searchManager.removeUserFromElasticsearchAsync(id);
 
         // Remove user data from database (false if the user does not exist)
         return userMapper.deleteUserByUserId(id);
@@ -164,7 +164,7 @@ public class UserManager {
                 .createTime(user.getCreateTime())
                 .role(user.getRole())
                 .build();
-        elasticsearchManager.saveToElasticsearchAsync(data);
+        searchManager.saveToElasticsearchAsync(data);
     }
 
     /**

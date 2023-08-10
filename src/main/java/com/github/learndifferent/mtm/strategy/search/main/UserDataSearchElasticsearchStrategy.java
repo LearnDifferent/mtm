@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
 
-    private final ElasticsearchManager elasticsearchManager;
+    private final SearchManager searchManager;
     private final BookmarkMapper bookmarkMapper;
 
     @Override
@@ -54,7 +54,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
     private SearchResultsDTO searchUsersElasticsearch(String keyword, int from, int size) throws IOException {
         SearchRequest searchRequest = getUserSearchRequest(keyword, from, size);
 
-        SearchHits hits = elasticsearchManager.searchAndGetHits(searchRequest);
+        SearchHits hits = searchManager.searchAndGetHits(searchRequest);
         long totalCount = getTotalCount(hits);
         int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
         List<UserForSearchWithMoreInfo> paginatedResults = getUserResults(hits);

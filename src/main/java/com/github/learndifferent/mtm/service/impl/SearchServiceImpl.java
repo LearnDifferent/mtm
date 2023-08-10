@@ -8,7 +8,7 @@ import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.manager.TrendingManager;
 import com.github.learndifferent.mtm.service.SearchService;
 import com.github.learndifferent.mtm.strategy.search.main.DataSearchStrategyContext;
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
 
-    private final ElasticsearchManager elasticsearchManager;
+    private final SearchManager searchManager;
     private final TrendingManager trendingManager;
     private final DataSearchRelatedStrategyContext dataSearchRelatedStrategyContext;
     private final DataSearchStrategyContext dataSearchStrategyContext;
@@ -40,7 +40,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean existIndex) {
-        return elasticsearchManager.dataInDatabaseDiffFromElasticsearch(mode, !existIndex);
+        return searchManager.dataInDatabaseDiffFromElasticsearch(mode, !existIndex);
     }
 
     @Override

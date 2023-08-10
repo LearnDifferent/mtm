@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.strategy.search.main;
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BookmarkDataSearchMySqlStrategy implements DataSearchStrategy {
 
-    private final ElasticsearchManager elasticsearchManager;
+    private final SearchManager searchManager;
     private final BookmarkMapper bookmarkMapper;
 
     @Override
@@ -32,7 +32,7 @@ public class BookmarkDataSearchMySqlStrategy implements DataSearchStrategy {
 
     private SearchResultsDTO searchBookmarksMySql(String keyword, int from, int size) {
 
-        this.elasticsearchManager.addToTrendingList(keyword);
+        this.searchManager.addToTrendingList(keyword);
 
         List<WebForSearchDTO> paginatedResults = this.bookmarkMapper
                 .searchWebDataByKeyword(keyword, from, size);

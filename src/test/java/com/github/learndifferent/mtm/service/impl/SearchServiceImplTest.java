@@ -10,7 +10,7 @@ import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.strategy.search.main.DataSearchStrategyContext;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +29,7 @@ class SearchServiceImplTest {
     private SearchServiceImpl searchService;
 
     @Mock
-    private ElasticsearchManager elasticsearchManager;
+    private SearchManager searchManager;
 
     @Mock
     private DataSearchStrategyContext dataSearchStrategyContext;

@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.strategy.search.main;
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TagDataSearchElasticsearchStrategy implements DataSearchStrategy {
 
-    private final ElasticsearchManager elasticsearchManager;
+    private final SearchManager searchManager;
 
     @Override
     public SearchResultsDTO search(String keyword, int from, int size, Integer rangeFrom, Integer rangeTo)
@@ -49,7 +49,7 @@ public class TagDataSearchElasticsearchStrategy implements DataSearchStrategy {
                                                      Integer rangeTo) throws IOException {
 
         SearchRequest searchRequest = getTagSearchRequest(keyword, from, size, rangeFrom, rangeTo);
-        SearchHits hits = this.elasticsearchManager.searchAndGetHits(searchRequest);
+        SearchHits hits = this.searchManager.searchAndGetHits(searchRequest);
         // get total number of hits
         long totalCount = getTotalCount(hits);
         // get total pages

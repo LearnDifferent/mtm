@@ -31,7 +31,7 @@ import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.manager.UserManager;
 import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
@@ -86,7 +86,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BookmarkServiceImpl implements BookmarkService {
 
     private final BookmarkMapper bookmarkMapper;
-    private final ElasticsearchManager elasticsearchManager;
+    private final SearchManager searchManager;
     private final DeleteViewManager deleteViewManager;
     private final DeleteTagManager deleteTagManager;
     private final BookmarkDoMapper bookmarkDoMapper;
@@ -146,7 +146,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     private BookmarkingResultVO saveToElasticsearchAndDatabase(String username, BasicWebDataDTO data) {
         // save to Elasticsearch asynchronously
-        Future<Boolean> elasticsearchResult = elasticsearchManager.saveToElasticsearchAsync(data);
+        Future<Boolean> elasticsearchResult = searchManager.saveToElasticsearchAsync(data);
         // save to database and get the BookmarkingResultVO
         BookmarkingResultVO result = saveToDatabase(username, data, PUBLIC);
         // get the result of saving to Elasticsearch asynchronously

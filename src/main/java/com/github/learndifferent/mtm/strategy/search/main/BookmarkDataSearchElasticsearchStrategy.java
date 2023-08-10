@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.strategy.search.main;
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BookmarkDataSearchElasticsearchStrategy implements DataSearchStrategy {
 
-    private final ElasticsearchManager elasticsearchManager;
+    private final SearchManager searchManager;
 
     @Override
     public SearchResultsDTO search(String keyword, int from, int size, Integer rangeFrom, Integer rangeTo)
@@ -45,11 +45,11 @@ public class BookmarkDataSearchElasticsearchStrategy implements DataSearchStrate
     private SearchResultsDTO searchBookmarksElasticsearch(String keyword, int from, int size)
             throws IOException {
 
-        this.elasticsearchManager.addToTrendingList(keyword);
+        this.searchManager.addToTrendingList(keyword);
 
         SearchRequest searchRequest = getBookmarkSearchRequest(keyword, from, size);
 
-        SearchHits hits = this.elasticsearchManager.searchAndGetHits(searchRequest);
+        SearchHits hits = this.searchManager.searchAndGetHits(searchRequest);
         long totalCount = getTotalCount(hits);
         int totalPage = PaginationUtils.getTotalPages((int) totalCount, size);
 

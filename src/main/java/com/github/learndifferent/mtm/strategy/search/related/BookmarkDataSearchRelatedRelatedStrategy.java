@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.strategy.search.related;
 
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
-import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.SearchManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,20 +15,20 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BookmarkDataSearchRelatedRelatedStrategy implements DataSearchRelatedStrategy {
 
-    private final ElasticsearchManager elasticsearchManager;
+    private final SearchManager searchManager;
 
     @Override
     public boolean verifyDataExistence() {
-        return elasticsearchManager.existsIndex(SearchConstant.INDEX_WEB);
+        return searchManager.existsIndex(SearchConstant.INDEX_WEB);
     }
 
     @Override
     public boolean checkAndDeleteIndex() {
-        return elasticsearchManager.checkAndDeleteIndex(SearchConstant.INDEX_WEB);
+        return searchManager.checkAndDeleteIndex(SearchConstant.INDEX_WEB);
     }
 
     @Override
     public boolean generateDataForSearch() {
-        return elasticsearchManager.generateBasicWebData();
+        return searchManager.generateBasicWebData();
     }
 }

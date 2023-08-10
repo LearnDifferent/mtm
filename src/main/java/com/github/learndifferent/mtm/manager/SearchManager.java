@@ -64,7 +64,7 @@ import org.springframework.util.concurrent.ListenableFuture;
  */
 @Slf4j
 @Component
-public class ElasticsearchManager {
+public class SearchManager {
 
     private final RestHighLevelClient client;
     private final BookmarkMapper bookmarkMapper;
@@ -73,11 +73,11 @@ public class ElasticsearchManager {
     private final TagMapper tagMapper;
     private final LanguageDetector languageDetector;
 
-    public ElasticsearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
-                                BookmarkMapper bookmarkMapper,
-                                TrendingManager trendingManager,
-                                UserMapper userMapper,
-                                TagMapper tagMapper, LanguageDetector languageDetector) {
+    public SearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
+                         BookmarkMapper bookmarkMapper,
+                         TrendingManager trendingManager,
+                         UserMapper userMapper,
+                         TagMapper tagMapper, LanguageDetector languageDetector) {
         this.client = client;
         this.bookmarkMapper = bookmarkMapper;
         this.trendingManager = trendingManager;
@@ -382,8 +382,8 @@ public class ElasticsearchManager {
         // 检测 keyword 的语言并选择合适的分词器
         String analyzer = detectLanguageAndGetAnalyzer(keyword);
         // 将搜索词分词后放入热搜统计
-        ElasticsearchManager elasticsearchManager = ApplicationContextUtils.getBean(ElasticsearchManager.class);
-        elasticsearchManager.analyzeAndAddTrendingAsync(keyword, analyzer);
+        SearchManager searchManager = ApplicationContextUtils.getBean(SearchManager.class);
+        searchManager.analyzeAndAddTrendingAsync(keyword, analyzer);
     }
 
     /**
