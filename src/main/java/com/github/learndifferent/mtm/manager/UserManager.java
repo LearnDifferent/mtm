@@ -4,17 +4,24 @@ import com.github.learndifferent.mtm.annotation.common.Password;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.user.create.UserCreationCheck;
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
+import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
+import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
+import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
@@ -36,6 +43,20 @@ public class UserManager {
     private final CommentMapper commentMapper;
     private final NotificationManager notificationManager;
     private final ElasticsearchManager elasticsearchManager;
+
+    public BookmarksAndTotalPagesVO getUserBookmarks(String username,
+                                                     int from,
+                                                     int size,
+                                                     AccessPrivilege privilege) {
+
+        int totalCounts = bookmarkMapper.countUserBookmarks(username, privilege.canAccessPrivateData());
+        int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
+
+        List<BookmarkDO> b = bookmarkMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
+        List<BookmarkVO> bookmarks = DozerUtils.convertList(b, BookmarkVO.class);
+
+        return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
+    }
 
     /**
      * Delete all data related to the user

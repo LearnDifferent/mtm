@@ -32,6 +32,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
+import com.github.learndifferent.mtm.manager.UserManager;
 import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
@@ -90,6 +91,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final DeleteTagManager deleteTagManager;
     private final BookmarkDoMapper bookmarkDoMapper;
     private final HomeTimelineStrategyContext homeTimelineStrategyContext;
+    private final UserManager userManager;
 
     @Override
     public List<BookmarkVO> filterPublicBookmarks(UsernamesRequest usernames,
@@ -263,31 +265,13 @@ public class BookmarkServiceImpl implements BookmarkService {
                 currentUsername, requestedUsername, from, size);
     }
 
-    private BookmarksAndTotalPagesVO getUserBookmarks(String username,
-                                                      int from,
-                                                      int size,
-                                                      AccessPrivilege privilege) {
-
-        int totalCounts = bookmarkMapper.countUserBookmarks(username, privilege.canAccessPrivateData());
-        int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
-
-        List<BookmarkDO> b = bookmarkMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
-        List<BookmarkVO> bookmarks = convertToBookmarkVO(b);
-
-        return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
-    }
-
-    private List<BookmarkVO> convertToBookmarkVO(List<BookmarkDO> bookmarks) {
-        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
-    }
-
     @Override
     public BookmarksAndTotalPagesVO getUserBookmarks(String username,
                                                      PageInfoDTO pageInfo,
                                                      AccessPrivilege privilege) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        return getUserBookmarks(username, from, size, privilege);
+        return this.userManager.getUserBookmarks(username, from, size, privilege);
     }
 
     @Override
