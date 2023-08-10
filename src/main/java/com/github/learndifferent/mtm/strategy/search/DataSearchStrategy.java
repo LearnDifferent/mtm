@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.strategy;
+package com.github.learndifferent.mtm.strategy.search;
 
 /**
  * Data search strategy

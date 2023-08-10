@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.strategy;
+package com.github.learndifferent.mtm.strategy.search;
 
 import com.github.learndifferent.mtm.constant.consist.EsConstant;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;

@@ -6,7 +6,7 @@ import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.manager.ElasticsearchManager;
 import com.github.learndifferent.mtm.manager.TrendingManager;
 import com.github.learndifferent.mtm.service.SearchService;
-import com.github.learndifferent.mtm.strategy.DataSearchStrategyContext;
+import com.github.learndifferent.mtm.strategy.search.DataSearchStrategyContext;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

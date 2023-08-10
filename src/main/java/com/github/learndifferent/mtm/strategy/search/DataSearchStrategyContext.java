@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.strategy;
+package com.github.learndifferent.mtm.strategy.search;
 
 import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import java.util.HashMap;
