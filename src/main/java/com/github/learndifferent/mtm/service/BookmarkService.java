@@ -94,7 +94,7 @@ public interface BookmarkService {
      * Get bookmarked websites and total pages for the current user on the home page
      *
      * @param currentUsername   username of the user that is currently logged in
-     * @param homeTimeline      how to displays the stream of bookmarks on the home page
+     * @param homeTimeline      how to display the stream of bookmarks on the home page
      * @param requestedUsername username of the user whose data is being requested
      *                          <p>{@code requestedUsername} is not is required</p>
      * @param pageInfo          pagination info

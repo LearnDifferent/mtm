@@ -1,7 +1,9 @@
 package com.github.learndifferent.mtm.constant.enums;
 
+import com.github.learndifferent.mtm.constant.consist.HomeTimelineConstant;
+
 /**
- * About how to displays a stream of bookmarks on the home page.
+ * About how to display a stream of bookmarks on the home page.
  *
  * @author zhou
  * @date 2021/09/05
@@ -12,15 +14,15 @@ public enum HomeTimeline implements ConvertByNames {
     /**
      * Default: Reverse-chronological order
      */
-    LATEST("latest"),
+    LATEST_TIMELINE(HomeTimelineConstant.LATEST_TIMELINE),
     /**
-     * Bookmarked by the user
+     * User-specific timeline
      */
-    USER("user"),
+    USER_SPECIFIC_TIMELINE(HomeTimelineConstant.USER_SPECIFIC_TIMELINE),
     /**
-     * All bookmarks except those that are bookmarked by specific user
+     * Timeline with blacklist
      */
-    BLOCK("block");
+    TIMELINE_WITH_BLACKLIST(HomeTimelineConstant.TIMELINE_WITH_BLACKLIST);
 
     private final String timeline;
 

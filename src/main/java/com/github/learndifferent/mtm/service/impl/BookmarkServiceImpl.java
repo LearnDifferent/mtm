@@ -37,6 +37,7 @@ import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.BookmarkService;
+import com.github.learndifferent.mtm.strategy.timeline.HomeTimelineStrategyContext;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
@@ -62,11 +63,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -80,6 +81,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @date 2021/09/05
  */
 @Service
+@RequiredArgsConstructor
 public class BookmarkServiceImpl implements BookmarkService {
 
     private final BookmarkMapper bookmarkMapper;
@@ -87,18 +89,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final DeleteViewManager deleteViewManager;
     private final DeleteTagManager deleteTagManager;
     private final BookmarkDoMapper bookmarkDoMapper;
-
-    @Autowired
-    public BookmarkServiceImpl(BookmarkMapper bookmarkMapper,
-                               ElasticsearchManager elasticsearchManager,
-                               DeleteViewManager deleteViewManager,
-                               DeleteTagManager deleteTagManager, BookmarkDoMapper bookmarkDoMapper) {
-        this.bookmarkMapper = bookmarkMapper;
-        this.elasticsearchManager = elasticsearchManager;
-        this.deleteViewManager = deleteViewManager;
-        this.deleteTagManager = deleteTagManager;
-        this.bookmarkDoMapper = bookmarkDoMapper;
-    }
+    private final HomeTimelineStrategyContext homeTimelineStrategyContext;
 
     @Override
     public List<BookmarkVO> filterPublicBookmarks(UsernamesRequest usernames,
@@ -266,30 +257,10 @@ public class BookmarkServiceImpl implements BookmarkService {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        // check whether the current user is requested user
-        boolean isCurrentUser = currentUsername.equalsIgnoreCase(requestedUsername);
-        // if the current user is requesting his own data, then he can access his private data
-        AccessPrivilege privilege = isCurrentUser ? AccessPrivilege.ALL : AccessPrivilege.LIMITED;
+        String timelineStrategy = homeTimeline.timeline();
 
-        switch (homeTimeline) {
-            case USER:
-                // check out public bookmarks of the requested user's
-                // this will include private bookmarks if the requested user is current user
-                return getUserBookmarks(requestedUsername, from, size, privilege);
-            case BLOCK:
-                // check out all public bookmarks except the requested user's
-                // this will include current user's private bookmarks if the requested user is not current user
-                return getPublicIncludeCurrentPrivateExceptRequestedUserBookmark(
-                        currentUsername, requestedUsername, from, size);
-            case LATEST:
-            default:
-                // get all public bookmarks and current user's private bookmarks
-                return getLatestBookmarks(currentUsername, from, size);
-        }
-    }
-
-    private List<BookmarkVO> convertToBookmarkVO(List<BookmarkDO> bookmarks) {
-        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
+        return this.homeTimelineStrategyContext.getHomeTimeline(timelineStrategy,
+                currentUsername, requestedUsername, from, size);
     }
 
     private BookmarksAndTotalPagesVO getUserBookmarks(String username,
@@ -306,65 +277,8 @@ public class BookmarkServiceImpl implements BookmarkService {
         return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
     }
 
-    private BookmarksAndTotalPagesVO getPublicIncludeCurrentPrivateExceptRequestedUserBookmark(
-            String currentUsername, String requestedUsername, int from, int size) {
-
-        List<BookmarkVO> bookmarks =
-                getAllPublicSomePrivateExcludingSpecificUserBookmark(currentUsername, requestedUsername, from, size);
-
-        int totalCount = bookmarkMapper
-                .countAllPublicSomePrivateExcludingSpecificUserBookmark(currentUsername, requestedUsername);
-        int totalPages = PaginationUtils.getTotalPages(totalCount, size);
-        return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
-    }
-
-    /**
-     * Get public bookmarks of all users and
-     * some private bookmarks of the user whose username is {@code includePrivateUsername},
-     * excluding the bookmarks of the user whose username is {@code excludeUsername}
-     *
-     * @param includePrivateUsername username of the user whose public and private bookmarks will be shown
-     * @param excludeUsername        username of the user whose bookmarks will not be shown
-     * @param from                   from
-     * @param size                   size
-     * @return bookmarks
-     */
-    private List<BookmarkVO> getAllPublicSomePrivateExcludingSpecificUserBookmark(
-            String includePrivateUsername, String excludeUsername, int from, int size) {
-
-        List<BookmarkDO> bookmarks = bookmarkMapper.getAllPublicSomePrivateExcludingSpecificUserBookmark(
-                includePrivateUsername, excludeUsername, from, size);
-
-        return convertToBookmarkVO(bookmarks);
-    }
-
-    private BookmarksAndTotalPagesVO getLatestBookmarks(String currentUsername, int from, int size) {
-        List<BookmarkVO> bookmarks =
-                getAllPublicAndSpecificPrivateBookmarks(from, size, currentUsername);
-
-        int totalCount = bookmarkMapper.countAllPublicAndSpecificPrivateBookmarks(currentUsername);
-        int totalPages = PaginationUtils.getTotalPages(totalCount, size);
-        return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
-    }
-
-    /**
-     * Get public bookmarks of all users and private bookmarks of specific user
-     * <p>
-     * The result will not be paginated if {@code from} or {@code size} is null
-     * </p>
-     *
-     * @param from         from
-     *                     <p>The result will not be paginated if {@code from} or {@code size} is null</p>
-     * @param size         size
-     *                     <p>The result will not be paginated if {@code from} or {@code size} is null</p>
-     * @param specUsername username of the user whose public and private bookmarks will be shown
-     * @return public bookmarks of all users and private bookmarks of specific user
-     */
-    private List<BookmarkVO> getAllPublicAndSpecificPrivateBookmarks(Integer from,
-                                                                     Integer size,
-                                                                     String specUsername) {
-        List<BookmarkDO> bookmarks = bookmarkMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, specUsername);
-        return convertToBookmarkVO(bookmarks);
+    private List<BookmarkVO> convertToBookmarkVO(List<BookmarkDO> bookmarks) {
+        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
     @Override

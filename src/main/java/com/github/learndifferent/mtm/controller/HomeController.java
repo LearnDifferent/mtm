@@ -17,7 +17,7 @@ import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,14 +35,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/home")
 @Validated
+@RequiredArgsConstructor
 public class HomeController {
 
     private final BookmarkService bookmarkService;
-
-    @Autowired
-    public HomeController(BookmarkService bookmarkService) {
-        this.bookmarkService = bookmarkService;
-    }
 
     /**
      * Get {@link HomePageVO} Data

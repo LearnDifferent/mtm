@@ -48,7 +48,7 @@ class BookmarkServiceImplTest {
                 .thenReturn(totalNumber);
 
         BookmarksAndTotalPagesVO result = bookmarkService.getHomeTimeline(
-                currentUser, HomeTimeline.LATEST, "", pageInfo);
+                currentUser, HomeTimeline.LATEST_TIMELINE, "", pageInfo);
 
         Assertions.assertEquals(size - from, result.getBookmarks().size());
 
