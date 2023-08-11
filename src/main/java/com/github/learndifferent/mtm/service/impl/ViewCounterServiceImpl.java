@@ -10,9 +10,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,6 +30,8 @@ import org.springframework.util.CollectionUtils;
  * @date 2022/3/24
  */
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class ViewCounterServiceImpl implements ViewCounterService {
 
     private final StringRedisTemplate redisTemplate;
@@ -38,74 +42,68 @@ public class ViewCounterServiceImpl implements ViewCounterService {
      */
     private final static int LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX = KeyConstant.WEB_VIEW_COUNT_PREFIX.length();
 
-    @Autowired
-    public ViewCounterServiceImpl(StringRedisTemplate redisTemplate,
-                                  BookmarkViewMapper bookmarkViewMapper) {
-        this.redisTemplate = redisTemplate;
-        this.bookmarkViewMapper = bookmarkViewMapper;
-    }
-
     @Override
     public void increaseViewsAndAddToSet(Integer bookmarkId) {
-        if (bookmarkId == null) {
+        if (Objects.isNull(bookmarkId)) {
             return;
         }
         String key = KeyConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId;
-        redisTemplate.opsForValue().increment(key);
+        this.redisTemplate.opsForValue().increment(key);
         // add the key to set
-        redisTemplate.opsForSet().add(KeyConstant.VIEW_KEY_SET, key);
+        this.redisTemplate.opsForSet().add(KeyConstant.VIEW_KEY_SET, key);
     }
 
     @Override
     public int countViews(Integer bookmarkId) {
 
-        if (bookmarkId == null) {
+        if (Objects.isNull(bookmarkId)) {
             return 0;
         }
 
-        String views = redisTemplate.opsForValue().get(KeyConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId);
-        if (views == null) {
+        String views = this.redisTemplate.opsForValue().get(KeyConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId);
+        if (Objects.isNull(views)) {
             return 0;
         }
 
         try {
             return Integer.parseInt(views);
         } catch (NumberFormatException e) {
+            log.error("Cannot convert {} to integer", views, e);
             return 0;
         }
     }
 
-    private ViewCounterServiceImpl getBean() {
+    private ViewCounterServiceImpl getCurrentBean() {
         return ApplicationContextUtils.getBean(ViewCounterServiceImpl.class);
     }
 
     @Override
     public List<String> updateViewsAndReturnFailKeys() {
         // get all keys containing view data in Redis
-        Set<String> keys = redisTemplate.opsForSet().members(KeyConstant.VIEW_KEY_SET);
+        Set<String> keys = this.redisTemplate.opsForSet().members(KeyConstant.VIEW_KEY_SET);
 
         // save the view data from database to Redis if no keys are found
         // save them from Redis to database if found
         boolean isEmpty = CollectionUtils.isEmpty(keys);
-        return isEmpty ? saveViewsToRedisAndReturnEmptyList()
-                : getBean().saveViewsToDbAndReturnFailKeys(keys);
+        return isEmpty ? this.saveViewsToRedisAndReturnEmptyList()
+                : this.getCurrentBean().saveViewsToDbAndReturnFailKeys(keys);
     }
 
     private List<String> saveViewsToRedisAndReturnEmptyList() {
         // get data from database
-        List<ViewDataDO> data = bookmarkViewMapper.getAllViewData();
+        List<ViewDataDO> data = this.bookmarkViewMapper.getAllViewData();
 
         // save to Redis
         Map<String, String> kv = data.stream().collect(Collectors.toMap(
                 d -> KeyConstant.WEB_VIEW_COUNT_PREFIX + d.getBookmarkId(),
                 d -> String.valueOf(d.getViews())));
-        redisTemplate.opsForValue().multiSet(kv);
+        this.redisTemplate.opsForValue().multiSet(kv);
 
         // add the keys to set in Redis
         Set<String> keySet = kv.keySet();
         int size = keySet.size();
         String[] keys = keySet.toArray(new String[size]);
-        redisTemplate.opsForSet().add(KeyConstant.VIEW_KEY_SET, keys);
+        this.redisTemplate.opsForSet().add(KeyConstant.VIEW_KEY_SET, keys);
 
         return Collections.emptyList();
     }
@@ -115,34 +113,34 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     public List<String> saveViewsToDbAndReturnFailKeys(Set<String> keys) {
 
         // clear all data before adding new data
-        bookmarkViewMapper.clearAll();
+        this.bookmarkViewMapper.clearAll();
 
         // keys that failed to save
         List<String> failKeys = new ArrayList<>();
 
-        // get all values by keys and create a new set to store every web id and its views
+        // get all values by keys and create a new set to store every bookmark id and its views
         Set<ViewDataDO> set = new HashSet<>();
         keys.forEach(key -> updateViewsCollections(set, failKeys, key));
 
         // save all data to database
-        bookmarkViewMapper.addAll(set);
+        this.bookmarkViewMapper.addAll(set);
 
         // return the list of the keys that failed to save
         return failKeys;
     }
 
     private void updateViewsCollections(Set<ViewDataDO> set, List<String> failKeys, String key) {
-        String val = redisTemplate.opsForValue().get(key);
-        if (val == null) {
+        String val = this.redisTemplate.opsForValue().get(key);
+        if (Objects.isNull(val)) {
             // add the key to fail list if no value available
             failKeys.add(key);
             return;
         }
 
         try {
-            updateViewsCollections(set, key, val);
+            this.updateViewsCollections(set, key, val);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Cannot update views for key: {}", key, e);
             // add the key to list if failure
             failKeys.add(key);
         }
@@ -163,6 +161,6 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     @Override
     @Scheduled(fixedRate = 43_200_000)
     public void updateViewsScheduledTask() {
-        getBean().updateViewsAndReturnFailKeys();
+        this.getCurrentBean().updateViewsAndReturnFailKeys();
     }
 }
