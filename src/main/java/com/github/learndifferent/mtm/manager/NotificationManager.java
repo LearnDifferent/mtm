@@ -19,9 +19,11 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -33,6 +35,8 @@ import org.springframework.util.CollectionUtils;
  * @date 2021/10/7
  */
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class NotificationManager {
 
     private final StringRedisTemplate redisTemplate;
@@ -40,38 +44,29 @@ public class NotificationManager {
     private final BookmarkMapper bookmarkMapper;
     private final BookmarkDoMapper bookmarkDoMapper;
 
-    @Autowired
-    public NotificationManager(StringRedisTemplate redisTemplate,
-                               CommentMapper commentMapper,
-                               BookmarkMapper bookmarkMapper, BookmarkDoMapper bookmarkDoMapper) {
-        this.redisTemplate = redisTemplate;
-        this.commentMapper = commentMapper;
-        this.bookmarkMapper = bookmarkMapper;
-        this.bookmarkDoMapper = bookmarkDoMapper;
-    }
-
     /**
      * Delete {@code key}
      *
      * @param key redis key
      */
     public void deleteByKey(String key) {
-        redisTemplate.delete(key);
+        this.redisTemplate.delete(key);
     }
 
     public long countReplyNotifications(String receiveUsername) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
-        Long size = redisTemplate.opsForList().size(key);
+        Long size = this.redisTemplate.opsForList().size(key);
         return Optional.ofNullable(size).orElse(0L);
     }
 
     public int countNewReplyNotifications(String receiveUsername) {
         String key = KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase();
-        String notificationCount = redisTemplate.opsForValue().get(key);
+        String notificationCount = this.redisTemplate.opsForValue().get(key);
         String count = Optional.ofNullable(notificationCount).orElse("0");
         try {
             return Integer.parseInt(count);
         } catch (NumberFormatException e) {
+            log.info("{} is not a number, return 0 as default", count);
             return 0;
         }
     }
@@ -88,13 +83,14 @@ public class NotificationManager {
                                                                         int from,
                                                                         int lastIndex) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
-        List<String> notifications = redisTemplate.opsForList().range(key, from, lastIndex);
+        List<String> notifications = this.redisTemplate.opsForList().range(key, from, lastIndex);
 
         boolean hasNoNotifications = CollectionUtils.isEmpty(notifications);
         ThrowExceptionUtils.throwIfTrue(hasNoNotifications, ResultCode.NO_RESULTS_FOUND);
 
         // clear notification count
-        redisTemplate.delete(KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase());
+        String notificationCountKey = KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase();
+        this.deleteByKey(notificationCountKey);
 
         return notifications.stream()
                 .map(this::getReplyMessageNotification)
@@ -103,27 +99,29 @@ public class NotificationManager {
 
     private ReplyMessageNotificationVO getReplyMessageNotification(String notification) {
         ReplyMessageNotificationVO no = JsonUtils.toObject(notification, ReplyMessageNotificationVO.class);
-        String text = getCommentTextIfWebsiteAndCommentExist(no);
+        String text = this.getCommentTextIfBookmarkAndCommentExist(no);
         no.setMessage(text);
         return no;
     }
 
-    private String getCommentTextIfWebsiteAndCommentExist(ReplyMessageNotificationVO notification) {
+    private String getCommentTextIfBookmarkAndCommentExist(ReplyMessageNotificationVO notification) {
 
         Integer bookmarkId = notification.getBookmarkId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
         BookmarkDO bookmark = bookmarkDoMapper.selectById(bookmarkId);
 
-        if (bookmark == null) {
-            // if the bookmark does not exist,
-            // returns null to indicate that the comment does not exist
-            return null;
-        }
+        boolean isNotExists = Objects.isNull(bookmark);
 
+        // if the bookmark does not exist,
+        // returns null to indicate that the comment does not exist
+        return isNotExists ? null : getCommentTextFromNotification(notification);
+    }
+
+    private String getCommentTextFromNotification(ReplyMessageNotificationVO notification) {
         int commentId = notification.getCommentId();
         // the result is null if the comment does not exist
-        return commentMapper.getCommentTextById(commentId);
+        return this.commentMapper.getCommentTextById(commentId);
     }
 
     /**
@@ -139,11 +137,11 @@ public class NotificationManager {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
 
         String value = JsonUtils.toJson(notification);
-        redisTemplate.opsForList().leftPush(key, value);
+        this.redisTemplate.opsForList().leftPush(key, value);
 
         // increase notification count
-        redisTemplate.opsForValue().increment(
-                KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase());
+        String countKey = KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase();
+        this.redisTemplate.opsForValue().increment(countKey);
     }
 
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
@@ -152,16 +150,12 @@ public class NotificationManager {
         Integer bookmarkId = comment.getBookmarkId();
         Integer replyToCommentId = comment.getReplyToCommentId();
 
-        // the notification belongs to the owner of the website data if replyToCommentId is null,
+        // the notification belongs to the owner of the bookmark data if replyToCommentId is null,
         // and belongs to the owner of the comment data if it's not null
-        boolean notifyWebsiteOwner = replyToCommentId == null;
-        String receiveUsername;
-
-        if (notifyWebsiteOwner) {
-            receiveUsername = bookmarkMapper.getBookmarkOwnerName(bookmarkId);
-        } else {
-            receiveUsername = commentMapper.getCommentSenderName(replyToCommentId);
-        }
+        boolean shouldNotifyBookmarkOwner = Objects.isNull(replyToCommentId);
+        String receiveUsername =
+                shouldNotifyBookmarkOwner ? this.bookmarkMapper.getBookmarkOwnerName(bookmarkId)
+                        : this.commentMapper.getCommentSenderName(replyToCommentId);
 
         String sendUsername = comment.getUsername();
         Instant creationTime = comment.getCreationTime();
@@ -180,7 +174,7 @@ public class NotificationManager {
         String receiveUsername = data.getReceiveUsername();
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         String value = JsonUtils.toJson(data);
-        redisTemplate.opsForList().remove(key, 1, value);
+        this.redisTemplate.opsForList().remove(key, 1, value);
     }
 
     /**
@@ -193,13 +187,13 @@ public class NotificationManager {
         if (PriorityLevel.URGENT.equals(priority)) {
             // if this is an urgent message
             // delete all saved usernames to make it a push notification
-            deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
+            this.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
             // add <span style='color: #e84a5f'> </span> to the message
             message = "<span style='color: #e84a5f'>" + message + "</span>";
         }
 
-        redisTemplate.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, message);
-        redisTemplate.opsForList().trim(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
+        this.redisTemplate.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, message);
+        this.redisTemplate.opsForList().trim(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
     }
 
     /**
@@ -214,20 +208,23 @@ public class NotificationManager {
 
         List<String> messages = getFirst20SystemNotifications();
 
-        if (CollectionUtils.isEmpty(messages)) {
-            return "No Notifications Yet";
-        }
+        boolean isMessageEmpty = CollectionUtils.isEmpty(messages);
 
+        return isMessageEmpty ? "No Notifications Yet"
+                : this.getSystemNotificationsHtml(username, messages);
+    }
+
+    private String getSystemNotificationsHtml(String username, List<String> messages) {
         StringBuilder sb = getHtmlMsg(messages);
 
         // record the lowercase username
-        redisTemplate.opsForSet().add(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
+        this.redisTemplate.opsForSet().add(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
         return sb.toString();
     }
 
     private List<String> getFirst20SystemNotifications() {
         // get first 20 messages
-        return redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
+        return this.redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
     }
 
     private StringBuilder getHtmlMsg(List<String> msg) {
@@ -250,7 +247,7 @@ public class NotificationManager {
      * @param username The username of the user who has read the most recent previous system notification
      */
     public void deleteFromReadSysNot(String username) {
-        redisTemplate.opsForSet().remove(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
+        this.redisTemplate.opsForSet().remove(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
     }
 
     /**
@@ -269,7 +266,7 @@ public class NotificationManager {
         }
 
         // return true if user has read the latest notification
-        Boolean isMember = redisTemplate.opsForSet()
+        Boolean isMember = this.redisTemplate.opsForSet()
                 .isMember(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
 
         return Optional.ofNullable(isMember).orElse(false);
@@ -289,9 +286,10 @@ public class NotificationManager {
 
         String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + id;
         // put new role
-        redisTemplate.opsForHash().put(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY, newRole.role());
+        this.redisTemplate.opsForHash().put(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY, newRole.role());
         // put former role if absent: only record the first role
-        redisTemplate.opsForHash().putIfAbsent(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY, formerRole.role());
+        this.redisTemplate.opsForHash().putIfAbsent(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY,
+                formerRole.role());
     }
 
     /**
@@ -303,14 +301,14 @@ public class NotificationManager {
     public String generateRoleChangeNotification(String userId) {
         String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
 
-        Object newRoleObject = redisTemplate.opsForHash().get(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY);
-        if (newRoleObject == null) {
+        Object newRoleObject = this.redisTemplate.opsForHash().get(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY);
+        if (Objects.isNull(newRoleObject)) {
             return "";
         }
 
         Object formerRoleObject =
-                redisTemplate.opsForHash().get(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY);
-        if (formerRoleObject == null) {
+                this.redisTemplate.opsForHash().get(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY);
+        if (Objects.isNull(formerRoleObject)) {
             return "";
         }
 
@@ -322,8 +320,7 @@ public class NotificationManager {
             UserRole formerRole = UserRole.valueOf(formerRoleString.toUpperCase());
             return compareAndReturnNotification(newRole, formerRole);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            // return empty string if the role is illegal
+            log.error("Return empty string if the role is illegal", e);
             return "";
         }
     }
@@ -346,7 +343,7 @@ public class NotificationManager {
      */
     public void deleteRoleChangeNotification(String userId) {
         String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
-        deleteByKey(key);
+        this.deleteByKey(key);
     }
 
     /**
@@ -356,7 +353,7 @@ public class NotificationManager {
      * @return true if the user has turned off notifications
      */
     public boolean checkIfTurnOffNotifications(String username) {
-        Boolean result = redisTemplate.opsForSet()
+        Boolean result = this.redisTemplate.opsForSet()
                 .isMember(KeyConstant.MUTE_NOTIFICATIONS, username.toLowerCase());
 
         return Optional.ofNullable(result).orElse(false);
@@ -375,11 +372,11 @@ public class NotificationManager {
         boolean hasTurnedOff = checkIfTurnOffNotifications(val);
         if (hasTurnedOff) {
             // turn on notifications
-            redisTemplate.opsForSet().remove(key, val);
+            this.redisTemplate.opsForSet().remove(key, val);
             return;
         }
 
         // turn off notifications
-        redisTemplate.opsForSet().add(key, val);
+        this.redisTemplate.opsForSet().add(key, val);
     }
 }
