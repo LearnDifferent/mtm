@@ -4,15 +4,9 @@ import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
-import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
-import com.github.learndifferent.mtm.entity.TagAndCountDO;
-import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.mapper.BookmarkMapper;
-import com.github.learndifferent.mtm.mapper.TagMapper;
-import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
@@ -64,22 +58,14 @@ import org.springframework.util.concurrent.ListenableFuture;
 public class SearchManager {
 
     private final RestHighLevelClient client;
-    private final BookmarkMapper bookmarkMapper;
     private final TrendingManager trendingManager;
-    private final UserMapper userMapper;
-    private final TagMapper tagMapper;
     private final LanguageDetector languageDetector;
 
     public SearchManager(@Qualifier("restHighLevelClient") RestHighLevelClient client,
-                         BookmarkMapper bookmarkMapper,
                          TrendingManager trendingManager,
-                         UserMapper userMapper,
-                         TagMapper tagMapper, LanguageDetector languageDetector) {
+                         LanguageDetector languageDetector) {
         this.client = client;
-        this.bookmarkMapper = bookmarkMapper;
         this.trendingManager = trendingManager;
-        this.userMapper = userMapper;
-        this.tagMapper = tagMapper;
         this.languageDetector = languageDetector;
     }
 
@@ -198,67 +184,19 @@ public class SearchManager {
         }
     }
 
-    /**
-     * Tag Data generation for Elasticsearch based on database.
-     * Remember to clear all tag data before generation.
-     *
-     * @return true if success
-     */
-    public boolean generateTagData() {
-        throwIfNotClear(SearchConstant.INDEX_TAG);
-
-        List<TagAndCountDO> data = tagMapper.getAllTagsAndCountOfPublicBookmarks();
-        List<TagForSearchDTO> tcs = DozerUtils.convertList(data, TagForSearchDTO.class);
-
-        BulkRequest bulkRequest = new BulkRequest();
-        tcs.forEach(tc -> updateBulkRequest(bulkRequest, SearchConstant.INDEX_TAG, tc.getTag(), JsonUtils.toJson(tc)));
-
-        return sendBulkRequest(bulkRequest);
+    public void throwExceptionIfFailToDeleteIndex(String indexTag) {
+        boolean cantDelete = !checkAndDeleteIndex(indexTag);
+        ThrowExceptionUtils.throwIfTrue(cantDelete, ResultCode.FAILED);
     }
 
-    /**
-     * User Data generation for Elasticsearch based on database
-     *
-     * @return true if success
-     */
-    public boolean generateUserData() {
-
-        throwIfNotClear(SearchConstant.INDEX_USER);
-
-        List<UserDO> us = userMapper.getUsers(null, null);
-        List<UserForSearchDTO> users = DozerUtils.convertList(us, UserForSearchDTO.class);
-
-        BulkRequest bulkRequest = new BulkRequest();
-        users.forEach(u -> updateBulkRequest(bulkRequest,
-                SearchConstant.INDEX_USER, String.valueOf(u.getId()), JsonUtils.toJson(u)));
-
-        return sendBulkRequest(bulkRequest);
-    }
-
-    public boolean generateBasicWebData() {
-
-        throwIfNotClear(SearchConstant.INDEX_WEB);
-
-        List<WebForSearchDTO> data = bookmarkMapper.getAllPublicBasicWebDataForSearch();
-
-        BulkRequest bulkRequest = new BulkRequest();
-        data.forEach(b -> updateBulkRequest(bulkRequest, SearchConstant.INDEX_WEB, b.getUrl(), JsonUtils.toJson(b)));
-        return sendBulkRequest(bulkRequest);
-    }
-
-    private void throwIfNotClear(String indexTag) {
-        boolean notClear = !checkAndDeleteIndex(indexTag);
-        ThrowExceptionUtils.throwIfTrue(notClear, ResultCode.FAILED);
-    }
-
-    private void updateBulkRequest(BulkRequest bulkRequest, String index, String id, String json) {
+    public void updateBulkRequest(BulkRequest bulkRequest, String index, String id, String json) {
         IndexRequest request = new IndexRequest(index);
         request.id(id);
         request.source(json, XContentType.JSON);
         bulkRequest.add(request);
     }
 
-    private boolean sendBulkRequest(BulkRequest bulkRequest) {
+    public boolean sendBulkRequest(BulkRequest bulkRequest) {
         try {
             BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
             return !response.hasFailures();

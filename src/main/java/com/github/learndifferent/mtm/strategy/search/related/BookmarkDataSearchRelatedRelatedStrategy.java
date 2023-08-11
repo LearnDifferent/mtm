@@ -1,10 +1,14 @@
 package com.github.learndifferent.mtm.strategy.search.related;
 
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
+import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
+import com.github.learndifferent.mtm.utils.JsonUtils;
+import java.util.List;
 import java.util.concurrent.Future;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,7 +36,20 @@ public class BookmarkDataSearchRelatedRelatedStrategy implements DataSearchRelat
 
     @Override
     public boolean generateDataForSearch() {
-        return searchManager.generateBasicWebData();
+        return generateData();
+    }
+
+    private boolean generateData() {
+
+        searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_WEB);
+
+        List<WebForSearchDTO> data = bookmarkMapper.getAllPublicBasicWebDataForSearch();
+
+        BulkRequest bulkRequest = new BulkRequest();
+        data.forEach(b ->
+                searchManager.updateBulkRequest(bulkRequest, SearchConstant.INDEX_WEB, b.getUrl(),
+                        JsonUtils.toJson(b)));
+        return searchManager.sendBulkRequest(bulkRequest);
     }
 
     @Override

@@ -1,10 +1,16 @@
 package com.github.learndifferent.mtm.strategy.search.related;
 
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
+import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
+import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.mapper.TagMapper;
+import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.JsonUtils;
+import java.util.List;
 import java.util.concurrent.Future;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,14 +38,35 @@ public class TagDataSearchRelatedStrategy implements DataSearchRelatedStrategy {
 
     @Override
     public boolean generateDataForSearch() {
-        return searchManager.generateTagData();
+        return generateTagData();
+    }
+
+    /**
+     * Tag Data generation for Elasticsearch based on database.
+     * Remember to clear all tag data before generation.
+     *
+     * @return true if success
+     */
+    private boolean generateTagData() {
+
+        this.searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_TAG);
+
+        List<TagAndCountDO> data = tagMapper.getAllTagsAndCountOfPublicBookmarks();
+        List<TagForSearchDTO> tcs = DozerUtils.convertList(data, TagForSearchDTO.class);
+
+        BulkRequest bulkRequest = new BulkRequest();
+        tcs.forEach(tc ->
+                this.searchManager.updateBulkRequest(bulkRequest, SearchConstant.INDEX_TAG, tc.getTag(),
+                        JsonUtils.toJson(tc)));
+
+        return this.searchManager.sendBulkRequest(bulkRequest);
     }
 
     @Override
     public boolean checkDatabaseElasticsearchDataDifference() {
-        Future<Long> countEsDocsResult = searchManager.countDocsAsync(SearchConstant.INDEX_TAG);
-        long databaseCount = tagMapper.countDistinctTags();
+        Future<Long> countEsDocsResult = this.searchManager.countDocsAsync(SearchConstant.INDEX_TAG);
+        long databaseCount = this.tagMapper.countDistinctTags();
 
-        return getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
+        return this.getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
     }
 }

@@ -1,10 +1,16 @@
 package com.github.learndifferent.mtm.strategy.search.related;
 
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
+import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
+import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
+import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.JsonUtils;
+import java.util.List;
 import java.util.concurrent.Future;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,7 +38,26 @@ public class UserDataSearchRelatedStrategy implements DataSearchRelatedStrategy 
 
     @Override
     public boolean generateDataForSearch() {
-        return searchManager.generateUserData();
+        return generateUserData();
+    }
+
+    /**
+     * User Data generation for Elasticsearch based on database
+     *
+     * @return true if success
+     */
+    private boolean generateUserData() {
+
+        searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_USER);
+
+        List<UserDO> us = userMapper.getUsers(null, null);
+        List<UserForSearchDTO> users = DozerUtils.convertList(us, UserForSearchDTO.class);
+
+        BulkRequest bulkRequest = new BulkRequest();
+        users.forEach(u -> searchManager.updateBulkRequest(bulkRequest,
+                SearchConstant.INDEX_USER, String.valueOf(u.getId()), JsonUtils.toJson(u)));
+
+        return searchManager.sendBulkRequest(bulkRequest);
     }
 
     @Override
