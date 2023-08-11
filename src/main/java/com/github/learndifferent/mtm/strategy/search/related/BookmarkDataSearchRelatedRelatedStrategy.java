@@ -35,12 +35,7 @@ public class BookmarkDataSearchRelatedRelatedStrategy implements DataSearchRelat
     }
 
     @Override
-    public boolean generateDataForSearch() {
-        return generateData();
-    }
-
-    private boolean generateData() {
-
+    public boolean generateDataForElasticsearchBasedOnDatabase() {
         searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_WEB);
 
         List<WebForSearchDTO> data = bookmarkMapper.getAllPublicBasicWebDataForSearch();

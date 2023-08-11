@@ -36,18 +36,13 @@ public class UserDataSearchRelatedStrategy implements DataSearchRelatedStrategy 
         return searchManager.checkAndDeleteIndex(SearchConstant.INDEX_USER);
     }
 
-    @Override
-    public boolean generateDataForSearch() {
-        return generateUserData();
-    }
-
     /**
      * User Data generation for Elasticsearch based on database
      *
      * @return true if success
      */
-    private boolean generateUserData() {
-
+    @Override
+    public boolean generateDataForElasticsearchBasedOnDatabase() {
         searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_USER);
 
         List<UserDO> us = userMapper.getUsers(null, null);

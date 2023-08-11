@@ -155,8 +155,8 @@ public class SearchController {
      */
     @GetMapping("/build")
     @IdempotencyCheck
-    public ResultVO<Boolean> generateSearchDataBasedOnDatabase(@RequestParam("mode") SearchMode mode) {
-        boolean success = searchService.generateDataForSearch(mode);
+    public ResultVO<Boolean> generateDataForElasticsearchBasedOnDatabase(@RequestParam("mode") SearchMode mode) {
+        boolean success = searchService.generateDataForElasticsearchBasedOnDatabase(mode);
         return ResultCreator.okResult(success);
     }
 

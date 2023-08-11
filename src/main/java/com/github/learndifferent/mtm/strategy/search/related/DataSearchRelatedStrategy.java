@@ -33,7 +33,7 @@ public interface DataSearchRelatedStrategy {
      *
      * @return true if success
      */
-    boolean generateDataForSearch();
+    boolean generateDataForElasticsearchBasedOnDatabase();
 
     /**
      * Check if data in database is different from data in Elasticsearch

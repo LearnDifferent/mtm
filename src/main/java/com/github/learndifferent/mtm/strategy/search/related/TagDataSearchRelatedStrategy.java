@@ -36,19 +36,14 @@ public class TagDataSearchRelatedStrategy implements DataSearchRelatedStrategy {
         return searchManager.checkAndDeleteIndex(SearchConstant.INDEX_TAG);
     }
 
-    @Override
-    public boolean generateDataForSearch() {
-        return generateTagData();
-    }
-
     /**
      * Tag Data generation for Elasticsearch based on database.
      * Remember to clear all tag data before generation.
      *
      * @return true if success
      */
-    private boolean generateTagData() {
-
+    @Override
+    public boolean generateDataForElasticsearchBasedOnDatabase() {
         this.searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_TAG);
 
         List<TagAndCountDO> data = tagMapper.getAllTagsAndCountOfPublicBookmarks();

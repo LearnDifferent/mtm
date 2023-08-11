@@ -56,8 +56,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean generateDataForSearch(SearchMode mode) {
-        return dataSearchRelatedStrategyContext.generateDataForSearch(mode);
+    public boolean generateDataForElasticsearchBasedOnDatabase(SearchMode mode) {
+        return dataSearchRelatedStrategyContext.generateDataForElasticsearchBasedOnDatabase(mode);
     }
 
     @Override

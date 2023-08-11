@@ -58,7 +58,7 @@ public interface SearchService {
      *             The default mode is {@link SearchMode#WEB}.
      * @return true if success
      */
-    boolean generateDataForSearch(SearchMode mode);
+    boolean generateDataForElasticsearchBasedOnDatabase(SearchMode mode);
 
     /**
      * Search

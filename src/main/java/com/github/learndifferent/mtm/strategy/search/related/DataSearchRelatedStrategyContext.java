@@ -49,8 +49,8 @@ public class DataSearchRelatedStrategyContext {
         return strategy.checkAndDeleteIndexInElasticsearch();
     }
 
-    public boolean generateDataForSearch(SearchMode mode) {
-        return getStrategy(mode).generateDataForSearch();
+    public boolean generateDataForElasticsearchBasedOnDatabase(SearchMode mode) {
+        return getStrategy(mode).generateDataForElasticsearchBasedOnDatabase();
     }
 
     public boolean checkDatabaseElasticsearchDataDifference(SearchMode mode) {
