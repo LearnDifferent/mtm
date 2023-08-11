@@ -1,10 +1,14 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.entity.BookmarkDO;
-import com.github.learndifferent.mtm.mapper.BookmarkMapper;
+import com.github.learndifferent.mtm.strategy.timeline.HomeTimelineStrategyContext;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +28,7 @@ class BookmarkServiceImplTest {
     private BookmarkServiceImpl bookmarkService;
 
     @Mock
-    private BookmarkMapper bookmarkMapper;
+    private HomeTimelineStrategyContext homeTimelineStrategyContext;
 
     @Test
     @DisplayName("should get the bookmarks and total pages")
@@ -36,16 +40,20 @@ class BookmarkServiceImplTest {
         int totalNumber = 100;
         PageInfoDTO pageInfo = PageInfoDTO.builder().from(from).size(size).build();
 
-        List<BookmarkDO> list = new ArrayList<>();
+        List<BookmarkVO> list = new ArrayList<>();
+
         for (int i = from; i < size; i++) {
             // add empty data
-            list.add(new BookmarkDO());
+            list.add(new BookmarkVO());
         }
 
-        Mockito.when(bookmarkMapper.getAllPublicAndSpecificPrivateBookmarks(from, size, currentUser))
-                .thenReturn(list);
-        Mockito.when(bookmarkMapper.countAllPublicAndSpecificPrivateBookmarks(currentUser))
-                .thenReturn(totalNumber);
+        BookmarksAndTotalPagesVO timelineResult = BookmarksAndTotalPagesVO.builder()
+                .bookmarks(list)
+                .totalPages(PaginationUtils.getTotalPages(totalNumber, size))
+                .build();
+
+        Mockito.when(homeTimelineStrategyContext.getHomeTimeline(anyString(), any(), anyString(), anyInt(), anyInt()))
+                .thenReturn(timelineResult);
 
         BookmarksAndTotalPagesVO result = bookmarkService.getHomeTimeline(
                 currentUser, HomeTimeline.LATEST_TIMELINE, "", pageInfo);
