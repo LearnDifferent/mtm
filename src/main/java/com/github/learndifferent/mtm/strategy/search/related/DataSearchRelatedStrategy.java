@@ -13,11 +13,11 @@ import java.util.concurrent.Future;
 public interface DataSearchRelatedStrategy {
 
     /**
-     * Verify data existence
+     * Verify data existence in Elasticsearch
      *
-     * @return true if exists
+     * @return Return true if it exists
      */
-    boolean verifyDataExistence();
+    boolean verifyDataExistenceInElasticsearch();
 
     /**
      * Check if the index exists. If the index does not exist, return true.

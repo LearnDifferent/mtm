@@ -19,10 +19,10 @@ public interface SearchService {
      * @param mode Check user data if {@link SearchMode#USER},
      *             tag data if {@link SearchMode#TAG}
      *             and bookmark data if {@link SearchMode#WEB}
-     * @return true if exists
+     * @return Return true if it exists
      * @throws com.github.learndifferent.mtm.exception.ServiceException in case unable to connect to Elasticsearch
      */
-    boolean existsData(SearchMode mode);
+    boolean verifyDataExistenceInElasticsearch(SearchMode mode);
 
     /**
      * Check if data in database is different from data in Elasticsearch.

@@ -39,9 +39,9 @@ public class DataSearchRelatedStrategyContext {
         return strategies.get(SearchMode.WEB);
     }
 
-    public boolean verifyDataExistence(SearchMode mode) {
+    public boolean verifyDataExistenceInElasticsearch(SearchMode mode) {
         DataSearchRelatedStrategy strategy = getStrategy(mode);
-        return strategy.verifyDataExistence();
+        return strategy.verifyDataExistenceInElasticsearch();
     }
 
     public boolean checkAndDeleteIndex(SearchMode mode) {

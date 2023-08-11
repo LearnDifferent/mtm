@@ -34,8 +34,8 @@ public class SearchServiceImpl implements SearchService {
     private final DataSearchStrategyContext dataSearchStrategyContext;
 
     @Override
-    public boolean existsData(SearchMode mode) {
-        return dataSearchRelatedStrategyContext.verifyDataExistence(mode);
+    public boolean verifyDataExistenceInElasticsearch(SearchMode mode) {
+        return dataSearchRelatedStrategyContext.verifyDataExistenceInElasticsearch(mode);
     }
 
     @Override

@@ -27,7 +27,7 @@ public class TagDataSearchRelatedStrategy implements DataSearchRelatedStrategy {
     private final TagMapper tagMapper;
 
     @Override
-    public boolean verifyDataExistence() {
+    public boolean verifyDataExistenceInElasticsearch() {
         return searchManager.existsIndex(SearchConstant.INDEX_TAG);
     }
 

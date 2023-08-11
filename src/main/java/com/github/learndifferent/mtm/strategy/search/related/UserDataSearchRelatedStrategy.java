@@ -27,7 +27,7 @@ public class UserDataSearchRelatedStrategy implements DataSearchRelatedStrategy 
     private final UserMapper userMapper;
 
     @Override
-    public boolean verifyDataExistence() {
+    public boolean verifyDataExistenceInElasticsearch() {
         return searchManager.existsIndex(SearchConstant.INDEX_USER);
     }
 

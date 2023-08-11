@@ -25,7 +25,7 @@ public class BookmarkDataSearchRelatedRelatedStrategy implements DataSearchRelat
     private final BookmarkMapper bookmarkMapper;
 
     @Override
-    public boolean verifyDataExistence() {
+    public boolean verifyDataExistenceInElasticsearch() {
         return searchManager.existsIndex(SearchConstant.INDEX_WEB);
     }
 
