@@ -2,6 +2,8 @@ package com.github.learndifferent.mtm.strategy.search.related;
 
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.manager.SearchManager;
+import com.github.learndifferent.mtm.mapper.UserMapper;
+import java.util.concurrent.Future;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 public class UserDataSearchRelatedStrategy implements DataSearchRelatedStrategy {
 
     private final SearchManager searchManager;
+    private final UserMapper userMapper;
 
     @Override
     public boolean verifyDataExistence() {
@@ -30,5 +33,13 @@ public class UserDataSearchRelatedStrategy implements DataSearchRelatedStrategy 
     @Override
     public boolean generateDataForSearch() {
         return searchManager.generateUserData();
+    }
+
+    @Override
+    public boolean checkDatabaseElasticsearchDataDifference() {
+        Future<Long> countEsDocsResult = searchManager.countDocsAsync(SearchConstant.INDEX_USER);
+        long databaseCount = userMapper.countUsers();
+
+        return getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
     }
 }

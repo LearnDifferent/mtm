@@ -119,7 +119,7 @@ public class SearchController {
         // existent of bookmark data for search
         boolean exist = searchService.existsData(SearchMode.WEB);
         // update information
-        boolean hasNewUpdate = searchService.dataInDatabaseDiffFromElasticsearch(SearchMode.WEB, exist);
+        boolean hasNewUpdate = searchService.checkDatabaseElasticsearchDataDifference(SearchMode.WEB, exist);
 
         return FindPageVO.builder()
                 .trendingList(trendingList)
@@ -140,7 +140,7 @@ public class SearchController {
     @GetMapping("/status")
     public SearchDataStatusVO checkDataStatus(@RequestParam("mode") SearchMode mode) {
         boolean exists = searchService.existsData(mode);
-        boolean hasChanges = searchService.dataInDatabaseDiffFromElasticsearch(mode, exists);
+        boolean hasChanges = searchService.checkDatabaseElasticsearchDataDifference(mode, exists);
         return SearchDataStatusVO.builder().exists(exists).hasChanges(hasChanges).build();
     }
 

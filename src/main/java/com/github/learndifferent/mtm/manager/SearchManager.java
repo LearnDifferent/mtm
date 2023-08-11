@@ -3,7 +3,6 @@ package com.github.learndifferent.mtm.manager;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.SearchMode;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
@@ -22,8 +21,6 @@ import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -98,65 +95,9 @@ public class SearchManager {
             GetIndexRequest request = new GetIndexRequest(indexName);
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Unable to connect to Elasticsearch", e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
-    }
-
-    /**
-     * Check if data in database is different from data in Elasticsearch.
-     *
-     * @param mode          Check user data if {@link SearchMode#USER},
-     *                      bookmark data if {@link SearchMode#WEB}
-     *                      and tag data if {@link SearchMode#TAG}
-     * @param notExistIndex true if the index does not exist
-     * @return Return true if detect a difference.
-     * <p>If the index does not exist, return true. If can't find the {@link SearchMode} ,
-     * or it's null, return false.</p>
-     */
-    public boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean notExistIndex) {
-
-        if (notExistIndex) {
-            // if the index does not exist, return true, which means it has changes
-            return true;
-        }
-
-        Future<Long> countEsDocsResult;
-        long databaseCount;
-
-        switch (mode) {
-            case USER:
-                countEsDocsResult = countDocsAsync(SearchConstant.INDEX_USER);
-                databaseCount = userMapper.countUsers();
-                break;
-            case TAG:
-                countEsDocsResult = countDocsAsync(SearchConstant.INDEX_TAG);
-                databaseCount = tagMapper.countDistinctTags();
-                break;
-            case WEB:
-                countEsDocsResult = countDocsAsync(SearchConstant.INDEX_WEB);
-                databaseCount = bookmarkMapper.countDistinctPublicUrl();
-                break;
-            default:
-                // return false if can't find the search mode, which means no changes
-                return false;
-        }
-
-        return getAndCompare(countEsDocsResult, databaseCount);
-    }
-
-    private boolean getAndCompare(Future<Long> countEsDocsResult, long databaseCount) {
-        Long elasticsearchDocCount = null;
-        try {
-            elasticsearchDocCount = countEsDocsResult.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        long esCount = Optional.ofNullable(elasticsearchDocCount).orElse(0L);
-
-        // 如果数量不相同，代表有变化；如果数量相同，代表没有变化
-        return databaseCount != esCount;
     }
 
     @Async("asyncTaskExecutor")
@@ -176,8 +117,7 @@ public class SearchManager {
             log.warn("ElasticsearchStatusException while counting, "
                     + "which means the Index has been deleted. Return 0.");
         } else {
-            log.error("IOException while counting. Return 0.");
-            e.printStackTrace();
+            log.error("IOException while counting. Return 0.", e);
         }
         return AsyncResult.forValue(0L);
     }
@@ -201,8 +141,7 @@ public class SearchManager {
         } catch (IOException e) {
             // 如果无法存放，就放弃存放
             log.error("IOException while saving document to Elasticsearch. "
-                    + "Dropped this data because it can be added to Elasticsearch later manually.");
-            e.printStackTrace();
+                    + "Dropped this data because it can be added to Elasticsearch later manually.", e);
         }
         return AsyncResult.forValue(success);
     }
@@ -225,7 +164,7 @@ public class SearchManager {
         try {
             client.index(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException while saving document to Elasticsearch. ", e);
         }
     }
 
@@ -254,7 +193,7 @@ public class SearchManager {
             AcknowledgedResponse response = client.indices().delete(request, RequestOptions.DEFAULT);
             return response.isAcknowledged();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException while deleting index. ", e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
@@ -324,7 +263,7 @@ public class SearchManager {
             BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
             return !response.hasFailures();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException while sending bulk request. ", e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
@@ -336,7 +275,7 @@ public class SearchManager {
         try {
             client.delete(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException while deleting user data from Elasticsearch. ", e);
         }
     }
 
@@ -364,9 +303,8 @@ public class SearchManager {
             List<AnalyzeResponse.AnalyzeToken> tokens = analyze.getTokens();
             tokens.forEach(this::addTrending);
         } catch (IOException e) {
-            log.info("IOException while adding data to trending list. "
-                    + "Dropped this data because it's not important.");
-            e.printStackTrace();
+            log.error("IOException while adding data to trending list. "
+                    + "Dropped this data because it's not important.", e);
         }
     }
 

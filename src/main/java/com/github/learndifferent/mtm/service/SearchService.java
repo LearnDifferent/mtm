@@ -27,15 +27,15 @@ public interface SearchService {
     /**
      * Check if data in database is different from data in Elasticsearch.
      *
-     * @param mode       Check user data if {@link SearchMode#USER},
-     *                   bookmark data if {@link SearchMode#WEB}
-     *                   and tag data if {@link SearchMode#TAG}
-     * @param existIndex true if the index do exist
+     * @param mode     Check user data if {@link SearchMode#USER},
+     *                 bookmark data if {@link SearchMode#WEB}
+     *                 and tag data if {@link SearchMode#TAG}
+     * @param hasIndex true if the index do exist
      * @return Return true if detect a difference.
      * <p>If the index does not exist, return true. If can't find the {@link SearchMode} ,
      * or it's null, return false.</p>
      */
-    boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean existIndex);
+    boolean checkDatabaseElasticsearchDataDifference(SearchMode mode, boolean hasIndex);
 
     /**
      * Check if the index exists. If the index does not exist, return true.

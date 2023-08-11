@@ -39,8 +39,15 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean dataInDatabaseDiffFromElasticsearch(SearchMode mode, boolean existIndex) {
-        return searchManager.dataInDatabaseDiffFromElasticsearch(mode, !existIndex);
+    public boolean checkDatabaseElasticsearchDataDifference(SearchMode mode, boolean hasIndex) {
+
+        boolean hasNoIndex = !hasIndex;
+        if (hasNoIndex) {
+            // if the index does not exist, return true, which means it has changes
+            return true;
+        }
+
+        return dataSearchRelatedStrategyContext.checkDatabaseElasticsearchDataDifference(mode);
     }
 
     @Override

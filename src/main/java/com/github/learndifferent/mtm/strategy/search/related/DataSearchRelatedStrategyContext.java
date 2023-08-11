@@ -22,8 +22,8 @@ public class DataSearchRelatedStrategyContext {
         // map: key -> bean name; value -> the bean
         strategies = new HashMap<>();
         map.forEach((k, v) -> {
-            String strategyBeanNameReplacement = k.replaceFirst(SearchConstant.SEARCH_RELATED_STRATEGY_BEAN_NAME_PREFIX,
-                    "");
+            String strategyBeanNameReplacement =
+                    k.replaceFirst(SearchConstant.SEARCH_RELATED_STRATEGY_BEAN_NAME_PREFIX, "");
             String modeName = strategyBeanNameReplacement.toUpperCase();
             SearchMode searchMode = SearchMode.valueOf(modeName);
             strategies.put(searchMode, v);
@@ -52,4 +52,10 @@ public class DataSearchRelatedStrategyContext {
     public boolean generateDataForSearch(SearchMode mode) {
         return getStrategy(mode).generateDataForSearch();
     }
+
+    public boolean checkDatabaseElasticsearchDataDifference(SearchMode mode) {
+        DataSearchRelatedStrategy strategy = getStrategy(mode);
+        return strategy.checkDatabaseElasticsearchDataDifference();
+    }
+
 }
