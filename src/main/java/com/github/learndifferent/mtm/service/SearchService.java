@@ -38,7 +38,8 @@ public interface SearchService {
     boolean checkDatabaseElasticsearchDataDifference(SearchMode mode, boolean hasIndex);
 
     /**
-     * Check if the index exists. If the index does not exist, return true.
+     * Check if the index exists in Elasticsearch.
+     * If the index does not exist, return true.
      * If the index exists, delete it and return whether the deletion was successful.
      *
      * @param mode delete user data if {@link SearchMode#USER},
@@ -46,7 +47,7 @@ public interface SearchService {
      *             and tag data if {@link SearchMode#TAG}
      * @return true if deleted
      */
-    boolean checkAndDeleteIndex(SearchMode mode);
+    boolean checkAndDeleteIndexInElasticsearch(SearchMode mode);
 
     /**
      * Data generation for Elasticsearch based on database

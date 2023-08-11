@@ -32,7 +32,7 @@ public class TagDataSearchRelatedStrategy implements DataSearchRelatedStrategy {
     }
 
     @Override
-    public boolean checkAndDeleteIndex() {
+    public boolean checkAndDeleteIndexInElasticsearch() {
         return searchManager.checkAndDeleteIndex(SearchConstant.INDEX_TAG);
     }
 

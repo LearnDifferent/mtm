@@ -100,7 +100,7 @@ public class SearchController {
     @AdminValidation
     @IdempotencyCheck
     public ResultVO<Boolean> deleteDataForSearch(@RequestParam("mode") SearchMode mode) {
-        boolean isDeleted = searchService.checkAndDeleteIndex(mode);
+        boolean isDeleted = searchService.checkAndDeleteIndexInElasticsearch(mode);
         return ResultCreator.okResult(isDeleted);
     }
 

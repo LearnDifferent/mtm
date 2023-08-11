@@ -20,12 +20,13 @@ public interface DataSearchRelatedStrategy {
     boolean verifyDataExistenceInElasticsearch();
 
     /**
-     * Check if the index exists. If the index does not exist, return true.
+     * Check if the index exists in Elasticsearch.
+     * If the index does not exist, return true.
      * If the index exists, delete it and return whether the deletion was successful.
      *
      * @return true if deleted
      */
-    boolean checkAndDeleteIndex();
+    boolean checkAndDeleteIndexInElasticsearch();
 
     /**
      * Data generation for Elasticsearch based on database

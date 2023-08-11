@@ -51,8 +51,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public boolean checkAndDeleteIndex(SearchMode mode) {
-        return dataSearchRelatedStrategyContext.checkAndDeleteIndex(mode);
+    public boolean checkAndDeleteIndexInElasticsearch(SearchMode mode) {
+        return dataSearchRelatedStrategyContext.checkAndDeleteIndexInElasticsearch(mode);
     }
 
     @Override
