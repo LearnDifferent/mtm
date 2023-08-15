@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -33,6 +34,7 @@ import org.springframework.util.StringUtils;
  * @date 2021/09/21
  */
 @Service
+@Slf4j
 public class VerificationServiceImpl implements VerificationService {
 
     private final StringRedisTemplate redisTemplate;
@@ -67,7 +69,7 @@ public class VerificationServiceImpl implements VerificationService {
             VerifyCodeUtils.outputImage(230, 60, os, code);
             return "data:image/png;base64," + Base64Utils.encodeToString(os.toByteArray());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to generate verification code image", e);
             // make the code be 1234 if something goes wrong
             storeInCache(token, "1234", 5);
             return "http://pic.616pic.com/ys_bnew_img/00/58/36/hETS14h5rO.jpg";
@@ -150,7 +152,7 @@ public class VerificationServiceImpl implements VerificationService {
             // send the email
             sendViaEmail(email, code);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            log.error("Exception when sending invitation code via email", e);
             throw new ServiceException(
                     ResultCode.EMAIL_SET_UP_ERROR,
                     ResultCode.EMAIL_SET_UP_ERROR.msg(),

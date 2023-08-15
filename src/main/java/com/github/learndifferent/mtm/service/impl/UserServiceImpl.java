@@ -22,6 +22,7 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -35,6 +36,7 @@ import org.springframework.stereotype.Service;
  * @date 2021/09/05
  */
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
@@ -130,8 +132,8 @@ public class UserServiceImpl implements UserService {
             UserRole newUserRole = valueOf(newRole.toUpperCase());
             return changeUserRoleAndRecordChanges(id, currentRole, newUserRole);
         } catch (IllegalArgumentException | NullPointerException e) {
-            e.printStackTrace();
-            // if can't get the role, return false
+            log.error("Invalid role: {}", newRole, e);
+            // return false if the role is invalid
             return false;
         }
     }

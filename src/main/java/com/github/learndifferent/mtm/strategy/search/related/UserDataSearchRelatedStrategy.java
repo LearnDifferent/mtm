@@ -60,6 +60,6 @@ public class UserDataSearchRelatedStrategy implements DataSearchRelatedStrategy 
         Future<Long> countEsDocsResult = searchManager.countDocsAsync(SearchConstant.INDEX_USER);
         long databaseCount = userMapper.countUsers();
 
-        return getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
+        return searchManager.getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
     }
 }

@@ -52,6 +52,6 @@ public class BookmarkDataSearchRelatedRelatedStrategy implements DataSearchRelat
         Future<Long> countEsDocsResult = searchManager.countDocsAsync(SearchConstant.INDEX_WEB);
         long databaseCount = bookmarkMapper.countDistinctPublicUrl();
 
-        return getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
+        return searchManager.getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
     }
 }

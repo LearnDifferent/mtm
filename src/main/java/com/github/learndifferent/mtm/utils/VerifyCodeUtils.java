@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Random;
 import javax.imageio.ImageIO;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -24,6 +25,7 @@ import javax.imageio.ImageIO;
  * @author <a href="https://github.com/w8854123">shaoxia</a>
  * @date 2016/09/12
  */
+@Slf4j
 public class VerifyCodeUtils {
 
     private VerifyCodeUtils() {
@@ -295,16 +297,14 @@ public class VerifyCodeUtils {
     public static String createOneCodeImage() {
         String imgName = "";
         try {
-            File dir = new File("./verifyCodeImg");
+            File dir = new File("." + File.separator + "verifyCodeImg");
             int w = 95, h = 50;
             String verifyCode = generateVerifyCode(4);
             File file = new File(dir, verifyCode + ".jpg");
             outputImage(w, h, file, verifyCode);
             imgName = verifyCode;
         } catch (IOException e) {
-            imgName = "";
-            e.printStackTrace();
-            return imgName;
+            log.error("生成验证码图片失败", e);
         }
         return imgName;
     }

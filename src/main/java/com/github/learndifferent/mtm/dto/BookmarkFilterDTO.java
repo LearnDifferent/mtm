@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 /**
@@ -17,6 +18,7 @@ import org.springframework.util.StringUtils;
  * @author zhou
  * @date 2022/3/20
  */
+@Slf4j
 public class BookmarkFilterDTO implements Serializable {
 
     public static BookmarkFilterDTO of(List<String> usernames,
@@ -55,7 +57,7 @@ public class BookmarkFilterDTO implements Serializable {
         try {
             return Instant.ofEpochMilli(Long.parseLong(timestamp));
         } catch (DateTimeParseException | NumberFormatException e) {
-            e.printStackTrace();
+            log.error("Invalid timestamp: {}", timestamp, e);
             throw new ServiceException(ResultCode.TIMESTAMP_INVALID);
         }
     }

@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -40,6 +41,7 @@ import org.springframework.stereotype.Component;
  */
 @Component(SearchConstant.SEARCH_STRATEGY_BEAN_NAME_PREFIX + SearchConstant.INDEX_USER)
 @RequiredArgsConstructor
+@Slf4j
 public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
 
     private final SearchManager searchManager;
@@ -124,7 +126,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
         try {
             creationTime = Instant.parse(time);
         } catch (DateTimeParseException e) {
-            e.printStackTrace();
+            log.error("Invalid creation time: {}", time, e);
             throw new ServiceException(ResultCode.NO_RESULTS_FOUND);
         }
 

@@ -75,8 +75,7 @@ public class BookmarkCheckAspect {
             urlField.setAccessible(true);
             return (String) urlField.get(arg);
         } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
-            e.printStackTrace();
-            log.warn("Can't get the URL: Use empty string instead");
+            log.error("Can't get the URL: Use empty string instead", e);
             return "";
         }
     }

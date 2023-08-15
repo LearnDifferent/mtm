@@ -15,6 +15,8 @@ import com.github.pemistahl.lingua.api.Language;
 import com.github.pemistahl.lingua.api.LanguageDetector;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +86,27 @@ public class SearchManager {
             log.error("Unable to connect to Elasticsearch", e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
+    }
+
+    /**
+     * Get the count of Elasticsearch documents asynchronously and compare the difference
+     *
+     * @param countEsDocsResult {@link Future<Long>} Elasticsearch document count
+     * @param databaseCount     database count
+     * @return true if detect a difference
+     */
+    public boolean getEsCountAsyncAndCompareDifference(Future<Long> countEsDocsResult, long databaseCount) {
+        Long elasticsearchDocCount = null;
+        try {
+            elasticsearchDocCount = countEsDocsResult.get();
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Unable to get Elasticsearch document count", e);
+        }
+
+        long esCount = Optional.ofNullable(elasticsearchDocCount).orElse(0L);
+
+        // If the count of Elasticsearch documents is different from the database, return true
+        return databaseCount != esCount;
     }
 
     @Async("asyncTaskExecutor")

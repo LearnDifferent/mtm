@@ -81,8 +81,7 @@ public class PageInfoMethodArgumentResolver implements HandlerMethodArgumentReso
             try {
                 num = Integer.parseInt(paramValue);
             } catch (NumberFormatException e) {
-                e.printStackTrace();
-                log.warn("Can't cast to number. Return 0 instead.");
+                log.error("Can't cast to number. Return 0 instead.", e);
             }
         }
         return num;

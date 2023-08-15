@@ -44,24 +44,24 @@ public class TagDataSearchRelatedStrategy implements DataSearchRelatedStrategy {
      */
     @Override
     public boolean generateDataForElasticsearchBasedOnDatabase() {
-        this.searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_TAG);
+        searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_TAG);
 
         List<TagAndCountDO> data = tagMapper.getAllTagsAndCountOfPublicBookmarks();
         List<TagForSearchDTO> tcs = DozerUtils.convertList(data, TagForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
         tcs.forEach(tc ->
-                this.searchManager.updateBulkRequest(bulkRequest, SearchConstant.INDEX_TAG, tc.getTag(),
+                searchManager.updateBulkRequest(bulkRequest, SearchConstant.INDEX_TAG, tc.getTag(),
                         JsonUtils.toJson(tc)));
 
-        return this.searchManager.sendBulkRequest(bulkRequest);
+        return searchManager.sendBulkRequest(bulkRequest);
     }
 
     @Override
     public boolean checkDatabaseElasticsearchDataDifference() {
-        Future<Long> countEsDocsResult = this.searchManager.countDocsAsync(SearchConstant.INDEX_TAG);
-        long databaseCount = this.tagMapper.countDistinctTags();
+        Future<Long> countEsDocsResult = searchManager.countDocsAsync(SearchConstant.INDEX_TAG);
+        long databaseCount = tagMapper.countDistinctTags();
 
-        return this.getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
+        return searchManager.getEsCountAsyncAndCompareDifference(countEsDocsResult, databaseCount);
     }
 }

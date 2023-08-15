@@ -16,6 +16,7 @@ import com.github.learndifferent.mtm.strategy.search.related.DataSearchRelatedSt
 import java.io.IOException;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SearchServiceImpl implements SearchService {
 
     private final SearchManager searchManager;
@@ -73,7 +75,7 @@ public class SearchServiceImpl implements SearchService {
             String strategyName = SearchConstant.SEARCH_STRATEGY_BEAN_NAME_PREFIX + mode.mode();
             return this.dataSearchStrategyContext.search(strategyName, keyword.trim(), from, size, rangeFrom, rangeTo);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IO Exception when searching the keyword {} in mode {}", keyword, mode, e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
