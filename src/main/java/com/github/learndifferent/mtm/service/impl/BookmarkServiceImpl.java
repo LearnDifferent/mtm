@@ -4,16 +4,14 @@ import static com.github.learndifferent.mtm.constant.enums.AddDataMode.ADD_TO_DA
 import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
-import com.github.learndifferent.mtm.annotation.common.Url;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.modify.bookmarking.CheckAndReturnBasicData;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
-import com.github.learndifferent.mtm.annotation.modify.url.UrlClean;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
-import com.github.learndifferent.mtm.chain.DocumentProcessorFacade;
+import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
+import com.github.learndifferent.mtm.chain.WebScraperRequest;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
@@ -52,9 +50,6 @@ import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
 import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -93,7 +88,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkDoMapper bookmarkDoMapper;
     private final HomeTimelineStrategyContext homeTimelineStrategyContext;
     private final UserManager userManager;
-    private final DocumentProcessorFacade documentProcessorFacade;
+    private final WebScraperProcessorFacade webScraperProcessorFacade;
 
     @Override
     public List<BookmarkVO> filterPublicBookmarks(UsernamesRequest usernames,
@@ -134,8 +129,10 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public BookmarkingResultVO bookmark(String url, String username, Privacy privacy, AddDataMode mode) {
-        // get the basic data
-        BasicWebDataDTO basic = scrapeWebData(url, username);
+        // scrape data from the web
+        WebScraperRequest request = WebScraperRequest.builder()
+                .requestedUrl(url).username(username).build();
+        BasicWebDataDTO basic = webScraperProcessorFacade.process(request);
 
         // Only public data can be added to Elasticsearch
         boolean shouldAddToDatabaseAndElasticsearch = PUBLIC.equals(privacy)
@@ -169,57 +166,11 @@ public class BookmarkServiceImpl implements BookmarkService {
         return BookmarkingResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
     }
 
-    private BasicWebDataDTO scrapeWebData(String url, String userName) {
-
-        try {
-            BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
-            return bean.scrapeWebDataFromUrl(url, userName);
-        } catch (MalformedURLException e) {
-            throw new ServiceException(ResultCode.URL_MALFORMED);
-        } catch (SocketTimeoutException e) {
-            throw new ServiceException(ResultCode.URL_ACCESS_DENIED);
-        } catch (IOException e) {
-            throw new ServiceException(ResultCode.CONNECTION_ERROR);
-        }
-    }
-
     @Override
     public boolean addToBookmark(BasicWebDataRequest data, String username) {
         BasicWebDataDTO basicData = DozerUtils.convert(data, BasicWebDataDTO.class);
         BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
         return bean.bookmarkWithBasicWebData(basicData, username, PUBLIC);
-    }
-
-    /**
-     * Firstly, {@link UrlClean} will clean up the URL.
-     * <p>
-     * Secondly, {@link CheckAndReturnBasicData} will check whether the website is bookmarked by the user and the
-     * website data is stored in database:
-     * </p>
-     * <li>
-     * If the user has already bookmarked the website, then throw an exception.
-     * </li>
-     * <li>
-     * If the user didn't bookmark the website and the website data is stored in database,
-     * then return the data in database.
-     * </li>
-     * <li>
-     * If the user didn't bookmark the website and website data is not stored in database, then do nothing.
-     * </li>
-     * <p>
-     * Lastly, scrap the website data from URL.
-     * </p>
-     *
-     * @param url      URL
-     * @param userName username of the user
-     * @return {@link BasicWebDataDTO}
-     */
-    @UrlClean
-    @CheckAndReturnBasicData
-    public BasicWebDataDTO scrapeWebDataFromUrl(@Url String url, @Username String userName) throws IOException {
-        Document document = Jsoup.parse(new URL(url), 3000);
-        BasicWebDataDTO data = documentProcessorFacade.process(document);
-        return data.setUrl(url);
     }
 
     @Override
