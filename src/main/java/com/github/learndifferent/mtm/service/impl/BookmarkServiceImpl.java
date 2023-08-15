@@ -13,6 +13,7 @@ import com.github.learndifferent.mtm.annotation.modify.url.UrlClean;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
+import com.github.learndifferent.mtm.chain.DocumentProcessorFacade;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
@@ -92,6 +93,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final BookmarkDoMapper bookmarkDoMapper;
     private final HomeTimelineStrategyContext homeTimelineStrategyContext;
     private final UserManager userManager;
+    private final DocumentProcessorFacade documentProcessorFacade;
 
     @Override
     public List<BookmarkVO> filterPublicBookmarks(UsernamesRequest usernames,
@@ -216,26 +218,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     @CheckAndReturnBasicData
     public BasicWebDataDTO scrapeWebDataFromUrl(@Url String url, @Username String userName) throws IOException {
         Document document = Jsoup.parse(new URL(url), 3000);
-
-        String title = document.title();
-        String desc = document.body().text();
-        String img = getFirstImg(document);
-
-        return BasicWebDataDTO.builder()
-                .title(title)
-                .url(url)
-                .img(img)
-                .desc(desc)
-                .build();
-    }
-
-    private String getFirstImg(Document document) {
-        Elements images = document.select("img[src]");
-
-        boolean hasImage = images.size() > 0;
-        // return the first image or return a default image if there is no image available
-        return hasImage ? images.get(0).attr("abs:src")
-                : "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fbpic.588ku.com%2Felement_origin_min_pic%2F00%2F93%2F63%2F2656f2a6a663e1c.jpg&refer=http%3A%2F%2Fbpic.588ku.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg?sec=1618635152&t=e26535a2d80f40281592178ee20ee656";
+        BasicWebDataDTO data = documentProcessorFacade.process(document);
+        return data.setUrl(url);
     }
 
     @Override
