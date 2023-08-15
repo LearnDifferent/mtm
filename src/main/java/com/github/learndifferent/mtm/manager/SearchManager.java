@@ -47,7 +47,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.util.concurrent.ListenableFuture;
 
 /**
  * Elasticsearch Manager
@@ -117,18 +116,15 @@ public class SearchManager {
             long count = countResponse.getCount();
             return AsyncResult.forValue(count);
         } catch (IOException | ElasticsearchStatusException e) {
-            return analyzeAndReturnZero(e);
+            if (e instanceof ElasticsearchStatusException) {
+                log.error("Elasticsearch Status Exception while counting, "
+                        + "which means the index has been deleted. Return 0.", e);
+            } else {
+                log.error("IOException while counting. Return 0.", e);
+            }
+            // return 0
+            return AsyncResult.forValue(0L);
         }
-    }
-
-    private ListenableFuture<Long> analyzeAndReturnZero(Exception e) {
-        if (e instanceof ElasticsearchStatusException) {
-            log.warn("ElasticsearchStatusException while counting, "
-                    + "which means the Index has been deleted. Return 0.");
-        } else {
-            log.error("IOException while counting. Return 0.", e);
-        }
-        return AsyncResult.forValue(0L);
     }
 
     @Async("asyncTaskExecutor")
