@@ -82,7 +82,7 @@ public class SearchManager {
             GetIndexRequest request = new GetIndexRequest(indexName);
             return client.indices().exists(request, RequestOptions.DEFAULT);
         } catch (Exception e) {
-            log.error("Unable to connect to Elasticsearch", e);
+            log.error("Unable to connect to Elasticsearch while checking the existent of the index {}", indexName, e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
@@ -111,6 +111,7 @@ public class SearchManager {
     @Async("asyncTaskExecutor")
     public Future<Long> countDocsAsync(String index) {
         CountRequest request = new CountRequest(index);
+
         try {
             CountResponse countResponse = client.count(request, RequestOptions.DEFAULT);
             long count = countResponse.getCount();
@@ -118,9 +119,9 @@ public class SearchManager {
         } catch (IOException | ElasticsearchStatusException e) {
             if (e instanceof ElasticsearchStatusException) {
                 log.error("Elasticsearch Status Exception while counting, "
-                        + "which means the index has been deleted. Return 0.", e);
+                        + "which means the index '{}' may be deleted. Return 0.", index, e);
             } else {
-                log.error("IOException while counting. Return 0.", e);
+                log.error("IO Exception while counting the Elasticsearch document. Return 0.", e);
             }
             // return 0
             return AsyncResult.forValue(0L);
@@ -139,12 +140,12 @@ public class SearchManager {
             int status = response.status().getStatus();
             if (RestStatus.OK.getStatus() <= status
                     && RestStatus.ACCEPTED.getStatus() >= status) {
-                // OK(200) 到 ACCEPTED(202) 之间就算成功
-                // 成功包括了：创建成功和之前已存在
+                // Any response status code between OK (200) and ACCEPTED (202) is considered successful
+                // Success includes both successful creation and pre-existing index.
                 success = true;
             }
         } catch (IOException e) {
-            // 如果无法存放，就放弃存放
+            // If unable to store, abandon it
             log.error("IOException while saving document to Elasticsearch. "
                     + "Dropped this data because it can be added to Elasticsearch later manually.", e);
         }
@@ -169,7 +170,7 @@ public class SearchManager {
         try {
             client.index(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
-            log.error("IOException while saving document to Elasticsearch. ", e);
+            log.error("IOException while saving document to Elasticsearch. Data: {}", user, e);
         }
     }
 
@@ -183,7 +184,8 @@ public class SearchManager {
 
     /**
      * Check if the index exists. If the index does not exist, return true.
-     * If the index exists, delete it and return whether the deletion was successful.
+     * If the index exists, attempt to delete it and return the result indicating the success or failure of the
+     * deletion.
      *
      * @return true if deleted
      */
@@ -198,7 +200,7 @@ public class SearchManager {
             AcknowledgedResponse response = client.indices().delete(request, RequestOptions.DEFAULT);
             return response.isAcknowledged();
         } catch (IOException e) {
-            log.error("IOException while deleting index. ", e);
+            log.error("IOException while deleting index {}. ", indexName, e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
@@ -220,7 +222,7 @@ public class SearchManager {
             BulkResponse response = client.bulk(bulkRequest, RequestOptions.DEFAULT);
             return !response.hasFailures();
         } catch (IOException e) {
-            log.error("IOException while sending bulk request. ", e);
+            log.error("IOException while sending bulk request.", e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
@@ -242,10 +244,11 @@ public class SearchManager {
     }
 
     /**
-     * 异步分解搜索的关键词，并加入到热搜列表中
+     * Asynchronously analyzes the given keyword using the specified analyzer and add the trending keywords to a
+     * trending list.
      *
-     * @param keyword  没有进行分词处理和语言识别的搜索词
-     * @param analyzer 分词器
+     * @param keyword  The keyword to be analyzed and added to the trending list.
+     * @param analyzer The analyzer
      */
     @Async("asyncTaskExecutor")
     public void analyzeAndAddTrendingAsync(String keyword, String analyzer) {
@@ -268,39 +271,41 @@ public class SearchManager {
     private void addTrending(AnalyzeToken token) {
         String val = token.getTerm();
         if (val.length() > 1) {
-            // 统计字节数大于 1 的关键词，出现一次就加 1 个 score
+            // Count keywords with byte length greater than 1
+            // and increment the 'score' by 1 for each occurrence.
             trendingManager.addToTrendingList(val);
         }
     }
 
     public void addToTrendingList(String keyword) {
-        // 检测 keyword 的语言并选择合适的分词器
+        // Determine the language and get the analyzer
         String analyzer = detectLanguageAndGetAnalyzer(keyword);
-        // 将搜索词分词后放入热搜统计
+        // Tokenize the search query and add the resulting tokens to the trending list.
         SearchManager searchManager = ApplicationContextUtils.getBean(SearchManager.class);
         searchManager.analyzeAndAddTrendingAsync(keyword, analyzer);
     }
 
     /**
-     * 识别是哪国的语言，然后返回需要的 ES 分词器（目前支持英语、中文和日语）
+     * Determine the language and return the required Elasticsearch analyzer
+     * for English, Chinese, and Japanese
      *
-     * @param keyword 被检测的关键词
-     * @return 需要的分词器
+     * @param keyword keyword
+     * @return the analyzer
      */
     private String detectLanguageAndGetAnalyzer(String keyword) {
 
         Language lan = this.languageDetector.detectLanguageOf(keyword);
 
-        // 默认使用英文分词器
+        // By default, use an English tokenizer
         String analyzer = "english";
 
         if (Language.JAPANESE.equals(lan)) {
-            // 如果是日语，使用日语的分词器
+            // If the language is Japanese, use a Japanese tokenizer
             analyzer = SearchConstant.ANALYZER_JAPANESE;
         }
 
         if (Language.CHINESE.equals(lan)) {
-            // 如果是中文，使用中文的分词器
+            // If the language is Chinese, use a Chinese tokenizer
             analyzer = SearchConstant.ANALYZER_CHINESE;
         }
 
