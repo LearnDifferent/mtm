@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * User account manager
+ * User manager
  *
  * @author zhou
  * @date 2021/10/22
@@ -91,6 +91,21 @@ public class UserManager {
         // Remove user data from database (false if the user does not exist)
         return userMapper.deleteUserByUserId(id);
     }
+
+    /**
+     * Check if the user has already bookmarked the web page
+     *
+     * @param username username
+     * @param url      URL
+     * @throws ServiceException Throw an exception with a ResultCode of {@link ResultCode#ALREADY_SAVED}
+     *                          to indicate that the user has already bookmarked the web page
+     */
+    public void checkIfUserBookmarked(String username, String url) {
+        boolean hasUserBookmarked = bookmarkMapper.checkIfUserBookmarked(username, url);
+        // If the user has already bookmarked the web page, throw an exception.
+        ThrowExceptionUtils.throwIfTrue(hasUserBookmarked, ResultCode.ALREADY_SAVED);
+    }
+
 
     /**
      * Check if the user exists and return the user ID

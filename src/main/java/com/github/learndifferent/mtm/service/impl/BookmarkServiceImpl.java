@@ -105,13 +105,6 @@ public class BookmarkServiceImpl implements BookmarkService {
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
-    @Override
-    public void checkIfUserBookmarked(String username, String url) {
-        boolean hasUserBookmarked = bookmarkMapper.checkIfUserBookmarked(username, url);
-        // If the user has already bookmarked the web page, throw an exception.
-        ThrowExceptionUtils.throwIfTrue(hasUserBookmarked, ResultCode.ALREADY_SAVED);
-    }
-
     /**
      * Convert the basic website data into a bookmark
      *
@@ -126,7 +119,7 @@ public class BookmarkServiceImpl implements BookmarkService {
      */
     @WebsiteDataClean
     public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, Privacy privacy) {
-        this.checkIfUserBookmarked(username, data.getUrl());
+        userManager.checkIfUserBookmarked(username, data.getUrl());
 
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
         BookmarkDO b = DozerUtils.convert(newBookmark, BookmarkDO.class);

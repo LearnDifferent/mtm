@@ -79,16 +79,6 @@ public interface BookmarkService {
     BookmarkingResultVO bookmark(String url, String username, Privacy privacy, AddDataMode mode);
 
     /**
-     * Check if the user has already bookmarked the web page
-     *
-     * @param username username
-     * @param url      URL
-     * @throws ServiceException Throw an exception with a ResultCode of {@link ResultCode#ALREADY_SAVED}
-     *                          to indicate that the user has already bookmarked the web page
-     */
-    void checkIfUserBookmarked(String username, String url);
-
-    /**
      * Add a website to the bookmarks
      *
      * @param data     Basic website data that contains title, URL, image and description
