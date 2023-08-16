@@ -2,7 +2,6 @@ package com.github.learndifferent.mtm.annotation.general.idempotency;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +55,7 @@ public class IdempotencyCheckAspect {
     private final StringRedisTemplate redisTemplate;
 
     @Around("@annotation(annotation)")
-    public Object check(ProceedingJoinPoint joinPoint, IdempotencyCheck annotation) {
+    public Object check(ProceedingJoinPoint joinPoint, IdempotencyCheck annotation) throws Throwable {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
 
@@ -72,18 +71,8 @@ public class IdempotencyCheckAspect {
         String redisKey = generateNonConflictingRedisKey(request, key);
 
         try {
+            // Note that the exceptions will be thrown
             return joinPoint.proceed();
-        } catch (Throwable e) {
-            if (e instanceof ServiceException) {
-                ServiceException se = (ServiceException) e;
-                throw new ServiceException(
-                        e,
-                        se.getResultCode(),
-                        se.getMessage(),
-                        se.getData());
-            } else {
-                throw new ServiceException(e);
-            }
         } finally {
             // Release the lock: delete the Redis key
             redisTemplate.delete(redisKey);
