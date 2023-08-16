@@ -3,24 +3,23 @@ package com.github.learndifferent.mtm.chain;
 import com.github.learndifferent.mtm.constant.consist.WebScraperProcessorConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
-import com.github.learndifferent.mtm.entity.BookmarkDO;
+import com.github.learndifferent.mtm.manager.UserManager;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.CleanUrlUtil;
-import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Clean up the URL and then verify if the web page data for that URL exists in the database.
- * If the data exists, check if the web page is already bookmarked by the user.
- * If the web page has already been bookmarked, throw an exception.
- * Otherwise, use the data from the database; otherwise, continue with the next processes.
+ * 1. Clean up the URL
+ * 2. If the web page has already been bookmarked by the user, throw an exception.
+ * 3. Verify if the web page data for that URL exists in the database.
+ * 3.1. If the data exists, use the data from the database;
+ * 3.2. otherwise, continue with the next processes.
  *
  * @author zhou
  * @date 2023/8/15
@@ -31,6 +30,7 @@ import org.springframework.stereotype.Component;
 public class WebScraperPreCheckProcessor extends AbstractWebScraperProcessor {
 
     private final BookmarkMapper bookmarkMapper;
+    private final UserManager userManager;
 
     @Override
     public BasicWebDataDTO process(@NotNull WebScraperRequest request) {
@@ -45,23 +45,21 @@ public class WebScraperPreCheckProcessor extends AbstractWebScraperProcessor {
         // update the requested URL
         request.setRequestedUrl(url);
 
-        // Get all bookmarks that have the given URL
-        List<BookmarkDO> bookmarks = bookmarkMapper.getBookmarksByUrl(url);
+        // first check if the web page is already present in the user's bookmarks.
+        // if the user has already bookmarked the web page, throw an exception.
+        userManager.checkIfUserBookmarked(username, url);
 
-        // If the data does not exist in the database, proceed further
-        boolean hasNoData = CollectionUtils.isEmpty(bookmarks);
-        if (hasNoData) {
-            return this.next.process(request);
+        // if user didn't bookmark it
+        // retrieve the bookmark data associated with the provided URL
+        BasicWebDataDTO bookmarkData = bookmarkMapper.getBookmarkDataByUrl(url);
+
+        boolean hasData = Objects.nonNull(bookmarkData);
+        if (hasData) {
+            // return the existing web page data if it exists
+            return bookmarkData;
         }
 
-        // If the data exists,
-        // first check if the web page is already present in the user's bookmarks.
-        boolean hasUserBookmarked = bookmarks.stream()
-                .anyMatch(bookmark -> StringUtils.equals(bookmark.getUserName(), username));
-        // If the user has already bookmarked the web page, throw an exception.
-        ThrowExceptionUtils.throwIfTrue(hasUserBookmarked, ResultCode.ALREADY_SAVED);
-
-        // Finally, if the web page has not been bookmarked, return the existing web page data.
-        return DozerUtils.convert(bookmarks.get(0), BasicWebDataDTO.class);
+        // if the data does not exist in the database, proceed further
+        return this.next.process(request);
     }
 }
