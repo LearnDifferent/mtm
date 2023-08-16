@@ -2,18 +2,20 @@ package com.github.learndifferent.mtm.annotation.general.log;
 
 import com.github.learndifferent.mtm.constant.enums.LogStatus;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.SysLog;
+import com.github.learndifferent.mtm.exception.IdempotencyException;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import java.lang.reflect.Method;
 import java.time.Instant;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 /**
  * System Log
@@ -23,17 +25,13 @@ import org.springframework.util.StringUtils;
  */
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class SystemLogAspect {
 
     private final SystemLogService logService;
 
-    @Autowired
-    public SystemLogAspect(SystemLogService logService) {
-        this.logService = logService;
-    }
-
     @Around("@annotation(annotation)")
-    public Object around(ProceedingJoinPoint pjp, SystemLog annotation) {
+    public Object around(ProceedingJoinPoint pjp, SystemLog annotation) throws Throwable {
 
         SysLog.SysLogBuilder sysLog = SysLog.builder();
         OptsType optsType = annotation.optsType();
@@ -46,34 +44,54 @@ public class SystemLogAspect {
         sysLog.method(methodName + "()");
 
         String title = annotation.title();
-        if (StringUtils.isEmpty(title)) {
+        if (StringUtils.isBlank(title)) {
             // If no title available, use class name as tile
             title = pjp.getTarget().getClass().getSimpleName();
         }
+        // set title
         sysLog.title(title);
-
-        sysLog.status(LogStatus.NORMAL.status())
-                .msg(LogStatus.NORMAL.name());
 
         try {
             Object result = pjp.proceed();
-            logService.saveSystemLogAsync(sysLog.build());
+            // add log
+            sysLog.status(LogStatus.NORMAL.status()).msg(LogStatus.NORMAL.name());
             return result;
         } catch (Throwable e) {
-            sysLog.status(LogStatus.ERROR.status())
-                    .msg(e.getMessage());
-            logService.saveSystemLogAsync(sysLog.build());
+            String detailMessage = e.getMessage();
+            StringBuilder sb = new StringBuilder();
 
             if (e instanceof ServiceException) {
                 ServiceException se = (ServiceException) e;
-                throw new ServiceException(
-                        e,
-                        se.getResultCode(),
-                        se.getMessage(),
-                        se.getData());
-            } else {
-                throw new ServiceException(e);
+                ResultCode resultCode = se.getResultCode();
+                sb.append("Service Exception - Result Code: ")
+                        .append(resultCode.value())
+                        .append(" - Result Msg: ")
+                        .append(resultCode.msg())
+                        .append(" - Throwable Detail Msg: ");
             }
+
+            if (e instanceof IdempotencyException) {
+                IdempotencyException ie = (IdempotencyException) e;
+                String idempotencyKey = ie.getIdempotencyKey();
+                ResultCode resultCode = ie.getResultCode();
+                sb.append("Idempotency Exception - Result Code: ")
+                        .append(resultCode.value())
+                        .append(" - Result Msg: ")
+                        .append(resultCode.msg())
+                        .append(" - Key：")
+                        .append(idempotencyKey)
+                        .append(" - Throwable Detail Msg: ");
+            }
+
+            String msg = sb.append(detailMessage).toString();
+            // add log
+            sysLog.status(LogStatus.ERROR.status()).msg(msg);
+
+            // throw the origin exception
+            throw e;
+
+        } finally {
+            logService.saveSystemLogAsync(sysLog.build());
         }
     }
 }
