@@ -61,6 +61,7 @@ import java.util.concurrent.TimeoutException;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -68,7 +69,6 @@ import org.jsoup.select.Elements;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -105,6 +105,13 @@ public class BookmarkServiceImpl implements BookmarkService {
         return DozerUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
+    @Override
+    public void checkIfUserBookmarked(String username, String url) {
+        boolean hasUserBookmarked = bookmarkMapper.checkIfUserBookmarked(username, url);
+        // If the user has already bookmarked the web page, throw an exception.
+        ThrowExceptionUtils.throwIfTrue(hasUserBookmarked, ResultCode.ALREADY_SAVED);
+    }
+
     /**
      * Convert the basic website data into a bookmark
      *
@@ -119,6 +126,8 @@ public class BookmarkServiceImpl implements BookmarkService {
      */
     @WebsiteDataClean
     public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, Privacy privacy) {
+        this.checkIfUserBookmarked(username, data.getUrl());
+
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
         BookmarkDO b = DozerUtils.convert(newBookmark, BookmarkDO.class);
         return bookmarkMapper.addBookmark(b);
@@ -251,7 +260,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     public void checkBookmarkExistsAndUserPermission(int id, String username) {
         // username cannot be empty
-        ThrowExceptionUtils.throwIfTrue(StringUtils.isEmpty(username), ResultCode.PERMISSION_DENIED);
+        ThrowExceptionUtils.throwIfTrue(StringUtils.isBlank(username), ResultCode.PERMISSION_DENIED);
 
         BookmarkDO bookmark = bookmarkDoMapper.selectById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
@@ -270,7 +279,7 @@ public class BookmarkServiceImpl implements BookmarkService {
                                           String currentUsername,
                                           HttpServletResponse response) {
 
-        username = StringUtils.isEmpty(username) ? currentUsername : username;
+        username = StringUtils.isBlank(username) ? currentUsername : username;
 
         Instant now = Instant.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss_SSS")

@@ -128,6 +128,15 @@ public interface BookmarkMapper {
     List<BookmarkDO> getBookmarksByUrl(String url);
 
     /**
+     * Check if the user has already bookmarked the web page
+     *
+     * @param username username
+     * @param url      URL
+     * @return true if the user has already bookmarked the web page
+     */
+    boolean checkIfUserBookmarked(@Param("username") String username, @Param("url") String url);
+
+    /**
      * Get public bookmarks of all users and private bookmarks of specific user
      * <p>
      * The result will not be paginated if {@code from} or {@code size} is null
