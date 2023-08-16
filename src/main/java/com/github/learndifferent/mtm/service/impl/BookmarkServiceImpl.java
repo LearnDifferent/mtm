@@ -8,7 +8,6 @@ import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
 import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
-import com.github.learndifferent.mtm.annotation.validation.website.bookmarked.BookmarkCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
@@ -114,15 +113,11 @@ public class BookmarkServiceImpl implements BookmarkService {
      * @param privacy  {@link Privacy#PUBLIC} if this is a public bookmark and
      *                 {@link Privacy#PRIVATE} if this is private
      * @return true if success
-     * @throws ServiceException {@link BookmarkCheck} annotation and {@link WebsiteDataClean} annotation will
-     *                          throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
+     * @throws ServiceException Throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
      *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      *                          if something goes wrong.
      */
     @WebsiteDataClean
-    @BookmarkCheck(usernameParamName = "username",
-                   classContainsUrlParamName = BasicWebDataDTO.class,
-                   urlFieldNameInParamClass = "url")
     public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, Privacy privacy) {
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
         BookmarkDO b = DozerUtils.convert(newBookmark, BookmarkDO.class);
