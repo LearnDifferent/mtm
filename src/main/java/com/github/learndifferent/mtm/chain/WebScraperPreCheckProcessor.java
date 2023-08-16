@@ -54,12 +54,10 @@ public class WebScraperPreCheckProcessor extends AbstractWebScraperProcessor {
         BasicWebDataDTO bookmarkData = bookmarkMapper.getBookmarkDataByUrl(url);
 
         boolean hasData = Objects.nonNull(bookmarkData);
-        if (hasData) {
-            // return the existing web page data if it exists
-            return bookmarkData;
-        }
 
-        // if the data does not exist in the database, proceed further
-        return this.next.process(request);
+        // return the existing web page data if it exists
+        return hasData ? bookmarkData
+                // if the data does not exist in the database, proceed further
+                : this.next.process(request);
     }
 }
