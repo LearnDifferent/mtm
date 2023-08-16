@@ -82,18 +82,14 @@
         </if>
     </select>
 
-    <select id="getBookmarksByUrl" resultMap="BaseResultMap">
-        select id,
-               user_name,
-               title,
+    <select id="getBookmarkDataByUrl" resultType="com.github.learndifferent.mtm.dto.BasicWebDataDTO">
+        select title,
                url,
                img,
-               `desc`,
-               creation_time,
-               is_public
+               `desc`
         from bookmark
         where url = #{url}
-          and is_deleted = 0;
+          and is_deleted = 0 limit 1;
     </select>
 
     <select id="countAllPublicAndSpecificPrivateBookmarks" resultType="java.lang.Integer">

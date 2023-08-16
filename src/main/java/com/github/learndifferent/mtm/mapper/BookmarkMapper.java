@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
@@ -120,12 +121,12 @@ public interface BookmarkMapper {
             @Param("excludeUsername") String excludeUsername);
 
     /**
-     * Get all bookmarks that have the given URL
+     * Retrieve the bookmark data associated with the provided URL
      *
      * @param url URL
-     * @return {@code List<BookmarkDO>}
+     * @return {@link BasicWebDataDTO}
      */
-    List<BookmarkDO> getBookmarksByUrl(String url);
+    BasicWebDataDTO getBookmarkDataByUrl(String url);
 
     /**
      * Check if the user has already bookmarked the web page
