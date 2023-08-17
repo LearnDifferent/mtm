@@ -13,7 +13,7 @@ import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
-import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.utils.DozerUtils;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DuplicateKeyException;
@@ -39,18 +39,12 @@ import org.springframework.util.CollectionUtils;
  * @date 2022/3/31
  */
 @Service
+@RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
 
     private final TagMapper tagMapper;
     private final DeleteTagManager deleteTagManager;
-    private final BookmarkDoMapper bookmarkDoMapper;
-
-    @Autowired
-    public TagServiceImpl(TagMapper tagMapper, DeleteTagManager deleteTagManager, BookmarkDoMapper bookmarkDoMapper) {
-        this.tagMapper = tagMapper;
-        this.deleteTagManager = deleteTagManager;
-        this.bookmarkDoMapper = bookmarkDoMapper;
-    }
+    private final BookmarkMapper bookmarkMapper;
 
     @Override
     @ModifyBookmarkPermissionCheck
@@ -137,7 +131,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int bookmarkId) {
-        BookmarkDO b = bookmarkDoMapper.selectById(bookmarkId);
+        BookmarkDO b = bookmarkMapper.getBookmarkById(bookmarkId);
         if (b == null) {
             return;
         }

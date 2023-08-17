@@ -31,7 +31,6 @@ import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.manager.DeleteViewManager;
 import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.manager.UserManager;
-import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
@@ -86,7 +85,6 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final SearchManager searchManager;
     private final DeleteViewManager deleteViewManager;
     private final DeleteTagManager deleteTagManager;
-    private final BookmarkDoMapper bookmarkDoMapper;
     private final HomeTimelineStrategyContext homeTimelineStrategyContext;
     private final UserManager userManager;
     private final WebScraperProcessorFacade webScraperProcessorFacade;
@@ -226,7 +224,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     @ModifyBookmarkPermissionCheck
     public boolean changePrivacySettings(@BookmarkId Integer id, @Username String userName) {
         // ID will not be null after checking by @ModifyBookmarkPermissionCheck
-        BookmarkDO bookmark = bookmarkDoMapper.selectById(id);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean newPrivacy = !bookmark.getIsPublic();
@@ -236,7 +234,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public BookmarkVO getBookmark(int id, String userName) {
-        BookmarkDO bookmark = bookmarkDoMapper.selectById(id);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
 
         // data does not exist
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
@@ -255,7 +253,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isBlank(username), ResultCode.PERMISSION_DENIED);
 
-        BookmarkDO bookmark = bookmarkDoMapper.selectById(id);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();

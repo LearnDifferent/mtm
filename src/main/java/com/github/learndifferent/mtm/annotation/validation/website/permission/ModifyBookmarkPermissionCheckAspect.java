@@ -5,16 +5,16 @@ import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
-import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -26,14 +26,10 @@ import org.springframework.util.StringUtils;
  */
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class ModifyBookmarkPermissionCheckAspect {
 
-    private final BookmarkDoMapper bookmarkDoMapper;
-
-    @Autowired
-    public ModifyBookmarkPermissionCheckAspect(BookmarkDoMapper bookmarkDoMapper) {
-        this.bookmarkDoMapper = bookmarkDoMapper;
-    }
+    private final BookmarkMapper bookmarkMapper;
 
     @Before("@annotation(bookmarkPermission)")
     public void check(JoinPoint joinPoint, ModifyBookmarkPermissionCheck bookmarkPermission) {
@@ -76,7 +72,7 @@ public class ModifyBookmarkPermissionCheckAspect {
 
         ThrowExceptionUtils.throwIfTrue(bookmarkId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        BookmarkDO bookmark = bookmarkDoMapper.selectById(bookmarkId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean emptyUsername = StringUtils.isEmpty(username);

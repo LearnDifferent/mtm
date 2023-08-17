@@ -239,7 +239,21 @@
                        from bookmark
                        where url = #{url}
                          and user_name = #{username}
-                        and is_deleted = 0
+                         and is_deleted = 0
                    )
+    </select>
+
+    <select id="getBookmarkById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select id,
+               user_name,
+               title,
+               url,
+               img,
+               `desc`,
+               creation_time,
+               is_public
+        from bookmark
+        where id = #{id,jdbcType=INTEGER}
+          and is_deleted = 0;
     </select>
 </mapper>

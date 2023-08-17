@@ -10,7 +10,6 @@ import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.CommentDO;
-import com.github.learndifferent.mtm.mapper.BookmarkDoMapper;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
@@ -42,7 +41,6 @@ public class NotificationManager {
     private final StringRedisTemplate redisTemplate;
     private final CommentMapper commentMapper;
     private final BookmarkMapper bookmarkMapper;
-    private final BookmarkDoMapper bookmarkDoMapper;
 
     /**
      * Delete {@code key}
@@ -109,7 +107,7 @@ public class NotificationManager {
         Integer bookmarkId = notification.getBookmarkId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
-        BookmarkDO bookmark = bookmarkDoMapper.selectById(bookmarkId);
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
 
         boolean isNotExists = Objects.isNull(bookmark);
 

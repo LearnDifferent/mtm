@@ -221,4 +221,12 @@ public interface BookmarkMapper {
      * @return the number of website data
      */
     long countWebDataByKeyword(String keyword);
+
+    /**
+     * Retrieve the bookmark by ID
+     *
+     * @param id ID
+     * @return bookmark
+     */
+    BookmarkDO getBookmarkById(Integer id);
 }
