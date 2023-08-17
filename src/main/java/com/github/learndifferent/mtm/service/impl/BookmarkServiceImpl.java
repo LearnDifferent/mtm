@@ -129,8 +129,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     public BookmarkingResultVO bookmark(String url, String username, Privacy privacy, AddDataMode mode) {
         // scrape data from the web
-        WebScraperRequest request = WebScraperRequest.builder()
-                .requestedUrl(url).username(username).build();
+        WebScraperRequest request = WebScraperRequest.initRequest(url, username);
+
         BasicWebDataDTO basic = webScraperProcessorFacade.process(request);
 
         // Only public data can be added to Elasticsearch

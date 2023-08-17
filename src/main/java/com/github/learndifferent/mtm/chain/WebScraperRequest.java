@@ -1,10 +1,7 @@
 package com.github.learndifferent.mtm.chain;
 
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.jsoup.nodes.Document;
 
@@ -14,12 +11,23 @@ import org.jsoup.nodes.Document;
  * @author zhou
  * @date 2023/8/15
  */
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
-@Builder
 @Accessors(chain = true)
 public class WebScraperRequest {
+
+    private WebScraperRequest(String requestedUrl,
+                              String username,
+                              Document document,
+                              BasicWebDataDTO data) {
+        this.requestedUrl = requestedUrl;
+        this.username = username;
+        this.document = document;
+        this.data = data;
+    }
+
+    public static WebScraperRequest initRequest(String requestedUrl, String username) {
+        return new WebScraperRequest(requestedUrl, username, null, null);
+    }
 
     private String requestedUrl;
     private String username;
