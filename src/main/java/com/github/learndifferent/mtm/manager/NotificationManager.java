@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -271,13 +272,14 @@ public class NotificationManager {
     }
 
     /**
-     * Record the role changes of a user
+     * Asynchronously log user role changes
      *
-     * @param id         the user's id
+     * @param id         the ID of the user
      * @param formerRole the former role of the user
      * @param newRole    the new role that the user has been assigned to
      */
-    public void recordRoleChanges(int id, UserRole formerRole, UserRole newRole) {
+    @Async("asyncTaskExecutor")
+    public void logRoleChangesAsync(int id, UserRole formerRole, UserRole newRole) {
         if (formerRole.equals(newRole)) {
             return;
         }

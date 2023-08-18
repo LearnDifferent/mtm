@@ -149,8 +149,8 @@ public class UserServiceImpl implements UserService {
         }
 
         if (success) {
-            // log user role changes
-            notificationManager.recordRoleChanges(id, curRole, newRole);
+            // log user role changes asynchronously
+            notificationManager.logRoleChangesAsync(id, curRole, newRole);
         }
         return success;
     }
