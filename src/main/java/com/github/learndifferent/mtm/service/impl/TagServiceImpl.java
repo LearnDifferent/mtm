@@ -8,7 +8,6 @@ import com.github.learndifferent.mtm.annotation.validation.website.permission.Mo
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
-import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.entity.TagDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -21,16 +20,18 @@ import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Tag Service Implementation
@@ -54,7 +55,8 @@ public class TagServiceImpl implements TagService {
         String tag = tagName.trim();
         TagDO tagDO = TagDO.builder().tag(tag).bookmarkId(bookmarkId).build();
         try {
-            // 使用了 tag 和 bookmark_id 作为 unique index，所以如果重复了就会报错
+            // a unique index is defined on tag and bookmark_id,
+            // a DuplicateKeyException will be thrown if there is a duplication
             tagMapper.addTag(tagDO);
         } catch (DuplicateKeyException e) {
             throw new ServiceException(ResultCode.TAG_EXISTS);
@@ -69,13 +71,9 @@ public class TagServiceImpl implements TagService {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<String> tags;
-
-        if (bookmarkId == null) {
-            tags = tagMapper.getAllTags(from, size);
-        } else {
-            tags = tagMapper.getTagsByBookmarkId(bookmarkId, from, size);
-        }
+        List<String> tags = Optional.ofNullable(bookmarkId)
+                .map(id -> tagMapper.getTagsByBookmarkId(id, from, size))
+                .orElseGet(() -> tagMapper.getAllTags(from, size));
 
         throwExceptionIfEmpty(tags);
         return tags;
@@ -84,16 +82,17 @@ public class TagServiceImpl implements TagService {
     @Override
     @Cacheable(value = "tag:a", key = "#bookmarkId")
     public String getTagOrReturnEmpty(Integer bookmarkId) {
-        if (bookmarkId == null) {
-            return "";
-        }
-        List<String> tags = tagMapper.getTagsByBookmarkId(bookmarkId, 0, 1);
-        return CollectionUtils.isEmpty(tags) ? "" : getFirstFromListOrReturnEmpty(tags);
-    }
 
-    private String getFirstFromListOrReturnEmpty(List<String> collection) {
-        String first = collection.get(0);
-        return Optional.ofNullable(first).orElse("");
+        return Optional.ofNullable(bookmarkId)
+                // query the tags
+                .map(id -> tagMapper.getTagsByBookmarkId(id, 0, 1))
+                // filter the query result, make sure the result is not empty
+                .filter(CollectionUtils::isNotEmpty)
+                // get the first tag in collections
+                .map(tags -> tags.get(0))
+                // if bookmarkId is null or the SQL query result is empty,
+                // return empty string
+                .orElse("");
     }
 
     @Override
@@ -108,7 +107,17 @@ public class TagServiceImpl implements TagService {
         List<Integer> ids = tagMapper.getBookmarkIdsByTagName(tagName, from, size);
         throwExceptionIfEmpty(ids);
 
-        return getBookmarks(username, ids);
+        return ids.stream()
+                // get a bookmark by ID
+                .map(bookmarkMapper::getBookmarkById)
+                // bookmark should not be null
+                .filter(Objects::nonNull)
+                // bookmark should be public or own by the user
+                .filter(b -> b.getIsPublic() || StringUtils.equalsIgnoreCase(b.getUserName(), username))
+                // convert bookmarkDO to BookmarkVO
+                .map(bookmarkDO -> DozerUtils.convert(bookmarkDO, BookmarkVO.class))
+                // collect all bookmarks
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -121,27 +130,10 @@ public class TagServiceImpl implements TagService {
         int totalCount = countTags(tagName);
         int totalPages = PaginationUtils.getTotalPages(totalCount, size);
 
-        return SearchByTagResultVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
-    }
-
-    private List<BookmarkVO> getBookmarks(String username, List<Integer> ids) {
-        List<BookmarkVO> result = new ArrayList<>();
-        ids.forEach(i -> updateBookmarks(result, username, i));
-        return result;
-    }
-
-    private void updateBookmarks(List<BookmarkVO> bookmarks, String username, int bookmarkId) {
-        BookmarkDO b = bookmarkMapper.getBookmarkById(bookmarkId);
-        if (b == null) {
-            return;
-        }
-
-        boolean isPublic = b.getIsPublic();
-        String owner = b.getUserName();
-        if (isPublic || owner.equalsIgnoreCase(username)) {
-            BookmarkVO bookmark = DozerUtils.convert(b, BookmarkVO.class);
-            bookmarks.add(bookmark);
-        }
+        return SearchByTagResultVO.builder()
+                .bookmarks(bookmarks)
+                .totalPages(totalPages)
+                .build();
     }
 
     /**
@@ -157,7 +149,7 @@ public class TagServiceImpl implements TagService {
     @Override
     @ModifyBookmarkPermissionCheck
     public boolean deleteTag(@Username String username, @BookmarkId Integer bookmarkId, String tagName) {
-        // Bookmark Id will not be null after checking by @ModifyBookmarkPermissionCheck.
+        // Bookmark ID will not be null after checking by @ModifyBookmarkPermissionCheck.
         // This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
         // stored in the cache if no exception is thrown.
         return deleteTagManager.deleteTag(tagName, bookmarkId);
