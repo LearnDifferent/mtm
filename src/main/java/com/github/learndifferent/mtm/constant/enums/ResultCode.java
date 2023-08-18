@@ -172,6 +172,10 @@ public enum ResultCode {
      */
     IDEMPOTENCY_KEY_NOT_VALID(3023, "Idempotency key is not valid"),
     /**
+     * The passwords are the same
+     */
+    PASSWORD_SAME(3024, "The new password cannot be the same as the old password"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
