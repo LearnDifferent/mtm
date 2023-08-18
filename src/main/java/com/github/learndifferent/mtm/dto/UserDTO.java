@@ -1,10 +1,13 @@
 package com.github.learndifferent.mtm.dto;
 
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.utils.Md5Util;
+import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * User Data Transfer Object
@@ -22,9 +25,17 @@ public class UserDTO implements Serializable {
         return new UserDTO(null, username, password, creationTime, role.role());
     }
 
-    public static UserDTO ofPasswordUpdate(Integer id, String notEncryptedPassword) {
+    public static UserDTO ofPasswordUpdate(Integer id, String notEncryptedOldPassword, String notEncryptedNewPassword) {
+        // check blank
+        boolean isAnyBlank = StringUtils.isAnyBlank(notEncryptedOldPassword, notEncryptedNewPassword);
+        ThrowExceptionUtils.throwIfTrue(isAnyBlank, ResultCode.PASSWORD_EMPTY);
+
+        // The new password cannot be the same as the old password
+        boolean areSame = StringUtils.equals(notEncryptedOldPassword, notEncryptedNewPassword);
+        ThrowExceptionUtils.throwIfTrue(areSame, ResultCode.PASSWORD_SAME);
+
         // encrypt and set the new password
-        String newPassword = Md5Util.getMd5(notEncryptedPassword);
+        String newPassword = Md5Util.getMd5(notEncryptedNewPassword);
         return new UserDTO(id, null, newPassword, null, null);
     }
 
