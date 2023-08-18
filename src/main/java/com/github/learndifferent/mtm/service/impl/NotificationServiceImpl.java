@@ -12,7 +12,9 @@ import com.github.learndifferent.mtm.utils.ShortenUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Objects;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,17 +24,11 @@ import org.springframework.stereotype.Service;
  * @date 2021/09/21
  */
 @Service
+@RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationManager notificationManager;
     private final UserMapper userMapper;
-
-    @Autowired
-    public NotificationServiceImpl(NotificationManager notificationManager,
-                                   UserMapper userMapper) {
-        this.notificationManager = notificationManager;
-        this.userMapper = userMapper;
-    }
 
     @Override
     public long countReplyNotifications(String receiveUsername) {
@@ -42,8 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public int countNewReplyNotifications(String receiveUsername) {
         boolean hasTurnedOff = checkIfTurnOffNotifications(receiveUsername);
-        return hasTurnedOff ? 0
-                : notificationManager.countNewReplyNotifications(receiveUsername);
+        return hasTurnedOff ? 0 : notificationManager.countNewReplyNotifications(receiveUsername);
     }
 
     @Override
@@ -96,17 +91,17 @@ public class NotificationServiceImpl implements NotificationService {
     public String generateRoleChangeNotification(String username) {
         String userId = userMapper.getUserIdByName(username);
 
-        if (userId == null) {
-            // return empty string if there is no user with that username
-            return "";
-        }
-        return notificationManager.generateRoleChangeNotification(userId);
+        return Optional.ofNullable(userId)
+                // generate a user role change notification by user ID
+                .map(notificationManager::generateRoleChangeNotification)
+                // return empty string if there is no user with that username
+                .orElse("");
     }
 
     @Override
     public void deleteRoleChangeNotification(String username) {
         String userId = userMapper.getUserIdByName(username);
-        if (userId == null) {
+        if (Objects.isNull(userId)) {
             return;
         }
         notificationManager.deleteRoleChangeNotification(userId);
