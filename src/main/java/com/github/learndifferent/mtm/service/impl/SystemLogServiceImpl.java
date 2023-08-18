@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.mapper.SystemLogMapper;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
@@ -18,14 +18,10 @@ import org.springframework.stereotype.Service;
  * @date 2021/09/21
  */
 @Service
+@RequiredArgsConstructor
 public class SystemLogServiceImpl implements SystemLogService {
 
     private final SystemLogMapper systemLogMapper;
-
-    @Autowired
-    public SystemLogServiceImpl(SystemLogMapper systemLogMapper) {
-        this.systemLogMapper = systemLogMapper;
-    }
 
     @Override
     @Cacheable(value = "system:log")
