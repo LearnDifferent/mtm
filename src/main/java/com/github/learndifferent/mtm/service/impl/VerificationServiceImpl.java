@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
-import org.springframework.util.StringUtils;
 
 /**
  * Verification Service Implementation
@@ -35,23 +35,15 @@ import org.springframework.util.StringUtils;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class VerificationServiceImpl implements VerificationService {
 
     private final StringRedisTemplate redisTemplate;
     private final SendEmailManager sendEmailManager;
     private final UserManager userManager;
 
-    @Value("${idempotency-config.key}")
+    @Value("${idempotency-config.key:mtm-idempotency-key}")
     private String idempotencyKeyHeader;
-
-    @Autowired
-    public VerificationServiceImpl(StringRedisTemplate redisTemplate,
-                                   SendEmailManager sendEmailManager,
-                                   UserManager userManager) {
-        this.redisTemplate = redisTemplate;
-        this.sendEmailManager = sendEmailManager;
-        this.userManager = userManager;
-    }
 
     @Override
     public String getVerificationCodeImg(String token) {
@@ -59,24 +51,22 @@ public class VerificationServiceImpl implements VerificationService {
         // generate verification code
         String code = VerifyCodeUtils.generateVerifyCode(4);
         // store in cache for 5 minutes
-        storeInCache(token, code, 5);
+        checkAndSaveToRedis(token, code, 5);
         // return verification code image with Base64 encoding
-        return getCodeImage(token, code);
+        return getCodeImage(code);
     }
 
-    private String getCodeImage(String token, String code) {
+    private String getCodeImage(String code) {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             VerifyCodeUtils.outputImage(230, 60, os, code);
             return "data:image/png;base64," + Base64Utils.encodeToString(os.toByteArray());
         } catch (IOException e) {
             log.error("Failed to generate verification code image", e);
-            // make the code be 1234 if something goes wrong
-            storeInCache(token, "1234", 5);
-            return "http://pic.616pic.com/ys_bnew_img/00/58/36/hETS14h5rO.jpg";
+            throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
 
-    private void storeInCache(String token, String code, int minutes) {
+    private void checkAndSaveToRedis(String token, String code, int minutes) {
         throwExceptionIfEmpty(token, code, ResultCode.FAILED);
         redisTemplate.opsForValue().set(token, code, minutes, TimeUnit.MINUTES);
     }
@@ -109,8 +99,8 @@ public class VerificationServiceImpl implements VerificationService {
     }
 
     private void throwExceptionIfEmpty(String token, String code, ResultCode resultCode) {
-        boolean isEmpty = StringUtils.isEmpty(token) || StringUtils.isEmpty(code);
-        ThrowExceptionUtils.throwIfTrue(isEmpty, resultCode);
+        boolean isAnyBlank = StringUtils.isAnyBlank(token, code);
+        ThrowExceptionUtils.throwIfTrue(isAnyBlank, resultCode);
     }
 
     private String getCodeByToken(String token) {
@@ -121,21 +111,23 @@ public class VerificationServiceImpl implements VerificationService {
     public String verifyLoginInfoAndGetUsername(UserIdentificationRequest userIdentification,
                                                 String token,
                                                 String code,
-                                                Boolean isAdmin) {
+                                                Boolean shouldCheckIfAdmin) {
         checkCode(token, code, ResultCode.VERIFICATION_CODE_FAILED);
 
         String username = userIdentification.getUserName();
         String password = userIdentification.getPassword();
 
-        // 查看是否有该用户
+        // check if the user exists
         UserDO user = userManager.getUserByNameAndPassword(username, password);
         ThrowExceptionUtils.throwIfNull(user, ResultCode.USER_NOT_EXIST);
 
-        // 需要检查用户是否为管理员的时候
-        if (Boolean.TRUE.equals(isAdmin)) {
-            boolean notAdmin = CustomStringUtils
-                    .notEqualsIgnoreCase(UserRole.ADMIN.role(), user.getRole());
-            ThrowExceptionUtils.throwIfTrue(notAdmin, ResultCode.PERMISSION_DENIED);
+        String userRole = user.getRole();
+        String adminRole = UserRole.ADMIN.role();
+
+        // verify if the user is an administrator if needed
+        if (Boolean.TRUE.equals(shouldCheckIfAdmin)) {
+            boolean isCurrentUserNotAdmin = CustomStringUtils.notEqualsIgnoreCase(adminRole, userRole);
+            ThrowExceptionUtils.throwIfTrue(isCurrentUserNotAdmin, ResultCode.PERMISSION_DENIED);
         }
 
         return user.getUserName();
@@ -146,7 +138,7 @@ public class VerificationServiceImpl implements VerificationService {
         // generate invitation code
         String code = UUIDUtils.getUuid(5);
         // store in cache for 20 minutes
-        storeInCache(token, code, 20);
+        checkAndSaveToRedis(token, code, 20);
 
         try {
             // send the email
@@ -176,8 +168,7 @@ public class VerificationServiceImpl implements VerificationService {
 
         // set idempotency key
         String redisKey = KeyConstant.IDEMPOTENCY_KEY_PREFIX + key;
-        redisTemplate.opsForValue()
-                .set(redisKey, "", timeout, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(redisKey, "", timeout, TimeUnit.SECONDS);
 
         return IdempotencyKeyInfoDTO.builder()
                 .idempotencyKey(key)
