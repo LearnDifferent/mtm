@@ -8,7 +8,7 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.BookmarkService;
 import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,14 +25,10 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/file")
+@RequiredArgsConstructor
 public class FileController {
 
     private final BookmarkService bookmarkService;
-
-    @Autowired
-    public FileController(BookmarkService bookmarkService) {
-        this.bookmarkService = bookmarkService;
-    }
 
     /**
      * Export user's bookmarks to an HTML file.
