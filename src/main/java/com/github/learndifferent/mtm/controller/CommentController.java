@@ -96,15 +96,12 @@ public class CommentController {
      */
     @GetMapping("/bookmark")
     public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("id")
-                                                         @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                         @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                                 Integer bookmarkId,
+                                                             @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                             @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                                     Integer bookmarkId,
                                                          @RequestParam(value = "replyToCommentId", required = false)
-                                                                 Integer replyToCommentId,
-                                                         @RequestParam("load")
-                                                         @NotNull(message = ErrorInfoConstant.NO_DATA)
-                                                         @Positive(message = ErrorInfoConstant.NO_DATA)
-                                                                 Integer load,
+                                                                     Integer replyToCommentId,
+                                                         @RequestParam("load") Integer load,
                                                          @RequestParam("order") Order order) {
         String currentUsername = StpUtil.getLoginIdAsString();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
