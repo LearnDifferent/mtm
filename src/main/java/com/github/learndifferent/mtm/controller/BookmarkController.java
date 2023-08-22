@@ -25,9 +25,9 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,14 +48,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/bookmark")
 @Validated
+@RequiredArgsConstructor
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;
-
-    @Autowired
-    public BookmarkController(BookmarkService bookmarkService) {
-        this.bookmarkService = bookmarkService;
-    }
 
     /**
      * Bookmark a new web page
