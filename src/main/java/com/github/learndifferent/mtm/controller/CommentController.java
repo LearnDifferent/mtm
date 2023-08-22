@@ -16,8 +16,8 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,14 +38,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/comment")
 @Validated
+@RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
-
-    @Autowired
-    public CommentController(CommentService commentService) {
-        this.commentService = commentService;
-    }
 
     /**
      * Get a comment
@@ -96,11 +92,11 @@ public class CommentController {
      */
     @GetMapping("/bookmark")
     public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("id")
-                                                             @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                             @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                                     Integer bookmarkId,
+                                                         @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                         @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                                 Integer bookmarkId,
                                                          @RequestParam(value = "replyToCommentId", required = false)
-                                                                     Integer replyToCommentId,
+                                                                 Integer replyToCommentId,
                                                          @RequestParam("load") Integer load,
                                                          @RequestParam("order") Order order) {
         String currentUsername = StpUtil.getLoginIdAsString();
