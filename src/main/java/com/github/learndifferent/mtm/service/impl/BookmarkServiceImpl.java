@@ -48,6 +48,7 @@ import com.github.learndifferent.mtm.vo.PopularBookmarksVO;
 import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -57,6 +58,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -285,11 +287,16 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         String html = getBookmarksByUserInHtml(username, privilege);
 
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+        response.setHeader("content-type", "application/octet-stream");
+
         try {
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename=" + filename);
-            response.getWriter().print(html);
+            ServletOutputStream outputStream = response.getOutputStream();
+            outputStream.write(html.getBytes(StandardCharsets.UTF_8));
+            outputStream.flush();
         } catch (IOException e) {
+            log.error("I/O exception occurred while attempting to export bookmarks to an HTML file.", e);
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         }
     }
