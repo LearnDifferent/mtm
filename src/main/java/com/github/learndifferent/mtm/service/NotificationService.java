@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.service;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
-import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
+import com.github.learndifferent.mtm.vo.ReplyMessageNotificationAndItsReadStatusVO;
 import java.util.List;
 
 /**
@@ -37,16 +37,16 @@ public interface NotificationService {
     void markReplyNotificationAsRead(ReplyNotificationDTO data);
 
     /**
-     * Get reply notifications
+     * Get reply message notification and its read status
      *
      * @param receiveUsername user's name who is about to receive notifications
      * @param size            size of the reply notification list
-     * @return {@link List}<{@link ReplyMessageNotificationVO}> reply notification list
+     * @return {@link List}<{@link ReplyMessageNotificationAndItsReadStatusVO}>
      * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
      *                                                                  exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
      */
-    List<ReplyMessageNotificationVO> getReplyNotifications(String receiveUsername, int size);
+    List<ReplyMessageNotificationAndItsReadStatusVO> getReplyNotifications(String receiveUsername, int size);
 
 
     /**

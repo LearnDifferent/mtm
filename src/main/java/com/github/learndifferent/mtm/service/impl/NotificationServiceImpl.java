@@ -11,7 +11,7 @@ import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ShortenUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
+import com.github.learndifferent.mtm.vo.ReplyMessageNotificationAndItsReadStatusVO;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,7 +48,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<ReplyMessageNotificationVO> getReplyNotifications(String receiveUsername, int size) {
+    public List<ReplyMessageNotificationAndItsReadStatusVO> getReplyNotifications(String receiveUsername, int size) {
         boolean illegalSize = size <= 0;
         ThrowExceptionUtils.throwIfTrue(illegalSize, ResultCode.NO_RESULTS_FOUND);
 

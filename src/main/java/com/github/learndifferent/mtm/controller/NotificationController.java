@@ -9,10 +9,11 @@ import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
-import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
+import com.github.learndifferent.mtm.vo.ReplyMessageNotificationAndItsReadStatusVO;
 import java.util.List;
 import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/notification")
 @Validated
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -41,18 +43,22 @@ public class NotificationController {
      * Get reply notifications
      *
      * @param size size of the reply notification list
-     * @return reply notifications
+     * @return Reply message notification and its read status
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotificationService#getReplyNotifications(String,
      *                                                                  int)} will throw an exception with
      *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
      *                                                                  if there is no notifications found
      */
     @GetMapping
-    public List<ReplyMessageNotificationVO> getReplyNotifications(@RequestParam(value = "size", defaultValue = "10")
-                                                                  @Positive(message = ErrorInfoConstant.NO_DATA)
-                                                                          int size) {
+    public List<ReplyMessageNotificationAndItsReadStatusVO> getReplyNotifications(
+            @RequestParam(value = "size", defaultValue = "10")
+            @Positive(message = ErrorInfoConstant.NO_DATA) int size) {
+
         String username = StpUtil.getLoginIdAsString();
-        return notificationService.getReplyNotifications(username, size);
+        List<ReplyMessageNotificationAndItsReadStatusVO> replyNotifications = notificationService.getReplyNotifications(
+                username, size);
+        log.info("replyNotifications: {}", replyNotifications);
+        return replyNotifications;
     }
 
     /**
@@ -85,6 +91,7 @@ public class NotificationController {
 
     /**
      * Mark the reply notification as read
+     *
      * @param data notification data
      */
     @PostMapping("/reply")

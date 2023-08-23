@@ -10,12 +10,13 @@ import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.entity.ReplyNotification;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
+import com.github.learndifferent.mtm.vo.ReplyMessageNotificationAndItsReadStatusVO;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -76,9 +77,9 @@ public class NotificationManager {
      * @param lastIndex       to
      * @return reply notifications
      */
-    public List<ReplyMessageNotificationVO> getReplyMessageNotification(String receiveUsername,
-                                                                        int from,
-                                                                        int lastIndex) {
+    public List<ReplyMessageNotificationAndItsReadStatusVO> getReplyMessageNotification(String receiveUsername,
+                                                                                        int from,
+                                                                                        int lastIndex) {
         String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
         List<String> notifications = this.redisTemplate.opsForList().range(key, from, lastIndex);
 
@@ -90,16 +91,33 @@ public class NotificationManager {
                 .collect(Collectors.toList());
     }
 
-    private ReplyMessageNotificationVO getReplyMessageNotification(String notification) {
-        ReplyMessageNotificationVO no = JsonUtils.toObject(notification, ReplyMessageNotificationVO.class);
-        String text = this.getCommentTextIfBookmarkAndCommentExist(no);
+    private ReplyMessageNotificationAndItsReadStatusVO getReplyMessageNotification(String notification) {
+        ReplyMessageNotificationAndItsReadStatusVO no = JsonUtils
+                .toObject(notification, ReplyMessageNotificationAndItsReadStatusVO.class);
+        // get the message
+        String text = getCommentTextIfBookmarkAndCommentExist(no);
         no.setMessage(text);
+
+        // get the read status
+        boolean isRead = getReplyReadStatus(notification);
+        no.setIsRead(isRead);
         return no;
     }
 
-    private String getCommentTextIfBookmarkAndCommentExist(ReplyMessageNotificationVO notification) {
+    private boolean getReplyReadStatus(String notification) {
+        ReplyNotification data = JsonUtils.toObject(notification, ReplyNotification.class);
 
-        Integer bookmarkId = notification.getBookmarkId();
+        String receiveUsername = data.getReceiveUsername();
+        String key = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
+        long offset = Math.abs(data.hashCode());
+
+        Boolean hasNotRead = redisTemplate.opsForValue().getBit(key, offset);
+        return !Optional.ofNullable(hasNotRead).orElse(true);
+    }
+
+    private String getCommentTextIfBookmarkAndCommentExist(ReplyMessageNotificationAndItsReadStatusVO notificationData) {
+
+        Integer bookmarkId = notificationData.getBookmarkId();
         // include private bookmarks because another method
         // that views the details will verify the permission later on
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
@@ -108,10 +126,10 @@ public class NotificationManager {
 
         // if the bookmark does not exist,
         // returns null to indicate that the comment does not exist
-        return isNotExists ? null : getCommentTextFromNotification(notification);
+        return isNotExists ? null : getCommentTextFromNotification(notificationData);
     }
 
-    private String getCommentTextFromNotification(ReplyMessageNotificationVO notification) {
+    private String getCommentTextFromNotification(ReplyMessageNotificationAndItsReadStatusVO notification) {
         int commentId = notification.getCommentId();
         // the result is null if the comment does not exist
         return this.commentMapper.getCommentTextById(commentId);

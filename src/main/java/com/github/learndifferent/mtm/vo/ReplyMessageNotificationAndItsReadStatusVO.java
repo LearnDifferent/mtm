@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Notification with reply message
+ * Reply message notification and its read status
  *
  * @author zhou
  * @date 2022/4/8
@@ -21,13 +21,18 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @Accessors(chain = true)
-public class ReplyMessageNotificationVO extends ReplyNotification implements Serializable {
+public class ReplyMessageNotificationAndItsReadStatusVO extends ReplyNotification implements Serializable {
 
     /**
      * Extend parameter: reply message
      * <p>Null if the bookmark, comment or reply has been deleted</p>
      */
     private String message;
+
+    /**
+     * True if read
+     */
+    private Boolean isRead;
 
     private static final long serialVersionUID = 1L;
 }
