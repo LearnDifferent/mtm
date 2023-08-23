@@ -33,11 +33,6 @@ public final class KeyConstant {
     public static final String USER_REPLY_TO_READ = "reply_to_read:user:";
 
     /**
-     * The key of reply notification count is "count:notification:" + lowercase username
-     */
-    public static final String REPLY_NOTIFICATION_COUNT_PREFIX = "count:notification:";
-
-    /**
      * The key of the set in Redis which stores all the keys that contain the view data
      */
     public static final String VIEW_KEY_SET = "all:view";

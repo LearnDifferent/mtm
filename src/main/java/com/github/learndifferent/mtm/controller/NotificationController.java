@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -75,11 +76,20 @@ public class NotificationController {
      *
      * @return number of unread replies
      */
-    @GetMapping("/count")
+    @GetMapping("/reply")
     public ResultVO<Long> countUnreadReplies() {
         String currentUsername = StpUtil.getLoginIdAsString();
         long count = notificationService.countUnreadReplies(currentUsername);
         return ResultCreator.okResult(count);
+    }
+
+    /**
+     * Mark the reply notification as read
+     * @param data notification data
+     */
+    @PostMapping("/reply")
+    public void markReplyNotificationAsRead(@RequestBody ReplyNotificationDTO data) {
+        notificationService.markReplyNotificationAsRead(data);
     }
 
     /**

@@ -4,6 +4,7 @@ import com.github.learndifferent.mtm.entity.ReplyNotification;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
@@ -17,6 +18,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @Accessors(chain = true)
+@NoArgsConstructor
 public class ReplyNotificationDTO extends ReplyNotification implements Serializable {
 
     private static final long serialVersionUID = 1L;

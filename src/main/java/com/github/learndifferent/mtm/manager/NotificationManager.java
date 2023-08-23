@@ -69,7 +69,7 @@ public class NotificationManager {
     }
 
     /**
-     * Get reply notifications and clear notification count
+     * Get reply notifications
      *
      * @param receiveUsername username
      * @param from            from
@@ -84,10 +84,6 @@ public class NotificationManager {
 
         boolean hasNoNotifications = CollectionUtils.isEmpty(notifications);
         ThrowExceptionUtils.throwIfTrue(hasNoNotifications, ResultCode.NO_RESULTS_FOUND);
-
-        // clear notification count
-        String notificationCountKey = KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase();
-        this.deleteByKey(notificationCountKey);
 
         return notifications.stream()
                 .map(this::getReplyMessageNotification)
@@ -144,6 +140,15 @@ public class NotificationManager {
         int replyToReadOffset = Math.abs(notification.hashCode());
 
         this.redisTemplate.opsForValue().setBit(replyToReadKey, replyToReadOffset, true);
+    }
+
+    public void markReplyNotificationAsRead(ReplyNotificationDTO data) {
+        String receiveUsername = data.getReceiveUsername();
+        String userReadReplyKey = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
+        int userReadReplyOffset = Math.abs(data.hashCode());
+
+        // set the value to 'false' to indicate the reply has been read
+        this.redisTemplate.opsForValue().setBit(userReadReplyKey, userReadReplyOffset, false);
     }
 
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
