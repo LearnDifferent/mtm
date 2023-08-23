@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
 import com.github.learndifferent.mtm.entity.TagAndCountDO;
 import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.mapper.TagMapper;
-import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -47,7 +47,7 @@ public class TagDataSearchRelatedStrategy implements DataSearchRelatedStrategy {
         searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_TAG);
 
         List<TagAndCountDO> data = tagMapper.getAllTagsAndCountOfPublicBookmarks();
-        List<TagForSearchDTO> tcs = DozerUtils.convertList(data, TagForSearchDTO.class);
+        List<TagForSearchDTO> tcs = BeanUtils.convertList(data, TagForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
         tcs.forEach(tc ->

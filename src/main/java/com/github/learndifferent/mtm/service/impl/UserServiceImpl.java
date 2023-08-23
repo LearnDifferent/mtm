@@ -16,8 +16,8 @@ import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.ChangePasswordRequest;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.service.UserService;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
-import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "user:name", key = "#userName")
     public UserVO getUserByName(String userName) {
         UserDO userDO = userMapper.getUserByName(userName);
-        return DozerUtils.convert(userDO, UserVO.class);
+        return BeanUtils.convert(userDO, UserVO.class);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
         Integer from = pageInfo.getFrom();
         Integer size = pageInfo.getSize();
         List<UserDO> users = userMapper.getUsers(from, size);
-        return DozerUtils.convertList(users, UserVO.class);
+        return BeanUtils.convertList(users, UserVO.class);
     }
 
     @Override

@@ -37,8 +37,8 @@ import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.BookmarkService;
 import com.github.learndifferent.mtm.strategy.timeline.HomeTimelineStrategyContext;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
-import com.github.learndifferent.mtm.utils.DozerUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -102,7 +102,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         BookmarkFilterDTO filter = BookmarkFilterDTO.of(
                 usernames.getUsernames(), load, fromTimestamp, toTimestamp, orderField, order);
         List<BookmarkDO> bookmarks = bookmarkMapper.filterPublicBookmarks(filter);
-        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
+        return BeanUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
     /**
@@ -122,7 +122,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         userManager.checkIfUserBookmarked(username, data.getUrl());
 
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
-        BookmarkDO b = DozerUtils.convert(newBookmark, BookmarkDO.class);
+        BookmarkDO b = BeanUtils.convert(newBookmark, BookmarkDO.class);
         return bookmarkMapper.addBookmark(b);
     }
 
@@ -167,7 +167,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public boolean addToBookmark(BasicWebDataRequest data, String username) {
-        BasicWebDataDTO basicData = DozerUtils.convert(data, BasicWebDataDTO.class);
+        BasicWebDataDTO basicData = BeanUtils.convert(data, BasicWebDataDTO.class);
         BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
         return bean.bookmarkWithBasicWebData(basicData, username, PUBLIC);
     }
@@ -247,7 +247,7 @@ public class BookmarkServiceImpl implements BookmarkService {
                 && CustomStringUtils.notEqualsIgnoreCase(userName, bookmark.getUserName());
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
-        return DozerUtils.convert(bookmark, BookmarkVO.class);
+        return BeanUtils.convert(bookmark, BookmarkVO.class);
     }
 
     @Override
@@ -335,7 +335,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         // from 和 size 为 null 的时候，表示不分页，直接获取全部
         List<BookmarkDO> bookmarks =
                 bookmarkMapper.getUserBookmarks(userName, null, null, privilege.canAccessPrivateData());
-        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
+        return BeanUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
     @Override

@@ -15,7 +15,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -53,7 +53,7 @@ public class UserManager {
         int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
 
         List<BookmarkDO> b = bookmarkMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
-        List<BookmarkVO> bookmarks = DozerUtils.convertList(b, BookmarkVO.class);
+        List<BookmarkVO> bookmarks = BeanUtils.convertList(b, BookmarkVO.class);
 
         return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
     }

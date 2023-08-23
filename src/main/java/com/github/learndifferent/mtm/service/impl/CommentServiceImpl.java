@@ -19,7 +19,7 @@ import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.service.CommentService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
 import com.github.learndifferent.mtm.vo.CommentHistoryVO;
@@ -64,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
 
     private CommentVO getCommentByCommentIdAndBookmarkIdAndReturnCommentVO(Integer id) {
         CommentDO commentDO = commentMapper.getCommentById(id);
-        CommentVO comment = DozerUtils.convert(commentDO, CommentVO.class);
+        CommentVO comment = BeanUtils.convert(commentDO, CommentVO.class);
         List<CommentHistoryVO> history = getHistory(id);
         comment.setHistory(history);
         return comment;
@@ -81,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
                 .getBookmarkComments(bookmarkId, replyToCommentId, load, order.isDesc())
                 .stream()
                 // convert to BookmarkCommentVO
-                .map(commentDO -> DozerUtils.convert(commentDO, BookmarkCommentVO.class))
+                .map(commentDO -> BeanUtils.convert(commentDO, BookmarkCommentVO.class))
                 // update the comment
                 .peek(this::updateBookmarkComment)
                 // collect comments
@@ -107,7 +107,7 @@ public class CommentServiceImpl implements CommentService {
      */
     private List<CommentHistoryVO> getHistory(Integer commentId) {
         List<CommentHistoryDO> history = commentHistoryMapper.getHistory(commentId);
-        List<CommentHistoryVO> result = DozerUtils.convertList(history, CommentHistoryVO.class);
+        List<CommentHistoryVO> result = BeanUtils.convertList(history, CommentHistoryVO.class);
 
         return CollectionUtils.isEmpty(result) ? Collections.emptyList()
                 : Collections.unmodifiableList(result);

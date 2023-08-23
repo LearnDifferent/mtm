@@ -15,7 +15,7 @@ import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.TagMapper;
 import com.github.learndifferent.mtm.service.TagService;
-import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -115,7 +115,7 @@ public class TagServiceImpl implements TagService {
                 // bookmark should be public or own by the user
                 .filter(b -> b.getIsPublic() || StringUtils.equalsIgnoreCase(b.getUserName(), username))
                 // convert bookmarkDO to BookmarkVO
-                .map(bookmarkDO -> DozerUtils.convert(bookmarkDO, BookmarkVO.class))
+                .map(bookmarkDO -> BeanUtils.convert(bookmarkDO, BookmarkVO.class))
                 // collect all bookmarks
                 .collect(Collectors.toList());
     }
@@ -164,7 +164,7 @@ public class TagServiceImpl implements TagService {
         List<TagAndCountDO> tags = tagMapper.getPopularTags(username, from, size);
         throwExceptionIfEmpty(tags);
 
-        return DozerUtils.convertList(tags, PopularTagDTO.class);
+        return BeanUtils.convertList(tags, PopularTagDTO.class);
     }
 
     private void throwExceptionIfEmpty(Collection<?> collection) {

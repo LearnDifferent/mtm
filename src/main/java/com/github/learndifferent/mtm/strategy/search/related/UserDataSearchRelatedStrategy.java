@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.manager.SearchManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -46,7 +46,7 @@ public class UserDataSearchRelatedStrategy implements DataSearchRelatedStrategy 
         searchManager.throwExceptionIfFailToDeleteIndex(SearchConstant.INDEX_USER);
 
         List<UserDO> us = userMapper.getUsers(null, null);
-        List<UserForSearchDTO> users = DozerUtils.convertList(us, UserForSearchDTO.class);
+        List<UserForSearchDTO> users = BeanUtils.convertList(us, UserForSearchDTO.class);
 
         BulkRequest bulkRequest = new BulkRequest();
         users.forEach(u -> searchManager.updateBulkRequest(bulkRequest,

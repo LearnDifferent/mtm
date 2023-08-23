@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.strategy.timeline;
 
 import com.github.learndifferent.mtm.entity.BookmarkDO;
-import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import java.util.List;
@@ -32,6 +32,6 @@ public interface HomeTimelineStrategy {
      * @return list of {@link BookmarkVO}
      */
     default List<BookmarkVO> convertToBookmarkVO(List<BookmarkDO> bookmarks) {
-        return DozerUtils.convertList(bookmarks, BookmarkVO.class);
+        return BeanUtils.convertList(bookmarks, BookmarkVO.class);
     }
 }

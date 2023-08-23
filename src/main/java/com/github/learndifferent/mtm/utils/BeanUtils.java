@@ -13,11 +13,11 @@ import java.util.List;
  * @author zhou
  * @date 2021/09/05
  */
-public class DozerUtils {
+public class BeanUtils {
 
     private static final Mapper MAPPER = DozerBeanMapperBuilder.buildDefault();
 
-    private DozerUtils() {
+    private BeanUtils() {
     }
 
     /**

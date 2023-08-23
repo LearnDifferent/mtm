@@ -8,7 +8,7 @@ import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.learndifferent.mtm.utils.DozerUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.pemistahl.lingua.api.Language;
@@ -154,7 +154,7 @@ public class SearchManager {
 
     private IndexRequest getIndexRequest(BasicWebDataDTO bookmark) {
 
-        WebForSearchDTO data = DozerUtils.convert(bookmark, WebForSearchDTO.class);
+        WebForSearchDTO data = BeanUtils.convert(bookmark, WebForSearchDTO.class);
         String json = JsonUtils.toJson(data);
         IndexRequest request = new IndexRequest(SearchConstant.INDEX_WEB);
         request.id(data.getUrl());
