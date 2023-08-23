@@ -133,10 +133,18 @@ public class NotificationManager {
         ReplyNotificationDTO notification = getReplyNotificationDTO(comment);
 
         String receiveUsername = notification.getReceiveUsername();
-        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
+        String receiveInfo = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
 
-        String value = JsonUtils.toJson(notification);
-        this.redisTemplate.opsForList().leftPush(key, value);
+        String notificationContent = JsonUtils.toJson(notification);
+        this.redisTemplate.opsForList().leftPush(receiveInfo, notificationContent);
+
+        // key: prefix + username
+        // offset: hashcode of the ReplyNotificationDTO (absolute value)
+        // value: true if user has not read the reply / true if the reply should be read by the user
+        String replyToReadKey = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
+        int replyToReadOffset = Math.abs(notification.hashCode());
+
+        this.redisTemplate.opsForValue().setBit(replyToReadKey, replyToReadOffset, true);
 
         // increase notification count
         String countKey = KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase();

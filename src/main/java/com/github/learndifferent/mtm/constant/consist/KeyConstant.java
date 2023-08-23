@@ -27,6 +27,12 @@ public final class KeyConstant {
     public static final String REPLY_NOTIFICATION_PREFIX = "notification:";
 
     /**
+     * Replies to read.
+     * The key is "reply_to_read:user:" + lowercase username
+     */
+    public static final String USER_REPLY_TO_READ = "reply_to_read:user:";
+
+    /**
      * The key of reply notification count is "count:notification:" + lowercase username
      */
     public static final String REPLY_NOTIFICATION_COUNT_PREFIX = "count:notification:";
