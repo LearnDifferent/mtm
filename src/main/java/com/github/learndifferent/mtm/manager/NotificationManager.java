@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -58,16 +59,13 @@ public class NotificationManager {
         return Optional.ofNullable(size).orElse(0L);
     }
 
-    public int countNewReplyNotifications(String receiveUsername) {
-        String key = KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase();
-        String notificationCount = this.redisTemplate.opsForValue().get(key);
-        String count = Optional.ofNullable(notificationCount).orElse("0");
-        try {
-            return Integer.parseInt(count);
-        } catch (NumberFormatException e) {
-            log.info("{} is not a number, return 0 as default", count);
-            return 0;
-        }
+    public long countUnreadReplies(String receiveUsername) {
+        String key = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
+
+        Long notificationCount = redisTemplate.execute(
+                (RedisCallback<Long>) connection -> connection.bitCount(key.getBytes()));
+
+        return Optional.ofNullable(notificationCount).orElse(0L);
     }
 
     /**
@@ -138,6 +136,7 @@ public class NotificationManager {
         String notificationContent = JsonUtils.toJson(notification);
         this.redisTemplate.opsForList().leftPush(receiveInfo, notificationContent);
 
+        // increase reply notification count
         // key: prefix + username
         // offset: hashcode of the ReplyNotificationDTO (absolute value)
         // value: true if user has not read the reply / true if the reply should be read by the user
@@ -145,10 +144,6 @@ public class NotificationManager {
         int replyToReadOffset = Math.abs(notification.hashCode());
 
         this.redisTemplate.opsForValue().setBit(replyToReadKey, replyToReadOffset, true);
-
-        // increase notification count
-        String countKey = KeyConstant.REPLY_NOTIFICATION_COUNT_PREFIX + receiveUsername.toLowerCase();
-        this.redisTemplate.opsForValue().increment(countKey);
     }
 
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {

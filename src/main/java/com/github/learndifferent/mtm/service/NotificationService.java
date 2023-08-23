@@ -22,13 +22,12 @@ public interface NotificationService {
     long countReplyNotifications(String receiveUsername);
 
     /**
-     * Count the number of new reply notifications
+     * Calculate the count of current user's unread replies
      *
      * @param receiveUsername username
-     * @return Return the number of new reply notifications,
-     * or return 0 if the user turned off notifications
+     * @return Return the number of unread replies, or return 0 if the user turned off notifications
      */
-    int countNewReplyNotifications(String receiveUsername);
+    long countUnreadReplies(String receiveUsername);
 
     /**
      * Get reply notifications and clear notification count

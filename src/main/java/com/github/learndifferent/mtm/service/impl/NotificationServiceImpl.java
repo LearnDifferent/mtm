@@ -36,9 +36,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public int countNewReplyNotifications(String receiveUsername) {
+    public long countUnreadReplies(String receiveUsername) {
         boolean hasTurnedOff = checkIfTurnOffNotifications(receiveUsername);
-        return hasTurnedOff ? 0 : notificationManager.countNewReplyNotifications(receiveUsername);
+        return hasTurnedOff ? 0L : notificationManager.countUnreadReplies(receiveUsername);
     }
 
     @Override

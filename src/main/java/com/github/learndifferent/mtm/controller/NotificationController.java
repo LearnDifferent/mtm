@@ -11,7 +11,7 @@ import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.vo.ReplyMessageNotificationVO;
 import java.util.List;
 import javax.validation.constraints.Positive;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,14 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/notification")
 @Validated
+@RequiredArgsConstructor
 public class NotificationController {
 
     private final NotificationService notificationService;
-
-    @Autowired
-    public NotificationController(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
 
     /**
      * Get reply notifications
@@ -75,14 +71,14 @@ public class NotificationController {
     }
 
     /**
-     * Count the number of new reply notifications for the current user
+     * Calculate the count of current user's unread replies
      *
-     * @return number of new reply notifications
+     * @return number of unread replies
      */
     @GetMapping("/count")
-    public ResultVO<Integer> countNewReplyNotifications() {
+    public ResultVO<Long> countUnreadReplies() {
         String currentUsername = StpUtil.getLoginIdAsString();
-        int count = notificationService.countNewReplyNotifications(currentUsername);
+        long count = notificationService.countUnreadReplies(currentUsername);
         return ResultCreator.okResult(count);
     }
 
