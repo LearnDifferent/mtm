@@ -94,9 +94,19 @@ public class NotificationController {
      *
      * @param data notification data
      */
-    @PostMapping("/reply")
+    @PostMapping("/reply/read")
     public void markReplyNotificationAsRead(@RequestBody ReplyNotificationDTO data) {
         notificationService.markReplyNotificationAsRead(data);
+    }
+
+    /**
+     * Mark the reply notification as unread
+     *
+     * @param data notification data
+     */
+    @PostMapping("/reply/unread")
+    public void markReplyNotificationAsUnread(@RequestBody ReplyNotificationDTO data) {
+        notificationService.markReplyNotificationAsUnread(data);
     }
 
     /**

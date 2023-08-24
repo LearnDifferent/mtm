@@ -32,9 +32,17 @@ public interface NotificationService {
 
     /**
      * Mark the reply notification as read
+     *
      * @param data notification data
      */
     void markReplyNotificationAsRead(ReplyNotificationDTO data);
+
+    /**
+     * Mark the reply notification as unread
+     *
+     * @param data notification data
+     */
+    void markReplyNotificationAsUnread(ReplyNotificationDTO data);
 
     /**
      * Get reply message notification and its read status

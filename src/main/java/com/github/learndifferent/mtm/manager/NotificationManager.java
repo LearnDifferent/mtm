@@ -160,13 +160,16 @@ public class NotificationManager {
         this.redisTemplate.opsForValue().setBit(replyToReadKey, replyToReadOffset, true);
     }
 
-    public void markReplyNotificationAsRead(ReplyNotificationDTO data) {
+    public void markReplyNotification(ReplyNotificationDTO data, boolean isUnread) {
         String receiveUsername = data.getReceiveUsername();
-        String userReadReplyKey = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
-        int userReadReplyOffset = Math.abs(data.hashCode());
+        String key = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
 
+        // use the hashcode of the ReplyNotificationDTO as the offset
+        int offset = Math.abs(data.hashCode());
+
+        // set the value to 'true' to indicate the reply has NOT been read
         // set the value to 'false' to indicate the reply has been read
-        this.redisTemplate.opsForValue().setBit(userReadReplyKey, userReadReplyOffset, false);
+        this.redisTemplate.opsForValue().setBit(key, offset, isUnread);
     }
 
     private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
