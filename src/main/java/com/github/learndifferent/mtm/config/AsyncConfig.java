@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.config;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,14 +19,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableAsync
 @EnableConfigurationProperties(AsyncConfigProperties.class)
 @Configuration
+@RequiredArgsConstructor
 public class AsyncConfig implements AsyncConfigurer {
 
     private final AsyncConfigProperties asyncConfigProperties;
-
-    @Autowired
-    public AsyncConfig(AsyncConfigProperties asyncConfigProperties) {
-        this.asyncConfigProperties = asyncConfigProperties;
-    }
 
     @Bean("asyncTaskExecutor")
     @Override
