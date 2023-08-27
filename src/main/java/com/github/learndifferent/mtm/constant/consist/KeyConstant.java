@@ -12,6 +12,29 @@ public final class KeyConstant {
     }
 
     /**
+     * The key of all system notifications
+     */
+    public static final String SYSTEM_NOTIFICATIONS = "notification:system";
+
+    /**
+     * Redis key prefix for the read status of the system notification.
+     * Key: prefix + notification ID
+     */
+    public static final String SYSTEM_NOTIFICATION_READ_STATUS_PREFIX = "notification:system:is_read:";
+
+    /**
+     * Redis key prefix for all reply notifications of the user.
+     * Key: prefix + user ID
+     */
+    public static final String USER_REPLY_NOTIFICATIONS_PREFIX = "notification:reply:user:";
+
+    /**
+     * Redis key prefix for the read status of the reply notification of the user.
+     * Key: prefix + user ID
+     */
+    public static final String USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX = "notification:reply:user:is_read";
+
+    /**
      * The key of system notifications
      */
     public static final String SYSTEM_NOTIFICATION = "system:notification";
