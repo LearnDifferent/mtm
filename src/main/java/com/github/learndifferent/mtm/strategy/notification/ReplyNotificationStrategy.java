@@ -4,8 +4,10 @@ import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
+import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
+import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -34,6 +38,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     private final StringRedisTemplate redisTemplate;
     private final BookmarkMapper bookmarkMapper;
     private final CommentMapper commentMapper;
+    private final UserMapper userMapper;
 
     @NotNull
     private String getNotificationsKey(Integer userId) {
@@ -75,6 +80,12 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         updateNotificationReadStatus(notification, false);
     }
 
+    private void markNotificationAsRead(NotificationVO notification) {
+        UUID notificationId = notification.getId();
+        Integer recipientUserId = notification.getRecipientUserId();
+        updateNotificationReadStatus(notificationId, recipientUserId, false);
+    }
+
     @Override
     public void markNotificationAsUnread(NotificationDTO notification) {
         updateNotificationReadStatus(notification, true);
@@ -84,10 +95,14 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         Integer userId = notification.getRecipientUserId();
         UUID notificationId = notification.getId();
 
+        updateNotificationReadStatus(notificationId, userId, isUnread);
+    }
+
+    private void updateNotificationReadStatus(UUID notificationId, Integer recipientUserId, boolean isUnread) {
         // key: prefix + user ID
         // offset: a derived value based on the notification ID
         // indicate the notifications that the user hasn't read yet
-        String key = getReadStatusKey(userId);
+        String key = getReadStatusKey(recipientUserId);
         long offset = getReadStatusOffset(notificationId);
         redisTemplate.opsForValue().setBit(key, offset, isUnread);
     }
@@ -97,7 +112,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         Stream<NotificationDTO> notifications = getNotificationsWithoutReadStatus(userId, loadCount);
         return notifications
                 .map(this::getReadStatusAndGenerateNotificationVO)
-                .peek(this::updateCommentBasedOnConditions)
+                .peek(this::updateCommentAndReadStatusBasedOnConditions)
                 .collect(Collectors.toList());
     }
 
@@ -131,23 +146,55 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         return NotificationVO.of(notification, !isUnread);
     }
 
-    private void updateCommentBasedOnConditions(NotificationVO notification) {
+    private void updateCommentAndReadStatusBasedOnConditions(NotificationVO notification) {
         Integer bookmarkId = notification.getBookmarkId();
         Integer recipientUserId = notification.getRecipientUserId();
 
-        // Unavailable: bookmark does not exist, bookmark has been deleted,
-        // or user has no permission of the bookmark
-        boolean isBookmarkUnavailable = !bookmarkMapper
-                .checkIfBookmarkAvailable(bookmarkId, recipientUserId);
-        if (isBookmarkUnavailable) {
+        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
+        // if the bookmark does not exist
+        boolean isBookmarkNotPresent = Objects.isNull(bookmark);
+        if (isBookmarkNotPresent) {
+            // set message and bookmark ID to null to indicate the bookmark doesn't exist
+            notification.setMessage(null);
+            notification.setBookmarkId(null);
+            // mark as read and set the read status to 'read'
+            notification.setIsRead(true);
+            markNotificationAsRead(notification);
+            return;
+        }
+
+        Boolean bookmarkIsPublic = bookmark.getIsPublic();
+        boolean isPublic = BooleanUtils.isTrue(bookmarkIsPublic);
+
+        boolean hasPermission = isPublic
+                || checkIfRecipientUserIsOwnerOfBookmark(recipientUserId, bookmark);
+        if (!hasPermission) {
+            // if user has no permission of the bookmark
             notification.setMessage(null);
             return;
         }
 
         Integer commentId = notification.getCommentId();
-        // the comment message will be null if the comment does not exist
         String comment = commentMapper.getCommentTextById(commentId);
+        if (StringUtils.isBlank(comment)) {
+            // set message and comment ID to null to indicate the comment doesn't exist
+            notification.setMessage(null);
+            notification.setCommentId(null);
+
+            // mark as read and set the read status to 'read'
+            notification.setIsRead(true);
+            markNotificationAsRead(notification);
+            return;
+        }
+
+        // set the comment message if nothing wrong
         notification.setMessage(comment);
+    }
+
+    private boolean checkIfRecipientUserIsOwnerOfBookmark(Integer recipientUserId, BookmarkDO bookmark) {
+        String bookmarkOwnerUsername = bookmark.getUserName();
+        Integer bookmarkOwnerUserId = userMapper.getUserIdByUsername(bookmarkOwnerUsername);
+        return recipientUserId.equals(bookmarkOwnerUserId);
     }
 
 }
