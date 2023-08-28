@@ -8,7 +8,6 @@ import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
-import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.strategy.notification.NotificationStrategyContext;
@@ -83,16 +82,12 @@ public class NotificationManager {
         return Optional.ofNullable(notificationCount).orElse(0L);
     }
 
-    public void markReplyNotification(ReplyNotificationDTO data, boolean isUnread) {
-        String receiveUsername = data.getReceiveUsername();
-        String key = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
+    public void markReplyNotificationAsRead(NotificationDTO notification) {
+        notificationStrategyContext.markNotificationAsRead(notification);
+    }
 
-        // use the hashcode of the ReplyNotificationDTO as the offset
-        int offset = Math.abs(data.hashCode());
-
-        // set the value to 'true' to indicate the reply has NOT been read
-        // set the value to 'false' to indicate the reply has been read
-        this.redisTemplate.opsForValue().setBit(key, offset, isUnread);
+    public void markReplyNotificationAsUnread(NotificationDTO notification) {
+        notificationStrategyContext.markNotificationAsUnread(notification);
     }
 
     public void deleteReplyNotification(DeleteReplyNotificationRequest data) {

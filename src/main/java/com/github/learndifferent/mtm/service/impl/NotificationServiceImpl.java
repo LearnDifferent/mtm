@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.service.impl;
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
@@ -48,13 +48,13 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void markReplyNotificationAsRead(ReplyNotificationDTO data) {
-        notificationManager.markReplyNotification(data, false);
+    public void markReplyNotificationAsRead(NotificationDTO data) {
+        notificationManager.markReplyNotificationAsRead(data);
     }
 
     @Override
-    public void markReplyNotificationAsUnread(ReplyNotificationDTO data) {
-        notificationManager.markReplyNotification(data, true);
+    public void markReplyNotificationAsUnread(NotificationDTO data) {
+        notificationManager.markReplyNotificationAsUnread(data);
     }
 
     @Override

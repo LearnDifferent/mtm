@@ -4,7 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
@@ -92,7 +92,7 @@ public class NotificationController {
      * @param data notification data
      */
     @PostMapping("/reply/read")
-    public void markReplyNotificationAsRead(@RequestBody ReplyNotificationDTO data) {
+    public void markReplyNotificationAsRead(@RequestBody NotificationDTO data) {
         notificationService.markReplyNotificationAsRead(data);
     }
 
@@ -102,7 +102,7 @@ public class NotificationController {
      * @param data notification data
      */
     @PostMapping("/reply/unread")
-    public void markReplyNotificationAsUnread(@RequestBody ReplyNotificationDTO data) {
+    public void markReplyNotificationAsUnread(@RequestBody NotificationDTO data) {
         notificationService.markReplyNotificationAsUnread(data);
     }
 

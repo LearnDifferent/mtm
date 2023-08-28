@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
-import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
+import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
@@ -36,14 +36,14 @@ public interface NotificationService {
      *
      * @param data notification data
      */
-    void markReplyNotificationAsRead(ReplyNotificationDTO data);
+    void markReplyNotificationAsRead(NotificationDTO data);
 
     /**
      * Mark the reply notification as unread
      *
      * @param data notification data
      */
-    void markReplyNotificationAsUnread(ReplyNotificationDTO data);
+    void markReplyNotificationAsUnread(NotificationDTO data);
 
     /**
      * Get reply notifications
