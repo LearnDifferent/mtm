@@ -74,8 +74,8 @@ public class NotificationManager {
         return Optional.ofNullable(size).orElse(0L);
     }
 
-    public long countUnreadReplies(String receiveUsername) {
-        String key = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
+    public long countUnreadReplies(Integer recipientUserId) {
+        String key = KeyConstant.USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX + recipientUserId;
 
         Long notificationCount = redisTemplate.execute(
                 (RedisCallback<Long>) connection -> connection.bitCount(key.getBytes()));

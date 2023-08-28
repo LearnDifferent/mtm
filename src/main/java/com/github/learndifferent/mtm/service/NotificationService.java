@@ -25,10 +25,11 @@ public interface NotificationService {
     /**
      * Calculate the count of current user's unread replies
      *
-     * @param receiveUsername username
-     * @return Return the number of unread replies, or return 0 if the user turned off notifications
+     * @param recipientUsername username
+     * @return Return the number of unread replies
+     * <p>If the user turned off notifications, return 0</p>
      */
-    long countUnreadReplies(String receiveUsername);
+    long countUnreadReplies(String recipientUsername);
 
     /**
      * Mark the reply notification as read
