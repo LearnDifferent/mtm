@@ -11,7 +11,7 @@ import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ShortenUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import com.github.learndifferent.mtm.vo.ReplyMessageNotificationAndItsReadStatusVO;
+import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,12 +53,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<ReplyMessageNotificationAndItsReadStatusVO> getReplyNotifications(String receiveUsername, int size) {
-        boolean illegalSize = size <= 0;
-        ThrowExceptionUtils.throwIfTrue(illegalSize, ResultCode.NO_RESULTS_FOUND);
-
-        int lastIndex = size - 1;
-        return notificationManager.getReplyMessageNotification(receiveUsername, 0, lastIndex);
+    public List<NotificationVO> getReplyNotifications(String recipientUsername, int loadCount) {
+        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
+        return notificationManager.getReplyNotifications(recipientUserId, loadCount);
     }
 
     @Override
@@ -100,7 +97,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public String generateRoleChangeNotification(String username) {
-        String userId = userMapper.getUserIdByName(username);
+        Integer userId = userMapper.getUserIdByUsername(username);
 
         return Optional.ofNullable(userId)
                 // generate a user role change notification by user ID
@@ -111,8 +108,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void deleteRoleChangeNotification(String username) {
-        String userId = userMapper.getUserIdByName(username);
-        if (Objects.isNull(userId)) {
+        Integer userId = userMapper.getUserIdByUsername(username);
+        if (Objects.isNull(userId) || userId <= 0) {
             return;
         }
         notificationManager.deleteRoleChangeNotification(userId);

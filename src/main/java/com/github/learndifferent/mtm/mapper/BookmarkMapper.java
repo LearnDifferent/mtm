@@ -186,12 +186,12 @@ public interface BookmarkMapper {
     boolean updateBookmark(BookmarkDO updatedBookmark);
 
     /**
-     * Get the username of the user who owns the bookmark
+     * Retrieve the user ID of the bookmark owner
      *
-     * @param id ID of the bookmark
-     * @return username of the user who owns the bookmark
+     * @param bookmarkId ID of the bookmark
+     * @return user ID of the bookmark owner
      */
-    String getBookmarkOwnerName(int id);
+    Integer getBookmarkOwnerUserId(int bookmarkId);
 
     /**
      * Get visited bookmarks
@@ -229,4 +229,15 @@ public interface BookmarkMapper {
      * @return bookmark
      */
     BookmarkDO getBookmarkById(Integer id);
+
+    /**
+     * Check if the bookmark exists, bookmark has not been deleted
+     * and user has the permission of the bookmark
+     *
+     * @param bookmarkId ID of the bookmark
+     * @param userId     ID of the user
+     * @return return true if the bookmark exists and has not been deleted
+     */
+    boolean checkIfBookmarkAvailable(@Param("bookmarkId") Integer bookmarkId,
+                                     @Param("userId") Integer userId);
 }

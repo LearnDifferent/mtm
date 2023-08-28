@@ -203,6 +203,14 @@
           and is_deleted = 0 limit 1;
     </select>
 
+    <select id="getBookmarkOwnerUserId" resultType="java.lang.Integer">
+        select u.id
+        from bookmark b
+                 left join user u on b.user_name = u.user_name
+        where b.id = #{bookmarkId,jdbcType=INTEGER}
+          and b.is_deleted = 0 limit 1;
+    </select>
+
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarkVO">
         select b.user_name, b.title, b.url, b.is_public, v.bookmark_id, v.views
         from bookmark_view v
@@ -255,5 +263,16 @@
         from bookmark
         where id = #{id,jdbcType=INTEGER}
           and is_deleted = 0;
+    </select>
+
+    <select id="checkIfBookmarkAvailable" resultType="boolean">
+        select exists(
+                       select null
+                       from bookmark b
+                                left join user u on b.user_name = u.user_name
+                       where b.is_deleted = 0
+                         and b.id = #{bookmarkId}
+                         and (b.is_public = 1 or u.id = #{userId})
+                   )
     </select>
 </mapper>

@@ -4,24 +4,20 @@ import static com.github.learndifferent.mtm.constant.enums.UserRole.ADMIN;
 import static com.github.learndifferent.mtm.constant.enums.UserRole.USER;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
-import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.dto.ReplyNotificationDTO;
-import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.CommentDO;
-import com.github.learndifferent.mtm.entity.ReplyNotification;
-import com.github.learndifferent.mtm.mapper.BookmarkMapper;
-import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
+import com.github.learndifferent.mtm.strategy.notification.NotificationStrategyContext;
 import com.github.learndifferent.mtm.utils.JsonUtils;
-import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import com.github.learndifferent.mtm.vo.ReplyMessageNotificationAndItsReadStatusVO;
+import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisCallback;
@@ -42,8 +38,26 @@ import org.springframework.util.CollectionUtils;
 public class NotificationManager {
 
     private final StringRedisTemplate redisTemplate;
-    private final CommentMapper commentMapper;
-    private final BookmarkMapper bookmarkMapper;
+    private final NotificationStrategyContext notificationStrategyContext;
+
+    public void sendReplyNotification(CommentDO comment) {
+        Integer commentId = comment.getId();
+        Integer bookmarkId = comment.getBookmarkId();
+        Integer replyToCommentId = comment.getReplyToCommentId();
+        String commentMessage = comment.getComment();
+
+        String sendUsername = comment.getUsername();
+        Instant creationTime = comment.getCreationTime();
+
+        NotificationDTO notification = NotificationDTO.ofNewReplyNotification(
+                sendUsername, commentMessage, creationTime, commentId, bookmarkId, replyToCommentId);
+        notificationStrategyContext.sendNotification(notification);
+    }
+
+    public List<NotificationVO> getReplyNotifications(Integer recipientUserId, int loadCount) {
+        return notificationStrategyContext.getNotifications(
+                NotificationType.REPLY_NOTIFICATION, recipientUserId, loadCount);
+    }
 
     /**
      * Delete {@code key}
@@ -69,97 +83,6 @@ public class NotificationManager {
         return Optional.ofNullable(notificationCount).orElse(0L);
     }
 
-    /**
-     * Get reply notifications
-     *
-     * @param receiveUsername username
-     * @param from            from
-     * @param lastIndex       to
-     * @return reply notifications
-     */
-    public List<ReplyMessageNotificationAndItsReadStatusVO> getReplyMessageNotification(String receiveUsername,
-                                                                                        int from,
-                                                                                        int lastIndex) {
-        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
-        List<String> notifications = this.redisTemplate.opsForList().range(key, from, lastIndex);
-
-        boolean hasNoNotifications = CollectionUtils.isEmpty(notifications);
-        ThrowExceptionUtils.throwIfTrue(hasNoNotifications, ResultCode.NO_RESULTS_FOUND);
-
-        return notifications.stream()
-                .map(this::getReplyMessageNotification)
-                .collect(Collectors.toList());
-    }
-
-    private ReplyMessageNotificationAndItsReadStatusVO getReplyMessageNotification(String notification) {
-        ReplyMessageNotificationAndItsReadStatusVO no = JsonUtils
-                .toObject(notification, ReplyMessageNotificationAndItsReadStatusVO.class);
-        // get the message
-        String text = getCommentTextIfBookmarkAndCommentExist(no);
-        no.setMessage(text);
-
-        // get the read status
-        boolean isRead = getReplyReadStatus(notification);
-        no.setIsRead(isRead);
-        return no;
-    }
-
-    private boolean getReplyReadStatus(String notification) {
-        ReplyNotification data = JsonUtils.toObject(notification, ReplyNotification.class);
-
-        String receiveUsername = data.getReceiveUsername();
-        String key = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
-        long offset = Math.abs(data.hashCode());
-
-        Boolean hasNotRead = redisTemplate.opsForValue().getBit(key, offset);
-        return !Optional.ofNullable(hasNotRead).orElse(true);
-    }
-
-    private String getCommentTextIfBookmarkAndCommentExist(ReplyMessageNotificationAndItsReadStatusVO notificationData) {
-
-        Integer bookmarkId = notificationData.getBookmarkId();
-        // include private bookmarks because another method
-        // that views the details will verify the permission later on
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
-
-        boolean isNotExists = Objects.isNull(bookmark);
-
-        // if the bookmark does not exist,
-        // returns null to indicate that the comment does not exist
-        return isNotExists ? null : getCommentTextFromNotification(notificationData);
-    }
-
-    private String getCommentTextFromNotification(ReplyMessageNotificationAndItsReadStatusVO notification) {
-        int commentId = notification.getCommentId();
-        // the result is null if the comment does not exist
-        return this.commentMapper.getCommentTextById(commentId);
-    }
-
-    /**
-     * Send reply notification and increase notification count
-     *
-     * @param comment comment / reply to send
-     */
-    public void sendReplyNotification(CommentDO comment) {
-
-        ReplyNotificationDTO notification = getReplyNotificationDTO(comment);
-
-        String receiveUsername = notification.getReceiveUsername();
-        String receiveInfo = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
-
-        String notificationContent = JsonUtils.toJson(notification);
-        this.redisTemplate.opsForList().leftPush(receiveInfo, notificationContent);
-
-        // increase reply notification count
-        // key: prefix + username
-        // offset: hashcode of the ReplyNotificationDTO (absolute value)
-        // value: true if user has not read the reply / true if the reply should be read by the user
-        String replyToReadKey = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
-        int replyToReadOffset = Math.abs(notification.hashCode());
-
-        this.redisTemplate.opsForValue().setBit(replyToReadKey, replyToReadOffset, true);
-    }
-
     public void markReplyNotification(ReplyNotificationDTO data, boolean isUnread) {
         String receiveUsername = data.getReceiveUsername();
         String key = KeyConstant.USER_REPLY_TO_READ + receiveUsername.toLowerCase();
@@ -170,32 +93,6 @@ public class NotificationManager {
         // set the value to 'true' to indicate the reply has NOT been read
         // set the value to 'false' to indicate the reply has been read
         this.redisTemplate.opsForValue().setBit(key, offset, isUnread);
-    }
-
-    private ReplyNotificationDTO getReplyNotificationDTO(CommentDO comment) {
-
-        Integer commentId = comment.getId();
-        Integer bookmarkId = comment.getBookmarkId();
-        Integer replyToCommentId = comment.getReplyToCommentId();
-
-        // the notification belongs to the owner of the bookmark data if replyToCommentId is null,
-        // and belongs to the owner of the comment data if it's not null
-        boolean shouldNotifyBookmarkOwner = Objects.isNull(replyToCommentId);
-        String receiveUsername =
-                shouldNotifyBookmarkOwner ? this.bookmarkMapper.getBookmarkOwnerName(bookmarkId)
-                        : this.commentMapper.getCommentSenderName(replyToCommentId);
-
-        String sendUsername = comment.getUsername();
-        Instant creationTime = comment.getCreationTime();
-
-        return ReplyNotificationDTO.builder()
-                .creationTime(creationTime)
-                .receiveUsername(receiveUsername)
-                .sendUsername(sendUsername)
-                .commentId(commentId)
-                .bookmarkId(bookmarkId)
-                .replyToCommentId(replyToCommentId)
-                .build();
     }
 
     public void deleteReplyNotification(DeleteReplyNotificationRequest data) {
@@ -327,7 +224,7 @@ public class NotificationManager {
      * @param userId ID of the user
      * @return return the notification or an empty string if the user role is not changed
      */
-    public String generateRoleChangeNotification(String userId) {
+    public String generateRoleChangeNotification(Integer userId) {
         String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
 
         Object newRoleObject = this.redisTemplate.opsForHash().get(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY);
@@ -370,7 +267,7 @@ public class NotificationManager {
      *
      * @param userId ID of the user
      */
-    public void deleteRoleChangeNotification(String userId) {
+    public void deleteRoleChangeNotification(Integer userId) {
         String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
         this.deleteByKey(key);
     }

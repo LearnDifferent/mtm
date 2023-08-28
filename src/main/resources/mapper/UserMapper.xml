@@ -119,12 +119,11 @@
           and is_deleted = 0
         limit 1;
     </select>
-    <select id="getUserIdByName" resultType="java.lang.String">
+    <select id="getUserIdByUsername" resultType="java.lang.Integer">
         select id
         from user
         where user_name = #{username}
-          and is_deleted = 0
-        limit 1;
+          and is_deleted = 0 limit 1;
     </select>
     <select id="searchUserDataByKeyword"
             resultType="com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo">

@@ -127,7 +127,7 @@ public interface UserMapper {
      * @param username username
      * @return User ID or null if there is no user with that username
      */
-    String getUserIdByName(String username);
+    Integer getUserIdByUsername(String username);
 
     /**
      * Search user data by keyword

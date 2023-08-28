@@ -23,12 +23,12 @@ public interface CommentMapper {
     CommentDO getCommentById(int id);
 
     /**
-     * Get username of the user who sent the comment
+     * Retrieve the ID of the user who sent the comment
      *
-     * @param id ID of the comment
-     * @return username of the user who sent the comment
+     * @param commentId ID of the comment
+     * @return ID of the user who sent the comment
      */
-    String getCommentSenderName(int id);
+    Integer getCommentSenderUserId(int commentId);
 
     /**
      * Check if a comment exists

@@ -9,7 +9,7 @@ import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
-import com.github.learndifferent.mtm.vo.ReplyMessageNotificationAndItsReadStatusVO;
+import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
 import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -42,23 +42,20 @@ public class NotificationController {
     /**
      * Get reply notifications
      *
-     * @param size size of the reply notification list
+     * @param loadCount size of the reply notification list
      * @return Reply message notification and its read status
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotificationService#getReplyNotifications(String,
      *                                                                  int)} will throw an exception with
      *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
      *                                                                  if there is no notifications found
      */
-    @GetMapping
-    public List<ReplyMessageNotificationAndItsReadStatusVO> getReplyNotifications(
-            @RequestParam(value = "size", defaultValue = "10")
-            @Positive(message = ErrorInfoConstant.NO_DATA) int size) {
+    @GetMapping("/reply")
+    public List<NotificationVO> getReplyNotifications(
+            @RequestParam(value = "loadCount", defaultValue = "10")
+            @Positive(message = ErrorInfoConstant.NO_DATA) int loadCount) {
 
         String username = StpUtil.getLoginIdAsString();
-        List<ReplyMessageNotificationAndItsReadStatusVO> replyNotifications = notificationService.getReplyNotifications(
-                username, size);
-        log.info("replyNotifications: {}", replyNotifications);
-        return replyNotifications;
+        return notificationService.getReplyNotifications(username, loadCount);
     }
 
     /**
@@ -82,7 +79,7 @@ public class NotificationController {
      *
      * @return number of unread replies
      */
-    @GetMapping("/reply")
+    @GetMapping("/reply/count")
     public ResultVO<Long> countUnreadReplies() {
         String currentUsername = StpUtil.getLoginIdAsString();
         long count = notificationService.countUnreadReplies(currentUsername);

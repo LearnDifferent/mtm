@@ -27,26 +27,25 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class NotificationDTO implements Serializable {
 
-    public static NotificationDTO ofReplyNotification(String sender,
-                                                      String message,
-                                                      Integer recipientUserId,
-                                                      Integer commentId,
-                                                      Integer bookmarkId,
-                                                      Integer replyToCommentId) {
+    public static NotificationDTO ofNewReplyNotification(String sender,
+                                                         String message,
+                                                         Instant creationTime,
+                                                         Integer commentId,
+                                                         Integer bookmarkId,
+                                                         Integer replyToCommentId) {
         return NotificationDTO.builder()
                 .id(UUID.randomUUID())
                 .notificationType(NotificationType.REPLY_NOTIFICATION)
                 .message(message)
-                .creationTime(Instant.now())
+                .creationTime(creationTime)
                 .sender(sender)
-                .recipientUserId(recipientUserId)
                 .commentId(commentId)
                 .bookmarkId(bookmarkId)
                 .replyToCommentId(replyToCommentId)
                 .build();
     }
 
-    public static NotificationDTO ofSystemNotification(String sender, String message) {
+    public static NotificationDTO ofNewSystemNotification(String sender, String message) {
         return NotificationDTO.builder()
                 .id(UUID.randomUUID())
                 .notificationType(NotificationType.SYSTEM_NOTIFICATION)

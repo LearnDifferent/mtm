@@ -4,10 +4,13 @@ import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
+import com.github.learndifferent.mtm.mapper.BookmarkMapper;
+import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,6 +32,8 @@ import org.springframework.stereotype.Component;
 public class ReplyNotificationStrategy implements NotificationStrategy {
 
     private final StringRedisTemplate redisTemplate;
+    private final BookmarkMapper bookmarkMapper;
+    private final CommentMapper commentMapper;
 
     @NotNull
     private String getNotificationsKey(Integer userId) {
@@ -41,14 +46,24 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private long getReadStatusOffset(UUID notificationId) {
-        return Math.abs(notificationId.getMostSignificantBits());
+        return Math.abs(notificationId.hashCode());
     }
 
     @Override
     public void sendNotification(NotificationDTO notification) {
+        Integer replyToCommentId = notification.getReplyToCommentId();
+        Integer bookmarkId = notification.getBookmarkId();
+
+        // the notification belongs to the owner of the bookmark data if replyToCommentId is null,
+        // and belongs to the owner of the comment data if it's not null
+        boolean shouldNotifyBookmarkOwner = Objects.isNull(replyToCommentId);
+        Integer recipientUserId =
+                shouldNotifyBookmarkOwner ? bookmarkMapper.getBookmarkOwnerUserId(bookmarkId)
+                        : commentMapper.getCommentSenderUserId(replyToCommentId);
+        notification.setRecipientUserId(recipientUserId);
+
         // push the notification to the list
-        Integer userId = notification.getRecipientUserId();
-        String key = getNotificationsKey(userId);
+        String key = getNotificationsKey(recipientUserId);
         String content = JsonUtils.toJson(notification);
         redisTemplate.opsForList().leftPush(key, content);
         // mark it as unread
@@ -82,6 +97,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         Stream<NotificationDTO> notifications = getNotificationsWithoutReadStatus(userId, loadCount);
         return notifications
                 .map(this::getReadStatusAndGenerateNotificationVO)
+                .peek(this::updateCommentBasedOnConditions)
                 .collect(Collectors.toList());
     }
 
@@ -113,6 +129,25 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         boolean isUnread = Optional.ofNullable(result).orElse(false);
 
         return NotificationVO.of(notification, !isUnread);
+    }
+
+    private void updateCommentBasedOnConditions(NotificationVO notification) {
+        Integer bookmarkId = notification.getBookmarkId();
+        Integer recipientUserId = notification.getRecipientUserId();
+
+        // Unavailable: bookmark does not exist, bookmark has been deleted,
+        // or user has no permission of the bookmark
+        boolean isBookmarkUnavailable = !bookmarkMapper
+                .checkIfBookmarkAvailable(bookmarkId, recipientUserId);
+        if (isBookmarkUnavailable) {
+            notification.setMessage(null);
+            return;
+        }
+
+        Integer commentId = notification.getCommentId();
+        // the comment message will be null if the comment does not exist
+        String comment = commentMapper.getCommentTextById(commentId);
+        notification.setMessage(comment);
     }
 
 }

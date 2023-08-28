@@ -19,24 +19,29 @@
                if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
         from comment
         where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0
-        limit 1;
+          and is_deleted = 0 limit 1;
     </select>
 
     <select id="getCommentSenderName" resultType="java.lang.String">
         select username
         from comment
         where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0
-        limit 1;
+          and is_deleted = 0 limit 1;
+    </select>
+
+    <select id="getCommentSenderUserId" resultType="java.lang.Integer">
+        select u.id
+        from comment c
+                 left join user u on c.username = u.user_name
+        where id = #{commentId,jdbcType=INTEGER}
+          and is_deleted = 0 limit 1;
     </select>
 
     <select id="getCommentTextById" resultType="java.lang.String">
         select `comment`
         from comment
         where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0
-        limit 1;
+          and is_deleted = 0 limit 1;
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
