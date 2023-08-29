@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.strategy.notification;
 
 import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
+import com.github.learndifferent.mtm.constant.enums.NotificationAccessStatus;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
@@ -145,6 +146,8 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
             // mark as read and set the read status to 'read'
             notification.setIsRead(true);
             markNotificationAsRead(notification);
+            // set access status
+            notification.setAccessStatus(NotificationAccessStatus.BOOKMARK_NOT_EXIST);
             return;
         }
 
@@ -156,6 +159,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         if (!hasPermission) {
             // if user has no permission of the bookmark
             notification.setMessage(null);
+            notification.setAccessStatus(NotificationAccessStatus.UNAUTHORIZED);
             return;
         }
 
@@ -168,12 +172,14 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
             // mark as read and set the read status to 'read'
             notification.setIsRead(true);
+            notification.setAccessStatus(NotificationAccessStatus.COMMENT_NOT_EXIST);
             markNotificationAsRead(notification);
             return;
         }
 
         // set the comment message if nothing wrong
         notification.setMessage(comment);
+        notification.setAccessStatus(NotificationAccessStatus.ACCESSIBLE);
     }
 
     private boolean checkIfRecipientUserIsOwnerOfBookmark(Integer recipientUserId, BookmarkDO bookmark) {

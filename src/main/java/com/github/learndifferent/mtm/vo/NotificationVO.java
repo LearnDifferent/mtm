@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.learndifferent.mtm.config.CustomInstantDeserializer;
 import com.github.learndifferent.mtm.config.CustomInstantSerializer;
+import com.github.learndifferent.mtm.constant.enums.NotificationAccessStatus;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.utils.BeanUtils;
@@ -107,6 +108,11 @@ public class NotificationVO implements Serializable {
      * True if the notification is read
      */
     private Boolean isRead;
+
+    /**
+     * Access status
+     */
+    private NotificationAccessStatus accessStatus;
 
     private static final long serialVersionUID = 1L;
 }
