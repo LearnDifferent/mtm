@@ -5,7 +5,6 @@ import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyC
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
-import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
@@ -56,22 +55,6 @@ public class NotificationController {
 
         String username = StpUtil.getLoginIdAsString();
         return notificationService.getReplyNotifications(username, loadCount);
-    }
-
-    /**
-     * Delete a reply notification
-     *
-     * @param data Request body that contains the data of the reply notification to delete
-     * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception with the result code of
-     *                                                                  {@link ResultCode#PERMISSION_DENIED} if
-     *                                                                  the user that is currently logged in is not
-     *                                                                  the owner of the notification to delete
-     */
-    @PostMapping
-    @IdempotencyCheck
-    public void deleteReplyNotification(@RequestBody DeleteReplyNotificationRequest data) {
-        String currentUsername = StpUtil.getLoginIdAsString();
-        notificationService.deleteReplyNotification(data, currentUsername);
     }
 
     /**

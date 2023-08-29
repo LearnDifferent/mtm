@@ -2,7 +2,6 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
-import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
 
@@ -17,10 +16,10 @@ public interface NotificationService {
     /**
      * Count the total number of reply notifications
      *
-     * @param receiveUsername username
+     * @param recipientUsername username
      * @return total number of reply notifications
      */
-    long countReplyNotifications(String receiveUsername);
+    long countReplyNotifications(String recipientUsername);
 
     /**
      * Calculate the count of current user's unread replies
@@ -56,19 +55,6 @@ public interface NotificationService {
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
      */
     List<NotificationVO> getReplyNotifications(String recipientUsername, int loadCount);
-
-    /**
-     * Delete a reply notification
-     *
-     * @param data     notification data to delete
-     * @param username username of the user who is deleting the notification
-     * @throws com.github.learndifferent.mtm.exception.ServiceException throw an exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
-     *                                                                  PERMISSION_DENIED} if the user who is deleting
-     *                                                                  the notification is not the owner of the
-     *                                                                  notification to delete
-     */
-    void deleteReplyNotification(DeleteReplyNotificationRequest data, String username);
 
     /**
      * Delete all system notifications and remove all saved usernames of users

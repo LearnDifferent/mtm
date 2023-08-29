@@ -9,9 +9,8 @@ import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
-import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.strategy.notification.NotificationStrategyContext;
-import com.github.learndifferent.mtm.utils.JsonUtils;
+import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.time.Instant;
 import java.util.List;
@@ -58,23 +57,14 @@ public class NotificationManager {
                 NotificationType.REPLY_NOTIFICATION, recipientUserId, loadCount);
     }
 
-    /**
-     * Delete {@code key}
-     *
-     * @param key redis key
-     */
-    public void deleteByKey(String key) {
-        this.redisTemplate.delete(key);
-    }
-
-    public long countReplyNotifications(String receiveUsername) {
-        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
+    public long countReplyNotifications(Integer recipientUserId) {
+        String key = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
         Long size = this.redisTemplate.opsForList().size(key);
         return Optional.ofNullable(size).orElse(0L);
     }
 
     public long countUnreadReplies(Integer recipientUserId) {
-        String key = KeyConstant.USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX + recipientUserId;
+        String key = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
 
         Long notificationCount = redisTemplate.execute(
                 (RedisCallback<Long>) connection -> connection.bitCount(key.getBytes()));
@@ -90,11 +80,21 @@ public class NotificationManager {
         notificationStrategyContext.markNotificationAsUnread(notification);
     }
 
-    public void deleteReplyNotification(DeleteReplyNotificationRequest data) {
-        String receiveUsername = data.getReceiveUsername();
-        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + receiveUsername.toLowerCase();
-        String value = JsonUtils.toJson(data);
-        this.redisTemplate.opsForList().remove(key, 1, value);
+    public void deleteReplyNotificationData(Integer recipientUserId) {
+        String replyNotificationKey = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
+        redisTemplate.delete(replyNotificationKey);
+
+        String replyNotificationReadStatusKey = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
+        redisTemplate.delete(replyNotificationReadStatusKey);
+    }
+
+    /**
+     * Delete {@code key}
+     *
+     * @param key redis key
+     */
+    public void deleteByKey(String key) {
+        this.redisTemplate.delete(key);
     }
 
     /**
@@ -239,14 +239,14 @@ public class NotificationManager {
         try {
             UserRole newRole = UserRole.valueOf(newRoleString.toUpperCase());
             UserRole formerRole = UserRole.valueOf(formerRoleString.toUpperCase());
-            return compareAndReturnNotification(newRole, formerRole);
+            return compareAndReturnRoleChangeNotification(newRole, formerRole);
         } catch (IllegalArgumentException e) {
             log.error("Return empty string if the role is illegal", e);
             return "";
         }
     }
 
-    private String compareAndReturnNotification(UserRole newRole, UserRole formerRole) {
+    private String compareAndReturnRoleChangeNotification(UserRole newRole, UserRole formerRole) {
         String notification = "";
         if (USER.equals(formerRole) && ADMIN.equals(newRole)) {
             notification = "Your account has been upgraded to Admin by Administer";

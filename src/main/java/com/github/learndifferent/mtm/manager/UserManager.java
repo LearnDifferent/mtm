@@ -3,7 +3,6 @@ package com.github.learndifferent.mtm.manager;
 import com.github.learndifferent.mtm.annotation.common.Password;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.user.create.UserCreationCheck;
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
@@ -73,7 +72,7 @@ public class UserManager {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean deleteAllDataRelatedToUser(String username, String notEncryptedPassword) {
 
-        int id = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
+        int userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
 
         // Delete bookmarks related to the user
         bookmarkMapper.deleteUserBookmarks(username);
@@ -81,15 +80,14 @@ public class UserManager {
         commentMapper.deleteCommentsByUsername(username);
 
         // Delete all notifications related to the user (Redis don't need transaction in this situation)
-        String key = KeyConstant.REPLY_NOTIFICATION_PREFIX + username.toLowerCase();
-        notificationManager.deleteByKey(key);
+        notificationManager.deleteReplyNotificationData(userId);
         notificationManager.deleteFromReadSysNot(username);
 
         // Remove user data from Elasticsearch asynchronously
-        searchManager.removeUserFromElasticsearchAsync(id);
+        searchManager.removeUserFromElasticsearchAsync(userId);
 
         // Remove user data from database (false if the user does not exist)
-        return userMapper.deleteUserByUserId(id);
+        return userMapper.deleteUserByUserId(userId);
     }
 
     /**

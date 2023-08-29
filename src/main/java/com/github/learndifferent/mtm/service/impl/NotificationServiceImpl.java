@@ -2,15 +2,11 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
-import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.query.DeleteReplyNotificationRequest;
 import com.github.learndifferent.mtm.service.NotificationService;
-import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ShortenUtils;
-import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
 import java.util.Objects;
@@ -32,8 +28,9 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserMapper userMapper;
 
     @Override
-    public long countReplyNotifications(String receiveUsername) {
-        return notificationManager.countReplyNotifications(receiveUsername);
+    public long countReplyNotifications(String recipientUsername) {
+        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
+        return notificationManager.countReplyNotifications(recipientUserId);
     }
 
     @Override
@@ -63,14 +60,6 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationManager.getReplyNotifications(recipientUserId, loadCount);
     }
 
-    @Override
-    public void deleteReplyNotification(DeleteReplyNotificationRequest data, String username) {
-        String receiveUsername = data.getReceiveUsername();
-        boolean notOwner = CustomStringUtils.notEqualsIgnoreCase(receiveUsername, username);
-        ThrowExceptionUtils.throwIfTrue(notOwner, ResultCode.PERMISSION_DENIED);
-
-        notificationManager.deleteReplyNotification(data);
-    }
 
     @Override
     public void deleteSystemNotifications() {

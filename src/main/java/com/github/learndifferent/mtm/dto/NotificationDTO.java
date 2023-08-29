@@ -70,6 +70,8 @@ public class NotificationDTO implements Serializable {
      * The message of the notification
      * <p>Null if the bookmark, comment or reply has been deleted
      * when the notification is a reply (or comment) notification</p>
+     * <p>If the bookmark ID is not null and the message is null,
+     * the user has no permission of the bookmark</p>
      */
     private String message;
 
@@ -104,11 +106,15 @@ public class NotificationDTO implements Serializable {
 
     /**
      * ID of the comment
+     * <p>If the comment ID is null ,the comment doesn't exist</p>
      */
     private Integer commentId;
 
     /**
      * ID of the bookmark
+     * <p>If the bookmark ID is null, the bookmark doesn't exist.</p>
+     * <p>If the bookmark ID is not null and the message is null,
+     * the user has no permission of the bookmark</p>
      */
     private Integer bookmarkId;
 

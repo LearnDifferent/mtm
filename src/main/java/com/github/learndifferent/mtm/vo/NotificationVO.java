@@ -7,6 +7,7 @@ import com.github.learndifferent.mtm.config.CustomInstantSerializer;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.utils.BeanUtils;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ import lombok.experimental.Accessors;
 @Builder
 @Data
 @Accessors(chain = true)
-public class NotificationVO {
+public class NotificationVO implements Serializable {
 
     public static NotificationVO of(NotificationDTO notification, boolean isRead) {
         NotificationVO data = BeanUtils.convert(notification, NotificationVO.class);
@@ -67,7 +68,6 @@ public class NotificationVO {
      * it represents the sender of the system notification.
      */
     private String sender;
-
 
     /**
      * When the {@link NotificationType} is {@link NotificationType#REPLY_NOTIFICATION},
