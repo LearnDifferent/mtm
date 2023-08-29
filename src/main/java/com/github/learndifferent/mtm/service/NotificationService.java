@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
+import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.vo.NotificationVO;
@@ -45,16 +46,17 @@ public interface NotificationService {
     void markReplyNotificationAsUnread(NotificationDTO data);
 
     /**
-     * Get reply notifications
+     * Get notifications
      *
-     * @param recipientUsername Username of the recipient who will receive the reply notification
+     * @param notificationType  Notification type
+     * @param recipientUsername Username of the recipient who will receive the notifications
      * @param loadCount         Number of notifications to be loaded
-     * @return List of reply notifications
+     * @return List of notifications
      * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
      *                                                                  exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
      */
-    List<NotificationVO> getReplyNotifications(String recipientUsername, int loadCount);
+    List<NotificationVO> getNotifications(NotificationType notificationType, String recipientUsername, int loadCount);
 
     /**
      * Delete all system notifications and remove all saved usernames of users

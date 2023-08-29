@@ -52,9 +52,15 @@ public class NotificationManager {
         notificationStrategyContext.sendNotification(notification);
     }
 
-    public List<NotificationVO> getReplyNotifications(Integer recipientUserId, int loadCount) {
-        return notificationStrategyContext.getNotifications(
-                NotificationType.REPLY_NOTIFICATION, recipientUserId, loadCount);
+    public void sendSystemNotification(String sender, String message) {
+        NotificationDTO notification = NotificationDTO.ofNewSystemNotification(sender, message);
+        notificationStrategyContext.sendNotification(notification);
+    }
+
+    public List<NotificationVO> getReplyNotifications(NotificationType notificationType,
+                                                      Integer recipientUserId,
+                                                      int loadCount) {
+        return notificationStrategyContext.getNotifications(notificationType, recipientUserId, loadCount);
     }
 
     public long countReplyNotifications(Integer recipientUserId) {

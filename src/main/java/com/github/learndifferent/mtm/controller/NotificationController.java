@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
+import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
@@ -39,22 +40,23 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     /**
-     * Get reply notifications
+     * Get notifications
      *
-     * @param loadCount size of the reply notification list
-     * @return Reply message notification and its read status
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotificationService#getReplyNotifications(String,
-     *                                                                  int)} will throw an exception with
-     *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
-     *                                                                  if there is no notifications found
+     * @param notificationType Notification type
+     * @param loadCount        Number of notifications to be loaded
+     * @return List of notifications
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
+     *                                                                  exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
      */
-    @GetMapping("/reply")
-    public List<NotificationVO> getReplyNotifications(
+    @GetMapping
+    public List<NotificationVO> getNotifications(
+            @RequestParam(value = "notificationType") NotificationType notificationType,
             @RequestParam(value = "loadCount", defaultValue = "10")
             @Positive(message = ErrorInfoConstant.NO_DATA) int loadCount) {
 
         String username = StpUtil.getLoginIdAsString();
-        return notificationService.getReplyNotifications(username, loadCount);
+        return notificationService.getNotifications(notificationType, username, loadCount);
     }
 
     /**

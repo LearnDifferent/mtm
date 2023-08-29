@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
@@ -55,9 +56,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<NotificationVO> getReplyNotifications(String recipientUsername, int loadCount) {
+    public List<NotificationVO> getNotifications(NotificationType notificationType,
+                                                 String recipientUsername,
+                                                 int loadCount) {
         Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
-        return notificationManager.getReplyNotifications(recipientUserId, loadCount);
+        return notificationManager.getReplyNotifications(notificationType, recipientUserId, loadCount);
     }
 
 
