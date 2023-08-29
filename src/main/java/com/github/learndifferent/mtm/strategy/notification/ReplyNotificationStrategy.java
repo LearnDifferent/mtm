@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.strategy.notification;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
@@ -9,6 +8,7 @@ import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
+import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -40,20 +39,6 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     private final CommentMapper commentMapper;
     private final UserMapper userMapper;
 
-    @NotNull
-    private String getNotificationsKey(Integer userId) {
-        return KeyConstant.USER_REPLY_NOTIFICATIONS_PREFIX + userId;
-    }
-
-    @NotNull
-    private String getReadStatusKey(Integer userId) {
-        return KeyConstant.USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX + userId;
-    }
-
-    private long getReadStatusOffset(UUID notificationId) {
-        return Math.abs(notificationId.hashCode());
-    }
-
     @Override
     public void sendNotification(NotificationDTO notification) {
         Integer replyToCommentId = notification.getReplyToCommentId();
@@ -68,7 +53,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         notification.setRecipientUserId(recipientUserId);
 
         // push the notification to the list
-        String key = getNotificationsKey(recipientUserId);
+        String key = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
         String content = JsonUtils.toJson(notification);
         redisTemplate.opsForList().leftPush(key, content);
         // mark it as unread
@@ -102,8 +87,8 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         // key: prefix + user ID
         // offset: a derived value based on the notification ID
         // indicate the notifications that the user hasn't read yet
-        String key = getReadStatusKey(recipientUserId);
-        long offset = getReadStatusOffset(notificationId);
+        String key = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
+        long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);
         redisTemplate.opsForValue().setBit(key, offset, isUnread);
     }
 
@@ -122,7 +107,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         boolean illegalEnd = end < 0;
         ThrowExceptionUtils.throwIfTrue(illegalEnd, ResultCode.NO_RESULTS_FOUND);
 
-        String key = getNotificationsKey(userId);
+        String key = RedisKeyUtils.getReplyNotificationKey(userId);
         List<String> list = redisTemplate.opsForList().range(key, 0, end);
 
         boolean hasNoResults = CollectionUtils.isEmpty(list);
@@ -136,8 +121,8 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         Integer userId = notification.getRecipientUserId();
         UUID notificationId = notification.getId();
 
-        String key = getReadStatusKey(userId);
-        long offset = getReadStatusOffset(notificationId);
+        String key = RedisKeyUtils.getReplyNotificationReadStatusKey(userId);
+        long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);
 
         Boolean result = redisTemplate.opsForValue().getBit(key, offset);
         // the read status will be 'read' if the result is null

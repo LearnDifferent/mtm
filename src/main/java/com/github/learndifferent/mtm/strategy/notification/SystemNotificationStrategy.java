@@ -1,10 +1,10 @@
 package com.github.learndifferent.mtm.strategy.notification;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.utils.JsonUtils;
+import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -30,25 +29,12 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
     private final StringRedisTemplate redisTemplate;
 
-    @NotNull
-    private String getNotificationsKey() {
-        return KeyConstant.SYSTEM_NOTIFICATIONS;
-    }
-
-    @NotNull
-    private String getReadStatusKey(UUID notificationId) {
-        return KeyConstant.SYSTEM_NOTIFICATION_READ_STATUS_PREFIX + notificationId;
-    }
-
-    private long getReadStatusOffset(Integer userId) {
-        return userId;
-    }
-
     @Override
     public void sendNotification(NotificationDTO notification) {
         // push the notification to the list
         String content = JsonUtils.toJson(notification);
-        redisTemplate.opsForList().leftPush(getNotificationsKey(), content);
+        String key = RedisKeyUtils.getSystemNotificationKey();
+        redisTemplate.opsForList().leftPush(key, content);
         // mark it as unread
         markNotificationAsUnread(notification);
     }
@@ -67,8 +53,8 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         UUID notificationId = notification.getId();
         Integer userId = notification.getRecipientUserId();
 
-        String readStatusKey = getReadStatusKey(notificationId);
-        long readStatusOffset = getReadStatusOffset(userId);
+        String readStatusKey = RedisKeyUtils.getSystemNotificationReadStatusKey(notificationId);
+        long readStatusOffset = RedisKeyUtils.getSystemNotificationReadStatusOffset(userId);
         // key: prefix + notificationId
         // offset: user ID
         // indicate that if user has read the specific notification
@@ -88,7 +74,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         boolean illegalEnd = end < 0;
         ThrowExceptionUtils.throwIfTrue(illegalEnd, ResultCode.NO_RESULTS_FOUND);
 
-        String notificationsKey = getNotificationsKey();
+        String notificationsKey = RedisKeyUtils.getSystemNotificationKey();
         List<String> list = redisTemplate.opsForList().range(notificationsKey, 0, end);
 
         boolean hasNoResults = CollectionUtils.isEmpty(list);
@@ -102,8 +88,8 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         UUID id = notification.getId();
         Integer userId = notification.getRecipientUserId();
 
-        String key = getReadStatusKey(id);
-        long offset = getReadStatusOffset(userId);
+        String key = RedisKeyUtils.getSystemNotificationReadStatusKey(id);
+        long offset = RedisKeyUtils.getSystemNotificationReadStatusOffset(userId);
 
         Boolean result = redisTemplate.opsForValue().getBit(key, offset);
         // the read status will be 'read' if the result is null
