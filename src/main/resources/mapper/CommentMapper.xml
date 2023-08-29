@@ -33,8 +33,8 @@
         select u.id
         from comment c
                  left join user u on c.username = u.user_name
-        where id = #{commentId,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+        where c.id = #{commentId,jdbcType=INTEGER}
+          and c.is_deleted = 0 limit 1;
     </select>
 
     <select id="getCommentTextById" resultType="java.lang.String">
