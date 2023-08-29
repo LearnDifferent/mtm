@@ -91,6 +91,18 @@ public class NotificationController {
         notificationService.markReplyNotificationAsUnread(data);
     }
 
+    @GetMapping("/count")
+    public Long countNotifications(@RequestParam(value = "notificationType") NotificationType notificationType) {
+        switch (notificationType) {
+            case SYSTEM_NOTIFICATION:
+                return notificationService.countAllSystemNotifications();
+            case REPLY_NOTIFICATION:
+            default:
+                String username = StpUtil.getLoginIdAsString();
+                return notificationService.countAllReplyNotifications(username);
+        }
+    }
+
     /**
      * Get current user's role change notification
      *

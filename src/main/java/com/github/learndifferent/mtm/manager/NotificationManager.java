@@ -63,8 +63,14 @@ public class NotificationManager {
         return notificationStrategyContext.getNotifications(notificationType, recipientUserId, loadCount);
     }
 
-    public long countReplyNotifications(Integer recipientUserId) {
+    public long countAllReplyNotifications(Integer recipientUserId) {
         String key = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
+        Long size = this.redisTemplate.opsForList().size(key);
+        return Optional.ofNullable(size).orElse(0L);
+    }
+
+    public long countAllSystemNotifications() {
+        String key = RedisKeyUtils.getSystemNotificationKey();
         Long size = this.redisTemplate.opsForList().size(key);
         return Optional.ofNullable(size).orElse(0L);
     }

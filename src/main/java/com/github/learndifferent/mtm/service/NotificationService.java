@@ -15,14 +15,6 @@ import java.util.List;
 public interface NotificationService {
 
     /**
-     * Count the total number of reply notifications
-     *
-     * @param recipientUsername username
-     * @return total number of reply notifications
-     */
-    long countReplyNotifications(String recipientUsername);
-
-    /**
      * Calculate the count of current user's unread replies
      *
      * @param recipientUsername username
@@ -57,6 +49,21 @@ public interface NotificationService {
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
      */
     List<NotificationVO> getNotifications(NotificationType notificationType, String recipientUsername, int loadCount);
+
+    /**
+     * Count the total number of reply notifications
+     *
+     * @param recipientUsername username
+     * @return total number of reply notifications
+     */
+    long countAllReplyNotifications(String recipientUsername);
+
+    /**
+     * Count the total number of system notifications
+     *
+     * @return total number of system notifications
+     */
+    long countAllSystemNotifications();
 
     /**
      * Delete all system notifications and remove all saved usernames of users

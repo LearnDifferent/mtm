@@ -29,12 +29,6 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserMapper userMapper;
 
     @Override
-    public long countReplyNotifications(String recipientUsername) {
-        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
-        return notificationManager.countReplyNotifications(recipientUserId);
-    }
-
-    @Override
     public long countUnreadReplies(String recipientUsername) {
         boolean hasTurnedOff = checkIfTurnOffNotifications(recipientUsername);
         return hasTurnedOff ? 0L : countUnreadRepliesWhenTurnOnNotification(recipientUsername);
@@ -63,6 +57,16 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationManager.getReplyNotifications(notificationType, recipientUserId, loadCount);
     }
 
+    @Override
+    public long countAllReplyNotifications(String recipientUsername) {
+        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
+        return notificationManager.countAllReplyNotifications(recipientUserId);
+    }
+
+    @Override
+    public long countAllSystemNotifications() {
+        return notificationManager.countAllSystemNotifications();
+    }
 
     @Override
     public void deleteSystemNotifications() {
