@@ -51,12 +51,18 @@ public class NotificationServiceImpl implements NotificationService {
                                                  String recipientUsername,
                                                  int loadCount) {
         Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
-        return notificationManager.getReplyNotifications(notificationType, recipientUserId, loadCount);
+        return notificationManager.getNotifications(notificationType, recipientUserId, loadCount);
     }
 
     @Override
     public void sendSystemNotification(String sender, String message) {
         notificationManager.sendSystemNotification(sender, message);
+    }
+
+    @Override
+    public boolean checkIfHasUnreadSysNotifications(String recipientUsername) {
+        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
+        return notificationManager.checkIfUserHasUnreadSysNotifications(recipientUserId);
     }
 
     @Override

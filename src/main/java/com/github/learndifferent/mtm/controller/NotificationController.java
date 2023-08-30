@@ -92,7 +92,7 @@ public class NotificationController {
     }
 
     @GetMapping("/count/all")
-    public Long countNotifications(@RequestParam(value = "notificationType") NotificationType notificationType) {
+    public long countNotifications(@RequestParam(value = "notificationType") NotificationType notificationType) {
         switch (notificationType) {
             case SYSTEM_NOTIFICATION:
                 return notificationService.countAllSystemNotifications();
@@ -103,10 +103,16 @@ public class NotificationController {
         }
     }
 
-    @GetMapping("/send")
+    @GetMapping("/system/send")
     public void sendSystemNotification(@RequestParam("message") String message) {
         String sender = StpUtil.getLoginIdAsString();
         notificationService.sendSystemNotification(sender, message);
+    }
+
+    @GetMapping("/system")
+    public boolean checkIfHasUnreadSystemNotifications() {
+        String username = StpUtil.getLoginIdAsString();
+        return notificationService.checkIfHasUnreadSysNotifications(username);
     }
 
     /**

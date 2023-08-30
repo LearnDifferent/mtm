@@ -58,6 +58,14 @@ public interface NotificationService {
     void sendSystemNotification(String sender, String message);
 
     /**
+     * Check if the user has unread system notifications
+     *
+     * @param recipientUsername username
+     * @return true if the user has unread system notifications
+     */
+    boolean checkIfHasUnreadSysNotifications(String recipientUsername);
+
+    /**
      * Count the total number of reply notifications
      *
      * @param recipientUsername username
