@@ -160,12 +160,10 @@ public class UserController {
         String username = StpUtil.getLoginIdAsString();
         UserVO user = userService.getUserByName(username);
         String ip = IpUtils.getIp(request);
-        long totalReplyNotifications = notificationService.countAllReplyNotifications(username);
 
         return PersonalInfoVO.builder()
                 .user(user)
                 .ip(ip)
-                .totalReplyNotifications(totalReplyNotifications)
                 .build();
     }
 
