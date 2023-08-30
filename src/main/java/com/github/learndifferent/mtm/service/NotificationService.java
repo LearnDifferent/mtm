@@ -51,6 +51,14 @@ public interface NotificationService {
     List<NotificationVO> getNotifications(NotificationType notificationType, String recipientUsername, int loadCount);
 
     /**
+     * Send system notification
+     *
+     * @param sender  the sender of the system notification
+     * @param message message
+     */
+    void sendSystemNotification(String sender, String message);
+
+    /**
      * Count the total number of reply notifications
      *
      * @param recipientUsername username
@@ -94,7 +102,7 @@ public interface NotificationService {
      * @param message  the message to send
      * @param priority priority level of the notification
      */
-    void sendSystemNotification(String username, String message, PriorityLevel priority);
+    void sendSystemNotificationV1(String username, String message, PriorityLevel priority);
 
     /**
      * Check whether the user has read the latest system notification

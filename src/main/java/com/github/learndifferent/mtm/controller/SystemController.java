@@ -88,7 +88,7 @@ public class SystemController {
 
         // send the message
         String currentUsername = StpUtil.getLoginIdAsString();
-        notificationService.sendSystemNotification(currentUsername, message, priorityLevel);
+        notificationService.sendSystemNotificationV1(currentUsername, message, priorityLevel);
         return ResultCreator.okResult();
     }
 

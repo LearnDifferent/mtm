@@ -115,7 +115,7 @@ public class NotificationManager {
      * @param message  the message to send
      * @param priority priority level
      */
-    public void sendSystemNotification(String message, PriorityLevel priority) {
+    public void sendSystemNotificationV1(String message, PriorityLevel priority) {
         if (PriorityLevel.URGENT.equals(priority)) {
             // if this is an urgent message
             // delete all saved usernames to make it a push notification

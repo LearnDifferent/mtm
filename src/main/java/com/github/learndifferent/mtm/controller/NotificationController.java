@@ -91,7 +91,7 @@ public class NotificationController {
         notificationService.markReplyNotificationAsUnread(data);
     }
 
-    @GetMapping("/count")
+    @GetMapping("/count/all")
     public Long countNotifications(@RequestParam(value = "notificationType") NotificationType notificationType) {
         switch (notificationType) {
             case SYSTEM_NOTIFICATION:
@@ -101,6 +101,12 @@ public class NotificationController {
                 String username = StpUtil.getLoginIdAsString();
                 return notificationService.countAllReplyNotifications(username);
         }
+    }
+
+    @GetMapping("/send")
+    public void sendSystemNotification(@RequestParam("message") String message) {
+        String sender = StpUtil.getLoginIdAsString();
+        notificationService.sendSystemNotification(sender, message);
     }
 
     /**

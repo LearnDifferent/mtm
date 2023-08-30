@@ -58,6 +58,11 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendSystemNotification(String sender, String message) {
+        notificationManager.sendSystemNotification(sender, message);
+    }
+
+    @Override
     public long countAllReplyNotifications(String recipientUsername) {
         Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
         return notificationManager.countAllReplyNotifications(recipientUserId);
@@ -82,12 +87,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendSystemNotification(String username, String message, PriorityLevel priority) {
+    public void sendSystemNotificationV1(String username, String message, PriorityLevel priority) {
         // shorten the message from user
         String msg = ShortenUtils.flatten(message);
         String m = ShortenUtils.shorten(msg, 30);
         // send notification
-        notificationManager.sendSystemNotification(username + ": " + m, priority);
+        notificationManager.sendSystemNotificationV1(username + ": " + m, priority);
     }
 
     @Override

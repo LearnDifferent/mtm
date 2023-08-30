@@ -107,6 +107,6 @@ public class SystemNotificationAspect {
     }
 
     private void sendNotification(String title, String msg, PriorityLevel priority) {
-        notificationService.sendSystemNotification(title, msg, priority);
+        notificationService.sendSystemNotificationV1(title, msg, priority);
     }
 }
