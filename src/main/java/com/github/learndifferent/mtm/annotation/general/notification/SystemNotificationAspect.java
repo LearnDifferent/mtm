@@ -2,7 +2,6 @@ package com.github.learndifferent.mtm.annotation.general.notification;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
-import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
@@ -37,16 +36,15 @@ public class SystemNotificationAspect {
     @Around("@annotation(systemNotification)")
     public Object around(ProceedingJoinPoint pjp, SystemNotification systemNotification) throws Throwable {
 
-        PriorityLevel priority = systemNotification.priority();
         MessageType messageType = systemNotification.messageType();
 
         switch (messageType) {
             case LOGOUT:
-                return sendLogoutMessage(pjp, priority);
+                return sendLogoutMessage(pjp);
             case LOGIN:
-                return sendLoginMessage(pjp, priority);
+                return sendLoginMessage(pjp);
             case NEW_USER:
-                return sendNewUserMessage(pjp, priority);
+                return sendNewUserMessage(pjp);
             default:
                 return doNotSend(pjp);
         }
@@ -56,31 +54,28 @@ public class SystemNotificationAspect {
         return pjp.proceed();
     }
 
-    private Object sendLogoutMessage(ProceedingJoinPoint pjp,
-                                     PriorityLevel priority) throws Throwable {
+    private Object sendLogoutMessage(ProceedingJoinPoint pjp) throws Throwable {
         // before
-        sendNotification("Logout (" + getTime() + ")", getUsername(), priority);
+        sendNotification("Logout (" + getTime() + ")", getUsername());
 
         return pjp.proceed();
     }
 
-    private Object sendLoginMessage(ProceedingJoinPoint pjp,
-                                    PriorityLevel priority) throws Throwable {
+    private Object sendLoginMessage(ProceedingJoinPoint pjp) throws Throwable {
 
         Object result = pjp.proceed();
         // after
-        sendNotification("Login (" + getTime() + ")", getUsername(), priority);
+        sendNotification("Login (" + getTime() + ")", getUsername());
 
         return result;
     }
 
-    private Object sendNewUserMessage(ProceedingJoinPoint pjp,
-                                      PriorityLevel priority) throws Throwable {
+    private Object sendNewUserMessage(ProceedingJoinPoint pjp) throws Throwable {
         Object result = pjp.proceed();
 
         // get the ResultVO<String>
         ResultVO<String> r = (ResultVO<String>) result;
-        sendNotification("New User", r.getData(), priority);
+        sendNotification("New User", r.getData());
 
         return result;
     }
@@ -106,7 +101,7 @@ public class SystemNotificationAspect {
         return IpUtils.getIp(request);
     }
 
-    private void sendNotification(String title, String msg, PriorityLevel priority) {
-        notificationService.sendSystemNotificationV1(title, msg, priority);
+    private void sendNotification(String title, String msg) {
+        notificationService.sendSystemNotification(title, msg);
     }
 }

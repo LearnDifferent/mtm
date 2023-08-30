@@ -81,7 +81,6 @@ public class UserManager {
 
         // Delete all notifications related to the user (Redis don't need transaction in this situation)
         notificationManager.deleteReplyNotificationData(userId);
-        notificationManager.deleteFromReadSysNot(username);
 
         // Remove user data from Elasticsearch asynchronously
         searchManager.removeUserFromElasticsearchAsync(userId);

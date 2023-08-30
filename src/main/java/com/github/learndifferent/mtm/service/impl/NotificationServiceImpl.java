@@ -1,13 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
-import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.service.NotificationService;
-import com.github.learndifferent.mtm.utils.ShortenUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
 import java.util.Objects;
@@ -71,34 +68,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public long countAllSystemNotifications() {
         return notificationManager.countAllSystemNotifications();
-    }
-
-    @Override
-    public void deleteSystemNotifications() {
-        // delete all notifications
-        notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION);
-        // delete all saved usernames
-        notificationManager.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
-    }
-
-    @Override
-    public String getSystemNotificationsHtml(String username) {
-        return notificationManager.getSystemNotificationsHtml(username);
-    }
-
-    @Override
-    public void sendSystemNotificationV1(String username, String message, PriorityLevel priority) {
-        // shorten the message from user
-        String msg = ShortenUtils.flatten(message);
-        String m = ShortenUtils.shorten(msg, 30);
-        // send notification
-        notificationManager.sendSystemNotificationV1(username + ": " + m, priority);
-    }
-
-    @Override
-    public boolean checkIfReadLatestSysNotification(String username) {
-        boolean hasTurnedOffNotification = checkIfTurnOffNotifications(username);
-        return hasTurnedOffNotification || notificationManager.checkIfReadLatestSysNotification(username);
     }
 
     @Override

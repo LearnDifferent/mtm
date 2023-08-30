@@ -5,7 +5,6 @@ import static com.github.learndifferent.mtm.constant.enums.UserRole.USER;
 
 import com.github.learndifferent.mtm.constant.consist.KeyConstant;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
-import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
@@ -22,7 +21,6 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Notification Manager
@@ -107,101 +105,6 @@ public class NotificationManager {
      */
     public void deleteByKey(String key) {
         this.redisTemplate.delete(key);
-    }
-
-    /**
-     * Send System Notification and ensure the limit is 20
-     *
-     * @param message  the message to send
-     * @param priority priority level
-     */
-    public void sendSystemNotificationV1(String message, PriorityLevel priority) {
-        if (PriorityLevel.URGENT.equals(priority)) {
-            // if this is an urgent message
-            // delete all saved usernames to make it a push notification
-            this.deleteByKey(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS);
-            // add <span style='color: #e84a5f'> </span> to the message
-            message = "<span style='color: #e84a5f'>" + message + "</span>";
-        }
-
-        this.redisTemplate.opsForList().leftPush(KeyConstant.SYSTEM_NOTIFICATION, message);
-        this.redisTemplate.opsForList().trim(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
-    }
-
-    /**
-     * Get first 20 system notifications and convert the text to an HTML format.
-     * <p>Username of the user who read the latest system notifications
-     * will be stored in the cache.</p>
-     *
-     * @param username username of the user who wants to get the latest system notifications
-     * @return first 20 system notifications
-     */
-    public String getSystemNotificationsHtml(String username) {
-
-        List<String> messages = getFirst20SystemNotifications();
-
-        boolean isMessageEmpty = CollectionUtils.isEmpty(messages);
-
-        return isMessageEmpty ? "No Notifications Yet"
-                : this.getSystemNotificationsHtml(username, messages);
-    }
-
-    private String getSystemNotificationsHtml(String username, List<String> messages) {
-        StringBuilder sb = getHtmlMsg(messages);
-
-        // record the lowercase username
-        this.redisTemplate.opsForSet().add(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
-        return sb.toString();
-    }
-
-    private List<String> getFirst20SystemNotifications() {
-        // get first 20 messages
-        return this.redisTemplate.opsForList().range(KeyConstant.SYSTEM_NOTIFICATION, 0, 19);
-    }
-
-    private StringBuilder getHtmlMsg(List<String> msg) {
-
-        int size = msg.size();
-        int count = Math.min(size, 20);
-
-        StringBuilder sb = new StringBuilder("Alerting System Notifications (" + count + ")：<br>");
-
-        for (int i = 1; i <= count; i++) {
-            // format：<br>1. first message <br>2. message .........
-            sb.append("<br>").append(i).append(". ").append(msg.get(i - 1));
-        }
-        return sb;
-    }
-
-    /**
-     * Remove the username from the set of users who have read the most recent previous system notification
-     *
-     * @param username The username of the user who has read the most recent previous system notification
-     */
-    public void deleteFromReadSysNot(String username) {
-        this.redisTemplate.opsForSet().remove(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
-    }
-
-    /**
-     * Check whether the user has read the latest system notification
-     *
-     * @param username username of the user
-     * @return true if user has read the latest notification, or there is no system notification
-     * <p>false if user has not read the latest notification</p>
-     */
-    public boolean checkIfReadLatestSysNotification(String username) {
-
-        // return true if there is no notification
-        List<String> notifications = getFirst20SystemNotifications();
-        if (CollectionUtils.isEmpty(notifications)) {
-            return true;
-        }
-
-        // return true if user has read the latest notification
-        Boolean isMember = this.redisTemplate.opsForSet()
-                .isMember(KeyConstant.SYSTEM_NOTIFICATION_READ_USERS, username.toLowerCase());
-
-        return Optional.ofNullable(isMember).orElse(false);
     }
 
     /**

@@ -8,7 +8,6 @@ import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
-import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
@@ -95,7 +94,7 @@ public class UserController {
      */
     @PostMapping
     @IdempotencyCheck
-    @SystemNotification(priority = PriorityLevel.URGENT, messageType = MessageType.NEW_USER)
+    @SystemNotification(messageType = MessageType.NEW_USER)
     public ResultVO<String> createUser(@RequestBody UserIdentificationRequest userIdentification,
                                        @RequestParam("code") String code,
                                        @RequestParam("token") String token,

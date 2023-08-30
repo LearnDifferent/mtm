@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
-import com.github.learndifferent.mtm.constant.enums.PriorityLevel;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.List;
@@ -72,47 +71,6 @@ public interface NotificationService {
      * @return total number of system notifications
      */
     long countAllSystemNotifications();
-
-    /**
-     * Delete all system notifications and remove all saved usernames of users
-     * stored in the cache that read the most recent previous system notifications
-     */
-    void deleteSystemNotifications();
-
-    /**
-     * Get first 20 system notifications and convert the text to an HTML format.
-     * <p>Username of the user who read the latest system notifications
-     * will be stored in the cache.</p>
-     *
-     * @param username username of the user who wants to get the latest system notifications
-     * @return first 20 system notifications
-     */
-    String getSystemNotificationsHtml(String username);
-
-    /**
-     * Send a system notification and ensure the limit is 20.
-     * <p>
-     * This will also delete all saved usernames of users who
-     * read the most recent previous system notifications,
-     * which are stored in the cache, to make this notification a push notification,
-     * if the priority level is {@link PriorityLevel#URGENT}.
-     * </p>
-     *
-     * @param username username of the user who is sending the notification
-     * @param message  the message to send
-     * @param priority priority level of the notification
-     */
-    void sendSystemNotificationV1(String username, String message, PriorityLevel priority);
-
-    /**
-     * Check whether the user has read the latest system notification
-     *
-     * @param username username of the user
-     * @return Return true if user has read the latest notification, or there is no system notification.
-     * If the user turned off the notifications, return true as well.
-     * <p>Return false if user has not read the latest notification</p>
-     */
-    boolean checkIfReadLatestSysNotification(String username);
 
     /**
      * Generate a User Role Change Notification

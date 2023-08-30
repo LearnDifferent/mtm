@@ -35,16 +35,6 @@ public final class KeyConstant {
     public static final String USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX = "notification:reply:user:is_read";
 
     /**
-     * The key of system notifications
-     */
-    public static final String SYSTEM_NOTIFICATION = "system:notification";
-
-    /**
-     * The key of the lowercase usernames of users that have read the latest system notifications
-     */
-    public static final String SYSTEM_NOTIFICATION_READ_USERS = "system:notification:read";
-
-    /**
      * The key of the set in Redis which stores all the keys that contain the view data
      */
     public static final String VIEW_KEY_SET = "all:view";
