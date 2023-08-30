@@ -35,21 +35,19 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         String content = JsonUtils.toJson(notification);
         String key = RedisKeyUtils.getSystemNotificationKey();
         redisTemplate.opsForList().leftPush(key, content);
-        // mark it as unread
-        markNotificationAsUnread(notification);
     }
 
     @Override
     public void markNotificationAsRead(NotificationDTO notification) {
-        updateNotificationReadStatus(notification, false);
+        updateNotificationReadStatus(notification, true);
     }
 
     @Override
     public void markNotificationAsUnread(NotificationDTO notification) {
-        updateNotificationReadStatus(notification, true);
+        updateNotificationReadStatus(notification, false);
     }
 
-    private void updateNotificationReadStatus(NotificationDTO notification, boolean isUnread) {
+    private void updateNotificationReadStatus(NotificationDTO notification, boolean isRead) {
         UUID notificationId = notification.getId();
         Integer userId = notification.getRecipientUserId();
 
@@ -58,12 +56,16 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         // key: prefix + notificationId
         // offset: user ID
         // indicate that if user has read the specific notification
-        redisTemplate.opsForValue().setBit(readStatusKey, readStatusOffset, isUnread);
+        // 0 stands for unread, 1 stand for read
+        redisTemplate.opsForValue().setBit(readStatusKey, readStatusOffset, isRead);
     }
 
     @Override
     public List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount) {
         return getNotificationsWithoutReadStatus(loadCount)
+                // set recipientUserId to the notifications
+                .peek(notification -> notification.setRecipientUserId(recipientUserId))
+                // get the read status and generate the NotificationVO
                 .map(this::getReadStatusAndGenerateNotificationVO)
                 .collect(Collectors.toList());
     }
@@ -93,8 +95,8 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
         Boolean result = redisTemplate.opsForValue().getBit(key, offset);
         // the read status will be 'read' if the result is null
-        boolean isUnread = Optional.ofNullable(result).orElse(false);
+        boolean isRead = Optional.ofNullable(result).orElse(true);
 
-        return NotificationVO.of(notification, !isUnread);
+        return NotificationVO.of(notification, isRead);
     }
 }
