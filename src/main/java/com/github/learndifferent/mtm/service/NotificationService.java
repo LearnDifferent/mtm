@@ -23,18 +23,18 @@ public interface NotificationService {
     long countUnreadReplies(String recipientUsername);
 
     /**
-     * Mark the reply notification as read
+     * Mark the notification as read
      *
      * @param data notification data
      */
-    void markReplyNotificationAsRead(NotificationDTO data);
+    void markNotificationAsRead(NotificationDTO data);
 
     /**
-     * Mark the reply notification as unread
+     * Mark the notification as unread
      *
      * @param data notification data
      */
-    void markReplyNotificationAsUnread(NotificationDTO data);
+    void markNotificationAsUnread(NotificationDTO data);
 
     /**
      * Get notifications

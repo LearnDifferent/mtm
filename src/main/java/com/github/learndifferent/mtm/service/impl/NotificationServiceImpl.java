@@ -37,13 +37,13 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void markReplyNotificationAsRead(NotificationDTO data) {
-        notificationManager.markReplyNotificationAsRead(data);
+    public void markNotificationAsRead(NotificationDTO data) {
+        notificationManager.markNotificationAsRead(data);
     }
 
     @Override
-    public void markReplyNotificationAsUnread(NotificationDTO data) {
-        notificationManager.markReplyNotificationAsUnread(data);
+    public void markNotificationAsUnread(NotificationDTO data) {
+        notificationManager.markNotificationAsUnread(data);
     }
 
     @Override

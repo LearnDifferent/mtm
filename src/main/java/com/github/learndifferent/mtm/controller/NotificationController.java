@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Get, delete and send notifications
+ * Notification Controller
  *
  * @author zhou
  * @date 2021/09/05
@@ -72,25 +72,31 @@ public class NotificationController {
     }
 
     /**
-     * Mark the reply notification as read
+     * Mark the notification as read
      *
      * @param data notification data
      */
-    @PostMapping("/reply/read")
-    public void markReplyNotificationAsRead(@RequestBody NotificationDTO data) {
-        notificationService.markReplyNotificationAsRead(data);
+    @PostMapping("/read")
+    public void markNotificationAsRead(@RequestBody NotificationDTO data) {
+        notificationService.markNotificationAsRead(data);
     }
 
     /**
-     * Mark the reply notification as unread
+     * Mark the notification as unread
      *
      * @param data notification data
      */
-    @PostMapping("/reply/unread")
-    public void markReplyNotificationAsUnread(@RequestBody NotificationDTO data) {
-        notificationService.markReplyNotificationAsUnread(data);
+    @PostMapping("/unread")
+    public void markNotificationAsUnread(@RequestBody NotificationDTO data) {
+        notificationService.markNotificationAsUnread(data);
     }
 
+    /**
+     * Count the total number of notifications
+     *
+     * @param notificationType Notification type
+     * @return total number of notifications
+     */
     @GetMapping("/count/all")
     public long countNotifications(@RequestParam(value = "notificationType") NotificationType notificationType) {
         switch (notificationType) {
@@ -103,12 +109,22 @@ public class NotificationController {
         }
     }
 
+    /**
+     * Send system notification
+     *
+     * @param message notification message
+     */
     @GetMapping("/system/send")
     public void sendSystemNotification(@RequestParam("message") String message) {
         String sender = StpUtil.getLoginIdAsString();
         notificationService.sendSystemNotification(sender, message);
     }
 
+    /**
+     * Check if the user has unread system notifications
+     *
+     * @return true if the current user has unread system notifications
+     */
     @GetMapping("/system")
     public boolean checkIfHasUnreadSystemNotifications() {
         String username = StpUtil.getLoginIdAsString();

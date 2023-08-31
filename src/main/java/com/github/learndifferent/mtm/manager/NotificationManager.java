@@ -125,11 +125,11 @@ public class NotificationManager {
         return RedisKeyUtils.getSystemNotificationReadStatusKey(id);
     }
 
-    public void markReplyNotificationAsRead(NotificationDTO notification) {
+    public void markNotificationAsRead(NotificationDTO notification) {
         notificationStrategyContext.markNotificationAsRead(notification);
     }
 
-    public void markReplyNotificationAsUnread(NotificationDTO notification) {
+    public void markNotificationAsUnread(NotificationDTO notification) {
         notificationStrategyContext.markNotificationAsUnread(notification);
     }
 
