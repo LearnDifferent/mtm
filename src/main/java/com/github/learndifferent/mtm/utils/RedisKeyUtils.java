@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.utils;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import java.util.UUID;
 
 /**
@@ -15,11 +15,11 @@ public class RedisKeyUtils {
     }
 
     public static String getReplyNotificationKey(Integer recipientUserId) {
-        return KeyConstant.USER_REPLY_NOTIFICATIONS_PREFIX + recipientUserId;
+        return RedisConstant.USER_REPLY_NOTIFICATIONS_PREFIX + recipientUserId;
     }
 
     public static String getReplyNotificationReadStatusKey(Integer recipientUserId) {
-        return KeyConstant.USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX + recipientUserId;
+        return RedisConstant.USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX + recipientUserId;
     }
 
     public static long getReplyNotificationReadStatusOffset(UUID notificationId) {
@@ -27,11 +27,11 @@ public class RedisKeyUtils {
     }
 
     public static String getSystemNotificationKey() {
-        return KeyConstant.SYSTEM_NOTIFICATIONS;
+        return RedisConstant.SYSTEM_NOTIFICATIONS;
     }
 
     public static String getSystemNotificationReadStatusKey(UUID notificationId) {
-        return KeyConstant.SYSTEM_NOTIFICATION_READ_STATUS_PREFIX + notificationId;
+        return RedisConstant.SYSTEM_NOTIFICATION_READ_STATUS_PREFIX + notificationId;
     }
 
     public static long getSystemNotificationReadStatusOffset(Integer userId) {

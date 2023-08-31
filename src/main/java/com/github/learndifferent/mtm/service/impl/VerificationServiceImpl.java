@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.IdempotencyKeyInfoDTO;
@@ -167,7 +167,7 @@ public class VerificationServiceImpl implements VerificationService {
         UUID key = UUID.randomUUID();
 
         // set idempotency key
-        String redisKey = KeyConstant.IDEMPOTENCY_KEY_PREFIX + key;
+        String redisKey = RedisConstant.IDEMPOTENCY_KEY_PREFIX + key;
         redisTemplate.opsForValue().set(redisKey, "", timeout, TimeUnit.SECONDS);
 
         return IdempotencyKeyInfoDTO.builder()

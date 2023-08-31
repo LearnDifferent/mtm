@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.manager;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.mapper.BookmarkViewMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -34,9 +34,9 @@ public class DeleteViewManager {
         boolean success = bookmarkViewMapper.deleteViewData(id);
         if (success) {
             // remove from Redis
-            String key = KeyConstant.WEB_VIEW_COUNT_PREFIX + id;
+            String key = RedisConstant.WEB_VIEW_COUNT_PREFIX + id;
             redisTemplate.delete(key);
-            redisTemplate.opsForSet().remove(KeyConstant.VIEW_KEY_SET, key);
+            redisTemplate.opsForSet().remove(RedisConstant.VIEW_KEY_SET, key);
         }
     }
 }

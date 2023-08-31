@@ -1,14 +1,14 @@
 package com.github.learndifferent.mtm.constant.consist;
 
 /**
- * Constants related to Redis Key
+ * Constants related to Redis
  *
  * @author zhou
  * @date 2021/09/05
  */
-public final class KeyConstant {
+public final class RedisConstant {
 
-    private KeyConstant() {
+    private RedisConstant() {
     }
 
     /**

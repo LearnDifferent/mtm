@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.annotation.general.idempotency;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.Arrays;
@@ -101,7 +101,7 @@ public class IdempotencyCheckAspect {
                         params.append(k).append("-").append(Arrays.toString(v)));
         params.append(":");
 
-        String redisKey = KeyConstant.IDEMPOTENCY_CHECK_PREFIX
+        String redisKey = RedisConstant.IDEMPOTENCY_CHECK_PREFIX
                 + method + path + params + key;
         Boolean success = redisTemplate.opsForValue()
                 .setIfAbsent(redisKey, "", timeout, TimeUnit.SECONDS);
@@ -119,7 +119,7 @@ public class IdempotencyCheckAspect {
         boolean isKeyBlank = StringUtils.isBlank(key);
         ThrowExceptionUtils.throwIfTrue(isKeyBlank, ResultCode.IDEMPOTENCY_KEY_BLANK, key);
 
-        String redisKey = KeyConstant.IDEMPOTENCY_KEY_PREFIX + key;
+        String redisKey = RedisConstant.IDEMPOTENCY_KEY_PREFIX + key;
         Boolean hasKey = redisTemplate.hasKey(redisKey);
         boolean notValid = BooleanUtils.isNotTrue(hasKey);
         ThrowExceptionUtils.throwIfTrue(

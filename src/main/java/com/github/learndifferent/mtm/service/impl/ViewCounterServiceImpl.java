@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.entity.ViewDataDO;
 import com.github.learndifferent.mtm.mapper.BookmarkViewMapper;
 import com.github.learndifferent.mtm.service.ViewCounterService;
@@ -38,19 +38,19 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     private final BookmarkViewMapper bookmarkViewMapper;
 
     /**
-     * the length of {@link KeyConstant#WEB_VIEW_COUNT_PREFIX}
+     * the length of {@link RedisConstant#WEB_VIEW_COUNT_PREFIX}
      */
-    private final static int LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX = KeyConstant.WEB_VIEW_COUNT_PREFIX.length();
+    private final static int LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX = RedisConstant.WEB_VIEW_COUNT_PREFIX.length();
 
     @Override
     public void increaseViewsAndAddToSet(Integer bookmarkId) {
         if (Objects.isNull(bookmarkId)) {
             return;
         }
-        String key = KeyConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId;
+        String key = RedisConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId;
         this.redisTemplate.opsForValue().increment(key);
         // add the key to set
-        this.redisTemplate.opsForSet().add(KeyConstant.VIEW_KEY_SET, key);
+        this.redisTemplate.opsForSet().add(RedisConstant.VIEW_KEY_SET, key);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
             return 0;
         }
 
-        String views = this.redisTemplate.opsForValue().get(KeyConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId);
+        String views = this.redisTemplate.opsForValue().get(RedisConstant.WEB_VIEW_COUNT_PREFIX + bookmarkId);
         if (Objects.isNull(views)) {
             return 0;
         }
@@ -80,7 +80,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     @Override
     public List<String> updateViewsAndReturnFailKeys() {
         // get all keys containing view data in Redis
-        Set<String> keys = this.redisTemplate.opsForSet().members(KeyConstant.VIEW_KEY_SET);
+        Set<String> keys = this.redisTemplate.opsForSet().members(RedisConstant.VIEW_KEY_SET);
 
         // save the view data from database to Redis if no keys are found
         // save them from Redis to database if found
@@ -95,7 +95,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
 
         // save to Redis
         Map<String, String> kv = data.stream().collect(Collectors.toMap(
-                d -> KeyConstant.WEB_VIEW_COUNT_PREFIX + d.getBookmarkId(),
+                d -> RedisConstant.WEB_VIEW_COUNT_PREFIX + d.getBookmarkId(),
                 d -> String.valueOf(d.getViews())));
         this.redisTemplate.opsForValue().multiSet(kv);
 
@@ -103,7 +103,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         Set<String> keySet = kv.keySet();
         int size = keySet.size();
         String[] keys = keySet.toArray(new String[size]);
-        this.redisTemplate.opsForSet().add(KeyConstant.VIEW_KEY_SET, keys);
+        this.redisTemplate.opsForSet().add(RedisConstant.VIEW_KEY_SET, keys);
 
         return Collections.emptyList();
     }

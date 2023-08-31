@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.manager;
 import static com.github.learndifferent.mtm.constant.enums.UserRole.ADMIN;
 import static com.github.learndifferent.mtm.constant.enums.UserRole.USER;
 
-import com.github.learndifferent.mtm.constant.consist.KeyConstant;
+import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
@@ -163,11 +163,11 @@ public class NotificationManager {
             return;
         }
 
-        String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + id;
+        String key = RedisConstant.ROLE_CHANGE_RECORD_PREFIX + id;
         // put new role
-        this.redisTemplate.opsForHash().put(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY, newRole.role());
+        this.redisTemplate.opsForHash().put(key, RedisConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY, newRole.role());
         // put former role if absent: only record the first role
-        this.redisTemplate.opsForHash().putIfAbsent(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY,
+        this.redisTemplate.opsForHash().putIfAbsent(key, RedisConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY,
                 formerRole.role());
     }
 
@@ -178,15 +178,15 @@ public class NotificationManager {
      * @return return the notification or an empty string if the user role is not changed
      */
     public String generateRoleChangeNotification(Integer userId) {
-        String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
+        String key = RedisConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
 
-        Object newRoleObject = this.redisTemplate.opsForHash().get(key, KeyConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY);
+        Object newRoleObject = this.redisTemplate.opsForHash().get(key, RedisConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY);
         if (Objects.isNull(newRoleObject)) {
             return "";
         }
 
         Object formerRoleObject =
-                this.redisTemplate.opsForHash().get(key, KeyConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY);
+                this.redisTemplate.opsForHash().get(key, RedisConstant.FORMER_ROLE_CHANGE_RECORD_HASH_KEY);
         if (Objects.isNull(formerRoleObject)) {
             return "";
         }
@@ -221,7 +221,7 @@ public class NotificationManager {
      * @param userId ID of the user
      */
     public void deleteRoleChangeNotification(Integer userId) {
-        String key = KeyConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
+        String key = RedisConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
         this.deleteByKey(key);
     }
 
@@ -233,7 +233,7 @@ public class NotificationManager {
      */
     public boolean checkIfTurnOffNotifications(String username) {
         Boolean result = this.redisTemplate.opsForSet()
-                .isMember(KeyConstant.MUTE_NOTIFICATIONS, username.toLowerCase());
+                .isMember(RedisConstant.MUTE_NOTIFICATIONS, username.toLowerCase());
 
         return Optional.ofNullable(result).orElse(false);
     }
@@ -245,7 +245,7 @@ public class NotificationManager {
      * @param username username of the user who wants to turn on/off notifications
      */
     public void turnOnTurnOffNotifications(String username) {
-        String key = KeyConstant.MUTE_NOTIFICATIONS;
+        String key = RedisConstant.MUTE_NOTIFICATIONS;
         String val = username.toLowerCase();
 
         boolean hasTurnedOff = checkIfTurnOffNotifications(val);

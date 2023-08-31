@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.manager;
 
-import static com.github.learndifferent.mtm.constant.consist.KeyConstant.MUTE_NOTIFICATIONS;
+import static com.github.learndifferent.mtm.constant.consist.RedisConstant.MUTE_NOTIFICATIONS;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
