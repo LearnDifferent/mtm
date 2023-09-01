@@ -1,7 +1,7 @@
 # mtm
 Version |  Update Time  | Status | Author |  Description
 ---|---|---|---|---
-v2023-05-30 21:52:28|2023-05-30 21:52:28|auto|@zhou|Created by smart-doc
+v2023-09-01 21:13:15|2023-09-01 21:13:15|auto|@zhou|Created by smart-doc
 
 
 
@@ -39,19 +39,46 @@ Field | Type|Description|Since
 code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
-└─tokenName|string|No comments found.|-
-└─tokenValue|string|No comments found.|-
-└─isLogin|boolean|No comments found.|-
-└─loginId|object|No comments found.|-
-└─loginKey|string|No comments found.|-
-└─tokenTimeout|int64|No comments found.|-
-└─sessionTimeout|int64|No comments found.|-
-└─tokenSessionTimeout|int64|No comments found.|-
-└─tokenActivityTimeout|int64|No comments found.|-
-└─loginDevice|string|No comments found.|-
+└─idempotencyKeyInfo|object|Idempotency key information|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─idempotencyKeyHeaderName|string|The name of the HTTP header used to convey an idempotency key for the request|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─idempotencyKey|string|Idempotency key|-
+└─saTokenInfo|object|Token information|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─tokenName|string|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─tokenValue|string|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─isLogin|boolean|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─loginId|object|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─loginKey|string|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─tokenTimeout|int64|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─sessionTimeout|int64|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─tokenSessionTimeout|int64|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─tokenActivityTimeout|int64|No comments found.|-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─loginDevice|string|No comments found.|-
 
+### Retrieve information about the idempotency key for the authenticated user.The key is used to ensure that duplicate requests are not processed multiple times.
+
+**URL:** http://127.0.0.1/idempotency-key
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Retrieve information about the idempotency key for the authenticated user. The key is used to ensure
+that duplicate requests are not processed multiple times.
+
+**Response-fields:**
+
+Field | Type|Description|Since
+---|---|---|---
+code|int32|Result Code|-
+msg|string|Message|-
+data|object|Data|-
+└─idempotencyKeyHeaderName|string|The name of the HTTP header used to convey an idempotency key for the request|-
+└─idempotencyKey|string|Idempotency key|-
 
 ### Logout
+
 **URL:** http://127.0.0.1/logout
 
 **Type:** GET
@@ -321,9 +348,10 @@ bookmarkId|int32|ID of the bookmark|-
 isPublic|boolean|True if this is a public bookmark|-
 views|int32|The number of views of this bookmark|-
 
+## Notification Controller
 
-## Get, delete and send notifications
-### Get reply notifications
+### Get notifications
+
 **URL:** http://127.0.0.1/notification/
 
 **Type:** GET
@@ -332,31 +360,36 @@ views|int32|The number of views of this bookmark|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Get reply notifications
+**Description:** Get notifications
 
 **Query-parameters:**
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-lastIndex|int32|index of the last element of the reply notification list|true|-
+notificationType|enum|REPLY_NOTIFICATION -(NotificationConstant.REPLY_NOTIFICATION)<br/>SYSTEM_NOTIFICATION -(NotificationConstant.SYSTEM_NOTIFICATION)<br/>|true|-
+loadCount|int32|       Number of notifications to be loaded|true|-
 
 **Response-fields:**
 
 Field | Type|Description|Since
 ---|---|---|---
-creationTime|object|Creation time|-
+id|string|ID of the notification<br><p>Null if the notification is deleted</p>|-
+notificationType|enum|Type of the notification.<br/>REPLY_NOTIFICATION -(NotificationConstant.REPLY_NOTIFICATION)<br/>SYSTEM_NOTIFICATION -(NotificationConstant.SYSTEM_NOTIFICATION)<br/>|-
+message|string|The message of the notification<br><p>Null if the bookmark, comment or reply has been deleted<br>when the notification is a reply (or comment) notification</p><br><p>If the bookmark ID is not null and the message is null,<br>the user has no permission of the bookmark</p>|-
+creationTime|object|Time of creation.|-
 └─seconds|int64|No comments found.|-
 └─nanos|int32|No comments found.|-
-receiveUsername|string|Name of the user, who is about to receive the notification.<br>If {@link #getReplyToCommentId()} is null,<br>then the user is the owner of the website data.<br>If {@link #getReplyToCommentId()} is not null,<br>then the user is the author of the comment being replied to.|-
-sendUsername|string|Name of the user who sent the reply (or comment)|-
-commentId|int32|ID of the comment|-
-bookmarkId|int32|ID of the bookmark|-
-replyToCommentId|int32|The ID of the comment being replied to<br><p>Not reply to any comment if null, which means this is a bookmark comment</p>|-
-message|string|Extend parameter: reply message<br><p>Null if the bookmark, comment or reply has been deleted</p>|-
+sender|string|When the notification is a reply (or comment) notification,<br>it represents the username of the sender.<br>If the notification is a system notification,<br>it represents the sender of the system notification.|-
+recipientUserId|int32|When the {@link NotificationType} is {@link NotificationType#REPLY_NOTIFICATION},<br>this represents the User ID of the recipient who will receive the reply notification.<br>If {@link #getReplyToCommentId()} is null,<br>the recipient is the owner of the bookmark.<br>If {@link #getReplyToCommentId()} is not null,<br>the recipient is the author of the comment being replied to.<br><p><br>When the {@link NotificationType} is {@link NotificationType#SYSTEM_NOTIFICATION},<br>this can be used to store the ID of the user who get the message.<br></p>|-
+commentId|int32|ID of the comment<br><p>If the comment ID is null ,the comment doesn't exist</p>|-
+bookmarkId|int32|ID of the bookmark<br><p>If the bookmark ID is null, the bookmark doesn't exist.</p><br><p>If the bookmark ID is not null and the message is null,<br>the user has no permission of the bookmark</p>|-
+replyToCommentId|int32|The ID of the comment being replied to<br><p>Null if not replying to any comment, indicating it's a bookmark comment.</p>|-
+isRead|boolean|True if the notification is read|-
+accessStatus|enum|Access status<br/>BOOKMARK_NOT_EXIST<br/>UNAUTHORIZED<br/>COMMENT_NOT_EXIST<br/>ACCESSIBLE<br/>|-
 
+### Mark the notification as read
 
-### Delete a reply notification
-**URL:** http://127.0.0.1/notification/
+**URL:** http://127.0.0.1/notification/read
 
 **Type:** POST
 
@@ -364,25 +397,55 @@ message|string|Extend parameter: reply message<br><p>Null if the bookmark, comme
 
 **Content-Type:** application/json; charset=utf-8
 
-**Description:** Delete a reply notification
+**Description:** Mark the notification as read
 
 **Body-parameters:**
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-creationTime|object|Creation time|false|-
+id|string|ID of the notification<br><p>Null if the notification is deleted</p>|false|-
+notificationType|enum|Type of the notification.<br/>REPLY_NOTIFICATION -(NotificationConstant.REPLY_NOTIFICATION)<br/>SYSTEM_NOTIFICATION -(NotificationConstant.SYSTEM_NOTIFICATION)<br/>|false|-
+message|string|The message of the notification<br><p>Null if the bookmark, comment or reply has been deleted<br>when the notification is a reply (or comment) notification</p><br><p>If the bookmark ID is not null and the message is null,<br>the user has no permission of the bookmark</p>|false|-
+creationTime|object|Time of creation.|false|-
 └─seconds|int64|No comments found.|false|-
 └─nanos|int32|No comments found.|false|-
-receiveUsername|string|Name of the user, who is about to receive the notification.<br>If {@link #getReplyToCommentId()} is null,<br>then the user is the owner of the website data.<br>If {@link #getReplyToCommentId()} is not null,<br>then the user is the author of the comment being replied to.|false|-
-sendUsername|string|Name of the user who sent the reply (or comment)|false|-
-commentId|int32|ID of the comment|false|-
-bookmarkId|int32|ID of the bookmark|false|-
-replyToCommentId|int32|The ID of the comment being replied to<br><p>Not reply to any comment if null, which means this is a bookmark comment</p>|false|-
+sender|string|When the notification is a reply (or comment) notification,<br>it represents the username of the sender.<br>If the notification is a system notification,<br>it represents the sender of the system notification.|false|-
+recipientUserId|int32|When the {@link NotificationType} is {@link NotificationType#REPLY_NOTIFICATION},<br>this represents the User ID of the recipient who will receive the reply notification.<br>If {@link #getReplyToCommentId()} is null,<br>the recipient is the owner of the bookmark.<br>If {@link #getReplyToCommentId()} is not null,<br>the recipient is the author of the comment being replied to.<br><p><br>When the {@link NotificationType} is {@link NotificationType#SYSTEM_NOTIFICATION},<br>this can be used to store the ID of the user who get the message.<br></p>|false|-
+commentId|int32|ID of the comment<br><p>If the comment ID is null ,the comment doesn't exist</p>|false|-
+bookmarkId|int32|ID of the bookmark<br><p>If the bookmark ID is null, the bookmark doesn't exist.</p><br><p>If the bookmark ID is not null and the message is null,<br>the user has no permission of the bookmark</p>|false|-
+replyToCommentId|int32|The ID of the comment being replied to<br><p>Null if not replying to any comment, indicating it's a bookmark comment.</p>|false|-
 
+### Mark the notification as unread
 
+**URL:** http://127.0.0.1/notification/unread
 
-### Count the number of new reply notifications for the current user
-**URL:** http://127.0.0.1/notification/count
+**Type:** POST
+
+**Author:** zhou
+
+**Content-Type:** application/json; charset=utf-8
+
+**Description:** Mark the notification as unread
+
+**Body-parameters:**
+
+Parameter | Type|Description|Required|Since
+---|---|---|---|---
+id|string|ID of the notification<br><p>Null if the notification is deleted</p>|false|-
+notificationType|enum|Type of the notification.<br/>REPLY_NOTIFICATION -(NotificationConstant.REPLY_NOTIFICATION)<br/>SYSTEM_NOTIFICATION -(NotificationConstant.SYSTEM_NOTIFICATION)<br/>|false|-
+message|string|The message of the notification<br><p>Null if the bookmark, comment or reply has been deleted<br>when the notification is a reply (or comment) notification</p><br><p>If the bookmark ID is not null and the message is null,<br>the user has no permission of the bookmark</p>|false|-
+creationTime|object|Time of creation.|false|-
+└─seconds|int64|No comments found.|false|-
+└─nanos|int32|No comments found.|false|-
+sender|string|When the notification is a reply (or comment) notification,<br>it represents the username of the sender.<br>If the notification is a system notification,<br>it represents the sender of the system notification.|false|-
+recipientUserId|int32|When the {@link NotificationType} is {@link NotificationType#REPLY_NOTIFICATION},<br>this represents the User ID of the recipient who will receive the reply notification.<br>If {@link #getReplyToCommentId()} is null,<br>the recipient is the owner of the bookmark.<br>If {@link #getReplyToCommentId()} is not null,<br>the recipient is the author of the comment being replied to.<br><p><br>When the {@link NotificationType} is {@link NotificationType#SYSTEM_NOTIFICATION},<br>this can be used to store the ID of the user who get the message.<br></p>|false|-
+commentId|int32|ID of the comment<br><p>If the comment ID is null ,the comment doesn't exist</p>|false|-
+bookmarkId|int32|ID of the bookmark<br><p>If the bookmark ID is null, the bookmark doesn't exist.</p><br><p>If the bookmark ID is not null and the message is null,<br>the user has no permission of the bookmark</p>|false|-
+replyToCommentId|int32|The ID of the comment being replied to<br><p>Null if not replying to any comment, indicating it's a bookmark comment.</p>|false|-
+
+### Calculate the count of current user's unread replies
+
+**URL:** http://127.0.0.1/notification/count/reply
 
 **Type:** GET
 
@@ -390,7 +453,7 @@ replyToCommentId|int32|The ID of the comment being replied to<br><p>Not reply to
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Count the number of new reply notifications for the current user
+**Description:** Calculate the count of current user's unread replies
 
 **Response-fields:**
 
@@ -400,8 +463,76 @@ code|int32|Result Code|-
 msg|string|Message|-
 data|object|Data|-
 
+### Calculate the count of current user's unread replies
+
+**URL:** http://127.0.0.1/notification/count/system
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Calculate the count of current user's unread replies
+
+**Response-fields:**
+
+Field | Type|Description|Since
+---|---|---|---
+code|int32|Result Code|-
+msg|string|Message|-
+data|object|Data|-
+
+### Count the total number of notifications
+
+**URL:** http://127.0.0.1/notification/count/all
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Count the total number of notifications
+
+**Query-parameters:**
+
+Parameter | Type|Description|Required|Since
+---|---|---|---|---
+notificationType|enum|REPLY_NOTIFICATION -(NotificationConstant.REPLY_NOTIFICATION)<br/>SYSTEM_NOTIFICATION -(NotificationConstant.SYSTEM_NOTIFICATION)<br/>|true|-
+
+### Send system notification
+
+**URL:** http://127.0.0.1/notification/system/send
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Send system notification
+
+**Query-parameters:**
+
+Parameter | Type|Description|Required|Since
+---|---|---|---|---
+message|string|notification message|true|-
+
+### Check if the user has unread system notifications
+
+**URL:** http://127.0.0.1/notification/system
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Check if the user has unread system notifications
 
 ### Get current user's role change notification
+
 **URL:** http://127.0.0.1/notification/role-changed
 
 **Type:** GET
@@ -892,164 +1023,7 @@ msg|string|Message|-
 data|object|Data|-
 
 
-## View Counter Controller
-### Increase the number of views of a bookmark
-**URL:** http://127.0.0.1/view/
-
-**Type:** GET
-
-**Author:** zhou
-
-**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
-
-**Description:** Increase the number of views of a bookmark
-
-**Query-parameters:**
-
-Parameter | Type|Description|Required|Since
----|---|---|---|---
-bookmarkId|int32|ID of the bookmark|true|-
-
-
-
-### Count the number of views of a bookmark
-**URL:** http://127.0.0.1/view/count
-
-**Type:** GET
-
-**Author:** zhou
-
-**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
-
-**Description:** Count the number of views of a bookmark
-
-**Query-parameters:**
-
-Parameter | Type|Description|Required|Since
----|---|---|---|---
-bookmarkId|int32|ID of the bookmark|true|-
-
-**Response-fields:**
-
-Field | Type|Description|Since
----|---|---|---
-code|int32|Result Code|-
-msg|string|Message|-
-data|object|Data|-
-
-
-### Save the numbers of views from Redis to the database,or add the view data from database to Redis if the Redis has no view data
-**URL:** http://127.0.0.1/view/update
-
-**Type:** GET
-
-**Author:** zhou
-
-**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
-
-**Description:** Save the numbers of views from Redis to the database,
-or add the view data from database to Redis if the Redis has no view data
-
-**Response-fields:**
-
-Field | Type|Description|Since
----|---|---|---
-code|int32|Result Code|-
-msg|string|Message|-
-data|array|Data|-
-
-
 ## System Controller
-### Get system notifications
-**URL:** http://127.0.0.1/system/
-
-**Type:** GET
-
-**Author:** zhou
-
-**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
-
-**Description:** Get system notifications
-
-**Response-fields:**
-
-Field | Type|Description|Since
----|---|---|---
-code|int32|Result Code|-
-msg|string|Message|-
-data|object|Data|-
-
-
-### Send a system notification when the user is admin&lt;p&gt;The notification will be a push notification if the {@code priority} is 0&lt;/p&gt;
-**URL:** http://127.0.0.1/system/send
-
-**Type:** GET
-
-**Author:** zhou
-
-**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
-
-**Description:** Send a system notification when the user is admin
-<p>
-The notification will be a push notification if the {@code priority} is 0
-</p>
-
-**Query-parameters:**
-
-Parameter | Type|Description|Required|Since
----|---|---|---|---
-message|string| the message to send|true|-
-priority|int32|0 if the message has the highest priority|false|-
-
-**Response-fields:**
-
-Field | Type|Description|Since
----|---|---|---
-code|int32|Result Code|-
-msg|string|Message|-
-data|object|Data|-
-
-
-### Delete system notifications
-**URL:** http://127.0.0.1/system/
-
-**Type:** DELETE
-
-**Author:** zhou
-
-**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
-
-**Description:** Delete system notifications
-
-**Response-fields:**
-
-Field | Type|Description|Since
----|---|---|---
-code|int32|Result Code|-
-msg|string|Message|-
-data|object|Data|-
-
-
-### Check whether the current user has read the latest system notification
-**URL:** http://127.0.0.1/system/read
-
-**Type:** GET
-
-**Author:** zhou
-
-**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
-
-**Description:** Check whether the current user has read the latest system notification
-
-**Response-fields:**
-
-Field | Type|Description|Since
----|---|---|---
-code|int32|Result Code|-
-msg|string|Message|-
-data|object|Data|-
-
-
 ### Get system logs from cache and database
 **URL:** http://127.0.0.1/system/logs
 
@@ -1119,9 +1093,77 @@ data|array|Data|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─seconds|int64|No comments found.|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─nanos|int32|No comments found.|-
 
+## View Counter Controller
+
+### Increase the number of views of a bookmark
+
+**URL:** http://127.0.0.1/view/
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Increase the number of views of a bookmark
+
+**Query-parameters:**
+
+Parameter | Type|Description|Required|Since
+---|---|---|---|---
+bookmarkId|int32|ID of the bookmark|true|-
+
+### Count the number of views of a bookmark
+
+**URL:** http://127.0.0.1/view/count
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Count the number of views of a bookmark
+
+**Query-parameters:**
+
+Parameter | Type|Description|Required|Since
+---|---|---|---|---
+bookmarkId|int32|ID of the bookmark|true|-
+
+**Response-fields:**
+
+Field | Type|Description|Since
+---|---|---|---
+code|int32|Result Code|-
+msg|string|Message|-
+data|object|Data|-
+
+### Save the numbers of views from Redis to the database,or add the view data from database to Redis if the Redis has no view data
+
+**URL:** http://127.0.0.1/view/update
+
+**Type:** GET
+
+**Author:** zhou
+
+**Content-Type:** application/x-www-form-urlencoded;charset=utf-8
+
+**Description:** Save the numbers of views from Redis to the database, or add the view data from database to Redis if
+the Redis has no view data
+
+**Response-fields:**
+
+Field | Type|Description|Since
+---|---|---|---
+code|int32|Result Code|-
+msg|string|Message|-
+data|array|Data|-
 
 ## Search Page Controller
+
 ### Search
+
 **URL:** http://127.0.0.1/search/
 
 **Type:** GET
@@ -1136,14 +1178,14 @@ data|array|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(bookmark_mysql)<br/>TAG_MYSQL -(tag_mysql)<br/>USER_MYSQL -(user_mysql)<br/>|true|-
-keyword|string|  keyword (accept empty string and null)|true|-
+mode|enum|WEB -(SearchConstant.INDEX_WEB)<br/>TAG -(SearchConstant.INDEX_TAG)<br/>USER -(SearchConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(SearchConstant.SEARCH_BOOKMARK_IN_MYSQL)<br/>TAG_MYSQL -(SearchConstant.SEARCH_TAG_IN_MYSQL)<br/>USER_MYSQL -(SearchConstant.SEARCH_USER_IN_MYSQL)<br/>|true|-
+keyword|string|  keyword|true|-
 from|int32|From|false|-
 size|int32|Size|false|-
 rangeFrom|int32|lower range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
-                 unbounded.|false|-
+unbounded.|false|-
 rangeTo|int32|  upper range value for range query if the search mode is {@link SearchMode#TAG}. Null indicates
-                 unbounded.|false|-
+unbounded.|false|-
 
 **Response-fields:**
 
@@ -1172,7 +1214,7 @@ data|object|Data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(bookmark_mysql)<br/>TAG_MYSQL -(tag_mysql)<br/>USER_MYSQL -(user_mysql)<br/>|true|-
+mode|enum|WEB -(SearchConstant.INDEX_WEB)<br/>TAG -(SearchConstant.INDEX_TAG)<br/>USER -(SearchConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(SearchConstant.SEARCH_BOOKMARK_IN_MYSQL)<br/>TAG_MYSQL -(SearchConstant.SEARCH_TAG_IN_MYSQL)<br/>USER_MYSQL -(SearchConstant.SEARCH_USER_IN_MYSQL)<br/>|true|-
 
 **Response-fields:**
 
@@ -1218,7 +1260,7 @@ hasNewUpdate|boolean|True if the website data in database is different from the 
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(bookmark_mysql)<br/>TAG_MYSQL -(tag_mysql)<br/>USER_MYSQL -(user_mysql)<br/>|true|-
+mode|enum|WEB -(SearchConstant.INDEX_WEB)<br/>TAG -(SearchConstant.INDEX_TAG)<br/>USER -(SearchConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(SearchConstant.SEARCH_BOOKMARK_IN_MYSQL)<br/>TAG_MYSQL -(SearchConstant.SEARCH_TAG_IN_MYSQL)<br/>USER_MYSQL -(SearchConstant.SEARCH_USER_IN_MYSQL)<br/>|true|-
 
 **Response-fields:**
 
@@ -1243,7 +1285,7 @@ hasChanges|boolean|Changes of data|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-mode|enum|WEB -(EsConstant.INDEX_WEB)<br/>TAG -(EsConstant.INDEX_TAG)<br/>USER -(EsConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(bookmark_mysql)<br/>TAG_MYSQL -(tag_mysql)<br/>USER_MYSQL -(user_mysql)<br/>|true|-
+mode|enum|WEB -(SearchConstant.INDEX_WEB)<br/>TAG -(SearchConstant.INDEX_TAG)<br/>USER -(SearchConstant.INDEX_USER)<br/>BOOKMARK_MYSQL -(SearchConstant.SEARCH_BOOKMARK_IN_MYSQL)<br/>TAG_MYSQL -(SearchConstant.SEARCH_TAG_IN_MYSQL)<br/>USER_MYSQL -(SearchConstant.SEARCH_USER_IN_MYSQL)<br/>|true|-
 
 **Response-fields:**
 
@@ -1301,7 +1343,8 @@ data|object|Data|-
 
 
 ## Import and export HTML file
-### Export user's bookmarks to a HTML file.&lt;p&gt;Export bookmarks belonging to the user that is currently logged inif the username is missing.&lt;/p&gt;
+
+### Export user's bookmarks to an HTML file.&lt;p&gt;Export bookmarks belonging to the user that is currently logged inif the username is missing.&lt;/p&gt;
 **URL:** http://127.0.0.1/file/
 
 **Type:** GET
@@ -1310,7 +1353,7 @@ data|object|Data|-
 
 **Content-Type:** application/x-www-form-urlencoded;charset=utf-8
 
-**Description:** Export user's bookmarks to a HTML file.
+**Description:** Export user's bookmarks to an HTML file.
 <p>Export bookmarks belonging to the user that is currently logged in
 if the username is missing.</p>
 
@@ -1320,9 +1363,7 @@ Parameter | Type|Description|Required|Since
 ---|---|---|---|---
 username|string|username of the user whose data is being exported.|false|-
 
-
-
-### Import a HTML file that contains bookmarks
+### Import an HTML file that contains bookmarks
 **URL:** http://127.0.0.1/file/
 
 **Type:** POST
@@ -1331,7 +1372,7 @@ username|string|username of the user whose data is being exported.|false|-
 
 **Content-Type:** application/json; charset=utf-8
 
-**Description:** Import a HTML file that contains bookmarks
+**Description:** Import an HTML file that contains bookmarks
 
 **Query-parameters:**
 
@@ -1404,7 +1445,7 @@ email|string|Email|true|-
 
 Parameter | Type|Description|Required|Since
 ---|---|---|---|---
-timeline|enum|LATEST -(latest)<br/>USER -(user)<br/>BLOCK -(block)<br/>|true|-
+timeline|enum|LATEST_TIMELINE -(HomeTimelineConstant.LATEST_TIMELINE)<br/>USER_SPECIFIC_TIMELINE -(HomeTimelineConstant.USER_SPECIFIC_TIMELINE)<br/>TIMELINE_WITH_BLACKLIST -(HomeTimelineConstant.TIMELINE_WITH_BLACKLIST)<br/>|true|-
 requestedUsername|string|username of the user whose data is being requested
                          <p>{@code requestedUsername} is not required</p>|false|-
 from|int32|From|false|-
@@ -1601,7 +1642,6 @@ user|object|User information|-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─nanos|int32|No comments found.|-
 └─role|string|User Role|-
 ip|string|IP Address|-
-totalReplyNotifications|int64|Count the total number of reply notifications|-
 
 
 ### Get users
