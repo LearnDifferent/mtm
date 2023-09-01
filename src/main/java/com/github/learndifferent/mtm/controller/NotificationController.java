@@ -60,18 +60,6 @@ public class NotificationController {
     }
 
     /**
-     * Calculate the count of current user's unread replies
-     *
-     * @return number of unread replies
-     */
-    @GetMapping("/reply/count")
-    public ResultVO<Long> countUnreadReplies() {
-        String currentUsername = StpUtil.getLoginIdAsString();
-        long count = notificationService.countUnreadReplies(currentUsername);
-        return ResultCreator.okResult(count);
-    }
-
-    /**
      * Mark the notification as read
      *
      * @param data notification data
@@ -89,6 +77,30 @@ public class NotificationController {
     @PostMapping("/unread")
     public void markNotificationAsUnread(@RequestBody NotificationDTO data) {
         notificationService.markNotificationAsUnread(data);
+    }
+
+    /**
+     * Calculate the count of current user's unread replies
+     *
+     * @return number of unread replies
+     */
+    @GetMapping("/count/reply")
+    public ResultVO<Long> countUnreadReplies() {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        long count = notificationService.countUnreadReplies(currentUsername);
+        return ResultCreator.okResult(count);
+    }
+
+    /**
+     * Calculate the count of current user's unread replies
+     *
+     * @return number of unread replies
+     */
+    @GetMapping("/count/system")
+    public ResultVO<Long> countUnreadSystemNotifications() {
+        String currentUsername = StpUtil.getLoginIdAsString();
+        long count = notificationService.countUnreadSystemNotifications(currentUsername);
+        return ResultCreator.okResult(count);
     }
 
     /**

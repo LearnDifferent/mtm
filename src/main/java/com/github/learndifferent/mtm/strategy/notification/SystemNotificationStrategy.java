@@ -19,6 +19,11 @@ import org.springframework.stereotype.Component;
 
 /**
  * System Notification
+ * <p>
+ * [Notice] Read status has two dimensions:
+ * one is to store whether a particular notification has been read by a user,
+ * and the other is to track the notifications that a specific user has read
+ * </p>
  *
  * @author zhou
  * @date 2023/8/24
@@ -51,13 +56,21 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         UUID notificationId = notification.getId();
         Integer userId = notification.getRecipientUserId();
 
-        String readStatusKey = RedisKeyUtils.getSystemNotificationReadStatusKey(notificationId);
-        long readStatusOffset = RedisKeyUtils.getSystemNotificationReadStatusOffset(userId);
+        // 1. store whether a particular notification has been read by a user
+        String notificationReadStatusKey = RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(notificationId);
+        long notificationReadStatusOffset = RedisKeyUtils.getSysNotificationReadStatusReadByUserOffset(userId);
         // key: prefix + notificationId
         // offset: user ID
         // indicate that if user has read the specific notification
         // 0 stands for unread, 1 stand for read
-        redisTemplate.opsForValue().setBit(readStatusKey, readStatusOffset, isRead);
+        redisTemplate.opsForValue().setBit(notificationReadStatusKey, notificationReadStatusOffset, isRead);
+
+        // 2. track the notifications that a specific user has read
+        String userReadStatusKey = RedisKeyUtils.getSysNotificationReadStatusTrackNotificationsOfUserKey(userId);
+        long userReadStatusOffset = RedisKeyUtils
+                .getSysNotificationReadStatusTrackNotificationsOfUserOffset(notificationId);
+        // 0 stands for unread, 1 stand for read
+        redisTemplate.opsForValue().setBit(userReadStatusKey, userReadStatusOffset, isRead);
     }
 
     @Override
@@ -90,8 +103,8 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         UUID id = notification.getId();
         Integer userId = notification.getRecipientUserId();
 
-        String key = RedisKeyUtils.getSystemNotificationReadStatusKey(id);
-        long offset = RedisKeyUtils.getSystemNotificationReadStatusOffset(userId);
+        String key = RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(id);
+        long offset = RedisKeyUtils.getSysNotificationReadStatusReadByUserOffset(userId);
 
         Boolean result = redisTemplate.opsForValue().getBit(key, offset);
         // the read status will be 'read' if the result is null

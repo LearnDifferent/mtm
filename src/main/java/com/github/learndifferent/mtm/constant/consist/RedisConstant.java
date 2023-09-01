@@ -17,10 +17,17 @@ public final class RedisConstant {
     public static final String SYSTEM_NOTIFICATIONS = "notification:system";
 
     /**
-     * Redis key prefix for the read status of the system notification.
-     * Key: prefix + notification ID
+     * Key: prefix + user ID
+     * <p>This is to store whether a particular notification has been read by a user</p>
      */
-    public static final String SYSTEM_NOTIFICATION_READ_STATUS_PREFIX = "notification:system:isRead:";
+    public static final String SYS_NOTIFICATION_READ_STATUS_READ_BY_USER_PREFIX = "notification:system:read:";
+
+    /**
+     * Key: prefix + notification ID
+     * <p>This is to track the notifications that a specific user has read</p>
+     */
+    public static final String SYS_NOTIFICATION_READ_STATUS_TRACK_NOTIFICATIONS_OF_USER_PREFIX =
+            "notification:system:user:read:";
 
     /**
      * Redis key prefix for all reply notifications of the user.
@@ -32,7 +39,7 @@ public final class RedisConstant {
      * Redis key prefix for the read status of the reply notification of the user.
      * Key: prefix + user ID
      */
-    public static final String USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX = "notification:reply:user:isRead:";
+    public static final String USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX = "notification:reply:user:unread:";
 
     /**
      * The key of the set in Redis which stores all the keys that contain the view data

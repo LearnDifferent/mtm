@@ -14,13 +14,22 @@ import java.util.List;
 public interface NotificationService {
 
     /**
-     * Calculate the count of current user's unread replies
+     * Calculate the count of user's unread replies
      *
      * @param recipientUsername username
      * @return Return the number of unread replies
      * <p>If the user turned off notifications, return 0</p>
      */
     long countUnreadReplies(String recipientUsername);
+
+    /**
+     * Calculate the count of user's unread system notifications
+     *
+     * @param recipientUsername username
+     * @return Return the number of unread system notifications
+     * <p>If the user turned off notifications, return 0</p>
+     */
+    long countUnreadSystemNotifications(String recipientUsername);
 
     /**
      * Mark the notification as read

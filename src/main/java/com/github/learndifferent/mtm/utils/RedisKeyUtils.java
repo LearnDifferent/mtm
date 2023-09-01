@@ -30,11 +30,19 @@ public class RedisKeyUtils {
         return RedisConstant.SYSTEM_NOTIFICATIONS;
     }
 
-    public static String getSystemNotificationReadStatusKey(UUID notificationId) {
-        return RedisConstant.SYSTEM_NOTIFICATION_READ_STATUS_PREFIX + notificationId;
+    public static String getSysNotificationReadStatusReadByUserKey(UUID notificationId) {
+        return RedisConstant.SYS_NOTIFICATION_READ_STATUS_READ_BY_USER_PREFIX + notificationId;
     }
 
-    public static long getSystemNotificationReadStatusOffset(Integer userId) {
+    public static long getSysNotificationReadStatusReadByUserOffset(Integer userId) {
         return userId;
+    }
+
+    public static String getSysNotificationReadStatusTrackNotificationsOfUserKey(Integer userId) {
+        return RedisConstant.SYS_NOTIFICATION_READ_STATUS_TRACK_NOTIFICATIONS_OF_USER_PREFIX + userId;
+    }
+
+    public static long getSysNotificationReadStatusTrackNotificationsOfUserOffset(UUID notificationId) {
+        return Math.abs(notificationId.hashCode());
     }
 }

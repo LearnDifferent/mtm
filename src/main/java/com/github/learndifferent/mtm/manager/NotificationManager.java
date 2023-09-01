@@ -85,6 +85,26 @@ public class NotificationManager {
         return Optional.ofNullable(notificationCount).orElse(0L);
     }
 
+    public long countUnreadSystemNotifications(Integer recipientUserId) {
+        String key = RedisKeyUtils
+                .getSysNotificationReadStatusTrackNotificationsOfUserKey(recipientUserId);
+        // count the number of notifications that a user has read
+        Long result =
+                redisTemplate.execute((RedisCallback<Long>) connection -> connection.bitCount(key.getBytes()));
+        long userReadCount = Optional.ofNullable(result).orElse(0L);
+
+        // count total notifications
+        long sysCount = countAllSystemNotifications();
+
+        long userUnread = sysCount - userReadCount;
+        if (userUnread < 0L) {
+            log.warn("System notification count is lower than the user's read count, which is abnormal. User ID: {}",
+                    recipientUserId);
+            userUnread = 0L;
+        }
+        return userUnread;
+    }
+
     public boolean checkIfUserHasUnreadSysNotifications(Integer recipientUserId) {
         long systemNotificationNumber = countAllSystemNotifications();
         if (systemNotificationNumber < 1L) {
@@ -107,7 +127,7 @@ public class NotificationManager {
 
     private boolean checkIfHasUnreadSysNotificationsWhenHavingSysNotifications(Integer recipientUserId,
                                                                                long sysNotificationIndex) {
-        long readStatusOffset = RedisKeyUtils.getSystemNotificationReadStatusOffset(recipientUserId);
+        long readStatusOffset = RedisKeyUtils.getSysNotificationReadStatusReadByUserOffset(recipientUserId);
         String readStatusKey = getReadStatusKeyWhenHavingSysNotifications(sysNotificationIndex);
 
         // 0 stands for unread (false / null stands for unread)
@@ -122,7 +142,7 @@ public class NotificationManager {
         String notificationJson = result.get(0);
         NotificationDTO notification = JsonUtils.toObject(notificationJson, NotificationDTO.class);
         UUID id = notification.getId();
-        return RedisKeyUtils.getSystemNotificationReadStatusKey(id);
+        return RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(id);
     }
 
     public void markNotificationAsRead(NotificationDTO notification) {

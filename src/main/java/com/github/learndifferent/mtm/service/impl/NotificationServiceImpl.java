@@ -37,6 +37,17 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public long countUnreadSystemNotifications(String recipientUsername) {
+        boolean hasTurnedOff = checkIfTurnOffNotifications(recipientUsername);
+        return hasTurnedOff ? 0L : countUnreadSysNotificationsWhenTurnOnNotification(recipientUsername);
+    }
+
+    private long countUnreadSysNotificationsWhenTurnOnNotification(String recipientUsername) {
+        Integer userId = userMapper.getUserIdByUsername(recipientUsername);
+        return notificationManager.countUnreadSystemNotifications(userId);
+    }
+
+    @Override
     public void markNotificationAsRead(NotificationDTO data) {
         notificationManager.markNotificationAsRead(data);
     }
