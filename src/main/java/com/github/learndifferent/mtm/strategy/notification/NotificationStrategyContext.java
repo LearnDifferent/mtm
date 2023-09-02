@@ -54,8 +54,9 @@ public class NotificationStrategyContext {
 
     public List<NotificationVO> getNotifications(NotificationType notificationType,
                                                  Integer recipientUserId,
-                                                 int loadCount) {
+                                                 int loadCount,
+                                                 boolean isOrderReversed) {
         return checkAndGetStrategy(notificationType)
-                .getNotifications(recipientUserId, loadCount);
+                .getNotifications(recipientUserId, loadCount, isOrderReversed);
     }
 }

@@ -60,9 +60,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<NotificationVO> getNotifications(NotificationType notificationType,
                                                  String recipientUsername,
-                                                 int loadCount) {
+                                                 int loadCount,
+                                                 boolean isOrderReversed) {
         Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
-        return notificationManager.getNotifications(notificationType, recipientUserId, loadCount);
+        return notificationManager.getNotifications(notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 
     @Override
