@@ -94,7 +94,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
-    public List<NotificationVO> getNotifications(Integer userId, int loadCount) {
+    public List<NotificationVO> getNotifications(Integer userId, int loadCount, boolean isOrderReversed) {
         Stream<NotificationDTO> notifications = getNotificationsWithoutReadStatus(userId, loadCount);
         return notifications
                 .map(this::getReadStatusAndGenerateNotificationVO)

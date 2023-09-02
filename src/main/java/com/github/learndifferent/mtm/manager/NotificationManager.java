@@ -60,8 +60,10 @@ public class NotificationManager {
 
     public List<NotificationVO> getNotifications(NotificationType notificationType,
                                                  Integer recipientUserId,
-                                                 int loadCount) {
-        return notificationStrategyContext.getNotifications(notificationType, recipientUserId, loadCount);
+                                                 int loadCount,
+                                                 boolean isOrderReversed) {
+        return notificationStrategyContext.getNotifications(notificationType, recipientUserId, loadCount,
+                isOrderReversed);
     }
 
     public long countAllReplyNotifications(Integer recipientUserId) {

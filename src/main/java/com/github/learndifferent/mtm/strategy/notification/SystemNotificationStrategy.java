@@ -74,7 +74,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
-    public List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount) {
+    public List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount, boolean isOrderReversed) {
         return getNotificationsWithoutReadStatus(loadCount)
                 // set recipientUserId to the notifications
                 .peek(notification -> notification.setRecipientUserId(recipientUserId))

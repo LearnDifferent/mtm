@@ -51,12 +51,16 @@ public interface NotificationService {
      * @param notificationType  Notification type
      * @param recipientUsername Username of the recipient who will receive the notifications
      * @param loadCount         Number of notifications to be loaded
+     * @param isOrderReversed   true if reverse order
      * @return List of notifications
      * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
      *                                                                  exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
      */
-    List<NotificationVO> getNotifications(NotificationType notificationType, String recipientUsername, int loadCount);
+    List<NotificationVO> getNotifications(NotificationType notificationType,
+                                          String recipientUsername,
+                                          int loadCount,
+                                          boolean isOrderReversed);
 
     /**
      * Send system notification
