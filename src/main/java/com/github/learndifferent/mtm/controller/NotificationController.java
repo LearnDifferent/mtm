@@ -44,6 +44,7 @@ public class NotificationController {
      *
      * @param notificationType Notification type
      * @param loadCount        Number of notifications to be loaded
+     * @param isOrderReversed  true if reverse order
      * @return List of notifications
      * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
      *                                                                  exception with the result code of
@@ -53,10 +54,11 @@ public class NotificationController {
     public List<NotificationVO> getNotifications(
             @RequestParam(value = "notificationType") NotificationType notificationType,
             @RequestParam(value = "loadCount", defaultValue = "10")
-            @Positive(message = ErrorInfoConstant.NO_DATA) int loadCount) {
+            @Positive(message = ErrorInfoConstant.NO_DATA) int loadCount,
+            @RequestParam("isOrderReversed") boolean isOrderReversed) {
 
         String username = StpUtil.getLoginIdAsString();
-        return notificationService.getNotifications(notificationType, username, loadCount);
+        return notificationService.getNotifications(notificationType, username, loadCount, isOrderReversed);
     }
 
     /**

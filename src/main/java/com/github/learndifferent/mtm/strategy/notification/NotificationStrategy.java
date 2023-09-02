@@ -38,7 +38,8 @@ public interface NotificationStrategy {
      *
      * @param recipientUserId User ID
      * @param loadCount       load count
+     * @param isOrderReversed true if reverse order
      * @return notifications
      */
-    List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount);
+    List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount, boolean isOrderReversed);
 }
