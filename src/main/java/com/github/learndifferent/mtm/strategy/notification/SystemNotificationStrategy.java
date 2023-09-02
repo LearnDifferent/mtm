@@ -7,6 +7,7 @@ import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -75,7 +76,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
     @Override
     public List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount, boolean isOrderReversed) {
-        return getNotificationsWithoutReadStatus(loadCount)
+        return getNotificationsWithoutReadStatus(loadCount, isOrderReversed)
                 // set recipientUserId to the notifications
                 .peek(notification -> notification.setRecipientUserId(recipientUserId))
                 // get the read status and generate the NotificationVO
@@ -83,20 +84,41 @@ public class SystemNotificationStrategy implements NotificationStrategy {
                 .collect(Collectors.toList());
     }
 
-    private Stream<NotificationDTO> getNotificationsWithoutReadStatus(int loadCount) {
-        int end = loadCount - 1;
-
-        boolean illegalEnd = end < 0;
-        ThrowExceptionUtils.throwIfTrue(illegalEnd, ResultCode.NO_RESULTS_FOUND);
+    private Stream<NotificationDTO> getNotificationsWithoutReadStatus(int loadCount, boolean isOrderReverse) {
+        boolean illegalLoadCount = loadCount <= 0;
+        ThrowExceptionUtils.throwIfTrue(illegalLoadCount, ResultCode.NO_RESULTS_FOUND);
 
         String notificationsKey = RedisKeyUtils.getSystemNotificationKey();
-        List<String> list = redisTemplate.opsForList().range(notificationsKey, 0, end);
+        List<String> notifications = isOrderReverse ? getNotificationsFromNewestToOldest(notificationsKey, loadCount)
+                : getNotificationsFromOldestToNewest(notificationsKey, loadCount);
 
-        boolean hasNoResults = CollectionUtils.isEmpty(list);
+        boolean hasNoResults = CollectionUtils.isEmpty(notifications);
         ThrowExceptionUtils.throwIfTrue(hasNoResults, ResultCode.NO_RESULTS_FOUND);
 
-        return list.stream()
+        return notifications.stream()
                 .map(json -> JsonUtils.toObject(json, NotificationDTO.class));
+    }
+
+    private List<String> getNotificationsFromNewestToOldest(String notificationsKey, int loadCount) {
+        int end = loadCount - 1;
+        return redisTemplate.opsForList().range(notificationsKey, 0, end);
+    }
+
+    private List<String> getNotificationsFromOldestToNewest(String notificationKey, int loadCount) {
+        // get the start
+        // e.g. loadCount is 2: `lrange notificationKey -2 -1`
+        int start = loadCount * -1;
+        List<String> list = redisTemplate.opsForList().range(notificationKey, start, -1);
+
+        // if no results, return empty list
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyList();
+        }
+
+        // reverse the list for the reason that Redis command is `lrange` (from left to right)
+        // and the needed order is from right to left
+        Collections.reverse(list);
+        return list;
     }
 
     private NotificationVO getReadStatusAndGenerateNotificationVO(NotificationDTO notification) {
