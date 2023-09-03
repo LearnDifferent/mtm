@@ -138,7 +138,7 @@ public class SegmentBuffer {
     public String toString() {
         return "SegmentBuffer{" +
                 "tag='" + tag + '\'' +
-                ", segments=" + Arrays.toString(segments) +
+//                ", segments=" + Arrays.toString(segments) +
                 ", currentSegmentIndex=" + currentSegmentIndex +
                 ", isNextSegmentReady=" + isNextSegmentReady +
                 ", isInit=" + isInit +
