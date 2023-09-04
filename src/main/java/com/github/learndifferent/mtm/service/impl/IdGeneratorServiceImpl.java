@@ -114,23 +114,8 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
         // so the remaining tags are the tags to insert
         tagsToInsert.removeAll(tagsToRemove);
 
-        for (String tag : tagsToInsert) {
-            // create a new segment buffer
-            SegmentBuffer buffer = new SegmentBuffer();
-            // set the business tag
-            buffer.setTag(tag);
-
-            // get the current segment
-            Segment currentSegment = buffer.getCurrentSegment();
-            // settings
-            currentSegment.setCurrentId(new AtomicLong(0L));
-            currentSegment.setMaxId(0L);
-
-            // put the 'tag' and its 'buffer' into cache
-            tagsAndIdsCache.put(tag, buffer);
-
-            log.info("Add tag {} from database to IdCache, SegmentBuffer: {}", tag, buffer);
-        }
+        // add the tags to the cache
+        tagsToInsert.forEach(this::addTagToCache);
 
         // remove expired tags from the cache:
         // 1. update the 'tags to remove' set (tags in database should not be removed)
@@ -140,6 +125,27 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
             tagsAndIdsCache.remove(tagToRemove);
             log.info("Remove tag {} from IdCache", tagToRemove);
         }
+    }
+
+    private void addTagToCache(String tag) {
+        if (tagsAndIdsCache.containsKey(tag)) {
+            return;
+        }
+        // create a new segment buffer
+        SegmentBuffer buffer = new SegmentBuffer();
+        // set the business tag
+        buffer.setTag(tag);
+
+        // get the current segment
+        Segment currentSegment = buffer.getCurrentSegment();
+        // settings
+        currentSegment.setCurrentId(new AtomicLong(0L));
+        currentSegment.setMaxId(0L);
+
+        // put the 'tag' and its 'buffer' into cache
+        tagsAndIdsCache.put(tag, buffer);
+
+        log.info("Add tag {} from database to IdCache, SegmentBuffer: {}", tag, buffer);
     }
 
     private void updateCacheFromDbEveryMinute() {
@@ -153,14 +159,14 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
                     return thread;
                 });
 
-        // update cache every minute
+        // update cache every 5 minutes
         service.scheduleAtFixedRate(
                 // runnable task
                 this::updateCacheFromDb,
                 // initial delay 2 minutes
-                2L,
+                10L,
                 // update every 1 minute
-                1L,
+                5L,
                 TimeUnit.MINUTES);
     }
 
@@ -168,29 +174,34 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
     public long generateId(String tag) {
         if (!initSuccess) {
             log.warn("ID Generator Service is not initialized for now");
-            return 0L;
-        }
-
-        boolean hasCurrentTag = tagsAndIdsCache.containsKey(tag);
-        if (hasCurrentTag) {
-            SegmentBuffer buffer = tagsAndIdsCache.get(tag);
-            // check if initialized the buffer
-            boolean hasNotInit = buffer.hasNotInit();
-            // if not initialized, initialize the buffer
-            if (hasNotInit) {
-                Segment currentSegment = buffer.getCurrentSegment();
-                updateSegmentFromDb(tag, currentSegment);
-                log.info("Init buffer. Update tag {} and segment {} from db", tag, currentSegment);
-                buffer.setInit(true);
+            boolean initFail = !init();
+            if (initFail) {
+                throw new ServiceException("Failed to instantiate ID Generator Service");
             }
-            //  get the ID from buffer if initialized
-            return getIdFromSegmentBuffer(buffer);
         }
 
-        // when the tag is not in the cache, create the record in database
-        idGeneratorMapper.updateMaxIdOrInsertIfNotPresent(tag, IdGeneratorConstant.STEP, null);
-        updateCacheFromDb();
-        return 0L;
+        // when the tag is not in the cache, ...
+        boolean hasNoCurrentTag = !tagsAndIdsCache.containsKey(tag);
+        if (hasNoCurrentTag) {
+            // create the record in database...
+            idGeneratorMapper.updateMaxIdOrInsertIfNotPresent(tag, IdGeneratorConstant.STEP, null);
+            // and update the cache
+            updateCacheFromDb();
+        }
+
+        // after adding the tag in the cache:
+        SegmentBuffer buffer = tagsAndIdsCache.get(tag);
+        // check if initialized the buffer
+        boolean hasNotInit = buffer.hasNotInit();
+        // if not initialized, initialize the buffer
+        if (hasNotInit) {
+            Segment currentSegment = buffer.getCurrentSegment();
+            updateSegmentFromDb(tag, currentSegment);
+            log.info("Init buffer. Update tag {} and segment {} from db", tag, currentSegment);
+            buffer.setInit(true);
+        }
+        //  get the ID from buffer if initialized
+        return getIdFromSegmentBuffer(buffer);
     }
 
     private void updateSegmentFromDb(String tag, Segment segment) {
