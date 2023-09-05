@@ -18,40 +18,18 @@ CREATE TABLE IF NOT EXISTS `user`
 
 CREATE TABLE IF NOT EXISTS `bookmark`
 (
-    `id` int
-(
-    11
-) unsigned NOT NULL AUTO_INCREMENT,
-    `user_name` varchar
-(
-    50
-) NOT NULL,
-    `title` varchar
-(
-    255
-) DEFAULT NULL,
-    `url` varchar
-(
-    600
-) NOT NULL,
-    `img` varchar
-(
-    600
-) DEFAULT NULL,
-    `desc` text,
-    `creation_time` datetime DEFAULT NULL,
-    `is_public` boolean DEFAULT true,
-    `is_deleted` boolean DEFAULT false,
-    PRIMARY KEY
-(
-    `id`
-),
-    UNIQUE KEY `unique_idx_user_name_url`
-(
-    `user_name`,
-    `url`
-)
-    ) ENGINE = InnoDB
+    `id`            int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `user_name`     varchar(50)      NOT NULL,
+    `title`         varchar(255) DEFAULT NULL,
+    `url`           varchar(600)     NOT NULL,
+    `img`           varchar(600) DEFAULT NULL,
+    `desc`          text,
+    `creation_time` datetime     DEFAULT NULL,
+    `is_public`     boolean      DEFAULT true,
+    `is_deleted`    boolean      DEFAULT false,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_idx_user_name_url` (`user_name`, `url`)
+) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `comment`
@@ -117,6 +95,17 @@ CREATE TABLE IF NOT EXISTS `tag`
     `bookmark_id` int(11)    not null,
     UNIQUE KEY `idx_tag_tag_bookmark_id` (`tag`, `bookmark_id`),
     KEY `idx_tag_bookmark_id` (`bookmark_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `id_generator`
+(
+    `biz_tag`     varchar(256) NOT NULL,
+    `max_id`      bigint       NOT NULL DEFAULT '1',
+    `step`        int          NOT NULL DEFAULT '100',
+    `description` varchar(256)          DEFAULT NULL,
+    `update_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`biz_tag`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
