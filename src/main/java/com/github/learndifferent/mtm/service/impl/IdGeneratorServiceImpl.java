@@ -53,7 +53,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
     /**
      * true if initialization is successful
      */
-    private volatile boolean initSuccess = false;
+    private volatile boolean isInitialized = false;
 
     /**
      * Executor
@@ -86,13 +86,20 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
 
     @Override
     public boolean init() {
+        if (isInitialized) {
+            log.info("ID Generator Service has already been initialized");
+            return true;
+        }
         log.info("Initializing ID Generator Service");
+
         // update cache to finish the initialization
         updateCacheFromDb();
-        initSuccess = true;
+        // initialization success if no exception
+        isInitialized = true;
+
         // start daemon threads to update the cache frequently
         updateCacheFromDbEveryMinute();
-        return initSuccess;
+        return isInitialized;
     }
 
     private void updateCacheFromDb() {
@@ -120,15 +127,16 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
         // remove expired tags from the cache:
         // 1. update the 'tags to remove' set (tags in database should not be removed)
         dbTags.forEach(tagsToRemove::remove);
-        // 2. remove the tags in cache
-        for (String tagToRemove : tagsToRemove) {
+        // 2. remove the tags in cache because they are expired
+        tagsToRemove.forEach(tagToRemove -> {
             tagsAndIdsCache.remove(tagToRemove);
             log.info("Remove tag {} from IdCache", tagToRemove);
-        }
+        });
     }
 
     private void addTagToCache(String tag) {
         if (tagsAndIdsCache.containsKey(tag)) {
+            log.info("Tag {} is already in IdCache", tag);
             return;
         }
         // create a new segment buffer
@@ -138,13 +146,12 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
 
         // get the current segment
         Segment currentSegment = buffer.getCurrentSegment();
-        // settings
+        // init the current ID and max ID for the current segment
         currentSegment.setCurrentId(new AtomicLong(0L));
         currentSegment.setMaxId(0L);
 
-        // put the 'tag' and its 'buffer' into cache
+        // put the 'tag' and its 'buffer' (buffer includes ID information for the tag) into cache
         tagsAndIdsCache.put(tag, buffer);
-
         log.info("Add tag {} from database to IdCache, SegmentBuffer: {}", tag, buffer);
     }
 
@@ -172,59 +179,114 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
 
     @Override
     public long generateId(String tag) {
-        if (!initSuccess) {
-            log.warn("ID Generator Service is not initialized for now");
+        if (!isInitialized) {
+            log.warn("ID Generator Service has not been initialized");
             boolean initFail = !init();
             if (initFail) {
                 throw new ServiceException("Failed to instantiate ID Generator Service");
             }
         }
 
-        // when the tag is not in the cache, ...
+        // when the tag is not in the cache,
         boolean hasNoCurrentTag = !tagsAndIdsCache.containsKey(tag);
+        // create the record in database:
         if (hasNoCurrentTag) {
-            // create the record in database...
-            idGeneratorMapper.updateMaxIdOrInsertIfNotPresent(tag, IdGeneratorConstant.STEP, null);
-            // and update the cache
+            // the first ID will be 1, so the max ID in database will be step + 1
+            long maxId = IdGeneratorConstant.STEP + 1;
+            boolean wasPreviouslyAbsent = idGeneratorMapper
+                    .insertIfNotPresent(tag, maxId, IdGeneratorConstant.STEP, null);
+            if (wasPreviouslyAbsent) {
+                // if the record was previously absent and now exists,
+                // generate the first ID (which is 1) for the newly added tag
+                return generateFirstIdForNewlyAddedTag(tag, maxId);
+            }
+
+            // update the cache if the record was NOT previously absent in the database,
+            // indicating that the tag is not in the cache only
             updateCacheFromDb();
         }
 
-        // after adding the tag in the cache:
+        // when the tag is already cached
+        // get the buffer which contains segment that has ID information
         SegmentBuffer buffer = tagsAndIdsCache.get(tag);
         // check if initialized the buffer
-        boolean hasNotInit = buffer.hasNotInit();
-        // if not initialized, initialize the buffer
-        if (hasNotInit) {
+        boolean isNotInitialized = buffer.isNotInitialized();
+        // update the current segment and set the init status to 'true' if not initialized
+        if (isNotInitialized) {
+            // When the tag is not present in the cache,
+            // it actually triggers the initial initialization process for that tag,
+            // which also initializes the segment buffer.
+            // Therefore, in most cases, this process will not be executed.
             Segment currentSegment = buffer.getCurrentSegment();
             updateSegmentFromDb(tag, currentSegment);
             log.info("Init buffer. Update tag {} and segment {} from db", tag, currentSegment);
-            buffer.setInit(true);
+            buffer.setInitialized(true);
         }
         //  get the ID from buffer if initialized
         return getIdFromSegmentBuffer(buffer);
     }
 
-    private void updateSegmentFromDb(String tag, Segment segment) {
-        IdGeneratorServiceImpl bean = ApplicationContextUtils.getBean(IdGeneratorServiceImpl.class);
+    private long generateFirstIdForNewlyAddedTag(String tag, long maxId) {
+        // If the record was previously absent and now exists
+        // add the tag to the cache (this will create a new segment buffer)
+        addTagToCache(tag);
+        // get the buffer
+        SegmentBuffer buffer = tagsAndIdsCache.get(tag);
+        // initialize the segment buffer
+        initSegmentBufferForAbsentTag(tag, maxId, buffer);
+        // return the value
+        return 1L;
+    }
 
-        SegmentBuffer buffer = segment.getBuffer();
-        boolean hasNotInit = buffer.hasNotInit();
-
-        Long maximumId = null;
-
-        if (hasNotInit) {
-            // if the buffer has not been initialized, initialize it
-            // get the max ID
-            maximumId = bean.updateOrInsertRecordAndGetMaxId(tag);
+    private void initSegmentBufferForAbsentTag(String tag, long maxId, SegmentBuffer buffer) {
+        if (buffer.isInitialized()) {
+            log.info("[Tag {} , Segment Buffer {}] has already been initialized", tag, buffer);
+            return;
         }
 
-        long maxId = Optional.ofNullable(maximumId).orElseThrow(() -> new ServiceException("No max ID"));
+        long firstId = 1;
+        if (firstId + IdGeneratorConstant.STEP != maxId) {
+            log.warn("The max ID is not correct when the current ID is 1. Max ID: {}, Step: {}", maxId,
+                    IdGeneratorConstant.STEP);
+            throw new ServiceException("The max ID is not correct");
+        }
 
-        // set the current ID
+        // the current ID will be the second ID
+        long currentId = firstId + 1;
+        // set the max ID and current ID for the first segment
+        Segment firstSegment = buffer.getCurrentSegment();
+        setMaxIdAndCurrentIdForSegment(maxId, currentId, firstSegment);
+
+        // set the inti status to 'true'
+        buffer.setInitialized(true);
+        log.info("Init buffer. Add tag {} and segment {} from db", tag, firstSegment);
+    }
+
+    private void updateSegmentFromDb(String tag, Segment segment) {
+
+        SegmentBuffer buffer = segment.getBuffer();
+        boolean isInitialized = buffer.isInitialized();
+
+        // if the buffer has been initialized, get the max ID from the segment
+        // if the buffer has NOT been initialized, update the max ID and get it from database
+        long maxId = isInitialized ? segment.getMaxId() : updateAndGetMaxIdFromDatabase(tag);
+
+        // current ID
         long currentId = maxId - IdGeneratorConstant.STEP;
-        AtomicLong currentIdInCurrentSegment = segment.getCurrentId();
-        currentIdInCurrentSegment.set(currentId);
-        // set the max ID
+        // set max ID and current iD
+        setMaxIdAndCurrentIdForSegment(maxId, currentId, segment);
+    }
+
+    private long updateAndGetMaxIdFromDatabase(String tag) {
+        IdGeneratorServiceImpl bean = ApplicationContextUtils.getBean(IdGeneratorServiceImpl.class);
+        return bean.updateOrInsertRecordAndGetMaxId(tag);
+    }
+
+    private void setMaxIdAndCurrentIdForSegment(long maxId, long currentId, Segment segment) {
+        // set current ID
+        AtomicLong currentIdInSegment = segment.getCurrentId();
+        currentIdInSegment.set(currentId);
+        // set max ID
         segment.setMaxId(maxId);
     }
 
@@ -248,16 +310,20 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
             Lock readLock = buffer.getReadLock();
             readLock.lock();
             try {
+                // get the current segment
                 Segment currentSegment = buffer.getCurrentSegment();
+                // check if
                 boolean isNextNotReady = !buffer.isNextSegmentReady();
-                // check if needed to update
+                // check if needed to update the next segment (Preload the IDs in advance)
                 if (isNextNotReady
                         // remaining ID count is less than 90%
                         && (currentSegment.getRemainingIdCount() < 0.9 * IdGeneratorConstant.STEP)
                         // successfully to change the thread running status from 'false' to 'true'
                         && buffer.getThreadRunningAtomicBoolean().compareAndSet(false, true)) {
 
+                    // use executor service to update the next segment
                     executorService.execute(() -> {
+                        // get the next segment
                         Segment[] segments = buffer.getSegments();
                         int nexSegmentIndex = buffer.getNexSegmentIndex();
                         Segment nextSegment = segments[nexSegmentIndex];
@@ -274,28 +340,36 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
                             log.error("update segment [tag: {}] from database failed", buffer.getTag(), e);
                         } finally {
                             if (isUpdated) {
+                                // If the update is successful,
+                                // set the status to 'ready' with the implementation of a 'write lock'
+                                // to handle potential concurrent thread attempts to modify the status
                                 Lock writeLock = buffer.getWriteLock();
                                 writeLock.lock();
                                 try {
+                                    // the next segment is ready now after updating
                                     buffer.setNextSegmentReady(true);
+                                    // remember to set the thread running status to 'false'
                                     buffer.getThreadRunningAtomicBoolean().set(false);
                                 } finally {
                                     writeLock.unlock();
                                 }
                             } else {
-                                // is not update
+                                // If the update fails, regardless of the outcome,
+                                // set the running status of the thread to 'false'
                                 buffer.getThreadRunningAtomicBoolean().set(false);
                             }
                         }
                     });
                 }
 
-                // after checking if needed to update
-                // get the current ID
+                // after checking if needed to update the next segment
+                // get the current ID if valid (current ID < max ID):
+                // get and increment the previous ID and get the current ID
                 AtomicLong previousId = currentSegment.getCurrentId();
                 long currentId = previousId.getAndIncrement();
+                // if the current ID is less than the max ID
                 if (currentId < currentSegment.getMaxId()) {
-                    // successfully get the ID
+                    // then the current ID is valid, return it
                     return currentId;
                 }
             } finally {
@@ -303,22 +377,31 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
             }
             // ----- End: read lock -----
 
-            // wait and sleep
+            // if the current ID is invalid (current ID >= max ID),
+            // use a spin lock to wait, until no other thread
+            // is currently executing the operation to modify the next segment
             waitAndSleep(buffer);
 
             // --- Start: write lock  ------
             Lock writeLock = buffer.getWriteLock();
             writeLock.lock();
             try {
+                // After using the spin lock to wait,
+                // the current ID may be updated and is valid now,
+                // so check and return the current ID if it's a valid ID
                 Segment currentSegment = buffer.getCurrentSegment();
                 long currentId = currentSegment.getCurrentId().getAndIncrement();
                 if (currentId < currentSegment.getMaxId()) {
                     return currentId;
                 }
 
+                // the next segment is normally ready after updating
                 boolean isNextReady = buffer.isNextSegmentReady();
                 if (isNextReady) {
+                    // switch the current segment to the next segment
                     buffer.switchCurrentSegmentIndex();
+                    // set the next segment to 'not ready' to indicate
+                    // that the next segment should be updated
                     buffer.setNextSegmentReady(false);
                 } else {
                     log.warn("Both two segments in {} are not ready!", buffer);
@@ -328,9 +411,23 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
                 writeLock.unlock();
             }
             // --- End: write lock -----
+            // Following the completion of the 'write lock' process,
+            // the while loop will persist until a valid current ID is obtained.
         }
     }
 
+    /**
+     * This method checks whether another thread
+     * is currently running to execute the segment modification operation.
+     * If another thread is running, it enters a spin loop,
+     * continuously checking if other threads are still running.
+     * <p>
+     * If the spin loop exceeds a certain threshold (in this case, 1000 times),
+     * it pauses briefly and break the loop to avoid excessive CPU usage
+     * </p>
+     *
+     * @param buffer current segment buffer
+     */
     private void waitAndSleep(SegmentBuffer buffer) {
         AtomicBoolean isThreadRunning = buffer.getThreadRunningAtomicBoolean();
 

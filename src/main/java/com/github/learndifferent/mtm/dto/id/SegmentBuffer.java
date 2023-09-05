@@ -38,7 +38,7 @@ public class SegmentBuffer {
     /**
      * True if initialization successful
      */
-    private volatile boolean isInit;
+    private volatile boolean isInitialized;
 
     /**
      * True if the thread is running
@@ -50,7 +50,7 @@ public class SegmentBuffer {
     public SegmentBuffer() {
         segments = new Segment[]{new Segment(this), new Segment(this)};
         currentSegmentIndex = 0;
-        isInit = false;
+        isInitialized = false;
         isThreadRunning = new AtomicBoolean(false);
         readWriteLock = new ReentrantReadWriteLock();
     }
@@ -84,6 +84,10 @@ public class SegmentBuffer {
         return isThreadRunning;
     }
 
+    public boolean isNotInitialized() {
+        return !isInitialized;
+    }
+
     public String getTag() {
         return tag;
     }
@@ -104,12 +108,12 @@ public class SegmentBuffer {
         isNextSegmentReady = nextSegmentReady;
     }
 
-    public boolean hasNotInit() {
-        return !isInit;
+    public boolean isInitialized() {
+        return isInitialized;
     }
 
-    public void setInit(boolean init) {
-        this.isInit = init;
+    public void setInitialized(boolean initialized) {
+        this.isInitialized = initialized;
     }
 
     @Override
@@ -122,14 +126,15 @@ public class SegmentBuffer {
         }
         SegmentBuffer that = (SegmentBuffer) o;
         return currentSegmentIndex == that.currentSegmentIndex && isNextSegmentReady == that.isNextSegmentReady
-                && isInit == that.isInit && Objects.equals(tag, that.tag) && Arrays.equals(segments,
+                && isInitialized == that.isInitialized && Objects.equals(tag, that.tag) && Arrays.equals(segments,
                 that.segments) && Objects.equals(isThreadRunning, that.isThreadRunning)
                 && Objects.equals(readWriteLock, that.readWriteLock);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(tag, currentSegmentIndex, isNextSegmentReady, isInit, isThreadRunning, readWriteLock);
+        int result = Objects.hash(tag, currentSegmentIndex, isNextSegmentReady, isInitialized, isThreadRunning,
+                readWriteLock);
         result = 31 * result + Arrays.hashCode(segments);
         return result;
     }
@@ -141,7 +146,7 @@ public class SegmentBuffer {
 //                ", segments=" + Arrays.toString(segments) +
                 ", currentSegmentIndex=" + currentSegmentIndex +
                 ", isNextSegmentReady=" + isNextSegmentReady +
-                ", isInit=" + isInit +
+                ", isInitialized=" + isInitialized +
                 ", isThreadRunning=" + isThreadRunning +
                 ", readWriteLock=" + readWriteLock +
                 '}';
