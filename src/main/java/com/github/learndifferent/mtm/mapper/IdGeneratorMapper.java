@@ -14,6 +14,23 @@ import org.springframework.stereotype.Repository;
 public interface IdGeneratorMapper {
 
     /**
+     * If the business tag is not present, insert the record and return true.
+     * If the business tag already exists in the database, return false (which means 0 row affected).
+     *
+     * @param bizTag      business tag
+     * @param maxId       max ID
+     * @param step        step
+     * @param description description
+     * @return Return true if the business tag is not present and insert successfully.
+     * <p>Return false if the business tag already exists in the database,
+     * which means the record should not be inserted.</p>
+     */
+    boolean insertIfNotPresent(@Param("bizTag") String bizTag,
+                               @Param("maxId") long maxId,
+                               @Param("step") int step,
+                               @Param("description") String description);
+
+    /**
      * Update the max ID or insert a new record if the record does not exist
      *
      * @param bizTag      business tag

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.IdGeneratorMapper">
+    <!-- The primary key is biz_tag, therefore the 'insert ignore into' clause will be effective -->
+    <insert id="insertIfNotPresent">
+        insert ignore into id_generator(biz_tag, max_id, step, description)
+        values (#{bizTag}, #{maxId}, #{step}, #{description})
+    </insert>
 
     <!-- The primary key is biz_tag, therefore the ON DUPLICATE KEY UPDATE clause will be effective -->
     <update id="updateMaxIdOrInsertIfNotPresent">
