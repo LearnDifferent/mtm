@@ -12,6 +12,12 @@ public final class RedisConstant {
     }
 
     /**
+     * The key prefix of the current ID.
+     * Key: prefix + business tag
+     */
+    public static final String CURRENT_ID_PREFIX = "current:id:tag:";
+
+    /**
      * The key of all system notifications
      */
     public static final String SYSTEM_NOTIFICATIONS = "notification:system";

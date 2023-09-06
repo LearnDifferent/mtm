@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.service.impl;
+package com.github.learndifferent.mtm.service;
 
 /**
  * ID Generator Service
