@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.dto.id.Segment;
 import com.github.learndifferent.mtm.dto.id.SegmentBuffer;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.IdGeneratorMapper;
+import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
