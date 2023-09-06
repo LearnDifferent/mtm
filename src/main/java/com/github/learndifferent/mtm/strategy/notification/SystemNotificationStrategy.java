@@ -10,7 +10,6 @@ import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +53,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
     }
 
     private void updateNotificationReadStatus(NotificationDTO notification, boolean isRead) {
-        UUID notificationId = notification.getId();
+        long notificationId = notification.getId();
         Integer userId = notification.getRecipientUserId();
 
         // 1. store whether a particular notification has been read by a user
@@ -122,7 +121,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
     }
 
     private NotificationVO getReadStatusAndGenerateNotificationVO(NotificationDTO notification) {
-        UUID id = notification.getId();
+        long id = notification.getId();
         Integer userId = notification.getRecipientUserId();
 
         String key = RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(id);

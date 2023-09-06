@@ -3,11 +3,13 @@ package com.github.learndifferent.mtm.manager;
 import static com.github.learndifferent.mtm.constant.enums.UserRole.ADMIN;
 import static com.github.learndifferent.mtm.constant.enums.UserRole.USER;
 
+import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
+import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.strategy.notification.NotificationStrategyContext;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
@@ -16,7 +18,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -38,6 +39,15 @@ public class NotificationManager {
 
     private final StringRedisTemplate redisTemplate;
     private final NotificationStrategyContext notificationStrategyContext;
+    private final IdGeneratorService idGeneratorService;
+
+    private long generateReplyNotificationId() {
+        return idGeneratorService.generateId(NotificationConstant.REPLY_NOTIFICATION);
+    }
+
+    private long generateSystemNotificationId() {
+        return idGeneratorService.generateId(NotificationConstant.SYSTEM_NOTIFICATION);
+    }
 
     public void sendReplyNotification(CommentDO comment) {
         Integer commentId = comment.getId();
@@ -48,13 +58,16 @@ public class NotificationManager {
         String sendUsername = comment.getUsername();
         Instant creationTime = comment.getCreationTime();
 
+        long id = generateReplyNotificationId();
+
         NotificationDTO notification = NotificationDTO.ofNewReplyNotification(
-                sendUsername, commentMessage, creationTime, commentId, bookmarkId, replyToCommentId);
+                id, sendUsername, commentMessage, creationTime, commentId, bookmarkId, replyToCommentId);
         notificationStrategyContext.sendNotification(notification);
     }
 
     public void sendSystemNotification(String sender, String message) {
-        NotificationDTO notification = NotificationDTO.ofNewSystemNotification(sender, message);
+        long id = generateSystemNotificationId();
+        NotificationDTO notification = NotificationDTO.ofNewSystemNotification(id, sender, message);
         notificationStrategyContext.sendNotification(notification);
     }
 
@@ -62,8 +75,8 @@ public class NotificationManager {
                                                  Integer recipientUserId,
                                                  int loadCount,
                                                  boolean isOrderReversed) {
-        return notificationStrategyContext.getNotifications(notificationType, recipientUserId, loadCount,
-                isOrderReversed);
+        return notificationStrategyContext.getNotifications(
+                notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 
     public long countAllReplyNotifications(Integer recipientUserId) {
@@ -143,7 +156,7 @@ public class NotificationManager {
         assert result != null;
         String notificationJson = result.get(0);
         NotificationDTO notification = JsonUtils.toObject(notificationJson, NotificationDTO.class);
-        UUID id = notification.getId();
+        Long id = notification.getId();
         return RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(id);
     }
 

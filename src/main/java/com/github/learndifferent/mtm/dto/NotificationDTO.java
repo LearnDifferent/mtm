@@ -7,7 +7,6 @@ import com.github.learndifferent.mtm.config.CustomInstantSerializer;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,14 +26,15 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class NotificationDTO implements Serializable {
 
-    public static NotificationDTO ofNewReplyNotification(String sender,
+    public static NotificationDTO ofNewReplyNotification(long id,
+                                                         String sender,
                                                          String message,
                                                          Instant creationTime,
                                                          Integer commentId,
                                                          Integer bookmarkId,
                                                          Integer replyToCommentId) {
         return NotificationDTO.builder()
-                .id(UUID.randomUUID())
+                .id(id)
                 .notificationType(NotificationType.REPLY_NOTIFICATION)
                 .message(message)
                 .creationTime(creationTime)
@@ -45,9 +45,9 @@ public class NotificationDTO implements Serializable {
                 .build();
     }
 
-    public static NotificationDTO ofNewSystemNotification(String sender, String message) {
+    public static NotificationDTO ofNewSystemNotification(long id, String sender, String message) {
         return NotificationDTO.builder()
-                .id(UUID.randomUUID())
+                .id(id)
                 .notificationType(NotificationType.SYSTEM_NOTIFICATION)
                 .message(message)
                 .creationTime(Instant.now())
@@ -59,7 +59,7 @@ public class NotificationDTO implements Serializable {
      * ID of the notification
      * <p>Null if the notification is deleted</p>
      */
-    private UUID id;
+    private Long id;
 
     /**
      * Type of the notification.

@@ -10,7 +10,6 @@ import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.utils.BeanUtils;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,7 +38,7 @@ public class NotificationVO implements Serializable {
      * ID of the notification
      * <p>Null if the notification is deleted</p>
      */
-    private UUID id;
+    private Long id;
 
     /**
      * Type of the notification.

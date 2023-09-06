@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +67,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private void markNotificationAsRead(NotificationVO notification) {
-        UUID notificationId = notification.getId();
+        long notificationId = notification.getId();
         Integer recipientUserId = notification.getRecipientUserId();
         updateNotificationReadStatus(notificationId, recipientUserId, false);
     }
@@ -80,15 +79,12 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
     private void updateNotificationReadStatus(NotificationDTO notification, boolean isUnread) {
         Integer userId = notification.getRecipientUserId();
-        UUID notificationId = notification.getId();
+        long notificationId = notification.getId();
 
         updateNotificationReadStatus(notificationId, userId, isUnread);
     }
 
-    private void updateNotificationReadStatus(UUID notificationId, Integer recipientUserId, boolean isUnread) {
-        // key: prefix + user ID
-        // offset: a derived value based on the notification ID
-        // indicate the notifications that the user hasn't read yet
+    private void updateNotificationReadStatus(long notificationId, Integer recipientUserId, boolean isUnread) {
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
         long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);
         redisTemplate.opsForValue().setBit(key, offset, isUnread);
@@ -144,7 +140,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
     private NotificationVO getReadStatusAndGenerateNotificationVO(NotificationDTO notification) {
         Integer userId = notification.getRecipientUserId();
-        UUID notificationId = notification.getId();
+        long notificationId = notification.getId();
 
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(userId);
         long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);
