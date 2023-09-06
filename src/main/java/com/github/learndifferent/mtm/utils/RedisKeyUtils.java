@@ -45,4 +45,8 @@ public class RedisKeyUtils {
     public static long getSysNotificationReadStatusTrackNotificationsOfUserOffset(UUID notificationId) {
         return Math.abs(notificationId.hashCode());
     }
+
+    public static String getCurrentId(String bizTag) {
+        return RedisConstant.CURRENT_ID_PREFIX + bizTag;
+    }
 }

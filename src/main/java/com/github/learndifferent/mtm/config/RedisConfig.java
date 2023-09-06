@@ -52,6 +52,10 @@ public class RedisConfig {
     @Bean
     public RedisCacheConfiguration defaultCacheConfiguration() {
         return RedisCacheConfiguration.defaultCacheConfig()
+                // the default prefix is cacheName followed by double colons, change it to cacheName only
+                // Default: @CachePut(value = "cacheName", key = ":key") -> cacheName:::key
+                // Now: @CachePut(value = "cacheName", key = ":key") -> cacheName:key
+                .computePrefixWith(name -> name)
                 .serializeKeysWith(RedisSerializationContext
                         .SerializationPair
                         .fromSerializer(new StringRedisSerializer()))
