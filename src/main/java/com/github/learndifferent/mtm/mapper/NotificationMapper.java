@@ -13,16 +13,16 @@ import org.springframework.stereotype.Repository;
 public interface NotificationMapper {
 
     /**
-     * Save system notification to database
-     *
-     * @param notification notification
-     */
-    void saveSystemNotification(NotificationVO notification);
-
-    /**
      * Save reply notification to database
      *
      * @param notification notification
      */
     void saveReplyNotification(NotificationVO notification);
+
+    /**
+     * Save user's read or unread system notification
+     *
+     * @param notification notification
+     */
+    void saveUserSystemNotification(NotificationVO notification);
 }

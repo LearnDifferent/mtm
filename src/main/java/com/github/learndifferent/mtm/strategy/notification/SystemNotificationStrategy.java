@@ -11,10 +11,16 @@ import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +41,27 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
     private final StringRedisTemplate redisTemplate;
     private final NotificationMapper notificationMapper;
+    private final ExecutorService executorService = new ThreadPoolExecutor(2,
+            5,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingDeque<>(),
+            new SystemNotificationThreadFactory()
+    );
+
+    public static class SystemNotificationThreadFactory implements ThreadFactory {
+
+        private static int threadNumber = 0;
+
+        private static synchronized int nextThreadNumber() {
+            return threadNumber++;
+        }
+
+        @Override
+        public Thread newThread(@NotNull Runnable r) {
+            return new Thread(r, "Thread-System-Notification-" + nextThreadNumber());
+        }
+    }
 
     @Override
     public void sendNotification(NotificationDTO notification) {
@@ -44,9 +71,21 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         redisTemplate.opsForList().leftPush(key, content);
     }
 
+    /**
+     * Mark system message as read.
+     * <p>
+     * When a system message is marked as 'read', it is then save in the database.
+     * Note that the primary key of system notification table is notification ID and user ID.
+     * </p>
+     *
+     * @param notification notification data
+     */
     @Override
     public void markNotificationAsRead(NotificationDTO notification) {
         updateNotificationReadStatus(notification, true);
+
+        // save to database
+        executorService.execute(() -> saveNotification(NotificationVO.of(notification, true)));
     }
 
     @Override
@@ -138,6 +177,6 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
     @Override
     public void saveNotification(NotificationVO notification) {
-        notificationMapper.saveSystemNotification(notification);
+        notificationMapper.saveUserSystemNotification(notification);
     }
 }

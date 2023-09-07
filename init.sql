@@ -126,9 +126,9 @@ CREATE TABLE IF NOT EXISTS `reply_notification`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `system_notification`
+CREATE TABLE IF NOT EXISTS `user_system_notification`
 (
-    `id`                bigint unsigned NOT NULL,
+    `notification_id`   bigint unsigned NOT NULL,
     `recipient_user_id` int unsigned    NOT NULL,
     `message`           varchar(600),
     `creation_time`     timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `system_notification`
     `is_read`           boolean                  DEFAULT false,
     `update_time`       timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     -- the primary key is notification ID and user ID
-    PRIMARY KEY (`id`, `recipient_user_id`)
+    PRIMARY KEY (`notification_id`, `recipient_user_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
