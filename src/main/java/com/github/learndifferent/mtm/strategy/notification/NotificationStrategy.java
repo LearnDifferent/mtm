@@ -42,11 +42,4 @@ public interface NotificationStrategy {
      * @return notifications
      */
     List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount, boolean isOrderReversed);
-
-    /**
-     * Save notification to database
-     *
-     * @param notification notification to save
-     */
-    void saveNotification(NotificationVO notification);
 }
