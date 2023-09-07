@@ -69,13 +69,15 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         String content = JsonUtils.toJson(notification);
         String key = RedisKeyUtils.getSystemNotificationKey();
         redisTemplate.opsForList().leftPush(key, content);
+        // save system notification to the table
+        executorService.execute(() -> notificationMapper.saveSystemNotification(notification));
     }
 
     /**
      * Mark system message as read.
      * <p>
-     * When a system message is marked as 'read', it is then save in the database.
-     * Note that the primary key of system notification table is notification ID and user ID.
+     * When a system message is marked as 'read', it is then save to 'user_system_notification' table in the database.
+     * Note that the primary key of 'user_system_notification' table is notification ID and user ID.
      * </p>
      *
      * @param notification notification data
@@ -84,8 +86,9 @@ public class SystemNotificationStrategy implements NotificationStrategy {
     public void markNotificationAsRead(NotificationDTO notification) {
         updateNotificationReadStatus(notification, true);
 
-        // save to database
-        executorService.execute(() -> saveNotification(NotificationVO.of(notification, true)));
+        // save to 'user_system_notification' table
+        executorService.execute(
+                () -> notificationMapper.saveUserSystemNotification(NotificationVO.of(notification, true)));
     }
 
     @Override
@@ -173,10 +176,5 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         boolean isRead = Optional.ofNullable(result).orElse(true);
 
         return NotificationVO.of(notification, isRead);
-    }
-
-    @Override
-    public void saveNotification(NotificationVO notification) {
-        notificationMapper.saveUserSystemNotification(notification);
     }
 }
