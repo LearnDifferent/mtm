@@ -59,4 +59,9 @@ public class NotificationStrategyContext {
         return checkAndGetStrategy(notificationType)
                 .getNotifications(recipientUserId, loadCount, isOrderReversed);
     }
+
+    public void saveNotification(NotificationVO notification) {
+        checkAndGetStrategy(notification.getNotificationType())
+                .saveNotification(notification);
+    }
 }

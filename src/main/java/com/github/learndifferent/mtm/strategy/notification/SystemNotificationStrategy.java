@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.strategy.notification;
 import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
+import com.github.learndifferent.mtm.mapper.NotificationMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Component;
 public class SystemNotificationStrategy implements NotificationStrategy {
 
     private final StringRedisTemplate redisTemplate;
+    private final NotificationMapper notificationMapper;
 
     @Override
     public void sendNotification(NotificationDTO notification) {
@@ -132,5 +134,10 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         boolean isRead = Optional.ofNullable(result).orElse(true);
 
         return NotificationVO.of(notification, isRead);
+    }
+
+    @Override
+    public void saveNotification(NotificationVO notification) {
+        notificationMapper.saveSystemNotification(notification);
     }
 }

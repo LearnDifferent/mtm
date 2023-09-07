@@ -160,6 +160,10 @@ public class NotificationManager {
         return RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(id);
     }
 
+    public void saveNotification(NotificationVO notification) {
+        notificationStrategyContext.saveNotification(notification);
+    }
+
     public void markNotificationAsRead(NotificationDTO notification) {
         notificationStrategyContext.markNotificationAsRead(notification);
     }

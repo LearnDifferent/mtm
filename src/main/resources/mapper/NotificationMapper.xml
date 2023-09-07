@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.learndifferent.mtm.mapper.NotificationMapper">
+
+    <insert id="saveSystemNotification" parameterType="com.github.learndifferent.mtm.vo.NotificationVO">
+        insert into system_notification(id,
+                                        recipient_user_id,
+                                        message,
+                                        creation_time,
+                                        sender,
+                                        is_read)
+        values (#{id}, #{recipientUserId}, #{message}, #{creationTime}, #{sender}, #{isRead})
+    </insert>
+
+    <insert id="saveReplyNotification" parameterType="com.github.learndifferent.mtm.vo.NotificationVO">
+        insert into reply_notification(id,
+                                       message,
+                                       creation_time,
+                                       sender,
+                                       recipient_user_id,
+                                       comment_id,
+                                       bookmark_id,
+                                       reply_to_comment_id,
+                                       is_read,
+                                       access_status)
+        values (#{id},
+                #{message},
+                #{creationTime},
+                #{sender},
+                #{recipientUserId},
+                #{commentId},
+                #{bookmarkId},
+                #{replyToCommentId},
+                #{isRead},
+                #{accessStatus})
+    </insert>
+
+</mapper>

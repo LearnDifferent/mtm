@@ -7,6 +7,7 @@ import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
+import com.github.learndifferent.mtm.mapper.NotificationMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
@@ -39,6 +40,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     private final BookmarkMapper bookmarkMapper;
     private final CommentMapper commentMapper;
     private final UserMapper userMapper;
+    private final NotificationMapper notificationMapper;
 
     @Override
     public void sendNotification(NotificationDTO notification) {
@@ -206,6 +208,11 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         String bookmarkOwnerUsername = bookmark.getUserName();
         Integer bookmarkOwnerUserId = userMapper.getUserIdByUsername(bookmarkOwnerUsername);
         return recipientUserId.equals(bookmarkOwnerUserId);
+    }
+
+    @Override
+    public void saveNotification(NotificationVO notification) {
+        notificationMapper.saveReplyNotification(notification);
     }
 
 }
