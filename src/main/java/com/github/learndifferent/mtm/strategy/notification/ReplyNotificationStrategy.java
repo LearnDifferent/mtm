@@ -17,12 +17,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +47,28 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     private final CommentMapper commentMapper;
     private final UserMapper userMapper;
     private final NotificationMapper notificationMapper;
+
+    private final ExecutorService executorService = new ThreadPoolExecutor(2,
+            5,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingDeque<>(),
+            new SaveReplyNotificationThreadFactory()
+    );
+
+    public static class SaveReplyNotificationThreadFactory implements ThreadFactory {
+
+        private static int threadNumber = 0;
+
+        private static synchronized int nextThreadNumber() {
+            return threadNumber++;
+        }
+
+        @Override
+        public Thread newThread(@NotNull Runnable r) {
+            return new Thread(r, "Thread-Save-Reply-Notification-" + nextThreadNumber());
+        }
+    }
 
     @Override
     public void sendNotification(NotificationDTO notification) {
@@ -61,6 +89,9 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         redisTemplate.opsForList().leftPush(key, content);
         // mark it as unread
         markNotificationAsUnread(notification);
+
+        // save the notification to database
+        executorService.execute(() -> saveNotification(NotificationVO.of(notification, false)));
     }
 
     @Override
