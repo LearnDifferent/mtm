@@ -35,4 +35,9 @@
                 #{accessStatus})
     </insert>
 
+    <insert id="saveSystemNotification" parameterType="com.github.learndifferent.mtm.dto.NotificationDTO">
+        insert into system_notification(id, message, creation_time, sender)
+        values (#{id}, #{message}, #{creationTime}, #{sender})
+    </insert>
+
 </mapper>

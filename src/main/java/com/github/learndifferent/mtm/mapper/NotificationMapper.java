@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.vo.NotificationVO;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +19,13 @@ public interface NotificationMapper {
      * @param notification notification
      */
     void saveReplyNotification(NotificationVO notification);
+
+    /**
+     * Save system notification to database
+     *
+     * @param notification notification
+     */
+    void saveSystemNotification(NotificationDTO notification);
 
     /**
      * Save user's read or unread system notification

@@ -140,5 +140,16 @@ CREATE TABLE IF NOT EXISTS `user_system_notification`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `system_notification`
+(
+    `id`            bigint unsigned NOT NULL,
+    `message`       varchar(600),
+    `creation_time` timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `sender`        varchar(256)    NOT NULL,
+    `update_time`   timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 insert into user(user_name, password, creation_time, role)
 values ('Guest', '0bb2b8178920142d4598bd4b61924a2c', CURRENT_DATE(), 'guest');
