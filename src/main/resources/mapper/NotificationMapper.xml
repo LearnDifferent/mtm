@@ -91,4 +91,22 @@
         and c.id is not null
         limit #{loadCount}
     </select>
+
+    <select id="getUnreadSystemNotifications" resultType="com.github.learndifferent.mtm.vo.NotificationVO">
+        select 'SYSTEM_NOTIFICATION' as notificationType,
+               0                     as isRead,
+               s.id,
+               s.message,
+               s.creation_time,
+               s.sender
+        from system_notification s
+        where s.id not in (
+            -- get IDs of read notification
+            select u.notification_id
+            from user_system_notification u
+            where u.recipient_user_id = #{recipientUserId}
+              and u.is_read = 1
+        )
+        limit #{loadCount}
+    </select>
 </mapper>

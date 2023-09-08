@@ -53,4 +53,14 @@ public interface NotificationMapper {
      */
     List<NotificationVO> getUnreadReplyNotifications(@Param("recipientUserId") long recipientUserId,
                                                      @Param("loadCount") int loadCount);
+
+    /**
+     * Retrieve unread system notifications
+     *
+     * @param recipientUserId ID of recipient user
+     * @param loadCount       Number of notifications to be loaded
+     * @return unread system notifications
+     */
+    List<NotificationVO> getUnreadSystemNotifications(@Param("recipientUserId") long recipientUserId,
+                                                      @Param("loadCount") int loadCount);
 }
