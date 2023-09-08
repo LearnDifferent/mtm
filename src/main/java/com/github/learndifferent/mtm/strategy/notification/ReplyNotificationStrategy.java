@@ -53,10 +53,10 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
             60L,
             TimeUnit.SECONDS,
             new LinkedBlockingDeque<>(),
-            new SaveReplyNotificationThreadFactory()
+            new ReplyNotificationThreadFactory()
     );
 
-    public static class SaveReplyNotificationThreadFactory implements ThreadFactory {
+    public static class ReplyNotificationThreadFactory implements ThreadFactory {
 
         private static int threadNumber = 0;
 
@@ -66,7 +66,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
         @Override
         public Thread newThread(@NotNull Runnable r) {
-            return new Thread(r, "Thread-Save-Reply-Notification-" + nextThreadNumber());
+            return new Thread(r, "Thread-Reply-Notification-" + nextThreadNumber());
         }
     }
 
@@ -91,7 +91,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         markNotificationAsUnread(notification);
 
         // save the notification to database
-        executorService.execute(() -> saveNotification(NotificationVO.of(notification, false)));
+        executorService.execute(() -> notificationMapper.saveReplyNotification(NotificationVO.of(notification, false)));
     }
 
     @Override
@@ -120,7 +120,11 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     private void updateNotificationReadStatus(long notificationId, Integer recipientUserId, boolean isUnread) {
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
         long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);
+        // set read status in Redis (0 for read, 1 for unread)
         redisTemplate.opsForValue().setBit(key, offset, isUnread);
+
+        // save the read status to database
+        executorService.execute(() -> notificationMapper.updateReplyNotificationReadStatus(!isUnread, notificationId));
     }
 
     @Override
@@ -239,11 +243,6 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         String bookmarkOwnerUsername = bookmark.getUserName();
         Integer bookmarkOwnerUserId = userMapper.getUserIdByUsername(bookmarkOwnerUsername);
         return recipientUserId.equals(bookmarkOwnerUserId);
-    }
-
-    @Override
-    public void saveNotification(NotificationVO notification) {
-        notificationMapper.saveReplyNotification(notification);
     }
 
 }

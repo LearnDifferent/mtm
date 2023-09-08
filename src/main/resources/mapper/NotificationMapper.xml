@@ -40,4 +40,10 @@
         values (#{id}, #{message}, #{creationTime}, #{sender})
     </insert>
 
+    <update id="updateReplyNotificationReadStatus">
+        update reply_notification
+        set is_read = #{isRead}
+        where id = #{id}
+    </update>
+
 </mapper>
