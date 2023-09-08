@@ -7,6 +7,7 @@ import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
+import com.github.learndifferent.mtm.mapper.NotificationMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
@@ -16,13 +17,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +46,29 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     private final BookmarkMapper bookmarkMapper;
     private final CommentMapper commentMapper;
     private final UserMapper userMapper;
+    private final NotificationMapper notificationMapper;
+
+    private final ExecutorService executorService = new ThreadPoolExecutor(2,
+            5,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingDeque<>(),
+            new ReplyNotificationThreadFactory()
+    );
+
+    public static class ReplyNotificationThreadFactory implements ThreadFactory {
+
+        private static int threadNumber = 0;
+
+        private static synchronized int nextThreadNumber() {
+            return threadNumber++;
+        }
+
+        @Override
+        public Thread newThread(@NotNull Runnable r) {
+            return new Thread(r, "Thread-Reply-Notification-" + nextThreadNumber());
+        }
+    }
 
     @Override
     public void sendNotification(NotificationDTO notification) {
@@ -60,6 +89,9 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         redisTemplate.opsForList().leftPush(key, content);
         // mark it as unread
         markNotificationAsUnread(notification);
+
+        // save the notification to database
+        executorService.execute(() -> notificationMapper.saveReplyNotification(NotificationVO.of(notification, false)));
     }
 
     @Override
@@ -68,7 +100,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private void markNotificationAsRead(NotificationVO notification) {
-        UUID notificationId = notification.getId();
+        long notificationId = notification.getId();
         Integer recipientUserId = notification.getRecipientUserId();
         updateNotificationReadStatus(notificationId, recipientUserId, false);
     }
@@ -80,18 +112,19 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
     private void updateNotificationReadStatus(NotificationDTO notification, boolean isUnread) {
         Integer userId = notification.getRecipientUserId();
-        UUID notificationId = notification.getId();
+        long notificationId = notification.getId();
 
         updateNotificationReadStatus(notificationId, userId, isUnread);
     }
 
-    private void updateNotificationReadStatus(UUID notificationId, Integer recipientUserId, boolean isUnread) {
-        // key: prefix + user ID
-        // offset: a derived value based on the notification ID
-        // indicate the notifications that the user hasn't read yet
+    private void updateNotificationReadStatus(long notificationId, Integer recipientUserId, boolean isUnread) {
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
         long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);
+        // set read status in Redis (0 for read, 1 for unread)
         redisTemplate.opsForValue().setBit(key, offset, isUnread);
+
+        // save the read status to database
+        executorService.execute(() -> notificationMapper.updateReplyNotificationReadStatus(!isUnread, notificationId));
     }
 
     @Override
@@ -144,7 +177,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
     private NotificationVO getReadStatusAndGenerateNotificationVO(NotificationDTO notification) {
         Integer userId = notification.getRecipientUserId();
-        UUID notificationId = notification.getId();
+        long notificationId = notification.getId();
 
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(userId);
         long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);

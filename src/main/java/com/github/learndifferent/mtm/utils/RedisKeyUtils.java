@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.utils;
 
 import com.github.learndifferent.mtm.constant.consist.RedisConstant;
-import java.util.UUID;
 
 /**
  * A class offering utilities for working with Redis keys (and Bitmap offsets)
@@ -22,15 +21,15 @@ public class RedisKeyUtils {
         return RedisConstant.USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX + recipientUserId;
     }
 
-    public static long getReplyNotificationReadStatusOffset(UUID notificationId) {
-        return Math.abs(notificationId.hashCode());
+    public static long getReplyNotificationReadStatusOffset(long notificationId) {
+        return notificationId;
     }
 
     public static String getSystemNotificationKey() {
         return RedisConstant.SYSTEM_NOTIFICATIONS;
     }
 
-    public static String getSysNotificationReadStatusReadByUserKey(UUID notificationId) {
+    public static String getSysNotificationReadStatusReadByUserKey(Long notificationId) {
         return RedisConstant.SYS_NOTIFICATION_READ_STATUS_READ_BY_USER_PREFIX + notificationId;
     }
 
@@ -42,8 +41,8 @@ public class RedisKeyUtils {
         return RedisConstant.SYS_NOTIFICATION_READ_STATUS_TRACK_NOTIFICATIONS_OF_USER_PREFIX + userId;
     }
 
-    public static long getSysNotificationReadStatusTrackNotificationsOfUserOffset(UUID notificationId) {
-        return Math.abs(notificationId.hashCode());
+    public static long getSysNotificationReadStatusTrackNotificationsOfUserOffset(long notificationId) {
+        return notificationId;
     }
 
     public static String getCurrentId(String bizTag) {
