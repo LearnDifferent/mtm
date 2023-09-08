@@ -21,8 +21,7 @@
                                        comment_id,
                                        bookmark_id,
                                        reply_to_comment_id,
-                                       is_read,
-                                       access_status)
+                                       is_read)
         values (#{id},
                 #{message},
                 #{creationTime},
@@ -31,8 +30,7 @@
                 #{commentId},
                 #{bookmarkId},
                 #{replyToCommentId},
-                #{isRead},
-                #{accessStatus})
+                #{isRead})
     </insert>
 
     <insert id="saveSystemNotification" parameterType="com.github.learndifferent.mtm.dto.NotificationDTO">
@@ -46,4 +44,51 @@
         where id = #{id}
     </update>
 
+    <select id="getUnreadReplyNotifications" resultType="com.github.learndifferent.mtm.vo.NotificationVO">
+        select
+        'REPLY_NOTIFICATION' as notificationType,
+        rn.id,
+        <!-- the reply notification message is the newest comment content -->
+        c.comment as message,
+        rn.creation_time,
+        <!-- the sender is the user who sent the comment -->
+        c.username as sender,
+        rn.recipient_user_id,
+        rn.comment_id,
+        rn.bookmark_id,
+        rn.reply_to_comment_id,
+        false as isRead,
+        <!-- if bookmark is private and the recipient user is not the bookmark owner,
+        then the access status is 'UNAUTHORIZED'-->
+        if(b.is_public = 0 and lower(b.user_name) != lower(b.user_name),
+        'UNAUTHORIZED',
+        'ACCESSIBLE')
+        as accessStatus
+        from reply_notification rn
+        inner join user u
+        <!-- Filter the recipient user by using an 'inner join'.
+        This ensures the recipient user is present and targeted -->
+        on rn.recipient_user_id = #{recipientUserId}
+        and u.id = rn.recipient_user_id
+        left join bookmark b
+        on rn.is_read = 0
+        and rn.bookmark_id = b.id
+        <!-- consider as 'read' if bookmark is deleted -->
+        and b.is_deleted = 0
+        left join comment c
+        on rn.comment_id = c.id
+        <!-- consider as 'read' if comment is deleted -->
+        and c.is_deleted = 0
+        <!-- consider as 'read' if comment is blank -->
+        and c.comment is not null
+        and c.comment != ''
+        where
+        <!-- is_read is false -->
+        rn.is_read = 0
+        <!-- consider as 'read' if bookmark is not present -->
+        and b.id is not null
+        <!-- consider as 'read' if comment is not present -->
+        and c.id is not null
+        limit #{loadCount}
+    </select>
 </mapper>
