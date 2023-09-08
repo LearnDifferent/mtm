@@ -109,5 +109,47 @@ CREATE TABLE IF NOT EXISTS `id_generator`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `reply_notification`
+(
+    `id`                  bigint unsigned NOT NULL,
+    `message`             varchar(600),
+    `creation_time`       timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `sender`              varchar(256)    NOT NULL,
+    `recipient_user_id`   int unsigned,
+    `comment_id`          int unsigned,
+    `bookmark_id`         int unsigned,
+    `reply_to_comment_id` int unsigned,
+    `is_read`             boolean                  DEFAULT false,
+    `access_status`       varchar(128),
+    `update_time`         timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `user_system_notification`
+(
+    `notification_id`   bigint unsigned NOT NULL,
+    `recipient_user_id` int unsigned    NOT NULL,
+    `message`           varchar(600),
+    `creation_time`     timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `sender`            varchar(256)    NOT NULL,
+    `is_read`           boolean                  DEFAULT false,
+    `update_time`       timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- the primary key is notification ID and user ID
+    PRIMARY KEY (`notification_id`, `recipient_user_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `system_notification`
+(
+    `id`            bigint unsigned NOT NULL,
+    `message`       varchar(600),
+    `creation_time` timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `sender`        varchar(256)    NOT NULL,
+    `update_time`   timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
 insert into user(user_name, password, creation_time, role)
 values ('Guest', '0bb2b8178920142d4598bd4b61924a2c', CURRENT_DATE(), 'guest');

@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.strategy.notification;
 import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
+import com.github.learndifferent.mtm.mapper.NotificationMapper;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -10,10 +11,16 @@ import com.github.learndifferent.mtm.vo.NotificationVO;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +40,28 @@ import org.springframework.stereotype.Component;
 public class SystemNotificationStrategy implements NotificationStrategy {
 
     private final StringRedisTemplate redisTemplate;
+    private final NotificationMapper notificationMapper;
+    private final ExecutorService executorService = new ThreadPoolExecutor(2,
+            5,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingDeque<>(),
+            new SystemNotificationThreadFactory()
+    );
+
+    public static class SystemNotificationThreadFactory implements ThreadFactory {
+
+        private static int threadNumber = 0;
+
+        private static synchronized int nextThreadNumber() {
+            return threadNumber++;
+        }
+
+        @Override
+        public Thread newThread(@NotNull Runnable r) {
+            return new Thread(r, "Thread-System-Notification-" + nextThreadNumber());
+        }
+    }
 
     @Override
     public void sendNotification(NotificationDTO notification) {
@@ -40,8 +69,15 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         String content = JsonUtils.toJson(notification);
         String key = RedisKeyUtils.getSystemNotificationKey();
         redisTemplate.opsForList().leftPush(key, content);
+        // save system notification to the table
+        executorService.execute(() -> notificationMapper.saveSystemNotification(notification));
     }
 
+    /**
+     * Mark system message as read.
+     *
+     * @param notification notification data
+     */
     @Override
     public void markNotificationAsRead(NotificationDTO notification) {
         updateNotificationReadStatus(notification, true);
@@ -52,6 +88,19 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         updateNotificationReadStatus(notification, false);
     }
 
+    /**
+     * Store whether a particular notification has been read by a user
+     * and track the notifications that a specific user has read in Redis.
+     * When a system message is marked as 'read' or 'unread',
+     * it is then inserted into the 'user_system_notification' table
+     * in the database if the record does not exist.
+     * If the record already exists, it is updated accordingly.
+     * Please note that the primary key of the 'user_system_notification' table
+     * is the combination of the notification ID and user ID.
+     *
+     * @param notification notification
+     * @param isRead       read status
+     */
     private void updateNotificationReadStatus(NotificationDTO notification, boolean isRead) {
         long notificationId = notification.getId();
         Integer userId = notification.getRecipientUserId();
@@ -71,6 +120,11 @@ public class SystemNotificationStrategy implements NotificationStrategy {
                 .getSysNotificationReadStatusTrackNotificationsOfUserOffset(notificationId);
         // 0 stands for unread, 1 stand for read
         redisTemplate.opsForValue().setBit(userReadStatusKey, userReadStatusOffset, isRead);
+
+        // 3. `replace into` user_system_notification table
+        executorService.execute(
+                () -> notificationMapper
+                        .upsertUserSystemNotification(NotificationVO.of(notification, isRead)));
     }
 
     @Override
