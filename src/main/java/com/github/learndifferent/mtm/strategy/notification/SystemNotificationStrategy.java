@@ -75,20 +75,12 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
     /**
      * Mark system message as read.
-     * <p>
-     * When a system message is marked as 'read', it is then save to 'user_system_notification' table in the database.
-     * Note that the primary key of 'user_system_notification' table is notification ID and user ID.
-     * </p>
      *
      * @param notification notification data
      */
     @Override
     public void markNotificationAsRead(NotificationDTO notification) {
         updateNotificationReadStatus(notification, true);
-
-        // save to 'user_system_notification' table
-        executorService.execute(
-                () -> notificationMapper.saveUserSystemNotification(NotificationVO.of(notification, true)));
     }
 
     @Override
@@ -96,6 +88,19 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         updateNotificationReadStatus(notification, false);
     }
 
+    /**
+     * Store whether a particular notification has been read by a user
+     * and track the notifications that a specific user has read in Redis.
+     * When a system message is marked as 'read' or 'unread',
+     * it is then inserted into the 'user_system_notification' table
+     * in the database if the record does not exist.
+     * If the record already exists, it is updated accordingly.
+     * Please note that the primary key of the 'user_system_notification' table
+     * is the combination of the notification ID and user ID.
+     *
+     * @param notification notification
+     * @param isRead       read status
+     */
     private void updateNotificationReadStatus(NotificationDTO notification, boolean isRead) {
         long notificationId = notification.getId();
         Integer userId = notification.getRecipientUserId();
@@ -115,6 +120,11 @@ public class SystemNotificationStrategy implements NotificationStrategy {
                 .getSysNotificationReadStatusTrackNotificationsOfUserOffset(notificationId);
         // 0 stands for unread, 1 stand for read
         redisTemplate.opsForValue().setBit(userReadStatusKey, userReadStatusOffset, isRead);
+
+        // 3. `replace into` user_system_notification table
+        executorService.execute(
+                () -> notificationMapper
+                        .upsertUserSystemNotification(NotificationVO.of(notification, isRead)));
     }
 
     @Override

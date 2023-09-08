@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.NotificationMapper">
 
-    <insert id="saveUserSystemNotification" parameterType="com.github.learndifferent.mtm.vo.NotificationVO">
+    <insert id="upsertUserSystemNotification" parameterType="com.github.learndifferent.mtm.vo.NotificationVO">
         replace into user_system_notification(notification_id,
                                               recipient_user_id,
                                               message,

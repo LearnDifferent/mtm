@@ -29,11 +29,11 @@ public interface NotificationMapper {
     void saveSystemNotification(NotificationDTO notification);
 
     /**
-     * Save user's read or unread system notification
+     * Insert or update (replace into) user's read or unread system notification
      *
      * @param notification notification
      */
-    void saveUserSystemNotification(NotificationVO notification);
+    void upsertUserSystemNotification(NotificationVO notification);
 
     /**
      * Update the read status of reply notification
