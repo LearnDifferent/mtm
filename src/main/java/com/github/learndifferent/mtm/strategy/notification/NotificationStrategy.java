@@ -42,4 +42,14 @@ public interface NotificationStrategy {
      * @return notifications
      */
     List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount, boolean isOrderReversed);
+
+    /**
+     * Get unread notifications
+     *
+     * @param recipientUserId User ID
+     * @param loadCount       load count
+     * @param isOrderReversed true if reverse order
+     * @return unread notifications
+     */
+    List<NotificationVO> getUnreadNotifications(long recipientUserId, int loadCount, boolean isOrderReversed);
 }

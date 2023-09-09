@@ -67,6 +67,16 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public List<NotificationVO> getUnreadNotifications(NotificationType notificationType,
+                                                       String recipientUsername,
+                                                       int loadCount,
+                                                       boolean isOrderReversed) {
+        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
+        return notificationManager.getUnreadNotifications(notificationType, recipientUserId, loadCount,
+                isOrderReversed);
+    }
+
+    @Override
     public void sendSystemNotification(String sender, String message) {
         notificationManager.sendSystemNotification(sender, message);
     }

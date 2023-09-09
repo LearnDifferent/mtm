@@ -120,7 +120,6 @@ CREATE TABLE IF NOT EXISTS `reply_notification`
     `bookmark_id`         int unsigned,
     `reply_to_comment_id` int unsigned,
     `is_read`             boolean                  DEFAULT false,
-    `access_status`       varchar(128),
     `update_time`         timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
