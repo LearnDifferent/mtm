@@ -45,7 +45,7 @@ public class RedisKeyUtils {
         return notificationId;
     }
 
-    public static String getCurrentId(String bizTag) {
+    public static String getCurrentIdKey(String bizTag) {
         return RedisConstant.CURRENT_ID_PREFIX + bizTag;
     }
 }
