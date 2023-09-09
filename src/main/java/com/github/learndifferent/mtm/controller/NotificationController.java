@@ -62,6 +62,28 @@ public class NotificationController {
     }
 
     /**
+     * Get unread notifications
+     *
+     * @param notificationType Notification type
+     * @param loadCount        Number of notifications to be loaded
+     * @param isOrderReversed  true if reverse order
+     * @return List of unread notifications
+     * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
+     *                                                                  exception with the result code of
+     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
+     */
+    @GetMapping("/unread")
+    public List<NotificationVO> getUnreadNotifications(
+            @RequestParam(value = "notificationType") NotificationType notificationType,
+            @RequestParam(value = "loadCount", defaultValue = "10")
+            @Positive(message = ErrorInfoConstant.NO_DATA) int loadCount,
+            @RequestParam("isOrderReversed") boolean isOrderReversed) {
+
+        String username = StpUtil.getLoginIdAsString();
+        return notificationService.getUnreadNotifications(notificationType, username, loadCount, isOrderReversed);
+    }
+
+    /**
      * Mark the notification as read
      *
      * @param data notification data

@@ -187,4 +187,13 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
         return NotificationVO.of(notification, isRead);
     }
+
+    @Override
+    public List<NotificationVO> getUnreadNotifications(long recipientUserId, int loadCount, boolean isOrderReversed) {
+        List<NotificationVO> result = notificationMapper.getUnreadSystemNotifications(
+                recipientUserId, loadCount, isOrderReversed);
+        boolean hasNoResults = CollectionUtils.isEmpty(result);
+        ThrowExceptionUtils.throwIfTrue(hasNoResults, ResultCode.NO_RESULTS_FOUND);
+        return result;
+    }
 }

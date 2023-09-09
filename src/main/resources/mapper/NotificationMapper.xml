@@ -89,6 +89,10 @@
         and b.id is not null
         <!-- consider as 'read' if comment is not present -->
         and c.id is not null
+        order by rn.id
+        <if test="isDescending == true">
+            desc
+        </if>
         limit #{loadCount}
     </select>
 
@@ -98,16 +102,20 @@
                s.id,
                s.message,
                s.creation_time,
-               s.sender,
-               #{recipientUserId}    as recipientUserId
+        s.sender,
+        #{recipientUserId} as recipientUserId
         from system_notification s
         where s.id not in (
-            -- get IDs of read notification
-            select u.notification_id
-            from user_system_notification u
-            where u.recipient_user_id = #{recipientUserId}
-              and u.is_read = 1
+        -- get IDs of read notification
+        select u.notification_id
+        from user_system_notification u
+        where u.recipient_user_id = #{recipientUserId}
+        and u.is_read = 1
         )
+        order by s.id
+        <if test="isDescending == true">
+            desc
+        </if>
         limit #{loadCount}
     </select>
 </mapper>

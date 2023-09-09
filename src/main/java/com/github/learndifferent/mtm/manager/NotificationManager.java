@@ -79,6 +79,14 @@ public class NotificationManager {
                 notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 
+    public List<NotificationVO> getUnreadNotifications(NotificationType notificationType,
+                                                       Integer recipientUserId,
+                                                       int loadCount,
+                                                       boolean isOrderReversed) {
+        return notificationStrategyContext.getUnreadNotifications(
+                notificationType, recipientUserId, loadCount, isOrderReversed);
+    }
+
     public long countAllReplyNotifications(Integer recipientUserId) {
         String key = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
         Long size = this.redisTemplate.opsForList().size(key);

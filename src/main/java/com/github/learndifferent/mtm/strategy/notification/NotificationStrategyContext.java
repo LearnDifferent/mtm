@@ -59,4 +59,12 @@ public class NotificationStrategyContext {
         return checkAndGetStrategy(notificationType)
                 .getNotifications(recipientUserId, loadCount, isOrderReversed);
     }
+
+    public List<NotificationVO> getUnreadNotifications(NotificationType notificationType,
+                                                       long recipientUserId,
+                                                       int loadCount,
+                                                       boolean isOrderReversed) {
+        return checkAndGetStrategy(notificationType)
+                .getUnreadNotifications(recipientUserId, loadCount, isOrderReversed);
+    }
 }
