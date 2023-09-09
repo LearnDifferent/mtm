@@ -98,7 +98,8 @@
                s.id,
                s.message,
                s.creation_time,
-               s.sender
+               s.sender,
+               #{recipientUserId}    as recipientUserId
         from system_notification s
         where s.id not in (
             -- get IDs of read notification
