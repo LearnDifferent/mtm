@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.mapper;
 
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.vo.NotificationVO;
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -42,4 +43,28 @@ public interface NotificationMapper {
      * @param id     reply notification ID
      */
     void updateReplyNotificationReadStatus(@Param("isRead") boolean isRead, @Param("id") long id);
+
+    /**
+     * Retrieve unread reply notifications
+     *
+     * @param recipientUserId ID of recipient user
+     * @param loadCount       Number of notifications to be loaded
+     * @param isDescending    true if descending
+     * @return unread reply notifications
+     */
+    List<NotificationVO> getUnreadReplyNotifications(@Param("recipientUserId") long recipientUserId,
+                                                     @Param("loadCount") int loadCount,
+                                                     @Param("isDescending") boolean isDescending);
+
+    /**
+     * Retrieve unread system notifications
+     *
+     * @param recipientUserId ID of recipient user
+     * @param loadCount       Number of notifications to be loaded
+     * @param isDescending    true if descending
+     * @return unread system notifications
+     */
+    List<NotificationVO> getUnreadSystemNotifications(@Param("recipientUserId") long recipientUserId,
+                                                      @Param("loadCount") int loadCount,
+                                                      @Param("isDescending") boolean isDescending);
 }
