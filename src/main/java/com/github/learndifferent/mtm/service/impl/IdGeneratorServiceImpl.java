@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.consist.IdGeneratorConstant;
-import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.dto.id.Segment;
 import com.github.learndifferent.mtm.dto.id.SegmentBuffer;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -31,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -185,7 +183,6 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
     }
 
     @Override
-    @CachePut(value = RedisConstant.CURRENT_ID_PREFIX, key = "#tag")
     public long generateId(String tag) {
         if (!isInitialized) {
             log.warn("ID Generator Service has not been initialized");
@@ -231,7 +228,13 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
             buffer.setInitialized(true);
         }
         //  get the ID from buffer if initialized
-        return getIdFromSegmentBuffer(buffer);
+        long id = getIdFromSegmentBuffer(buffer);
+
+        // save the current ID to cache
+        String currentIdKey = RedisKeyUtils.getCurrentIdKey(tag);
+        redisTemplate.opsForValue().set(currentIdKey, String.valueOf(id));
+
+        return id;
     }
 
     private long generateFirstIdForNewlyAddedTag(String tag, long maxId) {
@@ -287,7 +290,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
 
     private long getCurrentIdFromRedisCacheOrCalculateIt(String tag, long maxId) {
         // if the current ID is in the Redis cache, get it from the cache
-        String currentIdKey = RedisKeyUtils.getCurrentId(tag);
+        String currentIdKey = RedisKeyUtils.getCurrentIdKey(tag);
         String currentIdString = redisTemplate.opsForValue().get(currentIdKey);
         boolean hasCurrentIdInCache = StringUtils.isNotBlank(currentIdString);
         if (hasCurrentIdInCache) {
