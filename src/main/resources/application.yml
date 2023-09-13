@@ -30,18 +30,30 @@ custom-async:
   core-pool-size: 3
   alive-seconds: 30
   queue-capacity: 50
-# Redis Configuration
+# Redis Key Configuration
 custom-redis:
   port: 6379
   cache-configs:
-    "[comment:count]": 10
-    "[user:name]": 10
-    "[tag:all]": 10
-    "[tag:popular]": 10
-    "[empty:user:all]": 20
-    "system:log": 40
-    "[bookmarks:visited]": 0
-    "[tag:a]": 0
+    # Key Constant
+    COMMENT_COUNT:
+      # Redis Key: ttl
+      # Map<String, Map<String, Long>>
+      # e.g. {COMMENT_COUNT: {comment:count : 10} }
+      "[comment:count]": 10
+    USER_NAME:
+      "[user:name]": 10
+    TAG_ALL:
+      "[tag:all]": 10
+    TAG_POPULAR:
+      "[tag:popular]": 10
+    EMPTY_USER_ALL:
+      "[empty:user:all]": 20
+    SYSTEM_LOG:
+      "[system:log]": 40
+    BOOKMARK_VISITED:
+      "[bookmarks:visited]": 0
+    TAG_ONE:
+      "[tag:one]": 0
 # IdempotencyCheck Configuration
 idempotency-config:
   timeout: 35
