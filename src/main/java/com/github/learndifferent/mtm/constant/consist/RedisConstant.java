@@ -86,4 +86,14 @@ public final class RedisConstant {
      * Idempotency key prefix
      */
     public static final String IDEMPOTENCY_KEY_PREFIX = "idempotency:key:";
+
+
+    public static final String COMMENT_COUNT = "COMMENT_COUNT";
+    public static final String USER_NAME = "USER_NAME";
+    public static final String TAG_ALL = "TAG_ALL";
+    public static final String TAG_POPULAR = "TAG_POPULAR";
+    public static final String EMPTY_USER_ALL = "EMPTY_USER_ALL";
+    public static final String SYSTEM_LOG = "SYSTEM_LOG";
+    public static final String BOOKMARK_VISITED = "BOOKMARK_VISITED";
+    public static final String TAG_ONE = "TAG_ONE";
 }
