@@ -75,4 +75,12 @@ public interface NotificationMapper {
     List<NotificationVO> getUnreadSystemNotifications(@Param("recipientUserId") long recipientUserId,
                                                       @Param("loadCount") int loadCount,
                                                       @Param("isDescending") boolean isDescending);
+
+    /**
+     * Count unread system notifications
+     *
+     * @param recipientUserId ID of recipient user
+     * @return unread system notification count
+     */
+    int countUnreadSystemNotifications(@Param("recipientUserId") long recipientUserId);
 }

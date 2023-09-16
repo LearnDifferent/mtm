@@ -117,18 +117,30 @@
         s.creation_time,
         s.sender,
         #{recipientUserId} as recipientUserId
-        from system_notification s
-        where s.id not in (
-        -- get IDs of read notification
-        select u.notification_id
-        from user_system_notification u
-        where u.recipient_user_id = #{recipientUserId}
-        and u.is_read = 1
-        )
+
+        <!-- From...... -->
+        <include refid="Unread_System_Notifications_From_Where_Clause"/>
+
         order by s.id
         <if test="isDescending == true">
             desc
         </if>
         limit #{loadCount}
+    </select>
+
+    <sql id="Unread_System_Notifications_From_Where_Clause">
+        from system_notification s
+        where s.id not in (
+        <!-- get IDs of read notification -->
+        select u.notification_id
+        from user_system_notification u
+        where u.recipient_user_id = #{recipientUserId}
+        and u.is_read = 1
+        )
+    </sql>
+
+    <select id="countUnreadSystemNotifications" resultType="java.lang.Integer">
+        select count(*)
+        <include refid="Unread_System_Notifications_From_Where_Clause"/>
     </select>
 </mapper>
