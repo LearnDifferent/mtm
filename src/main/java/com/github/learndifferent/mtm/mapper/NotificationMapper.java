@@ -57,6 +57,14 @@ public interface NotificationMapper {
                                                      @Param("isDescending") boolean isDescending);
 
     /**
+     * Count unread reply notifications
+     *
+     * @param recipientUserId ID of recipient user
+     * @return unread reply notification count
+     */
+    int countUnreadReplyNotifications(@Param("recipientUserId") long recipientUserId);
+
+    /**
      * Retrieve unread system notifications
      *
      * @param recipientUserId ID of recipient user
