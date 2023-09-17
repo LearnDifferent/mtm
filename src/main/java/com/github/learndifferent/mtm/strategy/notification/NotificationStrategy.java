@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.strategy.notification;
 
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.vo.NotificationVO;
+import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.util.List;
 
 /**
@@ -44,12 +45,12 @@ public interface NotificationStrategy {
     List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount, boolean isOrderReversed);
 
     /**
-     * Get unread notifications
+     * Retrieve unread notifications and their count
      *
      * @param recipientUserId User ID
      * @param loadCount       load count
      * @param isOrderReversed true if reverse order
-     * @return unread notifications
+     * @return unread notifications and count
      */
-    List<NotificationVO> getUnreadNotifications(long recipientUserId, int loadCount, boolean isOrderReversed);
+    NotificationsAndCountVO getUnreadNotificationAndCount(long recipientUserId, int loadCount, boolean isOrderReversed);
 }

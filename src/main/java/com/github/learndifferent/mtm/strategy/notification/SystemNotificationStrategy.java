@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
+import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -189,11 +190,18 @@ public class SystemNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
-    public List<NotificationVO> getUnreadNotifications(long recipientUserId, int loadCount, boolean isOrderReversed) {
-        List<NotificationVO> result = notificationMapper.getUnreadSystemNotifications(
+    public NotificationsAndCountVO getUnreadNotificationAndCount(long recipientUserId,
+                                                                 int loadCount,
+                                                                 boolean isOrderReversed) {
+        // count
+        int count = notificationMapper.countUnreadSystemNotifications(recipientUserId);
+        if (count == 0) {
+            return new NotificationsAndCountVO(Collections.emptyList(), 0);
+        }
+
+        // notifications
+        List<NotificationVO> notifications = notificationMapper.getUnreadSystemNotifications(
                 recipientUserId, loadCount, isOrderReversed);
-        boolean hasNoResults = CollectionUtils.isEmpty(result);
-        ThrowExceptionUtils.throwIfTrue(hasNoResults, ResultCode.NO_RESULTS_FOUND);
-        return result;
+        return new NotificationsAndCountVO(notifications, count);
     }
 }
