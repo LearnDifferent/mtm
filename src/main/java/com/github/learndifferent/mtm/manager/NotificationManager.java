@@ -14,6 +14,7 @@ import com.github.learndifferent.mtm.strategy.notification.NotificationStrategyC
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
+import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -79,11 +80,11 @@ public class NotificationManager {
                 notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 
-    public List<NotificationVO> getUnreadNotifications(NotificationType notificationType,
-                                                       Integer recipientUserId,
-                                                       int loadCount,
-                                                       boolean isOrderReversed) {
-        return notificationStrategyContext.getUnreadNotifications(
+    public NotificationsAndCountVO getUnreadNotificationsAndCount(NotificationType notificationType,
+                                                                  Integer recipientUserId,
+                                                                  int loadCount,
+                                                                  boolean isOrderReversed) {
+        return notificationStrategyContext.getUnreadNotificationsAndCount(
                 notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 

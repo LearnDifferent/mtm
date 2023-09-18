@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.NotificationVO;
+import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -60,11 +61,11 @@ public class NotificationStrategyContext {
                 .getNotifications(recipientUserId, loadCount, isOrderReversed);
     }
 
-    public List<NotificationVO> getUnreadNotifications(NotificationType notificationType,
-                                                       long recipientUserId,
-                                                       int loadCount,
-                                                       boolean isOrderReversed) {
+    public NotificationsAndCountVO getUnreadNotificationsAndCount(NotificationType notificationType,
+                                                                  long recipientUserId,
+                                                                  int loadCount,
+                                                                  boolean isOrderReversed) {
         return checkAndGetStrategy(notificationType)
-                .getUnreadNotifications(recipientUserId, loadCount, isOrderReversed);
+                .getUnreadNotificationAndCount(recipientUserId, loadCount, isOrderReversed);
     }
 }

@@ -10,6 +10,7 @@ import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.vo.NotificationVO;
+import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.util.List;
 import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -62,25 +63,23 @@ public class NotificationController {
     }
 
     /**
-     * Get unread notifications
+     * Retrieve unread notifications and their count
      *
      * @param notificationType Notification type
      * @param loadCount        Number of notifications to be loaded
      * @param isOrderReversed  true if reverse order
-     * @return List of unread notifications
-     * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
-     *                                                                  exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
+     * @return Unread notifications and count
      */
     @GetMapping("/unread")
-    public List<NotificationVO> getUnreadNotifications(
+    public NotificationsAndCountVO getUnreadNotificationsAndCount(
             @RequestParam(value = "notificationType") NotificationType notificationType,
             @RequestParam(value = "loadCount", defaultValue = "10")
             @Positive(message = ErrorInfoConstant.NO_DATA) int loadCount,
             @RequestParam("isOrderReversed") boolean isOrderReversed) {
 
         String username = StpUtil.getLoginIdAsString();
-        return notificationService.getUnreadNotifications(notificationType, username, loadCount, isOrderReversed);
+        return notificationService
+                .getUnreadNotificationsAndCount(notificationType, username, loadCount, isOrderReversed);
     }
 
     /**
