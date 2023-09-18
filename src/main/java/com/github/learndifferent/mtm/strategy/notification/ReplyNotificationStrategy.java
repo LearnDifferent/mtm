@@ -247,6 +247,13 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
+    public long countAllNotifications(Integer recipientUserId) {
+        String key = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
+        Long size = this.redisTemplate.opsForList().size(key);
+        return Optional.ofNullable(size).orElse(0L);
+    }
+
+    @Override
     public NotificationsAndCountVO getUnreadNotificationAndCount(long recipientUserId,
                                                                  int loadCount,
                                                                  boolean isOrderReversed) {

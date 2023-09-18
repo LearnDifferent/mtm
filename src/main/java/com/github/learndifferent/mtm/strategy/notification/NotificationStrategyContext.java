@@ -61,6 +61,11 @@ public class NotificationStrategyContext {
                 .getNotifications(recipientUserId, loadCount, isOrderReversed);
     }
 
+    public long countAllNotifications(NotificationType notificationType, Integer recipientUserId) {
+        return checkAndGetStrategy(notificationType)
+                .countAllNotifications(recipientUserId);
+    }
+
     public NotificationsAndCountVO getUnreadNotificationsAndCount(NotificationType notificationType,
                                                                   long recipientUserId,
                                                                   int loadCount,

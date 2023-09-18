@@ -89,15 +89,11 @@ public class NotificationManager {
     }
 
     public long countAllReplyNotifications(Integer recipientUserId) {
-        String key = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
-        Long size = this.redisTemplate.opsForList().size(key);
-        return Optional.ofNullable(size).orElse(0L);
+        return notificationStrategyContext.countAllNotifications(NotificationType.REPLY_NOTIFICATION, recipientUserId);
     }
 
     public long countAllSystemNotifications() {
-        String key = RedisKeyUtils.getSystemNotificationKey();
-        Long size = this.redisTemplate.opsForList().size(key);
-        return Optional.ofNullable(size).orElse(0L);
+        return notificationStrategyContext.countAllNotifications(NotificationType.SYSTEM_NOTIFICATION, null);
     }
 
     public long countUnreadReplies(Integer recipientUserId) {
