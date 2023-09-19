@@ -1,10 +1,10 @@
 package com.github.learndifferent.mtm.strategy.search.main;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
 import com.github.learndifferent.mtm.dto.search.TagForSearchDTO;
 import com.github.learndifferent.mtm.mapper.TagMapper;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import java.io.IOException;
 import java.util.List;
@@ -36,7 +36,7 @@ public class TagDataSearchMySqlStrategy implements DataSearchStrategy {
             rangeTo = tmp;
         }
 
-        String username = StpUtil.getLoginIdAsString();
+        String username = LoginUtils.getCurrentUsername();
         List<TagForSearchDTO> tagData = this.tagMapper
                 .searchTagDataByKeywordAndRange(keyword, username, rangeFrom, rangeTo, from, size);
         long totalCount = this.tagMapper.countTagDataByKeywordAndRange(keyword, username, rangeFrom, rangeTo);

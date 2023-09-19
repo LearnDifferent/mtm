@@ -1,11 +1,11 @@
 package com.github.learndifferent.mtm.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.BookmarkService;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +75,6 @@ public class FileController {
     }
 
     private String getCurrentUser() {
-        return StpUtil.getLoginIdAsString();
+        return LoginUtils.getCurrentUsername();
     }
 }

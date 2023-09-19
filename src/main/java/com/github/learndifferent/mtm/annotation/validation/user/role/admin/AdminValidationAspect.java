@@ -1,8 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation.user.role.admin;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -25,7 +24,7 @@ public class AdminValidationAspect {
 
     @Before(value = "pointcuts()")
     public void checkAdmin() {
-        boolean notAdmin = !StpUtil.hasRole(UserRole.ADMIN.role());
-        ThrowExceptionUtils.throwIfTrue(notAdmin, ResultCode.PERMISSION_DENIED);
+        boolean isNotAdmin = LoginUtils.isNotAdmin();
+        ThrowExceptionUtils.throwIfTrue(isNotAdmin, ResultCode.PERMISSION_DENIED);
     }
 }

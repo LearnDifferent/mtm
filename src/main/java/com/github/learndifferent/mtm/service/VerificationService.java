@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.IdempotencyKeyInfoDTO;
+import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 
@@ -37,13 +38,13 @@ public interface VerificationService {
     void checkRegisterCodes(String code, String token, UserRole role, String invitationCode, String invitationToken);
 
     /**
-     * Verify login information and get the username
+     * Verify login information and get the user information
      *
      * @param userIdentification Request body that contains username and password entered by the user
      * @param token              Token for verification code
      * @param code               Verification code
      * @param shouldCheckIfAdmin If true, this method should also check if the user is an administrator
-     * @return username of the user
+     * @return user information
      * @throws ServiceException Throw an exception with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#VERIFICATION_CODE_FAILED
      *                          VERIFICATION_CODE_FAILED} if the verification code is invalid, or with the result code
      *                          of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#USER_NOT_EXIST
@@ -52,10 +53,10 @@ public interface VerificationService {
      *                          administrator, the result code will be
      *                          {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      */
-    String verifyLoginInfoAndGetUsername(UserIdentificationRequest userIdentification,
-                                         String token,
-                                         String code,
-                                         Boolean shouldCheckIfAdmin);
+    UserLoginInfoDTO verifyLoginInfoAndGetUserInfo(UserIdentificationRequest userIdentification,
+                                                   String token,
+                                                   String code,
+                                                   Boolean shouldCheckIfAdmin);
 
     /**
      * Generate invitation code, store the code in cache for 20 minutes),
