@@ -1,9 +1,9 @@
 package com.github.learndifferent.mtm.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.config.mvc.CustomWebConfig;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.service.impl.BookmarkServiceImpl;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import java.io.File;
 import java.net.URL;
@@ -62,9 +62,9 @@ class BookmarkControllerTest {
         byte[] requestBody = Files.readAllBytes(path);
 
         // 使用了 Mockito.mockStatic 来模拟 StpUtil.getLoginIdAsString 方法的调用。
-        try (MockedStatic<StpUtil> stpUtil = Mockito.mockStatic(StpUtil.class)) {
+        try (MockedStatic<LoginUtils> loginUtilsMockedStatic = Mockito.mockStatic(LoginUtils.class)) {
 
-            stpUtil.when(StpUtil::getLoginIdAsString).thenReturn("any");
+            loginUtilsMockedStatic.when(LoginUtils::getCurrentUsername).thenReturn("any");
 
             // 使用了 BDDMockito.given 来设置 bookmarkService.addToBookmark 方法的预期行为。
             BDDMockito.given(bookmarkService.addToBookmark(
@@ -93,8 +93,8 @@ class BookmarkControllerTest {
         BookmarkVO bookmark = new BookmarkVO();
         bookmark.setId(id);
 
-        try (MockedStatic<StpUtil> stpUtil = Mockito.mockStatic(StpUtil.class)) {
-            stpUtil.when(StpUtil::getLoginIdAsString).thenReturn(currentUsername);
+        try (MockedStatic<LoginUtils> loginUtilsMockedStatic = Mockito.mockStatic(LoginUtils.class)) {
+            loginUtilsMockedStatic.when(LoginUtils::getCurrentUsername).thenReturn(currentUsername);
             BDDMockito.given(bookmarkService.getBookmark(id, currentUsername))
                     .willReturn(bookmark);
 
