@@ -2,9 +2,7 @@ package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
-import com.github.learndifferent.mtm.vo.NotificationVO;
 import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
-import java.util.List;
 
 /**
  * Notification Service
@@ -47,21 +45,18 @@ public interface NotificationService {
     void markNotificationAsUnread(NotificationDTO data);
 
     /**
-     * Get notifications
+     * Get all notifications and their count
      *
      * @param notificationType  Notification type
      * @param recipientUsername Username of the recipient who will receive the notifications
      * @param loadCount         Number of notifications to be loaded
      * @param isOrderReversed   true if reverse order
-     * @return List of notifications
-     * @throws com.github.learndifferent.mtm.exception.ServiceException If no results found, this will throw an
-     *                                                                  exception with the result code of
-     *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND}.
+     * @return Notifications and count
      */
-    List<NotificationVO> getNotifications(NotificationType notificationType,
-                                          String recipientUsername,
-                                          int loadCount,
-                                          boolean isOrderReversed);
+    NotificationsAndCountVO getAllNotificationsAndCount(NotificationType notificationType,
+                                                        String recipientUsername,
+                                                        int loadCount,
+                                                        boolean isOrderReversed);
 
     /**
      * Retrieve unread notifications and their count

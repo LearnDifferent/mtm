@@ -13,7 +13,6 @@ import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.strategy.notification.NotificationStrategyContext;
 import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
-import com.github.learndifferent.mtm.vo.NotificationVO;
 import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.time.Instant;
 import java.util.List;
@@ -72,11 +71,11 @@ public class NotificationManager {
         notificationStrategyContext.sendNotification(notification);
     }
 
-    public List<NotificationVO> getNotifications(NotificationType notificationType,
-                                                 Integer recipientUserId,
-                                                 int loadCount,
-                                                 boolean isOrderReversed) {
-        return notificationStrategyContext.getNotifications(
+    public NotificationsAndCountVO getAllNotificationsAndCount(NotificationType notificationType,
+                                                               Integer recipientUserId,
+                                                               int loadCount,
+                                                               boolean isOrderReversed) {
+        return notificationStrategyContext.getAllNotificationsAndCount(
                 notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 

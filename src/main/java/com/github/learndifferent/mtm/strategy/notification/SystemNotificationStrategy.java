@@ -129,13 +129,22 @@ public class SystemNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
-    public List<NotificationVO> getNotifications(Integer recipientUserId, int loadCount, boolean isOrderReversed) {
-        return getNotificationsWithoutReadStatus(loadCount, isOrderReversed)
+    public NotificationsAndCountVO getAllNotificationsAndCount(Integer recipientUserId,
+                                                               int loadCount,
+                                                               boolean isOrderReversed) {
+        long count = countAllNotifications(null);
+        if (count == 0L) {
+            return NotificationsAndCountVO.empty();
+        }
+
+        List<NotificationVO> notifications = getNotificationsWithoutReadStatus(loadCount, isOrderReversed)
                 // set recipientUserId to the notifications
                 .peek(notification -> notification.setRecipientUserId(recipientUserId))
                 // get the read status and generate the NotificationVO
                 .map(this::getReadStatusAndGenerateNotificationVO)
                 .collect(Collectors.toList());
+
+        return NotificationsAndCountVO.of(notifications, count);
     }
 
     private Stream<NotificationDTO> getNotificationsWithoutReadStatus(int loadCount, boolean isOrderReverse) {
@@ -146,10 +155,8 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         List<String> notifications = isOrderReverse ? getNotificationsFromNewestToOldest(notificationsKey, loadCount)
                 : getNotificationsFromOldestToNewest(notificationsKey, loadCount);
 
-        boolean hasNoResults = CollectionUtils.isEmpty(notifications);
-        ThrowExceptionUtils.throwIfTrue(hasNoResults, ResultCode.NO_RESULTS_FOUND);
-
-        return notifications.stream()
+        return notifications
+                .stream()
                 .map(json -> JsonUtils.toObject(json, NotificationDTO.class));
     }
 
@@ -191,6 +198,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
     @Override
     public long countAllNotifications(Integer recipientUserId) {
+        // recipientUserId can be ignored here
         String key = RedisKeyUtils.getSystemNotificationKey();
         Long size = this.redisTemplate.opsForList().size(key);
         return Optional.ofNullable(size).orElse(0L);
@@ -203,12 +211,12 @@ public class SystemNotificationStrategy implements NotificationStrategy {
         // count
         int count = notificationMapper.countUnreadSystemNotifications(recipientUserId);
         if (count == 0) {
-            return new NotificationsAndCountVO(Collections.emptyList(), 0);
+            return NotificationsAndCountVO.empty();
         }
 
         // notifications
         List<NotificationVO> notifications = notificationMapper.getUnreadSystemNotifications(
                 recipientUserId, loadCount, isOrderReversed);
-        return new NotificationsAndCountVO(notifications, count);
+        return NotificationsAndCountVO.of(notifications, count);
     }
 }
