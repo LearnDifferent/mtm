@@ -129,12 +129,22 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
-    public List<NotificationVO> getNotifications(Integer userId, int loadCount, boolean isOrderReversed) {
-        Stream<NotificationDTO> notifications = getNotificationsWithoutReadStatus(userId, loadCount, isOrderReversed);
-        return notifications
+    public NotificationsAndCountVO getAllNotificationsAndCount(Integer recipientUserId,
+                                                               int loadCount,
+                                                               boolean isOrderReversed) {
+        long count = countAllNotifications(recipientUserId);
+        if (count == 0L) {
+            return NotificationsAndCountVO.empty();
+        }
+
+        Stream<NotificationDTO> notificationsStream =
+                getNotificationsWithoutReadStatus(recipientUserId, loadCount, isOrderReversed);
+        List<NotificationVO> notifications = notificationsStream
                 .map(this::getReadStatusAndGenerateNotificationVO)
                 .peek(this::updateCommentAndReadStatusBasedOnConditions)
                 .collect(Collectors.toList());
+
+        return NotificationsAndCountVO.of(notifications, count);
     }
 
     private Stream<NotificationDTO> getNotificationsWithoutReadStatus(Integer userId,
@@ -147,10 +157,8 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         List<String> list = isOrderReverse ? getListFromNewestToOldest(key, loadCount)
                 : getListFromOldestToNewest(key, loadCount);
 
-        boolean hasNoResults = CollectionUtils.isEmpty(list);
-        ThrowExceptionUtils.throwIfTrue(hasNoResults, ResultCode.NO_RESULTS_FOUND);
-
-        return list.stream()
+        return list
+                .stream()
                 .map(json -> JsonUtils.toObject(json, NotificationDTO.class));
     }
 
@@ -247,18 +255,25 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
+    public long countAllNotifications(Integer recipientUserId) {
+        String key = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
+        Long size = this.redisTemplate.opsForList().size(key);
+        return Optional.ofNullable(size).orElse(0L);
+    }
+
+    @Override
     public NotificationsAndCountVO getUnreadNotificationAndCount(long recipientUserId,
                                                                  int loadCount,
                                                                  boolean isOrderReversed) {
         // count
         int count = notificationMapper.countUnreadReplyNotifications(recipientUserId);
         if (count == 0) {
-            return new NotificationsAndCountVO(Collections.emptyList(), 0);
+            return NotificationsAndCountVO.empty();
         }
 
         // unread notifications
         List<NotificationVO> notifications = notificationMapper.getUnreadReplyNotifications(
                 recipientUserId, loadCount, isOrderReversed);
-        return new NotificationsAndCountVO(notifications, count);
+        return NotificationsAndCountVO.of(notifications, count);
     }
 }

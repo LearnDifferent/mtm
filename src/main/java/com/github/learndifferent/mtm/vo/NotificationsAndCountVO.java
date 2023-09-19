@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.vo;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class NotificationsAndCountVO implements Serializable {
+
+    public static NotificationsAndCountVO of(List<NotificationVO> notifications, long count) {
+        return of(notifications, Math.toIntExact(count));
+    }
+
+    public static NotificationsAndCountVO of(List<NotificationVO> notifications, int count) {
+        return new NotificationsAndCountVO(notifications, count);
+    }
+
+    public static NotificationsAndCountVO empty() {
+        return new NotificationsAndCountVO(Collections.emptyList(), 0);
+    }
 
     /**
      * Notifications

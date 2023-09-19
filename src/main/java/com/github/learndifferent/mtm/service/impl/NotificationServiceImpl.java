@@ -5,9 +5,7 @@ import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.service.NotificationService;
-import com.github.learndifferent.mtm.vo.NotificationVO;
 import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -59,12 +57,13 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<NotificationVO> getNotifications(NotificationType notificationType,
-                                                 String recipientUsername,
-                                                 int loadCount,
-                                                 boolean isOrderReversed) {
+    public NotificationsAndCountVO getAllNotificationsAndCount(NotificationType notificationType,
+                                                               String recipientUsername,
+                                                               int loadCount,
+                                                               boolean isOrderReversed) {
         Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
-        return notificationManager.getNotifications(notificationType, recipientUserId, loadCount, isOrderReversed);
+        return notificationManager
+                .getAllNotificationsAndCount(notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 
     @Override
