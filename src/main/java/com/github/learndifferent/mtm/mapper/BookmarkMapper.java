@@ -5,6 +5,7 @@ import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.VisitedBookmarkVO;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
@@ -25,7 +26,7 @@ public interface BookmarkMapper {
      * @param filter the filter
      * @return filtered bookmarks
      */
-    List<BookmarkDO> filterPublicBookmarks(BookmarkFilterDTO filter);
+    List<BookmarkVO> filterPublicBookmarks(BookmarkFilterDTO filter);
 
     /**
      * Get the number of unique public URLs

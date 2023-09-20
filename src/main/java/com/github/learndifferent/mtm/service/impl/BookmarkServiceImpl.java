@@ -101,8 +101,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         BookmarkFilterDTO filter = BookmarkFilterDTO.of(
                 usernames.getUsernames(), load, fromTimestamp, toTimestamp, orderField, order);
-        List<BookmarkDO> bookmarks = bookmarkMapper.filterPublicBookmarks(filter);
-        return BeanUtils.convertList(bookmarks, BookmarkVO.class);
+        return bookmarkMapper.filterPublicBookmarks(filter);
     }
 
     /**

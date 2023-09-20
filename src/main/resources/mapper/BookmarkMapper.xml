@@ -3,7 +3,7 @@
 <mapper namespace="com.github.learndifferent.mtm.mapper.BookmarkMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.BookmarkDO">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="img" jdbcType="VARCHAR" property="img"/>
@@ -14,34 +14,35 @@
 
     <select id="filterPublicBookmarks" resultMap="BaseResultMap"
             parameterType="com.github.learndifferent.mtm.dto.BookmarkFilterDTO">
-        select
-        id, user_name, title, url, img, `desc`, creation_time, is_public
-        from bookmark
-        <where>
-            <if test="usernames != null and usernames.size() != 0">
-                <foreach collection="usernames" item="username" open="(" close=") and" separator="or">
-                    user_name = #{username}
-                </foreach>
-            </if>
-            `is_public` = 1
-            and `is_deleted` = 0
-        </where>
+        select u.user_name, b.user_id, b.title, b.url, b.img, b.`desc`, b.creation_time, b.is_public
+        from user u
+        left join bookmark b
+        on
+        <if test="usernames != null and usernames.size() != 0">
+            u.user_name in
+            <foreach collection="usernames" item="username" open="(" close=") and" separator=",">
+                #{username}
+            </foreach>
+        </if>
+        u.id = b.user_id
+        where b.`is_public` = 1
+        and b.`is_deleted` = 0
         <!-- fromDatetime 和 toDatetime 表示时间范围 -->
         <if test="fromDatetime != null and toDatetime != null">
-            HAVING creation_time <![CDATA[ >= ]]> #{fromDatetime,jdbcType=TIMESTAMP}
-            AND creation_time <![CDATA[ <= ]]> #{toDatetime,jdbcType=TIMESTAMP}
+            HAVING b.creation_time <![CDATA[ >= ]]> #{fromDatetime,jdbcType=TIMESTAMP}
+            AND b.creation_time <![CDATA[ <= ]]> #{toDatetime,jdbcType=TIMESTAMP}
         </if>
-        order by ${orderField}
+        order by b.${orderField}
         <if test="isDesc == null or isDesc == false">
             desc
         </if>
         <!-- 如果按照时间排序，相同时间下要按照 username 升序排序 -->
         <if test="orderField.equalsIgnoreCase('creation_time')">
-            , user_name asc
+            , u.user_name asc
         </if>
         <!-- 如果按照 username 排序，相同 username 下要按照时间降序排序 -->
         <if test="orderField.equalsIgnoreCase('user_name')">
-            , creation_time desc
+            , b.creation_time desc
         </if>
         limit 0, #{load}
     </select>
@@ -53,7 +54,7 @@
           and `is_deleted` = 0
         group by url, title, `desc`, img
         order by count desc
-            limit #{from}, #{size};
+        limit #{from}, #{size};
     </select>
 
     <select id="countDistinctPublicUrl" resultType="java.lang.Integer">
@@ -89,7 +90,8 @@
                `desc`
         from bookmark
         where url = #{url}
-          and is_deleted = 0 limit 1;
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="countAllPublicAndSpecificPrivateBookmarks" resultType="java.lang.Integer">
@@ -200,7 +202,8 @@
         select user_name
         from bookmark
         where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getBookmarkOwnerUserId" resultType="java.lang.Long">
@@ -218,7 +221,7 @@
                  left join bookmark b on v.bookmark_id = b.id
         where is_deleted = 0
         order by v.views desc
-            limit #{from}, #{size};
+        limit #{from}, #{size};
     </select>
     <select id="searchWebDataByKeyword" resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`
@@ -230,7 +233,7 @@
           and `is_public` = 1
           and is_deleted = 0
         group by url, title, `desc`, img
-            limit #{from}, #{size};
+        limit #{from}, #{size};
     </select>
     <select id="countWebDataByKeyword" resultType="java.lang.Long">
         select count(distinct url, title, img, `desc`)
