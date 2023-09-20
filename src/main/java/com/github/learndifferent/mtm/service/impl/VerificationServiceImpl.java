@@ -4,6 +4,7 @@ import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.IdempotencyKeyInfoDTO;
+import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.SendEmailManager;
@@ -108,10 +109,10 @@ public class VerificationServiceImpl implements VerificationService {
     }
 
     @Override
-    public String verifyLoginInfoAndGetUsername(UserIdentificationRequest userIdentification,
-                                                String token,
-                                                String code,
-                                                Boolean shouldCheckIfAdmin) {
+    public UserLoginInfoDTO verifyLoginInfoAndGetUserInfo(UserIdentificationRequest userIdentification,
+                                                          String token,
+                                                          String code,
+                                                          Boolean shouldCheckIfAdmin) {
         checkCode(token, code, ResultCode.VERIFICATION_CODE_FAILED);
 
         String username = userIdentification.getUserName();
@@ -130,7 +131,10 @@ public class VerificationServiceImpl implements VerificationService {
             ThrowExceptionUtils.throwIfTrue(isCurrentUserNotAdmin, ResultCode.PERMISSION_DENIED);
         }
 
-        return user.getUserName();
+        Integer userId = user.getId();
+        String name = user.getUserName();
+
+        return UserLoginInfoDTO.of(name, userId);
     }
 
     @Override

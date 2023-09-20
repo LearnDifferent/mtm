@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
@@ -21,6 +20,7 @@ import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.VerificationService;
 import com.github.learndifferent.mtm.utils.IpUtils;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.vo.PersonalInfoVO;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
@@ -141,10 +141,10 @@ public class UserController {
     public ResultVO<ResultCode> deleteUser(@RequestParam("userName") String userName,
                                            @RequestParam("password") String password) {
 
-        String currentUsername = StpUtil.getLoginIdAsString();
+        String currentUsername = LoginUtils.getCurrentUsername();
         boolean success = userService.deleteUserAndAssociatedData(currentUsername, userName, password);
         // Logout after deletion
-        StpUtil.logout();
+        LoginUtils.logout();
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.USER_NOT_EXIST);
     }
 
@@ -157,7 +157,7 @@ public class UserController {
     @GetMapping
     public PersonalInfoVO getPersonalInfo(HttpServletRequest request) {
 
-        String username = StpUtil.getLoginIdAsString();
+        String username = LoginUtils.getCurrentUsername();
         UserVO user = userService.getUserByName(username);
         String ip = IpUtils.getIp(request);
 

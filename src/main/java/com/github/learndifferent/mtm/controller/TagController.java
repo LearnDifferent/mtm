@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
@@ -12,6 +11,7 @@ import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.TagService;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
@@ -231,6 +231,6 @@ public class TagController {
     }
 
     private String getCurrentUsername() {
-        return StpUtil.getLoginIdAsString();
+        return LoginUtils.getCurrentUsername();
     }
 }
