@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `user`
 CREATE TABLE IF NOT EXISTS `bookmark`
 (
     `id`            int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `user_id`       bigint           NOT NULL,
     `user_name`     varchar(50)      NOT NULL,
     `title`         varchar(255) DEFAULT NULL,
     `url`           varchar(600)     NOT NULL,
