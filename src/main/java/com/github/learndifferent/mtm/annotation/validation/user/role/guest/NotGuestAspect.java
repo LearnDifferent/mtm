@@ -1,8 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation.user.role.guest;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -25,7 +24,7 @@ public class NotGuestAspect {
 
     @Before(value = "pointcuts()")
     public void check() {
-        boolean isGuest = StpUtil.hasRole(UserRole.GUEST.role());
+        boolean isGuest = LoginUtils.isGuest();
         ThrowExceptionUtils.throwIfTrue(isGuest, ResultCode.PERMISSION_DENIED);
     }
 }

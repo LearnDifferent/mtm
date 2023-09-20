@@ -1,18 +1,20 @@
 package com.github.learndifferent.mtm.controller;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.IdempotencyKeyInfoDTO;
+import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.VerificationService;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.vo.AuthenticationVO;
 import javax.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,13 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Validated
+@RequiredArgsConstructor
 public class AuthenticationController {
 
     private final VerificationService verificationService;
-
-    public AuthenticationController(VerificationService verificationService) {
-        this.verificationService = verificationService;
-    }
 
     /**
      * Login
@@ -64,17 +63,14 @@ public class AuthenticationController {
                                                     String code,
                                             @RequestParam(value = "isAdmin", required = false) Boolean isAdmin) {
 
-        // verify login information and get the username
-        String username = verificationService.verifyLoginInfoAndGetUsername(userIdentification, token, code, isAdmin);
+        // verify login information and get the user info
+        UserLoginInfoDTO userInfo = verificationService.verifyLoginInfoAndGetUserInfo(
+                userIdentification, token, code, isAdmin);
 
-        // set username as login ID
-        StpUtil.setLoginId(username);
-
-        // token information
-        SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+        SaTokenInfo tokenInfo = LoginUtils.setLoginInfoAndGetToken(userInfo);
 
         // idempotency key information
-        long timeout = StpUtil.getTokenTimeout();
+        long timeout = LoginUtils.getTokenTimeout();
         IdempotencyKeyInfoDTO idempotencyKeyInfo = verificationService.getIdempotencyKeyInfo(timeout);
 
         AuthenticationVO authentication = AuthenticationVO.builder()
@@ -92,7 +88,7 @@ public class AuthenticationController {
      */
     @GetMapping("/idempotency-key")
     public ResultVO<IdempotencyKeyInfoDTO> getIdempotencyKeyInfo() {
-        long timeout = StpUtil.getTokenTimeout();
+        long timeout = LoginUtils.getTokenTimeout();
         IdempotencyKeyInfoDTO info = verificationService.getIdempotencyKeyInfo(timeout);
         return ResultCreator.okResult(info);
     }
@@ -105,7 +101,7 @@ public class AuthenticationController {
     @GetMapping("/logout")
     @SystemNotification(messageType = MessageType.LOGOUT)
     public ResultVO<ResultCode> logout() {
-        StpUtil.logout();
+        LoginUtils.logout();
         return ResultCreator.okResult();
     }
 }

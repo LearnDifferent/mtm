@@ -6,9 +6,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.config.mvc.CustomWebConfig;
 import com.github.learndifferent.mtm.service.impl.CommentServiceImpl;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,17 +67,17 @@ class CommentControllerTest {
 
             // 使用 Mockito.mockStatic 方法创建 StpUtil 类的静态方法的 mock 对象。
             // 这个 mock 对象将在测试中替代实际的静态方法。
-            try (MockedStatic<StpUtil> stpUtil = mockStatic(StpUtil.class)) {
+            try (MockedStatic<LoginUtils> loginUtilsMockedStatic = mockStatic(LoginUtils.class)) {
                 // 使用 when 方法设置静态方法的预期行为。thenReturn 方法表示当调用指定的静态方法时，应返回的值。
-                stpUtil.when(StpUtil::getLoginIdAsString).thenReturn(USER_NAME);
+                loginUtilsMockedStatic.when(LoginUtils::getCurrentUsername).thenReturn(USER_NAME);
                 // 使用 mockMvc.perform 方法模拟 HTTP 请求
                 mockMvc.perform(
-                        // 接受一个 MockHttpServletRequestBuilder 对象，用于构建 HTTP 请求。
-                        // 例如，MockMvcRequestBuilders.post("/bookmark") 创建一个 POST 请求，
-                        // MockMvcRequestBuilders.get("/bookmark/get") 创建一个 GET 请求。
-                        get("/comment")
-                                .param("id", String.valueOf(ID))
-                                .param("bookmarkId", String.valueOf(BOOKMARK_ID)))
+                                // 接受一个 MockHttpServletRequestBuilder 对象，用于构建 HTTP 请求。
+                                // 例如，MockMvcRequestBuilders.post("/bookmark") 创建一个 POST 请求，
+                                // MockMvcRequestBuilders.get("/bookmark/get") 创建一个 GET 请求。
+                                get("/comment")
+                                        .param("id", String.valueOf(ID))
+                                        .param("bookmarkId", String.valueOf(BOOKMARK_ID)))
                         // 使用 andExpect 方法检查响应的状态码
                         // isXxx() 方法表示预期的状态码
                         // 例如 isOk() 表示预期状态码为 200，isBadRequest() 表示预期状态码为 400。
@@ -93,12 +93,12 @@ class CommentControllerTest {
         @DisplayName("Should return result code of 500")
         void shouldReturnResultCodeOf500() throws Exception {
             String emptyId = "0";
-            try (MockedStatic<StpUtil> stpUtil = mockStatic(StpUtil.class)) {
-                stpUtil.when(StpUtil::getLoginIdAsString).thenReturn(USER_NAME);
+            try (MockedStatic<LoginUtils> loginUtilsMockedStatic = mockStatic(LoginUtils.class)) {
+                loginUtilsMockedStatic.when(LoginUtils::getCurrentUsername).thenReturn(USER_NAME);
                 mockMvc.perform(
-                        get("/comment")
-                                .param("id", emptyId)
-                                .param("bookmarkId", String.valueOf(BOOKMARK_ID)))
+                                get("/comment")
+                                        .param("id", emptyId)
+                                        .param("bookmarkId", String.valueOf(BOOKMARK_ID)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.code").value(500));
             }

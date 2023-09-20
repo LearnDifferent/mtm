@@ -1,11 +1,10 @@
 package com.github.learndifferent.mtm.annotation.general.notification;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
-import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.IpUtils;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -88,9 +87,9 @@ public class SystemNotificationAspect {
     }
 
     private String getUsername() {
-        boolean isGuest = StpUtil.hasRole(UserRole.GUEST.role());
+        boolean isGuest = LoginUtils.isGuest();
         // if the user is Guest, return user's IP
-        return isGuest ? getIp() : StpUtil.getLoginIdAsString();
+        return isGuest ? getIp() : LoginUtils.getCurrentUsername();
     }
 
     private String getIp() {

@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
@@ -10,6 +9,7 @@ import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.BookmarkService;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import com.github.learndifferent.mtm.vo.HomePageVO;
@@ -55,7 +55,7 @@ public class HomeController {
             @RequestParam(value = "requestedUsername", required = false) String requestedUsername,
             @PageInfo(size = 12, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
-        String currentUser = StpUtil.getLoginIdAsString();
+        String currentUser = LoginUtils.getCurrentUsername();
         BookmarksAndTotalPagesVO data =
                 bookmarkService.getHomeTimeline(currentUser, timeline, requestedUsername, pageInfo);
 

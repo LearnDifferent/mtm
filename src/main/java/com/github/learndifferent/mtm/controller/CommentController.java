@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
@@ -10,6 +9,7 @@ import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.CommentService;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.vo.BookmarkCommentVO;
 import com.github.learndifferent.mtm.vo.CommentVO;
 import java.util.List;
@@ -65,7 +65,7 @@ public class CommentController {
                                                @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                        Integer bookmarkId) {
-        String currentUsername = StpUtil.getLoginIdAsString();
+        String currentUsername = LoginUtils.getCurrentUsername();
         CommentVO comment = commentService.getCommentByIds(id, bookmarkId, currentUsername);
         return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
     }
@@ -99,7 +99,7 @@ public class CommentController {
                                                                  Integer replyToCommentId,
                                                          @RequestParam("load") Integer load,
                                                          @RequestParam("order") Order order) {
-        String currentUsername = StpUtil.getLoginIdAsString();
+        String currentUsername = LoginUtils.getCurrentUsername();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
                 bookmarkId, replyToCommentId, load, currentUsername, order);
 
@@ -177,7 +177,7 @@ public class CommentController {
                                                       Integer bookmarkId,
                                               @RequestParam(value = "replyToCommentId",
                                                             required = false) Integer replyToCommentId) {
-        String currentUsername = StpUtil.getLoginIdAsString();
+        String currentUsername = LoginUtils.getCurrentUsername();
         boolean success = commentService.addCommentAndSendNotification(
                 comment, bookmarkId, currentUsername, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
@@ -215,7 +215,7 @@ public class CommentController {
     @PostMapping
     @IdempotencyCheck
     public ResultVO<ResultCode> updateComment(@RequestBody @Validated UpdateCommentRequest commentInfo) {
-        String currentUsername = StpUtil.getLoginIdAsString();
+        String currentUsername = LoginUtils.getCurrentUsername();
         boolean success = commentService.editComment(commentInfo, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
@@ -239,7 +239,7 @@ public class CommentController {
                                               @NotNull(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
                                               @Positive(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
                                                       Integer id) {
-        String currentUsername = StpUtil.getLoginIdAsString();
+        String currentUsername = LoginUtils.getCurrentUsername();
         boolean success = commentService.deleteCommentById(id, currentUsername);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }

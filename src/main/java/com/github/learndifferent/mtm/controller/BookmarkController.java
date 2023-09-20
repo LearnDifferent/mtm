@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
@@ -17,6 +16,7 @@ import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.BookmarkService;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarkingResultVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
@@ -215,6 +215,6 @@ public class BookmarkController {
     }
 
     private String getCurrentUsername() {
-        return StpUtil.getLoginIdAsString();
+        return LoginUtils.getCurrentUsername();
     }
 }
