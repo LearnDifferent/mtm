@@ -93,13 +93,13 @@ public class UserManager {
     /**
      * Check if the user has already bookmarked the web page
      *
-     * @param username username
-     * @param url      URL
+     * @param userId User ID
+     * @param url    URL
      * @throws ServiceException Throw an exception with a ResultCode of {@link ResultCode#ALREADY_SAVED}
      *                          to indicate that the user has already bookmarked the web page
      */
-    public void checkIfUserBookmarked(String username, String url) {
-        boolean hasUserBookmarked = bookmarkMapper.checkIfUserBookmarked(username, url);
+    public void checkIfUserBookmarked(long userId, String url) {
+        boolean hasUserBookmarked = bookmarkMapper.checkIfUserBookmarked(userId, url);
         // If the user has already bookmarked the web page, throw an exception.
         ThrowExceptionUtils.throwIfTrue(hasUserBookmarked, ResultCode.ALREADY_SAVED);
     }

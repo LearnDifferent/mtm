@@ -180,8 +180,8 @@
     <insert id="addBookmark" keyColumn="id" keyProperty="id"
             parameterType="com.github.learndifferent.mtm.entity.BookmarkDO"
             useGeneratedKeys="true">
-        insert into bookmark(user_name, title, url, img, `desc`, `creation_time`, `is_public`)
-        values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
+        insert into bookmark(user_id, user_name, title, url, img, `desc`, `creation_time`, `is_public`)
+        values (#{userId}, #{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
     <update id="updateBookmark" parameterType="com.github.learndifferent.mtm.entity.BookmarkDO">
@@ -247,7 +247,7 @@
                        select null
                        from bookmark
                        where url = #{url}
-                         and user_name = #{username}
+                         and user_id = #{userId}
                          and is_deleted = 0
                    )
     </select>

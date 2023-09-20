@@ -131,11 +131,11 @@ public interface BookmarkMapper {
     /**
      * Check if the user has already bookmarked the web page
      *
-     * @param username username
-     * @param url      URL
+     * @param userId user ID
+     * @param url    URL
      * @return true if the user has already bookmarked the web page
      */
-    boolean checkIfUserBookmarked(@Param("username") String username, @Param("url") String url);
+    boolean checkIfUserBookmarked(@Param("userId") long userId, @Param("url") String url);
 
     /**
      * Get public bookmarks of all users and private bookmarks of specific user

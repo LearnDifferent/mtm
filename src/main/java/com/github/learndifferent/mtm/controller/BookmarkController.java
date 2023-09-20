@@ -81,8 +81,8 @@ public class BookmarkController {
                                                 String url,
                                         @RequestParam("privacy") Privacy privacy,
                                         @RequestParam("mode") AddDataMode mode) {
-        String currentUsername = getCurrentUsername();
-        return bookmarkService.bookmark(url, currentUsername, privacy, mode);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        return bookmarkService.bookmark(url, currentUserId, privacy, mode);
     }
 
     /**
@@ -97,8 +97,8 @@ public class BookmarkController {
     @PostMapping
     @IdempotencyCheck
     public ResultVO<ResultCode> addToBookmark(@RequestBody @Validated BasicWebDataRequest basicData) {
-        String currentUsername = getCurrentUsername();
-        boolean success = bookmarkService.addToBookmark(basicData, currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = bookmarkService.addToBookmark(basicData, currentUserId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 

@@ -57,7 +57,7 @@ public class FileController {
      * @param htmlFile a file that contains bookmarks in HTML format
      * @return the message of the result
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link BookmarkService#importBookmarksFromHtmlFile(MultipartFile,
-     *                                                                  String)} will throw an exception with the
+     *                                                                  long)} will throw an exception with the
      *                                                                  result code of {@link ResultCode#HTML_FILE_NO_BOOKMARKS
      *                                                                  HTML_FILE_NO_BOOKMARKS} if it's not a valid
      *                                                                  HTML file that contains bookmarks
@@ -69,8 +69,8 @@ public class FileController {
             return ResultCreator.result(ResultCode.HTML_FILE_NO_BOOKMARKS);
         }
 
-        String currentUser = getCurrentUser();
-        String msg = bookmarkService.importBookmarksFromHtmlFile(htmlFile, currentUser);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        String msg = bookmarkService.importBookmarksFromHtmlFile(htmlFile, currentUserId);
         return ResultCreator.okResult(msg);
     }
 

@@ -108,28 +108,28 @@ public class BookmarkServiceImpl implements BookmarkService {
     /**
      * Convert the basic website data into a bookmark
      *
-     * @param data     Basic website data that contains title, URL, image and description
-     * @param username Username of the user who is bookmarking
-     * @param privacy  {@link Privacy#PUBLIC} if this is a public bookmark and
-     *                 {@link Privacy#PRIVATE} if this is private
+     * @param data    Basic website data that contains title, URL, image and description
+     * @param userId  User ID of the user who is bookmarking
+     * @param privacy {@link Privacy#PUBLIC} if this is a public bookmark and
+     *                {@link Privacy#PRIVATE} if this is private
      * @return true if success
      * @throws ServiceException Throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
      *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      *                          if something goes wrong.
      */
     @WebsiteDataClean
-    public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, Privacy privacy) {
-        userManager.checkIfUserBookmarked(username, data.getUrl());
+    public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, long userId, Privacy privacy) {
+        userManager.checkIfUserBookmarked(userId, data.getUrl());
 
-        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
+        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, userId, privacy);
         BookmarkDO b = BeanUtils.convert(newBookmark, BookmarkDO.class);
         return bookmarkMapper.addBookmark(b);
     }
 
     @Override
-    public BookmarkingResultVO bookmark(String url, String username, Privacy privacy, AddDataMode mode) {
+    public BookmarkingResultVO bookmark(String url, long currentUserId, Privacy privacy, AddDataMode mode) {
         // scrape data from the web
-        WebScraperRequest request = WebScraperRequest.initRequest(url, username);
+        WebScraperRequest request = WebScraperRequest.initRequest(url, currentUserId);
 
         BasicWebDataDTO basic = webScraperProcessorFacade.process(request);
 
@@ -138,15 +138,15 @@ public class BookmarkServiceImpl implements BookmarkService {
                 && ADD_TO_DATABASE_AND_ELASTICSEARCH.equals(mode);
 
         return shouldAddToDatabaseAndElasticsearch
-                ? saveToElasticsearchAndDatabase(username, basic)
-                : saveToDatabase(username, basic, privacy);
+                ? saveToElasticsearchAndDatabase(currentUserId, basic)
+                : saveToDatabase(currentUserId, basic, privacy);
     }
 
-    private BookmarkingResultVO saveToElasticsearchAndDatabase(String username, BasicWebDataDTO data) {
+    private BookmarkingResultVO saveToElasticsearchAndDatabase(long userId, BasicWebDataDTO data) {
         // save to Elasticsearch asynchronously
         Future<Boolean> elasticsearchResult = searchManager.saveToElasticsearchAsync(data);
         // save to database and get the BookmarkingResultVO
-        BookmarkingResultVO result = saveToDatabase(username, data, PUBLIC);
+        BookmarkingResultVO result = saveToDatabase(userId, data, PUBLIC);
         // get the result of saving to Elasticsearch asynchronously
         boolean hasSavedToElasticsearch = false;
         try {
@@ -157,19 +157,19 @@ public class BookmarkServiceImpl implements BookmarkService {
         return result.setHasSavedToElasticsearch(hasSavedToElasticsearch);
     }
 
-    private BookmarkingResultVO saveToDatabase(String username, BasicWebDataDTO basic, Privacy privacy) {
+    private BookmarkingResultVO saveToDatabase(long userId, BasicWebDataDTO basic, Privacy privacy) {
         // get the result of saving to database
         BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
-        boolean hasSavedToDatabase = bean.bookmarkWithBasicWebData(basic, username, privacy);
+        boolean hasSavedToDatabase = bean.bookmarkWithBasicWebData(basic, userId, privacy);
         // return the result of saving to database
         return BookmarkingResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
     }
 
     @Override
-    public boolean addToBookmark(BasicWebDataRequest data, String username) {
+    public boolean addToBookmark(BasicWebDataRequest data, long userId) {
         BasicWebDataDTO basicData = BeanUtils.convert(data, BasicWebDataDTO.class);
         BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
-        return bean.bookmarkWithBasicWebData(basicData, username, PUBLIC);
+        return bean.bookmarkWithBasicWebData(basicData, userId, PUBLIC);
     }
 
     @Override
@@ -339,7 +339,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public String importBookmarksFromHtmlFile(MultipartFile htmlFile, String username) {
+    public String importBookmarksFromHtmlFile(MultipartFile htmlFile, long userId) {
 
         Optional.ofNullable(htmlFile)
                 .orElseThrow(() -> new ServiceException(ResultCode.HTML_FILE_NO_BOOKMARKS));
@@ -348,7 +348,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         int[] result = new int[3];
 
         try (InputStream in = htmlFile.getInputStream()) {
-            importBookmarksAndUpdateResult(username, result, in);
+            importBookmarksAndUpdateResult(userId, result, in);
         } catch (IOException e) {
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         } catch (IllegalArgumentException e) {
@@ -362,14 +362,14 @@ public class BookmarkServiceImpl implements BookmarkService {
                 + ", Existing : " + result[2];
     }
 
-    private void importBookmarksAndUpdateResult(String username, int[] result, InputStream in) throws IOException {
+    private void importBookmarksAndUpdateResult(long userId, int[] result, InputStream in) throws IOException {
 
         Document document = Jsoup.parse(in, "UTF-8", "");
         Elements dts = document.getElementsByTag("dt");
 
         dts.forEach(dt -> {
             BasicWebDataDTO basicWebData = getBasicWebDataFromElement(dt);
-            bookmarkAndUpdateResult(username, result, basicWebData);
+            bookmarkAndUpdateResult(userId, result, basicWebData);
         });
     }
 
@@ -393,9 +393,9 @@ public class BookmarkServiceImpl implements BookmarkService {
         return webBuilder.build();
     }
 
-    private void bookmarkAndUpdateResult(String username, int[] result, BasicWebDataDTO web) {
+    private void bookmarkAndUpdateResult(long userId, int[] result, BasicWebDataDTO web) {
         try {
-            boolean success = bookmarkAndGetResult(username, web);
+            boolean success = bookmarkAndGetResult(userId, web);
             updateImportingResult(result, success);
         } catch (ServiceException e) {
             ResultCode resultCode = e.getResultCode();
@@ -403,11 +403,11 @@ public class BookmarkServiceImpl implements BookmarkService {
         }
     }
 
-    private boolean bookmarkAndGetResult(String username, BasicWebDataDTO web) {
+    private boolean bookmarkAndGetResult(long userId, BasicWebDataDTO web) {
         BookmarkServiceImpl bookmarkService =
                 ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
         // the imported bookmarks are public
-        return bookmarkService.bookmarkWithBasicWebData(web, username, PUBLIC);
+        return bookmarkService.bookmarkWithBasicWebData(web, userId, PUBLIC);
     }
 
     private void updateImportingResult(int[] result, boolean success) {
