@@ -3,7 +3,6 @@ package com.github.learndifferent.mtm.service.impl;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.manager.NotificationManager;
-import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.util.Objects;
@@ -22,28 +21,25 @@ import org.springframework.stereotype.Service;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationManager notificationManager;
-    private final UserMapper userMapper;
 
     @Override
-    public long countUnreadReplies(String recipientUsername) {
-        boolean hasTurnedOff = checkIfTurnOffNotifications(recipientUsername);
-        return hasTurnedOff ? 0L : countUnreadRepliesWhenTurnOnNotification(recipientUsername);
+    public long countUnreadReplies(Long recipientUserId) {
+        boolean hasTurnedOff = checkIfTurnOffNotifications(recipientUserId);
+        return hasTurnedOff ? 0L : countUnreadRepliesWhenTurnOnNotification(recipientUserId);
     }
 
-    private long countUnreadRepliesWhenTurnOnNotification(String recipientUsername) {
-        Integer userId = userMapper.getUserIdByUsername(recipientUsername);
-        return notificationManager.countUnreadReplies(userId);
+    private long countUnreadRepliesWhenTurnOnNotification(Long recipientUserId) {
+        return notificationManager.countUnreadReplies(recipientUserId);
     }
 
     @Override
-    public long countUnreadSystemNotifications(String recipientUsername) {
-        boolean hasTurnedOff = checkIfTurnOffNotifications(recipientUsername);
-        return hasTurnedOff ? 0L : countUnreadSysNotificationsWhenTurnOnNotification(recipientUsername);
+    public long countUnreadSystemNotifications(Long recipientUserId) {
+        boolean hasTurnedOff = checkIfTurnOffNotifications(recipientUserId);
+        return hasTurnedOff ? 0L : countUnreadSysNotificationsWhenTurnOnNotification(recipientUserId);
     }
 
-    private long countUnreadSysNotificationsWhenTurnOnNotification(String recipientUsername) {
-        Integer userId = userMapper.getUserIdByUsername(recipientUsername);
-        return notificationManager.countUnreadSystemNotifications(userId);
+    private long countUnreadSysNotificationsWhenTurnOnNotification(Long recipientUserId) {
+        return notificationManager.countUnreadSystemNotifications(recipientUserId);
     }
 
     @Override
@@ -58,20 +54,18 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationsAndCountVO getAllNotificationsAndCount(NotificationType notificationType,
-                                                               String recipientUsername,
+                                                               Long recipientUserId,
                                                                int loadCount,
                                                                boolean isOrderReversed) {
-        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
         return notificationManager
                 .getAllNotificationsAndCount(notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 
     @Override
     public NotificationsAndCountVO getUnreadNotificationsAndCount(NotificationType notificationType,
-                                                                  String recipientUsername,
+                                                                  Long recipientUserId,
                                                                   int loadCount,
                                                                   boolean isOrderReversed) {
-        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
         return notificationManager
                 .getUnreadNotificationsAndCount(notificationType, recipientUserId, loadCount, isOrderReversed);
     }
@@ -82,14 +76,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public boolean checkIfHasUnreadSysNotifications(String recipientUsername) {
-        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
+    public boolean checkIfHasUnreadSysNotifications(Long recipientUserId) {
         return notificationManager.checkIfUserHasUnreadSysNotifications(recipientUserId);
     }
 
     @Override
-    public long countAllReplyNotifications(String recipientUsername) {
-        Integer recipientUserId = userMapper.getUserIdByUsername(recipientUsername);
+    public long countAllReplyNotifications(Long recipientUserId) {
         return notificationManager.countAllReplyNotifications(recipientUserId);
     }
 
@@ -99,8 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public String generateRoleChangeNotification(String username) {
-        Integer userId = userMapper.getUserIdByUsername(username);
+    public String generateRoleChangeNotification(Long userId) {
 
         return Optional.ofNullable(userId)
                 // generate a user role change notification by user ID
@@ -110,8 +101,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void deleteRoleChangeNotification(String username) {
-        Integer userId = userMapper.getUserIdByUsername(username);
+    public void deleteRoleChangeNotification(Long userId) {
         if (Objects.isNull(userId) || userId <= 0) {
             return;
         }
@@ -119,12 +109,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public boolean checkIfTurnOffNotifications(String username) {
-        return notificationManager.checkIfTurnOffNotifications(username);
+    public boolean checkIfTurnOffNotifications(Long userId) {
+        return notificationManager.checkIfTurnOffNotifications(userId);
     }
 
     @Override
-    public void turnOnTurnOffNotifications(String username) {
-        notificationManager.turnOnTurnOffNotifications(username);
+    public void turnOnTurnOffNotifications(Long userId) {
+        notificationManager.turnOnTurnOffNotifications(userId);
     }
 }

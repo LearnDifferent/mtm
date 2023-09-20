@@ -40,7 +40,7 @@ public interface NotificationStrategy {
      * @param isOrderReversed true if reverse order
      * @return notifications and count
      */
-    NotificationsAndCountVO getAllNotificationsAndCount(Integer recipientUserId,
+    NotificationsAndCountVO getAllNotificationsAndCount(Long recipientUserId,
                                                         int loadCount,
                                                         boolean isOrderReversed);
 
@@ -51,7 +51,7 @@ public interface NotificationStrategy {
      *                        <p>When counting the system notifications, the recipient user ID is null</p>
      * @return total number of notifications
      */
-    long countAllNotifications(Integer recipientUserId);
+    long countAllNotifications(Long recipientUserId);
 
     /**
      * Retrieve unread notifications and their count

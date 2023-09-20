@@ -203,12 +203,13 @@
           and is_deleted = 0 limit 1;
     </select>
 
-    <select id="getBookmarkOwnerUserId" resultType="java.lang.Integer">
+    <select id="getBookmarkOwnerUserId" resultType="java.lang.Long">
         select u.id
         from bookmark b
                  left join user u on b.user_name = u.user_name
         where b.id = #{bookmarkId,jdbcType=INTEGER}
-          and b.is_deleted = 0 limit 1;
+          and b.is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarkVO">

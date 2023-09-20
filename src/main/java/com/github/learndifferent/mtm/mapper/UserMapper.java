@@ -102,8 +102,8 @@ public interface UserMapper {
      * @param password password
      * @return user ID or null if not exists
      */
-    Integer getUserIdByNameAndPassword(@Param("userName") String userName,
-                                       @Param("password") String password);
+    Long getUserIdByNameAndPassword(@Param("userName") String userName,
+                                    @Param("password") String password);
 
     /**
      * Delete user by user ID
@@ -111,7 +111,7 @@ public interface UserMapper {
      * @param id ID
      * @return true if success
      */
-    boolean deleteUserByUserId(int id);
+    boolean deleteUserByUserId(long id);
 
     /**
      * Update user
@@ -127,7 +127,7 @@ public interface UserMapper {
      * @param username username
      * @return User ID or null if there is no user with that username
      */
-    Integer getUserIdByUsername(String username);
+    Long getUserIdByUsername(String username);
 
     /**
      * Search user data by keyword

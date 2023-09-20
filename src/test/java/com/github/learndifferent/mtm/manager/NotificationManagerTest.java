@@ -37,27 +37,27 @@ class NotificationManagerTest {
     @Test
     @DisplayName("Should return false to indicate that the user has turned on notifications")
     void shouldReturnFalseToIndicateThatTheUserHasTurnedOnNotifications() {
-        String username = "User0";
+        Long userId = 1L;
         when(redisTemplate.opsForSet()).thenReturn(redisSetOperations);
         when(redisSetOperations.isMember(anyString(), anyString())).thenReturn(false);
 
-        boolean result = notificationManager.checkIfTurnOffNotifications(username);
+        boolean result = notificationManager.checkIfTurnOffNotifications(userId);
         Assertions.assertFalse(result);
     }
 
     @Test
     @DisplayName("Should turn off notifications")
     void shouldTurnOffNotifications() {
-        String username = "user1";
+        Long userId = 1L;
 
         when(redisTemplate.opsForSet()).thenReturn(redisSetOperations);
-        when(notificationManager.checkIfTurnOffNotifications(username)).thenReturn(false);
+        when(notificationManager.checkIfTurnOffNotifications(userId)).thenReturn(false);
 
-        notificationManager.turnOnTurnOffNotifications(username);
+        notificationManager.turnOnTurnOffNotifications(userId);
 
         // 使用 verify() 方法，验证预期方法被调用的次数。
-        verify(redisSetOperations, times(0)).remove(MUTE_NOTIFICATIONS, username);
-        verify(redisSetOperations, times(1)).add(MUTE_NOTIFICATIONS, username);
+        verify(redisSetOperations, times(0)).remove(MUTE_NOTIFICATIONS, userId);
+        verify(redisSetOperations, times(1)).add(MUTE_NOTIFICATIONS, String.valueOf(userId));
     }
 
 }

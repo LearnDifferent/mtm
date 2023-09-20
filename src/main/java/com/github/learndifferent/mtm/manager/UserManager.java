@@ -21,6 +21,7 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
@@ -72,7 +73,7 @@ public class UserManager {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean deleteAllDataRelatedToUser(String username, String notEncryptedPassword) {
 
-        int userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
+        long userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
 
         // Delete bookmarks related to the user
         bookmarkMapper.deleteUserBookmarks(username);
@@ -114,11 +115,10 @@ public class UserManager {
      *                                                                  not exist, with the result code of {@link
      *                                                                  ResultCode#USER_NOT_EXIST}
      */
-    private int checkUserExistsAndReturnUserId(String username, String notEncryptedPassword) {
+    private long checkUserExistsAndReturnUserId(String username, String notEncryptedPassword) {
         String password = Md5Util.getMd5(notEncryptedPassword);
-        Integer id = userMapper.getUserIdByNameAndPassword(username, password);
-        ThrowExceptionUtils.throwIfNull(id, ResultCode.USER_NOT_EXIST);
-        return id;
+        Long id = userMapper.getUserIdByNameAndPassword(username, password);
+        return Optional.ofNullable(id).orElseThrow(() -> new ServiceException(ResultCode.USER_NOT_EXIST));
     }
 
     /**

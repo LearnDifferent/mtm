@@ -26,7 +26,7 @@ class UserManagerTest {
     @Test
     @DisplayName("Should get the ID")
     void shouldGetTheId() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Integer id = 1;
+        Long id = 1L;
         String username = "user1";
         String password = "password123";
         String encryptedPassword = Md5Util.getMd5(password);
@@ -36,7 +36,7 @@ class UserManagerTest {
 
         Method method = getCheckUserExistsAndReturnUserIdMethod();
         Object result = method.invoke(userManager, username, password);
-        Integer userId = (Integer) result;
+        Long userId = (Long) result;
         Assertions.assertEquals(id, userId);
     }
 

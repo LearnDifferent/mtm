@@ -77,11 +77,11 @@ public class RedisKeyUtils {
         return KEY_NAMES.get(RedisConstant.TAG_POPULAR);
     }
 
-    public static String getReplyNotificationKey(Integer recipientUserId) {
+    public static String getReplyNotificationKey(Long recipientUserId) {
         return RedisConstant.USER_REPLY_NOTIFICATIONS_PREFIX + recipientUserId;
     }
 
-    public static String getReplyNotificationReadStatusKey(Integer recipientUserId) {
+    public static String getReplyNotificationReadStatusKey(Long recipientUserId) {
         return RedisConstant.USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX + recipientUserId;
     }
 
@@ -97,11 +97,11 @@ public class RedisKeyUtils {
         return RedisConstant.SYS_NOTIFICATION_READ_STATUS_READ_BY_USER_PREFIX + notificationId;
     }
 
-    public static long getSysNotificationReadStatusReadByUserOffset(Integer userId) {
+    public static long getSysNotificationReadStatusReadByUserOffset(Long userId) {
         return userId;
     }
 
-    public static String getSysNotificationReadStatusTrackNotificationsOfUserKey(Integer userId) {
+    public static String getSysNotificationReadStatusTrackNotificationsOfUserKey(Long userId) {
         return RedisConstant.SYS_NOTIFICATION_READ_STATUS_TRACK_NOTIFICATIONS_OF_USER_PREFIX + userId;
     }
 

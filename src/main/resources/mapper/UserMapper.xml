@@ -111,7 +111,7 @@
         where is_deleted = 0;
     </select>
 
-    <select id="getUserIdByNameAndPassword" resultType="java.lang.Integer">
+    <select id="getUserIdByNameAndPassword" resultType="java.lang.Long">
         select id
         from user
         where user_name = #{userName}
@@ -119,11 +119,12 @@
           and is_deleted = 0
         limit 1;
     </select>
-    <select id="getUserIdByUsername" resultType="java.lang.Integer">
+    <select id="getUserIdByUsername" resultType="java.lang.Long">
         select id
         from user
         where user_name = #{username}
-          and is_deleted = 0 limit 1;
+          and is_deleted = 0
+        limit 1;
     </select>
     <select id="searchUserDataByKeyword"
             resultType="com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo">
