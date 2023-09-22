@@ -159,8 +159,8 @@ public interface BookmarkService {
     /**
      * Get a bookmark
      *
-     * @param id       ID of the bookmark
-     * @param userName username of the user
+     * @param id     ID of the bookmark
+     * @param userId User ID of the user
      * @return bookmark
      * @throws ServiceException If the user has no permission to get the bookmark,
      *                          or the bookmark doesn't exist, a {@link ServiceException}
@@ -168,7 +168,7 @@ public interface BookmarkService {
      *                          {@link ResultCode#PERMISSION_DENIED}
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
-    BookmarkVO getBookmark(int id, String userName);
+    BookmarkVO getBookmark(int id, long userId);
 
     /**
      * Check if the bookmark exists and if the user has permission to access it

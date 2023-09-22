@@ -161,8 +161,8 @@ public class BookmarkController {
                                   @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                   @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                           Integer id) {
-        String currentUsername = getCurrentUsername();
-        return bookmarkService.getBookmark(id, currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        return bookmarkService.getBookmark(id, currentUserId);
     }
 
     /**

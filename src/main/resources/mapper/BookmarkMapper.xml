@@ -194,23 +194,43 @@
         where user_id = #{userId};
     </update>
 
-    <insert id="addBookmark" keyColumn="id" keyProperty="id"
-            parameterType="com.github.learndifferent.mtm.entity.BookmarkDO"
-            useGeneratedKeys="true">
-        insert into bookmark(user_id, user_name, title, url, img, `desc`, `creation_time`, `is_public`)
-        values (#{userId}, #{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
+    <insert
+            id="addBookmark"
+            keyColumn="id"
+            keyProperty="id"
+            parameterType="com.github.learndifferent.mtm.dto.NewBookmarkDTO"
+            useGeneratedKeys="true"
+    >
+        insert into bookmark(user_id, title, url, img, `desc`, `creation_time`, `is_public`)
+        values (#{userId}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
     <update id="updateBookmark" parameterType="com.github.learndifferent.mtm.entity.BookmarkDO">
         update bookmark
-        set user_name       = #{userName,jdbcType=VARCHAR},
-            title           = #{title,jdbcType=VARCHAR},
-            url             = #{url,jdbcType=VARCHAR},
-            img             = #{img,jdbcType=VARCHAR},
-            `desc`          = #{desc,jdbcType=VARCHAR},
-            `creation_time` = #{createTime,jdbcType=TIMESTAMP},
-            `is_public`     = #{isPublic,jdbcType=BOOLEAN}
-        where id = #{id,jdbcType=INTEGER}
+        <set>
+            <if test="userId != null and userId &gt; 0">
+                user_id = #{userId},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+            <if test="img != null and img != ''">
+                img = #{img},
+            </if>
+            <if test="`desc` != null and `desc` != ''">
+                `desc` = #{desc},
+            </if>
+            <if test="createTime != null">
+                `creation_time` = #{createTime},
+            </if>
+            <if test="isPublic != null">
+                `is_public` = #{isPublic}
+            </if>
+        </set>
+        where id = #{id}
     </update>
 
     <select id="getBookmarkOwnerName" resultType="java.lang.String">
@@ -273,10 +293,9 @@
                    )
     </select>
 
-    <select id="getBookmarkById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="getBookmarkById" resultMap="BaseResultMap">
         select id,
                user_id,
-               user_name,
                title,
                url,
                img,
@@ -284,8 +303,24 @@
                creation_time,
                is_public
         from bookmark
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id}
           and is_deleted = 0;
+    </select>
+
+    <select id="getBookmarkWithUsernameById" resultMap="BookmarkVOResultMap">
+        select b.id,
+               b.user_id,
+               u.user_name,
+               b.title,
+               b.url,
+               b.img,
+               b.`desc`,
+               b.creation_time,
+               b.is_public
+        from bookmark b
+                 left join user u on b.user_id = u.id
+        where b.id = #{id}
+          and b.is_deleted = 0;
     </select>
 
     <select id="checkIfBookmarkAvailable" resultType="boolean">

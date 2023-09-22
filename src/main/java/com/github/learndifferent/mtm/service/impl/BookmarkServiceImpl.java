@@ -60,6 +60,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -119,8 +120,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         userManager.checkIfUserBookmarked(userId, data.getUrl());
 
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, userId, privacy);
-        BookmarkDO b = BeanUtils.convert(newBookmark, BookmarkDO.class);
-        return bookmarkMapper.addBookmark(b);
+        return bookmarkMapper.addBookmark(newBookmark);
     }
 
     @Override
@@ -231,19 +231,23 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public BookmarkVO getBookmark(int id, String userName) {
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
+    public BookmarkVO getBookmark(int id, long userId) {
+        BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(id);
 
         // data does not exist
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        // data is not public
-        // and the owner's username of data does not match the username
-        boolean noPermission = Boolean.FALSE.equals(bookmark.getIsPublic())
-                && CustomStringUtils.notEqualsIgnoreCase(userName, bookmark.getUserName());
+        // data is not public and the user is not the owner
+        Boolean isPublic = bookmark.getIsPublic();
+        boolean isNotPublic = BooleanUtils.isFalse(isPublic);
+
+        long ownerUserId = bookmark.getUserId();
+        boolean isNotOwner = ownerUserId != userId;
+
+        boolean noPermission = isNotPublic && isNotOwner;
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
-        return BeanUtils.convert(bookmark, BookmarkVO.class);
+        return bookmark;
     }
 
     @Override

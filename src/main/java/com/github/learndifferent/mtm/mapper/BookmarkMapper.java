@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.mapper;
 
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
+import com.github.learndifferent.mtm.dto.NewBookmarkDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
@@ -169,7 +170,7 @@ public interface BookmarkMapper {
      * @param newBookmark the website to be bookmarked
      * @return true if success
      */
-    boolean addBookmark(BookmarkDO newBookmark);
+    boolean addBookmark(NewBookmarkDTO newBookmark);
 
     /**
      * Update bookmark
@@ -223,6 +224,14 @@ public interface BookmarkMapper {
      * @return bookmark
      */
     BookmarkDO getBookmarkById(Integer id);
+
+    /**
+     * Retrieve the bookmark by ID
+     *
+     * @param id ID
+     * @return bookmark
+     */
+    BookmarkVO getBookmarkWithUsernameById(Integer id);
 
     /**
      * Check if the bookmark exists, bookmark has not been deleted
