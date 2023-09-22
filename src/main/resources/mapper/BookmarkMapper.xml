@@ -182,16 +182,16 @@
         ) and is_deleted = 0;
     </select>
 
-    <update id="deleteBookmarkById" parameterType="java.lang.Integer">
+    <update id="deleteBookmarkById">
         update bookmark
         set is_deleted = 1
         where id = #{id,jdbcType=INTEGER};
     </update>
 
-    <update id="deleteUserBookmarks" parameterType="java.lang.String">
+    <update id="deleteUserBookmarks">
         update bookmark
         set is_deleted = 1
-        where user_name = #{userName};
+        where user_id = #{userId};
     </update>
 
     <insert id="addBookmark" keyColumn="id" keyProperty="id"

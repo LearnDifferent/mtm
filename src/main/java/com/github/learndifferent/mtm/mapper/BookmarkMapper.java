@@ -157,11 +157,11 @@ public interface BookmarkMapper {
     boolean deleteBookmarkById(Integer id);
 
     /**
-     * Delete all bookmarks of the user
+     * Delete user's all bookmarks
      *
-     * @param userName username of the user
+     * @param userId user ID of the user
      */
-    void deleteUserBookmarks(String userName);
+    void deleteUserBookmarks(long userId);
 
     /**
      * Add the website to bookmarks

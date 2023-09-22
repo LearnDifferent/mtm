@@ -74,7 +74,7 @@ public class UserManager {
         long userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
 
         // Delete bookmarks related to the user
-        bookmarkMapper.deleteUserBookmarks(username);
+        bookmarkMapper.deleteUserBookmarks(userId);
         // Delete comment data related to the user
         commentMapper.deleteCommentsByUsername(username);
 
