@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.service.impl;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
@@ -34,7 +35,7 @@ class BookmarkServiceImplTest {
     @DisplayName("should get the bookmarks and total pages")
     void shouldGetTheBookmarksAndTotalPages() {
 
-        String currentUser = "current";
+        long currentUserId = 1L;
         int from = 0;
         int size = 10;
         int totalNumber = 100;
@@ -52,11 +53,11 @@ class BookmarkServiceImplTest {
                 .totalPages(PaginationUtils.getTotalPages(totalNumber, size))
                 .build();
 
-        Mockito.when(homeTimelineStrategyContext.getHomeTimeline(anyString(), any(), anyString(), anyInt(), anyInt()))
+        Mockito.when(homeTimelineStrategyContext.getHomeTimeline(anyString(), any(), anyLong(), anyInt(), anyInt()))
                 .thenReturn(timelineResult);
 
         BookmarksAndTotalPagesVO result = bookmarkService.getHomeTimeline(
-                currentUser, HomeTimeline.LATEST_TIMELINE, "", pageInfo);
+                currentUserId, HomeTimeline.LATEST_TIMELINE, null, pageInfo);
 
         Assertions.assertEquals(size - from, result.getBookmarks().size());
 

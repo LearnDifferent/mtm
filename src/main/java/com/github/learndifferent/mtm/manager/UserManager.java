@@ -8,13 +8,11 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
-import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -44,16 +42,16 @@ public class UserManager {
     private final NotificationManager notificationManager;
     private final SearchManager searchManager;
 
-    public BookmarksAndTotalPagesVO getUserBookmarks(String username,
+    public BookmarksAndTotalPagesVO getUserBookmarks(long userId,
                                                      int from,
                                                      int size,
                                                      AccessPrivilege privilege) {
 
-        int totalCounts = bookmarkMapper.countUserBookmarks(username, privilege.canAccessPrivateData());
+        int totalCounts = bookmarkMapper.countUserBookmarks(userId, privilege.canAccessPrivateData());
         int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
 
-        List<BookmarkDO> b = bookmarkMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
-        List<BookmarkVO> bookmarks = BeanUtils.convertList(b, BookmarkVO.class);
+        List<BookmarkVO> bookmarks = bookmarkMapper.getUserBookmarks(userId, from, size,
+                privilege.canAccessPrivateData());
 
         return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
     }

@@ -5,8 +5,6 @@ import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
-import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
@@ -183,10 +181,9 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @EmptyStringCheck
-    public BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername,
+    public BookmarksAndTotalPagesVO getHomeTimeline(long currentUserId,
                                                     HomeTimeline homeTimeline,
-                                                    @DefaultValueIfEmpty String requestedUsername,
+                                                    Long requestedUserId,
                                                     PageInfoDTO pageInfo) {
         // get pagination information
         int from = pageInfo.getFrom();
@@ -194,17 +191,17 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         String timelineStrategy = homeTimeline.timeline();
 
-        return this.homeTimelineStrategyContext.getHomeTimeline(timelineStrategy,
-                currentUsername, requestedUsername, from, size);
+        return this.homeTimelineStrategyContext.getHomeTimeline(
+                timelineStrategy, currentUserId, requestedUserId, from, size);
     }
 
     @Override
-    public BookmarksAndTotalPagesVO getUserBookmarks(String username,
+    public BookmarksAndTotalPagesVO getUserBookmarks(long userId,
                                                      PageInfoDTO pageInfo,
                                                      AccessPrivilege privilege) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        return this.userManager.getUserBookmarks(username, from, size, privilege);
+        return this.userManager.getUserBookmarks(userId, from, size, privilege);
     }
 
     @Override
@@ -267,24 +264,24 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public void exportBookmarksToHtmlFile(String username,
-                                          String currentUsername,
+    public void exportBookmarksToHtmlFile(Long requestedUserId,
+                                          long currentUserId,
                                           HttpServletResponse response) {
 
-        username = StringUtils.isBlank(username) ? currentUsername : username;
+        long userId = Optional.ofNullable(requestedUserId).orElse(currentUserId);
 
         Instant now = Instant.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss_SSS")
                 .withZone(ZoneId.systemDefault());
         String time = dtf.format(now);
 
-        String filename = username + "_" + time + ".html";
+        String filename = userId + "_" + time + ".html";
 
-        boolean isRequestingOwnData = username.equalsIgnoreCase(currentUsername);
-        AccessPrivilege privilege = isRequestingOwnData ? AccessPrivilege.ALL
+        boolean isRequestedUserIsCurrentUser = userId == currentUserId;
+        AccessPrivilege privilege = isRequestedUserIsCurrentUser ? AccessPrivilege.ALL
                 : AccessPrivilege.LIMITED;
 
-        String html = getBookmarksByUserInHtml(username, privilege);
+        String html = getBookmarksByUserInHtml(userId, privilege);
 
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=" + filename);
@@ -300,16 +297,17 @@ public class BookmarkServiceImpl implements BookmarkService {
         }
     }
 
-    private String getBookmarksByUserInHtml(String username, AccessPrivilege privilege) {
+    private String getBookmarksByUserInHtml(long requestedUserId, AccessPrivilege privilege) {
 
-        List<BookmarkVO> bookmarks = getAllUserBookmarks(username, privilege);
+        List<BookmarkVO> bookmarks = bookmarkMapper
+                .getUserBookmarks(requestedUserId, null, null, privilege.canAccessPrivateData());
 
         StringBuilder sb = new StringBuilder();
         sb.append(HtmlFileConstant.FILE_START);
 
         // Return this message if no data available
         if (CollectionUtils.isEmpty(bookmarks)) {
-            return sb.append(username)
+            return sb.append(requestedUserId)
                     .append(" doesn't have any data.")
                     .append(HtmlFileConstant.FILE_END)
                     .toString();
@@ -328,13 +326,6 @@ public class BookmarkServiceImpl implements BookmarkService {
         });
 
         return sb.append(HtmlFileConstant.FILE_END).toString();
-    }
-
-    private List<BookmarkVO> getAllUserBookmarks(String userName, AccessPrivilege privilege) {
-        // from 和 size 为 null 的时候，表示不分页，直接获取全部
-        List<BookmarkDO> bookmarks =
-                bookmarkMapper.getUserBookmarks(userName, null, null, privilege.canAccessPrivateData());
-        return BeanUtils.convertList(bookmarks, BookmarkVO.class);
     }
 
     @Override

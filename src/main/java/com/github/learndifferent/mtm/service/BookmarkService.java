@@ -93,16 +93,16 @@ public interface BookmarkService {
     /**
      * Get bookmarked websites and total pages for the current user on the home page
      *
-     * @param currentUsername   username of the user that is currently logged in
-     * @param homeTimeline      how to display the stream of bookmarks on the home page
-     * @param requestedUsername username of the user whose data is being requested
-     *                          <p>{@code requestedUsername} is not is required</p>
-     * @param pageInfo          pagination info
+     * @param currentUserId   user ID of the user that is currently logged in
+     * @param homeTimeline    how to display the stream of bookmarks on the home page
+     * @param requestedUserId user ID of the user whose data is being requested
+     *                        <p>{@code requestedUsername} is not is required</p>
+     * @param pageInfo        pagination info
      * @return {@link BookmarksAndTotalPagesVO}
      */
-    BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername,
+    BookmarksAndTotalPagesVO getHomeTimeline(long currentUserId,
                                              HomeTimeline homeTimeline,
-                                             String requestedUsername,
+                                             Long requestedUserId,
                                              PageInfoDTO pageInfo);
 
     /**
@@ -119,13 +119,13 @@ public interface BookmarkService {
      * Include all private bookmarks if {@code shouldIncludePrivate} is true
      * </p>
      *
-     * @param username  username of the user whose bookmarks are being requested
+     * @param userId    user ID of the user whose bookmarks are being requested
      * @param pageInfo  pagination info
      * @param privilege {@link AccessPrivilege#LIMITED} if only public data can be accessed.
      *                  {@link AccessPrivilege#ALL} if public and private data can be accessed.
      * @return {@link BookmarksAndTotalPagesVO}
      */
-    BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, AccessPrivilege privilege);
+    BookmarksAndTotalPagesVO getUserBookmarks(long userId, PageInfoDTO pageInfo, AccessPrivilege privilege);
 
     /**
      * Delete a bookmarked website and its associated data
@@ -182,10 +182,10 @@ public interface BookmarkService {
     void checkBookmarkExistsAndUserPermission(int id, String username);
 
     /**
-     * Export user's bookmarks to a HTML file.
+     * Export user's bookmarks to HTML file.
      * <p>
      * Export bookmarks belonging to the user that is currently logged in
-     * if the username is null or empty.
+     * if the {@code requestedUserId} is null.
      * </p>
      * <p>
      * Only the public bookmarks will be exported
@@ -193,12 +193,12 @@ public interface BookmarkService {
      * the user that is currently logged in.
      * </p>
      *
-     * @param username        username of the user whose data is being exported
-     * @param currentUsername username of the user that is currently logged in
+     * @param requestedUserId user ID of the user whose data is being exported
+     * @param currentUserId   user ID of the user that is currently logged in
      * @param response        response
      * @throws ServiceException Connection exception with the result code of {@link ResultCode#CONNECTION_ERROR}
      */
-    void exportBookmarksToHtmlFile(String username, String currentUsername, HttpServletResponse response);
+    void exportBookmarksToHtmlFile(Long requestedUserId, long currentUserId, HttpServletResponse response);
 
     /**
      * Import bookmarks from HTML file

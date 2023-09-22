@@ -52,21 +52,60 @@ public interface BookmarkMapper {
     List<WebForSearchDTO> getAllPublicBasicWebDataForSearch();
 
     /**
-     * Get the number of public bookmarks of all users and private bookmarks of specific user
+     * Get the count of public bookmarks for all users and private bookmarks for a specific user
      *
-     * @param specUsername username of the user whose private bookmarks will be counted
+     * @param userId User ID of the user whose private bookmarks will be counted
+     * @return The count of bookmarks
+     */
+    int countPublicAndUserOwnedPrivateBookmarks(long userId);
+
+    /**
+     * Get public bookmarks and private bookmarks for a specific user.
+     *
+     * @param from   from
+     * @param size   size
+     * @param userId user ID of the user whose private bookmarks will also be shown
+     * @return public bookmarks of all users and private bookmarks for a specific user
+     */
+    List<BookmarkVO> getPublicAndUserOwnedPrivateBookmarks(@Param("from") Integer from,
+                                                           @Param("size") Integer size,
+                                                           @Param("userId") long userId);
+
+    /**
+     * Filter bookmarks by username
+     * Return public bookmarks of all users, and private bookmarks of a specified user
+     * Exclude all bookmarks of a specified user
+     *
+     * @param privateUserId the user ID of the specified user, whose public and private bookmarks will be returned
+     * @param excludeUserId the user ID of the excluded user, whose bookmarks will not be returned
+     * @param from          the pagination offset
+     * @param size          the pagination limit
+     * @return a list of bookmarks
+     */
+    List<BookmarkVO> filterBookmarksByUsers(@Param("privateUserId") long privateUserId,
+                                            @Param("excludeUserId") long excludeUserId,
+                                            @Param("from") int from,
+                                            @Param("size") int size);
+
+    /**
+     * Get the number of public bookmarks of all users and
+     * some private bookmarks of specific user, excluding the bookmarks of the specific user
+     *
+     * @param privateUserId user ID of the user whose public and private bookmarks will be counted
+     * @param excludeUserId user ID of the user whose bookmarks will not be counted
      * @return the number of bookmarks
      */
-    int countAllPublicAndSpecificPrivateBookmarks(String specUsername);
+    int countBookmarkByUsers(@Param("privateUserId") long privateUserId,
+                             @Param("excludeUserId") long excludeUserId);
 
     /**
      * Get the number of bookmarks of the user
      *
-     * @param userName             username of the user
+     * @param userId               user ID of the user
      * @param shouldIncludePrivate true if including the private bookmarks
      * @return number of bookmarks of the user
      */
-    int countUserBookmarks(@Param("userName") String userName,
+    int countUserBookmarks(@Param("userId") long userId,
                            @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
 
     /**
@@ -78,7 +117,7 @@ public interface BookmarkMapper {
      * The result will not be paginated if {@code from} or {@code size} is null
      * </p>
      *
-     * @param userName             username
+     * @param userId               ID of the user
      * @param from                 from
      *                             <p>The result will not be paginated if {@code from} or {@code size} is null</p>
      * @param size                 size
@@ -86,40 +125,11 @@ public interface BookmarkMapper {
      * @param shouldIncludePrivate true if include private bookmarks
      * @return A list of {@link BookmarkDO}
      */
-    List<BookmarkDO> getUserBookmarks(@Param("userName") String userName,
+    List<BookmarkVO> getUserBookmarks(@Param("userId") long userId,
                                       @Param("from") Integer from,
                                       @Param("size") Integer size,
                                       @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
 
-    /**
-     * Get public bookmarks of all users and
-     * some private bookmarks of the user whose username is {@code includePrivateUsername},
-     * excluding the bookmarks of the user whose username is {@code excludeUsername}
-     *
-     * @param includePrivateUsername username of the user whose public and private bookmarks will be shown
-     * @param excludeUsername        username of the user whose bookmarks will not be shown
-     * @param from                   from
-     * @param size                   size
-     * @return bookmarks
-     */
-    List<BookmarkDO> getAllPublicSomePrivateExcludingSpecificUserBookmark(
-            @Param("includePrivateUsername") String includePrivateUsername,
-            @Param("excludeUsername") String excludeUsername,
-            @Param("from") int from,
-            @Param("size") int size);
-
-    /**
-     * Get the number of public bookmarks of all users and
-     * some private bookmarks of specific user whose username is {@code includePrivateUsername},
-     * excluding the bookmarks of the user whose username is {@code excludeUsername}
-     *
-     * @param includePrivateUsername username of the user whose public and private bookmarks will be counted
-     * @param excludeUsername        username of the user whose bookmarks will not be counted
-     * @return the number of bookmarks
-     */
-    int countAllPublicSomePrivateExcludingSpecificUserBookmark(
-            @Param("includePrivateUsername") String includePrivateUsername,
-            @Param("excludeUsername") String excludeUsername);
 
     /**
      * Retrieve the bookmark data associated with the provided URL
@@ -137,23 +147,6 @@ public interface BookmarkMapper {
      * @return true if the user has already bookmarked the web page
      */
     boolean checkIfUserBookmarked(@Param("userId") long userId, @Param("url") String url);
-
-    /**
-     * Get public bookmarks of all users and private bookmarks of specific user
-     * <p>
-     * The result will not be paginated if {@code from} or {@code size} is null
-     * </p>
-     *
-     * @param from         from
-     *                     <p>The result will not be paginated if {@code from} or {@code size} is null</p>
-     * @param size         size
-     *                     <p>The result will not be paginated if {@code from} or {@code size} is null</p>
-     * @param specUsername username of the user whose public and private bookmarks will be shown
-     * @return public bookmarks of all users and private bookmarks of specific user
-     */
-    List<BookmarkDO> getAllPublicAndSpecificPrivateBookmarks(@Param("from") Integer from,
-                                                             @Param("size") Integer size,
-                                                             @Param("specUsername") String specUsername);
 
     /**
      * Delete a bookmark

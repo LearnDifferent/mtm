@@ -174,27 +174,28 @@ public class BookmarkController {
     @GetMapping("/get/user")
     public BookmarksAndTotalPagesVO getCurrentUserBookmarks(@PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                     PageInfoDTO pageInfo) {
-        String currentUsername = getCurrentUsername();
-        return bookmarkService.getUserBookmarks(currentUsername, pageInfo, AccessPrivilege.ALL);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        return bookmarkService.getUserBookmarks(currentUserId, pageInfo, AccessPrivilege.ALL);
     }
 
     /**
      * Get paginated public bookmarks of a user
      *
-     * @param username username of the user whose public bookmarks is being requested
+     * @param userId   username of the user whose public bookmarks is being requested
      * @param pageInfo pagination info
      * @return paginated public bookmarks of the user and the total pages
      */
-    @GetMapping("/get/user/{username}")
-    public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("username")
-                                                           @NotBlank(message = ErrorInfoConstant.USER_NOT_FOUND)
+    @GetMapping("/get/user/{userId}")
+    public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("userId")
+                                                           @NotNull(message = ErrorInfoConstant.USER_NOT_FOUND)
+                                                           @Positive(message = ErrorInfoConstant.USER_NOT_FOUND)
                                                            @Length(min = ConstraintConstant.USERNAME_MIN_LENGTH,
                                                                    max = ConstraintConstant.USERNAME_MAX_LENGTH,
                                                                    message = ErrorInfoConstant.USERNAME_LENGTH)
-                                                                   String username,
+                                                                   Long userId,
                                                            @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                    PageInfoDTO pageInfo) {
-        return bookmarkService.getUserBookmarks(username, pageInfo, AccessPrivilege.LIMITED);
+        return bookmarkService.getUserBookmarks(userId, pageInfo, AccessPrivilege.LIMITED);
     }
 
     /**

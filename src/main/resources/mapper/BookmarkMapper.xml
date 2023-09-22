@@ -12,7 +12,19 @@
         <result column="is_public" jdbcType="BOOLEAN" property="isPublic"/>
     </resultMap>
 
-    <select id="filterPublicBookmarks" resultMap="BaseResultMap"
+    <resultMap id="BookmarkVOResultMap" type="com.github.learndifferent.mtm.vo.BookmarkVO">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="img" jdbcType="VARCHAR" property="img"/>
+        <result column="desc" jdbcType="VARCHAR" property="desc"/>
+        <result column="creation_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="is_public" jdbcType="BOOLEAN" property="isPublic"/>
+    </resultMap>
+
+    <select id="filterPublicBookmarks" resultMap="BookmarkVOResultMap"
             parameterType="com.github.learndifferent.mtm.dto.BookmarkFilterDTO">
         select u.user_name, b.user_id, b.title, b.url, b.img, b.`desc`, b.creation_time, b.is_public
         from user u
@@ -64,25 +76,6 @@
           and `is_deleted` = 0
     </select>
 
-    <select id="getAllPublicAndSpecificPrivateBookmarks" resultMap="BaseResultMap">
-        <!-- 因为 id 也是根据时间顺序生成的，所以用 creation_time 和 id 排序是一样的效果 -->
-        select
-        id, user_name, title, url, img, `desc`, creation_time, is_public
-        from
-        bookmark
-        <where>
-            `is_deleted` = 0 and (
-            <if test="specUsername != null and specUsername != ''">
-                `user_name` = #{specUsername} or
-            </if>
-            `is_public` = 1 )
-        </where>
-        order by `id` desc
-        <if test="from!=null and size!=null">
-            limit #{from},#{size}
-        </if>
-    </select>
-
     <select id="getBookmarkDataByUrl" resultType="com.github.learndifferent.mtm.dto.BasicWebDataDTO">
         select title,
                url,
@@ -94,44 +87,60 @@
         limit 1;
     </select>
 
-    <select id="countAllPublicAndSpecificPrivateBookmarks" resultType="java.lang.Integer">
+    <select id="countPublicAndUserOwnedPrivateBookmarks" resultType="java.lang.Integer">
         select count(id)
         from bookmark
         <where>
-            is_deleted = 0 and (`is_public` = 1
-            <if test="specUsername != null and specUsername != ''">
-                or user_name = #{specUsername}
-            </if>
-            )
+            is_deleted = 0
+            and (`is_public` = 1 or user_id = #{userId})
         </where>
-        ;
     </select>
 
-    <select id="getUserBookmarks" resultMap="BaseResultMap">
+
+    <select id="getPublicAndUserOwnedPrivateBookmarks" resultMap="BookmarkVOResultMap">
+        select u.user_name,
+               b.id,
+               b.user_id,
+               b.title,
+               b.url,
+               b.img,
+               b.`desc`,
+               b.creation_time,
+               b.is_public
+        from bookmark b
+                 left join user u on b.user_id = u.id
+        where b.is_deleted = 0
+          and (b.is_public = 1 or u.id = #{userId})
+        order by b.id desc
+        limit #{from},#{size}
+    </select>
+
+    <select id="getUserBookmarks" resultMap="BookmarkVOResultMap">
         select
-        id, user_name, title, url, img, `desc`, creation_time, is_public
-        from bookmark
-        where user_name = #{userName}
-        <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 is_public 属性为 true 的 -->
-        <if test="!shouldIncludePrivate">
-            and `is_public` = 1
-        </if>
-        and is_deleted = 0
-        order by id desc
-        <if test="from!=null and size!=null">
+        b.id, b.user_id, u.user_name, b.title, b.url, b.img, b.`desc`, b.creation_time, b.is_public
+        from bookmark b
+        left join user u on b.user_id = u.id
+        <where>
+            u.id = #{userId}
+            <!-- 如果 shouldIncludePrivate 为 false，就只查找 is_public 为 true 的 -->
+            <if test="!shouldIncludePrivate">
+                and b.`is_public` = 1
+            </if>
+            and b.is_deleted = 0
+        </where>
+        order by b.id desc
+        <if test="from != null and size != null">
             limit #{from},#{size}
         </if>
     </select>
 
     <select id="countUserBookmarks" resultType="java.lang.Integer">
-        select count(user_name)
-        from bookmark
-        where user_name = #{userName}
+        select count(id) from bookmark
+        where user_id = #{userId}
         <if test="!shouldIncludePrivate">
             and `is_public` = 1
         </if>
         and is_deleted = 0
-        ;
     </select>
 
     <select id="getAllPublicBasicWebDataForSearch"
@@ -143,20 +152,26 @@
         group by url, title, `desc`, img;
     </select>
 
-    <select id="getAllPublicSomePrivateExcludingSpecificUserBookmark" resultMap="BaseResultMap">
-        select
-        id, user_name, title, url, img, `desc`, creation_time, is_public
-        from bookmark
-        where user_name != #{excludeUsername}
-        and ( `is_public` = 1
-        <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
-            or user_name = #{includePrivateUsername}
-        </if>
-        ) and is_deleted = 0
-        order by id desc limit #{from}, #{size};
+    <select id="filterBookmarksByUsers" resultMap="BookmarkVOResultMap">
+        select b.id,
+               b.user_id,
+               u.user_name,
+               b.title,
+               b.url,
+               b.img,
+               b.`desc`,
+               b.creation_time,
+               b.is_public
+        from bookmark b
+                 left join user u on b.user_id = u.id
+        where b.user_id != #{excludeUserId}
+          and (b.is_public = 1 or b.user_id = #{privateUserId})
+          and b.is_deleted = 0
+        order by b.id desc
+        limit #{from}, #{size};
     </select>
 
-    <select id="countAllPublicSomePrivateExcludingSpecificUserBookmark" resultType="java.lang.Integer">
+    <select id="countBookmarkByUsers" resultType="java.lang.Integer">
         select count(id)
         from bookmark
         where user_name != #{excludeUsername}

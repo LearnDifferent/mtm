@@ -4,6 +4,7 @@ import com.github.learndifferent.mtm.constant.consist.HomeTimelineConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.manager.UserManager;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,18 +21,19 @@ public class UserSpecificHomeTimelineStrategy implements HomeTimelineStrategy {
     private final UserManager userManager;
 
     @Override
-    public BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername,
-                                                    String requestedUsername,
+    public BookmarksAndTotalPagesVO getHomeTimeline(long currentUserId,
+                                                    Long requestedUserId,
                                                     int from,
                                                     int size) {
         // check whether the current user is requested user
-        boolean isCurrentUser = currentUsername.equalsIgnoreCase(requestedUsername);
+        boolean isCurrentUser = Objects.nonNull(requestedUserId)
+                && currentUserId == requestedUserId;
 
         // if the current user is requesting his own data, then he can access his private data
         AccessPrivilege privilege = isCurrentUser ? AccessPrivilege.ALL : AccessPrivilege.LIMITED;
 
         // check out public bookmarks of the requested user's
         // this will include private bookmarks if the requested user is current user
-        return this.userManager.getUserBookmarks(requestedUsername, from, size, privilege);
+        return this.userManager.getUserBookmarks(requestedUserId, from, size, privilege);
     }
 }

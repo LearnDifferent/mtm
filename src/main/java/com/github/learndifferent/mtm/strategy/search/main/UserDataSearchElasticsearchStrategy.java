@@ -117,7 +117,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
 
     private UserForSearchWithMoreInfo convertToUser(Map<String, Object> source) {
         Integer id = (Integer) source.get(SearchConstant.USER_ID);
-        String userName = String.valueOf(source.get(SearchConstant.USER_NAME));
+        String username = String.valueOf(source.get(SearchConstant.USER_NAME));
         String role = String.valueOf(source.get(SearchConstant.ROLE));
 
         String time = String.valueOf(source.get(SearchConstant.CREATION_TIME));
@@ -133,11 +133,11 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
         // the number of websites bookmarked by the user
-        int number = bookmarkMapper.countUserBookmarks(userName, false);
+        int number = bookmarkMapper.countUserBookmarks(id, false);
 
         return UserForSearchWithMoreInfo.builder()
                 .id(id)
-                .userName(userName)
+                .userName(username)
                 .role(role)
                 .createTime(creationTime)
                 .bookmarkNumber(number)

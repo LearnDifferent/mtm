@@ -43,26 +43,28 @@ public class HomeController {
     /**
      * Get {@link HomePageVO} Data
      *
-     * @param timeline          how to display the stream of bookmarks on the home page
-     * @param requestedUsername username of the user whose data is being requested
-     *                          <p>{@code requestedUsername} is not required</p>
-     * @param pageInfo          pagination information
+     * @param timeline        how to display the stream of bookmarks on the home page
+     * @param requestedUserId user ID of the user whose data is being requested
+     *                        <p>{@code requestedUsername} is not required</p>
+     * @param pageInfo        pagination information
      * @return {@link HomePageVO} Data
      */
     @GetMapping
     public HomePageVO getHomePageData(
             @RequestParam("timeline") HomeTimeline timeline,
-            @RequestParam(value = "requestedUsername", required = false) String requestedUsername,
+            @RequestParam(value = "requestedUserId", required = false) Long requestedUserId,
             @PageInfo(size = 12, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
-        String currentUser = LoginUtils.getCurrentUsername();
+        long currentUserId = LoginUtils.getCurrentUserId();
         BookmarksAndTotalPagesVO data =
-                bookmarkService.getHomeTimeline(currentUser, timeline, requestedUsername, pageInfo);
+                bookmarkService.getHomeTimeline(currentUserId, timeline, requestedUserId, pageInfo);
 
-        return HomePageVO.builder()
-                .currentUser(currentUser)
+        return HomePageVO
+                .builder()
+                .currentUsername(LoginUtils.getCurrentUsername())
+                .currentUserId(currentUserId)
                 .bookmarksAndTotalPages(data)
-                .requestedUsername(requestedUsername)
+                .requestedUserId(requestedUserId)
                 .build();
     }
 
