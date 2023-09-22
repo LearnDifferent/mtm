@@ -28,7 +28,7 @@
             parameterType="com.github.learndifferent.mtm.dto.BookmarkFilterDTO">
         select u.user_name, b.user_id, b.title, b.url, b.img, b.`desc`, b.creation_time, b.is_public
         from user u
-        left join bookmark b
+        inner join bookmark b
         on
         <if test="usernames != null and usernames.size() != 0">
             u.user_name in
@@ -37,7 +37,7 @@
             </foreach>
         </if>
         u.id = b.user_id
-        where b.`is_public` = 1
+        and b.`is_public` = 1
         and b.`is_deleted` = 0
         <!-- fromDatetime 和 toDatetime 表示时间范围 -->
         <if test="fromDatetime != null and toDatetime != null">
@@ -222,22 +222,23 @@
     </select>
 
     <select id="getBookmarkOwnerUserId" resultType="java.lang.Long">
-        select u.id
+        select b.user_id
         from bookmark b
-                 left join user u on b.user_name = u.user_name
         where b.id = #{bookmarkId,jdbcType=INTEGER}
           and b.is_deleted = 0
         limit 1;
     </select>
 
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarkVO">
-        select b.user_name, b.title, b.url, b.is_public, v.bookmark_id, v.views
+        select u.user_name as username, b.user_id, b.title, b.url, b.is_public, v.bookmark_id, v.views
         from bookmark_view v
                  left join bookmark b on v.bookmark_id = b.id
-        where is_deleted = 0
+                 left join user u on b.user_id = u.id
+        where b.is_deleted = 0
         order by v.views desc
         limit #{from}, #{size};
     </select>
+
     <select id="searchWebDataByKeyword" resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`
         from bookmark
@@ -250,6 +251,7 @@
         group by url, title, `desc`, img
         limit #{from}, #{size};
     </select>
+
     <select id="countWebDataByKeyword" resultType="java.lang.Long">
         select count(distinct url, title, img, `desc`)
         from bookmark
@@ -260,6 +262,7 @@
           and `is_public` = 1
           and is_deleted = 0;
     </select>
+
     <select id="checkIfUserBookmarked" resultType="java.lang.Boolean">
         select exists(
                        select null
@@ -272,6 +275,7 @@
 
     <select id="getBookmarkById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select id,
+               user_id,
                user_name,
                title,
                url,
@@ -288,10 +292,9 @@
         select exists(
                        select null
                        from bookmark b
-                                left join user u on b.user_name = u.user_name
                        where b.is_deleted = 0
                          and b.id = #{bookmarkId}
-                         and (b.is_public = 1 or u.id = #{userId})
+                         and (b.is_public = 1 or b.user_id = #{userId})
                    )
     </select>
 </mapper>

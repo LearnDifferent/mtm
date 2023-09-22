@@ -233,5 +233,5 @@ public interface BookmarkMapper {
      * @return return true if the bookmark exists and has not been deleted
      */
     boolean checkIfBookmarkAvailable(@Param("bookmarkId") Integer bookmarkId,
-                                     @Param("userId") Integer userId);
+                                     @Param("userId") Long userId);
 }
