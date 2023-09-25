@@ -10,6 +10,7 @@ import com.github.learndifferent.mtm.annotation.validation.website.permission.Mo
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
+import com.github.learndifferent.mtm.constant.consist.IdGeneratorConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
@@ -33,6 +34,7 @@ import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.BookmarkService;
+import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.strategy.timeline.HomeTimelineStrategyContext;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.BeanUtils;
@@ -89,6 +91,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final HomeTimelineStrategyContext homeTimelineStrategyContext;
     private final UserManager userManager;
     private final WebScraperProcessorFacade webScraperProcessorFacade;
+    private final IdGeneratorService idGeneratorService;
 
     @Override
     public List<BookmarkVO> filterPublicBookmarks(UsernamesRequest usernames,
@@ -119,7 +122,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, long userId, Privacy privacy) {
         userManager.checkIfUserBookmarked(userId, data.getUrl());
 
-        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, userId, privacy);
+        long id = idGeneratorService.generateId(IdGeneratorConstant.BOOKMARK);
+        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, id, userId, privacy);
         return bookmarkMapper.addBookmark(newBookmark);
     }
 

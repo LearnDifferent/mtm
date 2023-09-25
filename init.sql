@@ -18,10 +18,10 @@ CREATE TABLE IF NOT EXISTS `user`
 
 CREATE TABLE IF NOT EXISTS `bookmark`
 (
-    `id`            int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `user_id`       bigint           NOT NULL,
+    `id`            bigint unsigned NOT NULL,
+    `user_id`       bigint unsigned NOT NULL,
     `title`         varchar(255) DEFAULT NULL,
-    `url`           varchar(600)     NOT NULL,
+    `url`           varchar(600)    NOT NULL,
     `img`           varchar(600) DEFAULT NULL,
     `desc`          text,
     `creation_time` datetime     DEFAULT NULL,

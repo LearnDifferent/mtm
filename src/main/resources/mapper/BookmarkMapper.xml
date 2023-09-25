@@ -194,15 +194,9 @@
         where user_id = #{userId};
     </update>
 
-    <insert
-            id="addBookmark"
-            keyColumn="id"
-            keyProperty="id"
-            parameterType="com.github.learndifferent.mtm.dto.NewBookmarkDTO"
-            useGeneratedKeys="true"
-    >
-        insert into bookmark(user_id, title, url, img, `desc`, `creation_time`, `is_public`)
-        values (#{userId}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
+    <insert id="addBookmark" parameterType="com.github.learndifferent.mtm.dto.NewBookmarkDTO">
+        insert into bookmark(id, user_id, title, url, img, `desc`, `creation_time`, `is_public`)
+        values (#{id}, #{userId}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
     <update id="updateBookmark" parameterType="com.github.learndifferent.mtm.entity.BookmarkDO">

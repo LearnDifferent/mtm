@@ -13,32 +13,35 @@ import java.util.Objects;
  */
 public class NewBookmarkDTO implements Serializable {
 
-    public static NewBookmarkDTO of(BasicWebDataDTO data, long userId, Privacy privacy) {
+    public static NewBookmarkDTO of(BasicWebDataDTO data, long id, long userId, Privacy privacy) {
         String title = data.getTitle();
         String url = data.getUrl();
         String img = data.getImg();
         String desc = data.getDesc();
 
-        return NewBookmarkDTO.of(userId, title, url, img, desc, privacy);
+        return NewBookmarkDTO.of(id, userId, title, url, img, desc, privacy);
     }
 
-    public static NewBookmarkDTO of(Long userId,
+    public static NewBookmarkDTO of(Long id,
+                                    Long userId,
                                     String title,
                                     String url,
                                     String img,
                                     String desc,
                                     Privacy privacy) {
 
-        return new NewBookmarkDTO(userId, title, url, img, desc, Instant.now(), privacy.isPublic());
+        return new NewBookmarkDTO(id, userId, title, url, img, desc, Instant.now(), privacy.isPublic());
     }
 
-    private NewBookmarkDTO(Long userId,
+    private NewBookmarkDTO(Long id,
+                           Long userId,
                            String title,
                            String url,
                            String img,
                            String desc,
                            Instant createTime,
                            Boolean isPublic) {
+        this.id = id;
         this.userId = userId;
         this.title = title;
         this.url = url;
@@ -47,6 +50,8 @@ public class NewBookmarkDTO implements Serializable {
         this.createTime = createTime;
         this.isPublic = isPublic;
     }
+
+    private final Long id;
 
     /**
      * User ID of the owner of the bookmark
@@ -78,6 +83,10 @@ public class NewBookmarkDTO implements Serializable {
      */
     private final Boolean isPublic;
 
+    public Long getId() {
+        return id;
+    }
+
     public Long getUserId() {
         return userId;
     }
@@ -102,7 +111,7 @@ public class NewBookmarkDTO implements Serializable {
         return createTime;
     }
 
-    public Boolean getIsPublic() {
+    public Boolean getPublic() {
         return isPublic;
     }
 
@@ -115,21 +124,23 @@ public class NewBookmarkDTO implements Serializable {
             return false;
         }
         NewBookmarkDTO that = (NewBookmarkDTO) o;
-        return Objects.equals(userId, that.userId) && Objects.equals(title, that.title)
-                && Objects.equals(url, that.url) && Objects.equals(img, that.img)
-                && Objects.equals(desc, that.desc) && Objects.equals(createTime, that.createTime)
-                && Objects.equals(isPublic, that.isPublic);
+        return Objects.equals(id, that.id) && Objects.equals(userId, that.userId)
+                && Objects.equals(title, that.title) && Objects.equals(url, that.url)
+                && Objects.equals(img, that.img) && Objects.equals(desc, that.desc)
+                && Objects.equals(createTime, that.createTime) && Objects.equals(isPublic,
+                that.isPublic);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, title, url, img, desc, createTime, isPublic);
+        return Objects.hash(id, userId, title, url, img, desc, createTime, isPublic);
     }
 
     @Override
     public String toString() {
         return "NewBookmarkDTO{" +
-                "userId=" + userId +
+                "id=" + id +
+                ", userId=" + userId +
                 ", title='" + title + '\'' +
                 ", url='" + url + '\'' +
                 ", img='" + img + '\'' +
