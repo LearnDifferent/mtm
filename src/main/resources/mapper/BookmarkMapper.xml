@@ -174,10 +174,10 @@
     <select id="countBookmarkByUsers" resultType="java.lang.Integer">
         select count(id)
         from bookmark
-        where user_name != #{excludeUsername}
+        where user_id != #{excludeUserId}
         and ( `is_public` = 1
         <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
-            or user_name = #{includePrivateUsername}
+            or user_id = #{privateUserId}
         </if>
         ) and is_deleted = 0;
     </select>
@@ -232,14 +232,6 @@
         </set>
         where id = #{id}
     </update>
-
-    <select id="getBookmarkOwnerName" resultType="java.lang.String">
-        select user_name
-        from bookmark
-        where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0
-        limit 1;
-    </select>
 
     <select id="getBookmarkOwnerUserId" resultType="java.lang.Long">
         select b.user_id

@@ -24,10 +24,6 @@ public class BookmarkDO implements Serializable {
      */
     private Integer id;
     /**
-     * name of the user who bookmarked the website
-     */
-    private String userName;
-    /**
      * User ID of the owner of the bookmark
      */
     private Long userId;

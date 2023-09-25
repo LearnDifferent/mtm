@@ -249,8 +249,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private boolean checkIfRecipientUserIsOwnerOfBookmark(Long recipientUserId, BookmarkDO bookmark) {
-        String bookmarkOwnerUsername = bookmark.getUserName();
-        Long bookmarkOwnerUserId = userMapper.getUserIdByUsername(bookmarkOwnerUsername);
+        Long bookmarkOwnerUserId = bookmark.getUserId();
         return recipientUserId.equals(bookmarkOwnerUserId);
     }
 

@@ -255,7 +255,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isBlank(username), ResultCode.PERMISSION_DENIED);
 
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
+        BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();

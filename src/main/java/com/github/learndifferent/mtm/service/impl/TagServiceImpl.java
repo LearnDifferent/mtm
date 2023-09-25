@@ -109,13 +109,11 @@ public class TagServiceImpl implements TagService {
 
         return ids.stream()
                 // get a bookmark by ID
-                .map(bookmarkMapper::getBookmarkById)
+                .map(bookmarkMapper::getBookmarkWithUsernameById)
                 // bookmark should not be null
                 .filter(Objects::nonNull)
                 // bookmark should be public or own by the user
                 .filter(b -> b.getIsPublic() || StringUtils.equalsIgnoreCase(b.getUserName(), username))
-                // convert bookmarkDO to BookmarkVO
-                .map(bookmarkDO -> BeanUtils.convert(bookmarkDO, BookmarkVO.class))
                 // collect all bookmarks
                 .collect(Collectors.toList());
     }
