@@ -155,11 +155,11 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Cacheable(value = "tag:popular")
-    public List<PopularTagDTO> getPopularTags(String username, PageInfoDTO pageInfo) {
+    public List<PopularTagDTO> getPopularTags(long userId, PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<TagAndCountDO> tags = tagMapper.getPopularTags(username, from, size);
+        List<TagAndCountDO> tags = tagMapper.getPopularTags(userId, from, size);
         throwExceptionIfEmpty(tags);
 
         return BeanUtils.convertList(tags, PopularTagDTO.class);

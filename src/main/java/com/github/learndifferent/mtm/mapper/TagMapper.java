@@ -93,13 +93,13 @@ public interface TagMapper {
     /**
      * Get popular tags
      *
-     * @param username username of the user who is searching for popular tags
-     * @param from     from
-     * @param size     size
+     * @param userId user ID of the user who is searching for popular tags
+     * @param from   from
+     * @param size   size
      * @return a list of paginated tags, which are the tags of public bookmarks or the tags of
      * bookmarks that owns by the user who is searching for popular tags, that appear more than once.
      */
-    List<TagAndCountDO> getPopularTags(@Param("username") String username,
+    List<TagAndCountDO> getPopularTags(@Param("userId") long userId,
                                        @Param("from") int from,
                                        @Param("size") int size);
 
@@ -122,7 +122,7 @@ public interface TagMapper {
      * Search tag data by keyword within an range of number
      *
      * @param keyword   keyword
-     * @param username  username of the user who is searching the tag
+     * @param userId    user ID of the user who is searching the tag
      * @param rangeFrom greater than or equal to the number of bookmarks of this tag.
      *                  don't filter if {@code rangeFrom} or {@code rangeTo} is null.
      * @param rangeTo   less than or equal to the number of bookmarks of this tag
@@ -132,7 +132,7 @@ public interface TagMapper {
      * @return tag data
      */
     List<TagForSearchDTO> searchTagDataByKeywordAndRange(@Param("keyword") String keyword,
-                                                         @Param("username") String username,
+                                                         @Param("userId") long userId,
                                                          @Param("rangeFrom") Integer rangeFrom,
                                                          @Param("rangeTo") Integer rangeTo,
                                                          @Param("from") int from,
@@ -142,7 +142,7 @@ public interface TagMapper {
      * Count the number of tags by keyword within an range of number
      *
      * @param keyword   keyword
-     * @param username  username of the user who is searching the tag
+     * @param userId    user ID of the user who is searching the tag
      * @param rangeFrom greater than or equal to the number of bookmarks of this tag.
      *                  don't filter if {@code rangeFrom} or {@code rangeTo} is null.
      * @param rangeTo   less than or equal to the number of bookmarks of this tag
@@ -150,7 +150,7 @@ public interface TagMapper {
      * @return the number of tags
      */
     long countTagDataByKeywordAndRange(@Param("keyword") String keyword,
-                                       @Param("username") String username,
+                                       @Param("userId") long userId,
                                        @Param("rangeFrom") Integer rangeFrom,
                                        @Param("rangeTo") Integer rangeTo);
 }
