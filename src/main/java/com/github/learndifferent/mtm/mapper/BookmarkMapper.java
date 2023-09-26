@@ -83,10 +83,10 @@ public interface BookmarkMapper {
      * @param size          the pagination limit
      * @return a list of bookmarks
      */
-    List<BookmarkVO> filterBookmarksByUsers(@Param("privateUserId") long privateUserId,
-                                            @Param("excludeUserId") long excludeUserId,
-                                            @Param("from") int from,
-                                            @Param("size") int size);
+    List<BookmarkVO> filterBookmarksByCriteria(@Param("privateUserId") long privateUserId,
+                                               @Param("excludeUserId") long excludeUserId,
+                                               @Param("from") int from,
+                                               @Param("size") int size);
 
     /**
      * Get the number of public bookmarks of all users and
@@ -96,8 +96,8 @@ public interface BookmarkMapper {
      * @param excludeUserId user ID of the user whose bookmarks will not be counted
      * @return the number of bookmarks
      */
-    int countBookmarkByUsers(@Param("privateUserId") long privateUserId,
-                             @Param("excludeUserId") long excludeUserId);
+    int countBookmarkByCriteria(@Param("privateUserId") long privateUserId,
+                                @Param("excludeUserId") long excludeUserId);
 
     /**
      * Get the number of bookmarks of the user

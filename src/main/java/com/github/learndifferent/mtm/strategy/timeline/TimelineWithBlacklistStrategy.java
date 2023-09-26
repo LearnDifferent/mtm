@@ -36,10 +36,10 @@ public class TimelineWithBlacklistStrategy implements HomeTimelineStrategy {
             long currentUserId, Long requestedUserId, int from, int size) {
 
         List<BookmarkVO> bookmarks = bookmarkMapper
-                .filterBookmarksByUsers(currentUserId, requestedUserId, from, size);
+                .filterBookmarksByCriteria(currentUserId, requestedUserId, from, size);
 
         int totalCount = this.bookmarkMapper
-                .countBookmarkByUsers(currentUserId, requestedUserId);
+                .countBookmarkByCriteria(currentUserId, requestedUserId);
         int totalPages = PaginationUtils.getTotalPages(totalCount, size);
         return BookmarksAndTotalPagesVO.builder().bookmarks(bookmarks).totalPages(totalPages).build();
     }

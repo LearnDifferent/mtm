@@ -152,31 +152,35 @@
         group by url, title, `desc`, img;
     </select>
 
-    <select id="filterBookmarksByUsers" resultMap="BookmarkVOResultMap">
+    <select id="filterBookmarksByCriteria" resultMap="BookmarkVOResultMap">
         select b.id,
-               b.user_id,
-               u.user_name,
-               b.title,
-               b.url,
-               b.img,
-               b.`desc`,
-               b.creation_time,
-               b.is_public
+        b.user_id,
+        u.user_name,
+        b.title,
+        b.url,
+        b.img,
+        b.`desc`,
+        b.creation_time,
+        b.is_public
         from bookmark b
-                 left join user u on b.user_id = u.id
+        left join user u on b.user_id = u.id
         where b.user_id != #{excludeUserId}
-          and (b.is_public = 1 or b.user_id = #{privateUserId})
-          and b.is_deleted = 0
+        and (b.is_public = 1
+        <if test="privateUserId != excludeUserId">
+            or b.user_id = #{privateUserId}
+        </if>
+        )
+        and b.is_deleted = 0
         order by b.id desc
         limit #{from}, #{size};
     </select>
 
-    <select id="countBookmarkByUsers" resultType="java.lang.Integer">
+    <select id="countBookmarkByCriteria" resultType="java.lang.Integer">
         select count(id)
         from bookmark
         where user_id != #{excludeUserId}
         and ( `is_public` = 1
-        <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
+        <if test="privateUserId != excludeUserId">
             or user_id = #{privateUserId}
         </if>
         ) and is_deleted = 0;
