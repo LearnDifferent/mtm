@@ -3,7 +3,6 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
-import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
@@ -26,7 +25,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -189,9 +187,6 @@ public class BookmarkController {
     public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("userId")
                                                            @NotNull(message = ErrorInfoConstant.USER_NOT_FOUND)
                                                            @Positive(message = ErrorInfoConstant.USER_NOT_FOUND)
-                                                           @Length(min = ConstraintConstant.USERNAME_MIN_LENGTH,
-                                                                   max = ConstraintConstant.USERNAME_MAX_LENGTH,
-                                                                   message = ErrorInfoConstant.USERNAME_LENGTH)
                                                                    Long userId,
                                                            @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                    PageInfoDTO pageInfo) {
