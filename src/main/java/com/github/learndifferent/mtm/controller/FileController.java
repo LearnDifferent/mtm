@@ -37,7 +37,7 @@ public class FileController {
      *
      * @param userId   user ID of the user whose data is being exported.
      * @param response response
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link BookmarkService#exportBookmarksToHtmlFile(long,
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link BookmarkService#exportBookmarksToHtmlFile(Long,
      *                                                                  long, HttpServletResponse)}
      *                                                                  will throw an exception if an IO Exception
      *                                                                  occurs. The Result Code is {@link
