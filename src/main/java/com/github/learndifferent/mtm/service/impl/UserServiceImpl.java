@@ -81,11 +81,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String getRoleByName(String userName) {
-        return userMapper.getRoleByName(userName);
-    }
-
-    @Override
     @Cacheable(value = "user:name", key = "#userName")
     public UserVO getUserByName(String userName) {
         UserDO userDO = userMapper.getUserByName(userName);

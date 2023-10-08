@@ -84,10 +84,10 @@
         limit 1;
     </select>
 
-    <select id="getRoleByName" resultType="java.lang.String">
+    <select id="getRoleByUserId" resultType="java.lang.String">
         select role
         from user
-        where user_name = #{userName}
+        where id = #{userId}
           and is_deleted = 0
         limit 1;
     </select>

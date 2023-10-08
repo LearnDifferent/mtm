@@ -80,14 +80,6 @@ public interface UserService {
     String addUserAndGetUsername(UserIdentificationRequest userIdentification, UserRole role);
 
     /**
-     * Get user role by username
-     *
-     * @param userName username
-     * @return user role
-     */
-    String getRoleByName(String userName);
-
-    /**
      * Get user by username
      *
      * @param userName username (ignore case)

@@ -69,17 +69,6 @@ class UserServiceImplTest {
                     () -> assertEquals(CREATION_TIME, u.getCreateTime()),
                     () -> assertEquals(ROLE, USER.getRole()));
         }
-
-
-        @Test
-        @DisplayName("Should return same role")
-        void shouldReturnSameRole() {
-
-            Mockito.when(userMapper.getRoleByName(USERNAME)).thenReturn(ROLE);
-
-            String userRole = userService.getRoleByName(USERNAME);
-            Assertions.assertEquals(ROLE, userRole);
-        }
     }
 
 }
