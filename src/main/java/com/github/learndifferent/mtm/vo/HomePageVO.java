@@ -23,15 +23,19 @@ public class HomePageVO implements Serializable {
     /**
      * Username of the user that is currently logged in
      */
-    private String currentUser;
+    private String currentUsername;
+    /**
+     * ID of the user that is currently logged in
+     */
+    private Long currentUserId;
     /**
      * Paginated bookmarks and total pages
      */
     private BookmarksAndTotalPagesVO bookmarksAndTotalPages;
     /**
-     * Username of the user whose data is being requested
+     * ID of the user whose data is being requested
      */
-    private String requestedUsername;
+    private Long requestedUserId;
 
     private static final long serialVersionUID = 1L;
 }

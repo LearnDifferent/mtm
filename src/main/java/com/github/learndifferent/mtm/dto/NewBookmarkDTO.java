@@ -13,33 +13,36 @@ import java.util.Objects;
  */
 public class NewBookmarkDTO implements Serializable {
 
-    public static NewBookmarkDTO of(BasicWebDataDTO data, String username, Privacy privacy) {
+    public static NewBookmarkDTO of(BasicWebDataDTO data, long id, long userId, Privacy privacy) {
         String title = data.getTitle();
         String url = data.getUrl();
         String img = data.getImg();
         String desc = data.getDesc();
 
-        return NewBookmarkDTO.of(username, title, url, img, desc, privacy);
+        return NewBookmarkDTO.of(id, userId, title, url, img, desc, privacy);
     }
 
-    public static NewBookmarkDTO of(String username,
+    public static NewBookmarkDTO of(Long id,
+                                    Long userId,
                                     String title,
                                     String url,
                                     String img,
                                     String desc,
                                     Privacy privacy) {
 
-        return new NewBookmarkDTO(username, title, url, img, desc, Instant.now(), privacy.isPublic());
+        return new NewBookmarkDTO(id, userId, title, url, img, desc, Instant.now(), privacy.isPublic());
     }
 
-    private NewBookmarkDTO(String userName,
+    private NewBookmarkDTO(Long id,
+                           Long userId,
                            String title,
                            String url,
                            String img,
                            String desc,
                            Instant createTime,
                            Boolean isPublic) {
-        this.userName = userName;
+        this.id = id;
+        this.userId = userId;
         this.title = title;
         this.url = url;
         this.img = img;
@@ -48,10 +51,12 @@ public class NewBookmarkDTO implements Serializable {
         this.isPublic = isPublic;
     }
 
+    private final Long id;
+
     /**
-     * Owner of the bookmark
+     * User ID of the owner of the bookmark
      */
-    private final String userName;
+    private final Long userId;
     /**
      * Title of the bookmark
      */
@@ -78,8 +83,12 @@ public class NewBookmarkDTO implements Serializable {
      */
     private final Boolean isPublic;
 
-    public String getUserName() {
-        return userName;
+    public Long getId() {
+        return id;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     public String getTitle() {
@@ -102,21 +111,8 @@ public class NewBookmarkDTO implements Serializable {
         return createTime;
     }
 
-    public Boolean getIsPublic() {
+    public Boolean getPublic() {
         return isPublic;
-    }
-
-    @Override
-    public String toString() {
-        return "NewBookmarkDTO{" +
-                "userName='" + userName + '\'' +
-                ", title='" + title + '\'' +
-                ", url='" + url + '\'' +
-                ", img='" + img + '\'' +
-                ", desc='" + desc + '\'' +
-                ", createTime=" + createTime +
-                ", isPublic=" + isPublic +
-                '}';
     }
 
     @Override
@@ -128,15 +124,30 @@ public class NewBookmarkDTO implements Serializable {
             return false;
         }
         NewBookmarkDTO that = (NewBookmarkDTO) o;
-        return Objects.equals(userName, that.userName) && Objects.equals(title, that.title)
-                && Objects.equals(url, that.url) && Objects.equals(img, that.img) && Objects
-                .equals(desc, that.desc) && Objects.equals(createTime, that.createTime) && Objects
-                .equals(isPublic, that.isPublic);
+        return Objects.equals(id, that.id) && Objects.equals(userId, that.userId)
+                && Objects.equals(title, that.title) && Objects.equals(url, that.url)
+                && Objects.equals(img, that.img) && Objects.equals(desc, that.desc)
+                && Objects.equals(createTime, that.createTime) && Objects.equals(isPublic,
+                that.isPublic);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userName, title, url, img, desc, createTime, isPublic);
+        return Objects.hash(id, userId, title, url, img, desc, createTime, isPublic);
+    }
+
+    @Override
+    public String toString() {
+        return "NewBookmarkDTO{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", title='" + title + '\'' +
+                ", url='" + url + '\'' +
+                ", img='" + img + '\'' +
+                ", desc='" + desc + '\'' +
+                ", createTime=" + createTime +
+                ", isPublic=" + isPublic +
+                '}';
     }
 
     private static final long serialVersionUID = 1L;

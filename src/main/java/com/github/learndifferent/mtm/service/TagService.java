@@ -165,7 +165,7 @@ public interface TagService {
      * The result will be cached for 10 seconds if no exception is thrown.
      * </p>
      *
-     * @param username username of the user who is searching for popular tags
+     * @param userId   user ID of the user who is searching for popular tags
      * @param pageInfo pagination information
      * @return a list of paginated tags, which are the tags of public bookmarks or the tags of
      * bookmarks that owns by the user who is searching for popular tags, that appear more than once.
@@ -173,5 +173,5 @@ public interface TagService {
      *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#NO_RESULTS_FOUND
      *                                                                  NO_RESULTS_FOUND} if no results found
      */
-    List<PopularTagDTO> getPopularTags(String username, PageInfoDTO pageInfo);
+    List<PopularTagDTO> getPopularTags(long userId, PageInfoDTO pageInfo);
 }

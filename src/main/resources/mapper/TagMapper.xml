@@ -57,7 +57,7 @@
         from tag t
                  inner join bookmark b on b.id = t.bookmark_id and b.is_deleted = 0
         where b.is_public = 1
-           or b.user_name = #{username}
+           or b.user_id = #{userId}
         group by tag
         having number > 1
         order by number desc
@@ -74,11 +74,11 @@
     </select>
     <select id="searchTagDataByKeywordAndRange"
             resultType="com.github.learndifferent.mtm.dto.search.TagForSearchDTO">
-        select `tag`, count(bookmark_id) number
+        select `tag`, count(bookmark_id) as number
         from tag t
         inner join bookmark b on b.id = t.bookmark_id
         and b.is_deleted = 0
-        and (b.user_name = #{username} or b.is_public = 1)
+        and (b.user_id = #{userId} or b.is_public = 1)
         where tag like concat(#{keyword}, '%')
         group by tag
         <if test="rangeFrom != null and rangeTo != null">
@@ -100,7 +100,7 @@
         from tag t
         inner join bookmark b on b.id = t.bookmark_id
         and b.is_deleted = 0
-        and (b.user_name = #{username} or b.is_public = 1)
+        and (b.user_id = #{userId} or b.is_public = 1)
         WHERE tag like concat(#{keyword}, '%')
         ) t
         <where>

@@ -58,51 +58,51 @@ public interface BookmarkService {
     /**
      * Bookmark a new web page
      *
-     * @param url      URL of the web page to bookmark
-     * @param username Username of the user who is bookmarking
-     * @param privacy  {@link Privacy#PUBLIC} if this is a public bookmark and
-     *                 {@link Privacy#PRIVATE} if this is private
-     * @param mode     {@link AddDataMode#ADD_TO_DATABASE} if the data should only be added to the database.
-     *                 <p>
-     *                 {@link AddDataMode#ADD_TO_DATABASE_AND_ELASTICSEARCH} if the data should
-     *                 be added to the database and ElasticSearch
-     *                 </p>
-     *                 <p>
-     *                 Note that this value will be ignored if this is a private bookmark
-     *                 because only public data can be added to Elasticsearch
-     *                 </p>
+     * @param url           URL of the web page to bookmark
+     * @param currentUserId User ID of the user who is bookmarking
+     * @param privacy       {@link Privacy#PUBLIC} if this is a public bookmark and
+     *                      {@link Privacy#PRIVATE} if this is private
+     * @param mode          {@link AddDataMode#ADD_TO_DATABASE} if the data should only be added to the database.
+     *                      <p>
+     *                      {@link AddDataMode#ADD_TO_DATABASE_AND_ELASTICSEARCH} if the data should
+     *                      be added to the database and ElasticSearch
+     *                      </p>
+     *                      <p>
+     *                      Note that this value will be ignored if this is a private bookmark
+     *                      because only public data can be added to Elasticsearch
+     *                      </p>
      * @return {@link ResultVO}<{@link BookmarkingResultVO}> The result of bookmarking a new web page
      * @throws ServiceException Exception will be thrown with the result code of {@link ResultCode#URL_MALFORMED},
      *                          {@link ResultCode#URL_ACCESS_DENIED} and {@link ResultCode#CONNECTION_ERROR}
      *                          when an error occurred during an IO operation
      */
-    BookmarkingResultVO bookmark(String url, String username, Privacy privacy, AddDataMode mode);
+    BookmarkingResultVO bookmark(String url, long currentUserId, Privacy privacy, AddDataMode mode);
 
     /**
      * Add a website to the bookmarks
      *
-     * @param data     Basic website data that contains title, URL, image and description
-     * @param username Username of the user who is bookmarking
+     * @param data   Basic website data that contains title, URL, image and description
+     * @param userId ID of the user who is bookmarking
      * @return true if success
      * @throws ServiceException throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
      *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      *                          if something goes wrong.
      */
-    boolean addToBookmark(BasicWebDataRequest data, String username);
+    boolean addToBookmark(BasicWebDataRequest data, long userId);
 
     /**
      * Get bookmarked websites and total pages for the current user on the home page
      *
-     * @param currentUsername   username of the user that is currently logged in
-     * @param homeTimeline      how to display the stream of bookmarks on the home page
-     * @param requestedUsername username of the user whose data is being requested
-     *                          <p>{@code requestedUsername} is not is required</p>
-     * @param pageInfo          pagination info
+     * @param currentUserId   user ID of the user that is currently logged in
+     * @param homeTimeline    how to display the stream of bookmarks on the home page
+     * @param requestedUserId user ID of the user whose data is being requested
+     *                        <p>{@code requestedUsername} is not is required</p>
+     * @param pageInfo        pagination info
      * @return {@link BookmarksAndTotalPagesVO}
      */
-    BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername,
+    BookmarksAndTotalPagesVO getHomeTimeline(long currentUserId,
                                              HomeTimeline homeTimeline,
-                                             String requestedUsername,
+                                             Long requestedUserId,
                                              PageInfoDTO pageInfo);
 
     /**
@@ -119,13 +119,13 @@ public interface BookmarkService {
      * Include all private bookmarks if {@code shouldIncludePrivate} is true
      * </p>
      *
-     * @param username  username of the user whose bookmarks are being requested
+     * @param userId    user ID of the user whose bookmarks are being requested
      * @param pageInfo  pagination info
      * @param privilege {@link AccessPrivilege#LIMITED} if only public data can be accessed.
      *                  {@link AccessPrivilege#ALL} if public and private data can be accessed.
      * @return {@link BookmarksAndTotalPagesVO}
      */
-    BookmarksAndTotalPagesVO getUserBookmarks(String username, PageInfoDTO pageInfo, AccessPrivilege privilege);
+    BookmarksAndTotalPagesVO getUserBookmarks(long userId, PageInfoDTO pageInfo, AccessPrivilege privilege);
 
     /**
      * Delete a bookmarked website and its associated data
@@ -159,8 +159,8 @@ public interface BookmarkService {
     /**
      * Get a bookmark
      *
-     * @param id       ID of the bookmark
-     * @param userName username of the user
+     * @param id     ID of the bookmark
+     * @param userId User ID of the user
      * @return bookmark
      * @throws ServiceException If the user has no permission to get the bookmark,
      *                          or the bookmark doesn't exist, a {@link ServiceException}
@@ -168,7 +168,7 @@ public interface BookmarkService {
      *                          {@link ResultCode#PERMISSION_DENIED}
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
-    BookmarkVO getBookmark(int id, String userName);
+    BookmarkVO getBookmark(int id, long userId);
 
     /**
      * Check if the bookmark exists and if the user has permission to access it
@@ -182,10 +182,10 @@ public interface BookmarkService {
     void checkBookmarkExistsAndUserPermission(int id, String username);
 
     /**
-     * Export user's bookmarks to a HTML file.
+     * Export user's bookmarks to HTML file.
      * <p>
      * Export bookmarks belonging to the user that is currently logged in
-     * if the username is null or empty.
+     * if the {@code requestedUserId} is null.
      * </p>
      * <p>
      * Only the public bookmarks will be exported
@@ -193,23 +193,23 @@ public interface BookmarkService {
      * the user that is currently logged in.
      * </p>
      *
-     * @param username        username of the user whose data is being exported
-     * @param currentUsername username of the user that is currently logged in
+     * @param requestedUserId user ID of the user whose data is being exported
+     * @param currentUserId   user ID of the user that is currently logged in
      * @param response        response
      * @throws ServiceException Connection exception with the result code of {@link ResultCode#CONNECTION_ERROR}
      */
-    void exportBookmarksToHtmlFile(String username, String currentUsername, HttpServletResponse response);
+    void exportBookmarksToHtmlFile(Long requestedUserId, long currentUserId, HttpServletResponse response);
 
     /**
      * Import bookmarks from HTML file
      *
      * @param htmlFile a file that contains the bookmarks in HTML format
-     * @param username username of the user who is importing the bookmarks
+     * @param userId   ID of the user who is importing the bookmarks
      * @return the message of the result
      * @throws ServiceException Throw an exception with the result code of {@link ResultCode#HTML_FILE_NO_BOOKMARKS}
      *                          if it's not a valid HTML file that contains bookmarks
      */
-    String importBookmarksFromHtmlFile(MultipartFile htmlFile, String username);
+    String importBookmarksFromHtmlFile(MultipartFile htmlFile, long userId);
 
     /**
      * Get visited bookmarks from database

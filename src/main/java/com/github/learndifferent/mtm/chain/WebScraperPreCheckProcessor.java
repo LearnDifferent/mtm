@@ -35,7 +35,7 @@ public class WebScraperPreCheckProcessor extends AbstractWebScraperProcessor {
     @Override
     public BasicWebDataDTO process(@NotNull WebScraperRequest request) {
         String originUrl = request.getRequestedUrl();
-        String username = request.getUsername();
+        Long userId = request.getUserId();
 
         // clean up URL
         boolean isNoUrl = StringUtils.isBlank(originUrl);
@@ -47,7 +47,7 @@ public class WebScraperPreCheckProcessor extends AbstractWebScraperProcessor {
 
         // first check if the web page is already present in the user's bookmarks.
         // if the user has already bookmarked the web page, throw an exception.
-        userManager.checkIfUserBookmarked(username, url);
+        userManager.checkIfUserBookmarked(userId, url);
 
         // if user didn't bookmark it
         // retrieve the bookmark data associated with the provided URL

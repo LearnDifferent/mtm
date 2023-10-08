@@ -3,7 +3,7 @@
 <mapper namespace="com.github.learndifferent.mtm.mapper.BookmarkMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.BookmarkDO">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="img" jdbcType="VARCHAR" property="img"/>
@@ -12,36 +12,49 @@
         <result column="is_public" jdbcType="BOOLEAN" property="isPublic"/>
     </resultMap>
 
-    <select id="filterPublicBookmarks" resultMap="BaseResultMap"
+    <resultMap id="BookmarkVOResultMap" type="com.github.learndifferent.mtm.vo.BookmarkVO">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="img" jdbcType="VARCHAR" property="img"/>
+        <result column="desc" jdbcType="VARCHAR" property="desc"/>
+        <result column="creation_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="is_public" jdbcType="BOOLEAN" property="isPublic"/>
+    </resultMap>
+
+    <select id="filterPublicBookmarks" resultMap="BookmarkVOResultMap"
             parameterType="com.github.learndifferent.mtm.dto.BookmarkFilterDTO">
-        select
-        id, user_name, title, url, img, `desc`, creation_time, is_public
-        from bookmark
-        <where>
-            <if test="usernames != null and usernames.size() != 0">
-                <foreach collection="usernames" item="username" open="(" close=") and" separator="or">
-                    user_name = #{username}
-                </foreach>
-            </if>
-            `is_public` = 1
-            and `is_deleted` = 0
-        </where>
+        select u.user_name, b.user_id, b.title, b.url, b.img, b.`desc`, b.creation_time, b.is_public
+        from user u
+        inner join bookmark b
+        on
+        <if test="usernames != null and usernames.size() != 0">
+            u.user_name in
+            <foreach collection="usernames" item="username" open="(" close=") and" separator=",">
+                #{username}
+            </foreach>
+        </if>
+        u.id = b.user_id
+        and b.`is_public` = 1
+        and b.`is_deleted` = 0
         <!-- fromDatetime 和 toDatetime 表示时间范围 -->
         <if test="fromDatetime != null and toDatetime != null">
-            HAVING creation_time <![CDATA[ >= ]]> #{fromDatetime,jdbcType=TIMESTAMP}
-            AND creation_time <![CDATA[ <= ]]> #{toDatetime,jdbcType=TIMESTAMP}
+            HAVING b.creation_time <![CDATA[ >= ]]> #{fromDatetime,jdbcType=TIMESTAMP}
+            AND b.creation_time <![CDATA[ <= ]]> #{toDatetime,jdbcType=TIMESTAMP}
         </if>
-        order by ${orderField}
+        order by b.${orderField}
         <if test="isDesc == null or isDesc == false">
             desc
         </if>
         <!-- 如果按照时间排序，相同时间下要按照 username 升序排序 -->
         <if test="orderField.equalsIgnoreCase('creation_time')">
-            , user_name asc
+            , u.user_name asc
         </if>
         <!-- 如果按照 username 排序，相同 username 下要按照时间降序排序 -->
         <if test="orderField.equalsIgnoreCase('user_name')">
-            , creation_time desc
+            , b.creation_time desc
         </if>
         limit 0, #{load}
     </select>
@@ -53,7 +66,7 @@
           and `is_deleted` = 0
         group by url, title, `desc`, img
         order by count desc
-            limit #{from}, #{size};
+        limit #{from}, #{size};
     </select>
 
     <select id="countDistinctPublicUrl" resultType="java.lang.Integer">
@@ -63,25 +76,6 @@
           and `is_deleted` = 0
     </select>
 
-    <select id="getAllPublicAndSpecificPrivateBookmarks" resultMap="BaseResultMap">
-        <!-- 因为 id 也是根据时间顺序生成的，所以用 creation_time 和 id 排序是一样的效果 -->
-        select
-        id, user_name, title, url, img, `desc`, creation_time, is_public
-        from
-        bookmark
-        <where>
-            `is_deleted` = 0 and (
-            <if test="specUsername != null and specUsername != ''">
-                `user_name` = #{specUsername} or
-            </if>
-            `is_public` = 1 )
-        </where>
-        order by `id` desc
-        <if test="from!=null and size!=null">
-            limit #{from},#{size}
-        </if>
-    </select>
-
     <select id="getBookmarkDataByUrl" resultType="com.github.learndifferent.mtm.dto.BasicWebDataDTO">
         select title,
                url,
@@ -89,47 +83,64 @@
                `desc`
         from bookmark
         where url = #{url}
-          and is_deleted = 0 limit 1;
+          and is_deleted = 0
+        limit 1;
     </select>
 
-    <select id="countAllPublicAndSpecificPrivateBookmarks" resultType="java.lang.Integer">
+    <select id="countPublicAndUserOwnedPrivateBookmarks" resultType="java.lang.Integer">
         select count(id)
         from bookmark
         <where>
-            is_deleted = 0 and (`is_public` = 1
-            <if test="specUsername != null and specUsername != ''">
-                or user_name = #{specUsername}
-            </if>
-            )
+            is_deleted = 0
+            and (`is_public` = 1 or user_id = #{userId})
         </where>
-        ;
     </select>
 
-    <select id="getUserBookmarks" resultMap="BaseResultMap">
+
+    <select id="getPublicAndUserOwnedPrivateBookmarks" resultMap="BookmarkVOResultMap">
+        select u.user_name,
+               b.id,
+               b.user_id,
+               b.title,
+               b.url,
+               b.img,
+               b.`desc`,
+               b.creation_time,
+               b.is_public
+        from bookmark b
+                 left join user u on b.user_id = u.id
+        where b.is_deleted = 0
+          and (b.is_public = 1 or u.id = #{userId})
+        order by b.id desc
+        limit #{from},#{size}
+    </select>
+
+    <select id="getUserBookmarks" resultMap="BookmarkVOResultMap">
         select
-        id, user_name, title, url, img, `desc`, creation_time, is_public
-        from bookmark
-        where user_name = #{userName}
-        <!-- 如果 shouldIncludePrivate 为 false，就只查找数据库中 is_public 属性为 true 的 -->
-        <if test="!shouldIncludePrivate">
-            and `is_public` = 1
-        </if>
-        and is_deleted = 0
-        order by id desc
-        <if test="from!=null and size!=null">
+        b.id, b.user_id, u.user_name, b.title, b.url, b.img, b.`desc`, b.creation_time, b.is_public
+        from bookmark b
+        left join user u on b.user_id = u.id
+        <where>
+            u.id = #{userId}
+            <!-- 如果 shouldIncludePrivate 为 false，就只查找 is_public 为 true 的 -->
+            <if test="!shouldIncludePrivate">
+                and b.`is_public` = 1
+            </if>
+            and b.is_deleted = 0
+        </where>
+        order by b.id desc
+        <if test="from != null and size != null">
             limit #{from},#{size}
         </if>
     </select>
 
     <select id="countUserBookmarks" resultType="java.lang.Integer">
-        select count(user_name)
-        from bookmark
-        where user_name = #{userName}
+        select count(id) from bookmark
+        where user_id = #{userId}
         <if test="!shouldIncludePrivate">
             and `is_public` = 1
         </if>
         and is_deleted = 0
-        ;
     </select>
 
     <select id="getAllPublicBasicWebDataForSearch"
@@ -141,84 +152,103 @@
         group by url, title, `desc`, img;
     </select>
 
-    <select id="getAllPublicSomePrivateExcludingSpecificUserBookmark" resultMap="BaseResultMap">
-        select
-        id, user_name, title, url, img, `desc`, creation_time, is_public
-        from bookmark
-        where user_name != #{excludeUsername}
-        and ( `is_public` = 1
-        <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
-            or user_name = #{includePrivateUsername}
+    <select id="filterBookmarksByCriteria" resultMap="BookmarkVOResultMap">
+        select b.id,
+        b.user_id,
+        u.user_name,
+        b.title,
+        b.url,
+        b.img,
+        b.`desc`,
+        b.creation_time,
+        b.is_public
+        from bookmark b
+        left join user u on b.user_id = u.id
+        where b.user_id != #{excludeUserId}
+        and (b.is_public = 1
+        <if test="privateUserId != excludeUserId">
+            or b.user_id = #{privateUserId}
         </if>
-        ) and is_deleted = 0
-        order by id desc limit #{from}, #{size};
+        )
+        and b.is_deleted = 0
+        order by b.id desc
+        limit #{from}, #{size};
     </select>
 
-    <select id="countAllPublicSomePrivateExcludingSpecificUserBookmark" resultType="java.lang.Integer">
+    <select id="countBookmarkByCriteria" resultType="java.lang.Integer">
         select count(id)
         from bookmark
-        where user_name != #{excludeUsername}
+        where user_id != #{excludeUserId}
         and ( `is_public` = 1
-        <if test="includePrivateUsername != null and includePrivateUsername != '' and !includePrivateUsername.equalsIgnoreCase(excludeUsername)">
-            or user_name = #{includePrivateUsername}
+        <if test="privateUserId != excludeUserId">
+            or user_id = #{privateUserId}
         </if>
         ) and is_deleted = 0;
     </select>
 
-    <update id="deleteBookmarkById" parameterType="java.lang.Integer">
+    <update id="deleteBookmarkById">
         update bookmark
         set is_deleted = 1
         where id = #{id,jdbcType=INTEGER};
     </update>
 
-    <update id="deleteUserBookmarks" parameterType="java.lang.String">
+    <update id="deleteUserBookmarks">
         update bookmark
         set is_deleted = 1
-        where user_name = #{userName};
+        where user_id = #{userId};
     </update>
 
-    <insert id="addBookmark" keyColumn="id" keyProperty="id"
-            parameterType="com.github.learndifferent.mtm.entity.BookmarkDO"
-            useGeneratedKeys="true">
-        insert into bookmark(user_name, title, url, img, `desc`, `creation_time`, `is_public`)
-        values (#{userName}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
+    <insert id="addBookmark" parameterType="com.github.learndifferent.mtm.dto.NewBookmarkDTO">
+        insert into bookmark(id, user_id, title, url, img, `desc`, `creation_time`, `is_public`)
+        values (#{id}, #{userId}, #{title}, #{url}, #{img}, #{desc}, #{createTime}, #{isPublic})
     </insert>
 
     <update id="updateBookmark" parameterType="com.github.learndifferent.mtm.entity.BookmarkDO">
         update bookmark
-        set user_name       = #{userName,jdbcType=VARCHAR},
-            title           = #{title,jdbcType=VARCHAR},
-            url             = #{url,jdbcType=VARCHAR},
-            img             = #{img,jdbcType=VARCHAR},
-            `desc`          = #{desc,jdbcType=VARCHAR},
-            `creation_time` = #{createTime,jdbcType=TIMESTAMP},
-            `is_public`     = #{isPublic,jdbcType=BOOLEAN}
-        where id = #{id,jdbcType=INTEGER}
+        <set>
+            <if test="userId != null and userId &gt; 0">
+                user_id = #{userId},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+            <if test="img != null and img != ''">
+                img = #{img},
+            </if>
+            <if test="`desc` != null and `desc` != ''">
+                `desc` = #{desc},
+            </if>
+            <if test="createTime != null">
+                `creation_time` = #{createTime},
+            </if>
+            <if test="isPublic != null">
+                `is_public` = #{isPublic}
+            </if>
+        </set>
+        where id = #{id}
     </update>
 
-    <select id="getBookmarkOwnerName" resultType="java.lang.String">
-        select user_name
-        from bookmark
-        where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
-    </select>
-
-    <select id="getBookmarkOwnerUserId" resultType="java.lang.Integer">
-        select u.id
+    <select id="getBookmarkOwnerUserId" resultType="java.lang.Long">
+        select b.user_id
         from bookmark b
-                 left join user u on b.user_name = u.user_name
         where b.id = #{bookmarkId,jdbcType=INTEGER}
-          and b.is_deleted = 0 limit 1;
+          and b.is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getVisitedBookmarks" resultType="com.github.learndifferent.mtm.vo.VisitedBookmarkVO">
-        select b.user_name, b.title, b.url, b.is_public, v.bookmark_id, v.views
+        select u.user_name as username, b.user_id, b.title, b.url, b.is_public, v.bookmark_id, v.views
         from bookmark_view v
                  left join bookmark b on v.bookmark_id = b.id
-        where is_deleted = 0
+                 left join user u on b.user_id = u.id
+        where b.is_deleted = 0
         order by v.views desc
-            limit #{from}, #{size};
+        limit #{from}, #{size};
     </select>
+
     <select id="searchWebDataByKeyword" resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`
         from bookmark
@@ -229,8 +259,9 @@
           and `is_public` = 1
           and is_deleted = 0
         group by url, title, `desc`, img
-            limit #{from}, #{size};
+        limit #{from}, #{size};
     </select>
+
     <select id="countWebDataByKeyword" resultType="java.lang.Long">
         select count(distinct url, title, img, `desc`)
         from bookmark
@@ -241,19 +272,20 @@
           and `is_public` = 1
           and is_deleted = 0;
     </select>
+
     <select id="checkIfUserBookmarked" resultType="java.lang.Boolean">
         select exists(
                        select null
                        from bookmark
                        where url = #{url}
-                         and user_name = #{username}
+                         and user_id = #{userId}
                          and is_deleted = 0
                    )
     </select>
 
-    <select id="getBookmarkById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <select id="getBookmarkById" resultMap="BaseResultMap">
         select id,
-               user_name,
+               user_id,
                title,
                url,
                img,
@@ -261,18 +293,33 @@
                creation_time,
                is_public
         from bookmark
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id}
           and is_deleted = 0;
+    </select>
+
+    <select id="getBookmarkWithUsernameById" resultMap="BookmarkVOResultMap">
+        select b.id,
+               b.user_id,
+               u.user_name,
+               b.title,
+               b.url,
+               b.img,
+               b.`desc`,
+               b.creation_time,
+               b.is_public
+        from bookmark b
+                 left join user u on b.user_id = u.id
+        where b.id = #{id}
+          and b.is_deleted = 0;
     </select>
 
     <select id="checkIfBookmarkAvailable" resultType="boolean">
         select exists(
                        select null
                        from bookmark b
-                                left join user u on b.user_name = u.user_name
                        where b.is_deleted = 0
                          and b.id = #{bookmarkId}
-                         and (b.is_public = 1 or u.id = #{userId})
+                         and (b.is_public = 1 or b.user_id = #{userId})
                    )
     </select>
 </mapper>

@@ -104,7 +104,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
      */
     private void updateNotificationReadStatus(NotificationDTO notification, boolean isRead) {
         long notificationId = notification.getId();
-        Integer userId = notification.getRecipientUserId();
+        Long userId = notification.getRecipientUserId();
 
         // 1. store whether a particular notification has been read by a user
         String notificationReadStatusKey = RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(notificationId);
@@ -129,7 +129,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
-    public NotificationsAndCountVO getAllNotificationsAndCount(Integer recipientUserId,
+    public NotificationsAndCountVO getAllNotificationsAndCount(Long recipientUserId,
                                                                int loadCount,
                                                                boolean isOrderReversed) {
         long count = countAllNotifications(null);
@@ -184,7 +184,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
 
     private NotificationVO getReadStatusAndGenerateNotificationVO(NotificationDTO notification) {
         long id = notification.getId();
-        Integer userId = notification.getRecipientUserId();
+        Long userId = notification.getRecipientUserId();
 
         String key = RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(id);
         long offset = RedisKeyUtils.getSysNotificationReadStatusReadByUserOffset(userId);
@@ -197,7 +197,7 @@ public class SystemNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
-    public long countAllNotifications(Integer recipientUserId) {
+    public long countAllNotifications(Long recipientUserId) {
         // recipientUserId can be ignored here
         String key = RedisKeyUtils.getSystemNotificationKey();
         Long size = this.redisTemplate.opsForList().size(key);

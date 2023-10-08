@@ -35,20 +35,20 @@ public class FileController {
      * <p>Export bookmarks belonging to the user that is currently logged in
      * if the username is missing.</p>
      *
-     * @param username username of the user whose data is being exported.
+     * @param userId   user ID of the user whose data is being exported.
      * @param response response
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link BookmarkService#exportBookmarksToHtmlFile(String,
-     *                                                                  String, HttpServletResponse)}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link BookmarkService#exportBookmarksToHtmlFile(Long,
+     *                                                                  long, HttpServletResponse)}
      *                                                                  will throw an exception if an IO Exception
      *                                                                  occurs. The Result Code is {@link
      *                                                                  ResultCode#CONNECTION_ERROR CONNECTION_ERROR}
      */
     @GetMapping
     @IdempotencyCheck
-    public void export(@RequestParam(value = "username", required = false) String username,
+    public void export(@RequestParam(value = "userId", required = false) Long userId,
                        HttpServletResponse response) {
-        String currentUsername = getCurrentUser();
-        bookmarkService.exportBookmarksToHtmlFile(username, currentUsername, response);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        bookmarkService.exportBookmarksToHtmlFile(userId, currentUserId, response);
     }
 
     /**
@@ -57,7 +57,7 @@ public class FileController {
      * @param htmlFile a file that contains bookmarks in HTML format
      * @return the message of the result
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link BookmarkService#importBookmarksFromHtmlFile(MultipartFile,
-     *                                                                  String)} will throw an exception with the
+     *                                                                  long)} will throw an exception with the
      *                                                                  result code of {@link ResultCode#HTML_FILE_NO_BOOKMARKS
      *                                                                  HTML_FILE_NO_BOOKMARKS} if it's not a valid
      *                                                                  HTML file that contains bookmarks
@@ -69,12 +69,8 @@ public class FileController {
             return ResultCreator.result(ResultCode.HTML_FILE_NO_BOOKMARKS);
         }
 
-        String currentUser = getCurrentUser();
-        String msg = bookmarkService.importBookmarksFromHtmlFile(htmlFile, currentUser);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        String msg = bookmarkService.importBookmarksFromHtmlFile(htmlFile, currentUserId);
         return ResultCreator.okResult(msg);
-    }
-
-    private String getCurrentUser() {
-        return LoginUtils.getCurrentUsername();
     }
 }

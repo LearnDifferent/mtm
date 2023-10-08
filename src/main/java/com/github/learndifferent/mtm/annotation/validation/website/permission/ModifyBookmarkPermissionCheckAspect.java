@@ -4,10 +4,10 @@ import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
+import com.github.learndifferent.mtm.vo.BookmarkVO;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import lombok.RequiredArgsConstructor;
@@ -72,7 +72,7 @@ public class ModifyBookmarkPermissionCheckAspect {
 
         ThrowExceptionUtils.throwIfTrue(bookmarkId < 0, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
+        BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(bookmarkId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         boolean emptyUsername = StringUtils.isEmpty(username);

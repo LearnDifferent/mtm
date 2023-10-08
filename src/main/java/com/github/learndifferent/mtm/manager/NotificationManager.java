@@ -72,7 +72,7 @@ public class NotificationManager {
     }
 
     public NotificationsAndCountVO getAllNotificationsAndCount(NotificationType notificationType,
-                                                               Integer recipientUserId,
+                                                               Long recipientUserId,
                                                                int loadCount,
                                                                boolean isOrderReversed) {
         return notificationStrategyContext.getAllNotificationsAndCount(
@@ -80,14 +80,14 @@ public class NotificationManager {
     }
 
     public NotificationsAndCountVO getUnreadNotificationsAndCount(NotificationType notificationType,
-                                                                  Integer recipientUserId,
+                                                                  Long recipientUserId,
                                                                   int loadCount,
                                                                   boolean isOrderReversed) {
         return notificationStrategyContext.getUnreadNotificationsAndCount(
                 notificationType, recipientUserId, loadCount, isOrderReversed);
     }
 
-    public long countAllReplyNotifications(Integer recipientUserId) {
+    public long countAllReplyNotifications(Long recipientUserId) {
         return notificationStrategyContext.countAllNotifications(NotificationType.REPLY_NOTIFICATION, recipientUserId);
     }
 
@@ -95,7 +95,7 @@ public class NotificationManager {
         return notificationStrategyContext.countAllNotifications(NotificationType.SYSTEM_NOTIFICATION, null);
     }
 
-    public long countUnreadReplies(Integer recipientUserId) {
+    public long countUnreadReplies(Long recipientUserId) {
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
 
         Long notificationCount = redisTemplate.execute(
@@ -104,7 +104,7 @@ public class NotificationManager {
         return Optional.ofNullable(notificationCount).orElse(0L);
     }
 
-    public long countUnreadSystemNotifications(Integer recipientUserId) {
+    public long countUnreadSystemNotifications(Long recipientUserId) {
         String key = RedisKeyUtils
                 .getSysNotificationReadStatusTrackNotificationsOfUserKey(recipientUserId);
         // count the number of notifications that a user has read
@@ -124,7 +124,7 @@ public class NotificationManager {
         return userUnread;
     }
 
-    public boolean checkIfUserHasUnreadSysNotifications(Integer recipientUserId) {
+    public boolean checkIfUserHasUnreadSysNotifications(Long recipientUserId) {
         long systemNotificationNumber = countAllSystemNotifications();
         if (systemNotificationNumber < 1L) {
             // if no system notifications,
@@ -144,7 +144,7 @@ public class NotificationManager {
         return false;
     }
 
-    private boolean checkIfHasUnreadSysNotificationsWhenHavingSysNotifications(Integer recipientUserId,
+    private boolean checkIfHasUnreadSysNotificationsWhenHavingSysNotifications(Long recipientUserId,
                                                                                long sysNotificationIndex) {
         long readStatusOffset = RedisKeyUtils.getSysNotificationReadStatusReadByUserOffset(recipientUserId);
         String readStatusKey = getReadStatusKeyWhenHavingSysNotifications(sysNotificationIndex);
@@ -172,21 +172,12 @@ public class NotificationManager {
         notificationStrategyContext.markNotificationAsUnread(notification);
     }
 
-    public void deleteReplyNotificationData(Integer recipientUserId) {
+    public void deleteReplyNotificationData(Long recipientUserId) {
         String replyNotificationKey = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
         redisTemplate.delete(replyNotificationKey);
 
         String replyNotificationReadStatusKey = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
         redisTemplate.delete(replyNotificationReadStatusKey);
-    }
-
-    /**
-     * Delete {@code key}
-     *
-     * @param key redis key
-     */
-    public void deleteByKey(String key) {
-        this.redisTemplate.delete(key);
     }
 
     /**
@@ -216,7 +207,7 @@ public class NotificationManager {
      * @param userId ID of the user
      * @return return the notification or an empty string if the user role is not changed
      */
-    public String generateRoleChangeNotification(Integer userId) {
+    public String generateRoleChangeNotification(Long userId) {
         String key = RedisConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
 
         Object newRoleObject = this.redisTemplate.opsForHash().get(key, RedisConstant.NEW_ROLE_CHANGE_RECORD_HASH_KEY);
@@ -259,20 +250,20 @@ public class NotificationManager {
      *
      * @param userId ID of the user
      */
-    public void deleteRoleChangeNotification(Integer userId) {
+    public void deleteRoleChangeNotification(Long userId) {
         String key = RedisConstant.ROLE_CHANGE_RECORD_PREFIX + userId;
-        this.deleteByKey(key);
+        redisTemplate.delete(key);
     }
 
     /**
      * Check if the user has turned off notifications
      *
-     * @param username username
+     * @param userId ID of the user
      * @return true if the user has turned off notifications
      */
-    public boolean checkIfTurnOffNotifications(String username) {
+    public boolean checkIfTurnOffNotifications(Long userId) {
         Boolean result = this.redisTemplate.opsForSet()
-                .isMember(RedisConstant.MUTE_NOTIFICATIONS, username.toLowerCase());
+                .isMember(RedisConstant.MUTE_NOTIFICATIONS, String.valueOf(userId));
 
         return Optional.ofNullable(result).orElse(false);
     }
@@ -281,20 +272,19 @@ public class NotificationManager {
      * Turn on notifications if the user turned off notifications and
      * turn off notifications if the user turned on notifications
      *
-     * @param username username of the user who wants to turn on/off notifications
+     * @param userId user ID of the user who wants to turn on/off notifications
      */
-    public void turnOnTurnOffNotifications(String username) {
+    public void turnOnTurnOffNotifications(Long userId) {
         String key = RedisConstant.MUTE_NOTIFICATIONS;
-        String val = username.toLowerCase();
 
-        boolean hasTurnedOff = checkIfTurnOffNotifications(val);
+        boolean hasTurnedOff = checkIfTurnOffNotifications(userId);
         if (hasTurnedOff) {
             // turn on notifications
-            this.redisTemplate.opsForSet().remove(key, val);
+            this.redisTemplate.opsForSet().remove(key, String.valueOf(userId));
             return;
         }
 
         // turn off notifications
-        this.redisTemplate.opsForSet().add(key, val);
+        this.redisTemplate.opsForSet().add(key, String.valueOf(userId));
     }
 }

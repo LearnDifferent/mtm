@@ -9,7 +9,6 @@ import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.utils.LoginUtils;
-import com.github.learndifferent.mtm.vo.NotificationVO;
 import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -54,8 +53,9 @@ public class NotificationController {
             @Positive(message = ErrorInfoConstant.NO_DATA) int loadCount,
             @RequestParam("isOrderReversed") boolean isOrderReversed) {
 
-        String username = LoginUtils.getCurrentUsername();
-        return notificationService.getAllNotificationsAndCount(notificationType, username, loadCount, isOrderReversed);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        return notificationService.getAllNotificationsAndCount(notificationType, currentUserId, loadCount,
+                isOrderReversed);
     }
 
     /**
@@ -73,9 +73,9 @@ public class NotificationController {
             @Positive(message = ErrorInfoConstant.NO_DATA) int loadCount,
             @RequestParam("isOrderReversed") boolean isOrderReversed) {
 
-        String username = LoginUtils.getCurrentUsername();
+        long currentUserId = LoginUtils.getCurrentUserId();
         return notificationService
-                .getUnreadNotificationsAndCount(notificationType, username, loadCount, isOrderReversed);
+                .getUnreadNotificationsAndCount(notificationType, currentUserId, loadCount, isOrderReversed);
     }
 
     /**
@@ -105,8 +105,8 @@ public class NotificationController {
      */
     @GetMapping("/count/reply")
     public ResultVO<Long> countUnreadReplies() {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        long count = notificationService.countUnreadReplies(currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        long count = notificationService.countUnreadReplies(currentUserId);
         return ResultCreator.okResult(count);
     }
 
@@ -117,8 +117,8 @@ public class NotificationController {
      */
     @GetMapping("/count/system")
     public ResultVO<Long> countUnreadSystemNotifications() {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        long count = notificationService.countUnreadSystemNotifications(currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        long count = notificationService.countUnreadSystemNotifications(currentUserId);
         return ResultCreator.okResult(count);
     }
 
@@ -135,8 +135,8 @@ public class NotificationController {
                 return notificationService.countAllSystemNotifications();
             case REPLY_NOTIFICATION:
             default:
-                String username = LoginUtils.getCurrentUsername();
-                return notificationService.countAllReplyNotifications(username);
+                long currentUserId = LoginUtils.getCurrentUserId();
+                return notificationService.countAllReplyNotifications(currentUserId);
         }
     }
 
@@ -158,8 +158,8 @@ public class NotificationController {
      */
     @GetMapping("/system")
     public boolean checkIfHasUnreadSystemNotifications() {
-        String username = LoginUtils.getCurrentUsername();
-        return notificationService.checkIfHasUnreadSysNotifications(username);
+        Long userId = LoginUtils.getCurrentUserId();
+        return notificationService.checkIfHasUnreadSysNotifications(userId);
     }
 
     /**
@@ -173,8 +173,8 @@ public class NotificationController {
      */
     @GetMapping("/role-changed")
     public ResultVO<String> getRoleChangeNotification() {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        String notification = notificationService.generateRoleChangeNotification(currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        String notification = notificationService.generateRoleChangeNotification(currentUserId);
         return StringUtils.isEmpty(notification) ? ResultCreator.result(ResultCode.UPDATE_FAILED)
                 : ResultCreator.okResult(notification);
     }
@@ -185,8 +185,8 @@ public class NotificationController {
     @DeleteMapping("/role-changed")
     @IdempotencyCheck
     public void deleteRoleChangeNotification() {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        notificationService.deleteRoleChangeNotification(currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        notificationService.deleteRoleChangeNotification(currentUserId);
     }
 
     /**
@@ -197,8 +197,8 @@ public class NotificationController {
      */
     @GetMapping("/mute")
     public ResultVO<ResultCode> checkIfTurnOffNotifications() {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        boolean hasTurnedOff = notificationService.checkIfTurnOffNotifications(currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean hasTurnedOff = notificationService.checkIfTurnOffNotifications(currentUserId);
         return hasTurnedOff ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
@@ -209,7 +209,7 @@ public class NotificationController {
     @GetMapping("/mute/switch")
     @IdempotencyCheck
     public void turnOnTurnOffNotifications() {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        notificationService.turnOnTurnOffNotifications(currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        notificationService.turnOnTurnOffNotifications(currentUserId);
     }
 }

@@ -5,13 +5,12 @@ import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck;
-import com.github.learndifferent.mtm.annotation.modify.string.EmptyStringCheck.DefaultValueIfEmpty;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
+import com.github.learndifferent.mtm.constant.consist.IdGeneratorConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
@@ -35,6 +34,7 @@ import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.query.BasicWebDataRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.service.BookmarkService;
+import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.strategy.timeline.HomeTimelineStrategyContext;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.BeanUtils;
@@ -62,6 +62,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -90,6 +91,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final HomeTimelineStrategyContext homeTimelineStrategyContext;
     private final UserManager userManager;
     private final WebScraperProcessorFacade webScraperProcessorFacade;
+    private final IdGeneratorService idGeneratorService;
 
     @Override
     public List<BookmarkVO> filterPublicBookmarks(UsernamesRequest usernames,
@@ -101,35 +103,34 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         BookmarkFilterDTO filter = BookmarkFilterDTO.of(
                 usernames.getUsernames(), load, fromTimestamp, toTimestamp, orderField, order);
-        List<BookmarkDO> bookmarks = bookmarkMapper.filterPublicBookmarks(filter);
-        return BeanUtils.convertList(bookmarks, BookmarkVO.class);
+        return bookmarkMapper.filterPublicBookmarks(filter);
     }
 
     /**
      * Convert the basic website data into a bookmark
      *
-     * @param data     Basic website data that contains title, URL, image and description
-     * @param username Username of the user who is bookmarking
-     * @param privacy  {@link Privacy#PUBLIC} if this is a public bookmark and
-     *                 {@link Privacy#PRIVATE} if this is private
+     * @param data    Basic website data that contains title, URL, image and description
+     * @param userId  User ID of the user who is bookmarking
+     * @param privacy {@link Privacy#PUBLIC} if this is a public bookmark and
+     *                {@link Privacy#PRIVATE} if this is private
      * @return true if success
      * @throws ServiceException Throw exceptions with the result code of {@link ResultCode#ALREADY_SAVED},
      *                          {@link ResultCode#PERMISSION_DENIED} and {@link ResultCode#URL_MALFORMED}
      *                          if something goes wrong.
      */
     @WebsiteDataClean
-    public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, String username, Privacy privacy) {
-        userManager.checkIfUserBookmarked(username, data.getUrl());
+    public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, long userId, Privacy privacy) {
+        userManager.checkIfUserBookmarked(userId, data.getUrl());
 
-        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, username, privacy);
-        BookmarkDO b = BeanUtils.convert(newBookmark, BookmarkDO.class);
-        return bookmarkMapper.addBookmark(b);
+        long id = idGeneratorService.generateId(IdGeneratorConstant.BOOKMARK);
+        NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, id, userId, privacy);
+        return bookmarkMapper.addBookmark(newBookmark);
     }
 
     @Override
-    public BookmarkingResultVO bookmark(String url, String username, Privacy privacy, AddDataMode mode) {
+    public BookmarkingResultVO bookmark(String url, long currentUserId, Privacy privacy, AddDataMode mode) {
         // scrape data from the web
-        WebScraperRequest request = WebScraperRequest.initRequest(url, username);
+        WebScraperRequest request = WebScraperRequest.initRequest(url, currentUserId);
 
         BasicWebDataDTO basic = webScraperProcessorFacade.process(request);
 
@@ -138,15 +139,15 @@ public class BookmarkServiceImpl implements BookmarkService {
                 && ADD_TO_DATABASE_AND_ELASTICSEARCH.equals(mode);
 
         return shouldAddToDatabaseAndElasticsearch
-                ? saveToElasticsearchAndDatabase(username, basic)
-                : saveToDatabase(username, basic, privacy);
+                ? saveToElasticsearchAndDatabase(currentUserId, basic)
+                : saveToDatabase(currentUserId, basic, privacy);
     }
 
-    private BookmarkingResultVO saveToElasticsearchAndDatabase(String username, BasicWebDataDTO data) {
+    private BookmarkingResultVO saveToElasticsearchAndDatabase(long userId, BasicWebDataDTO data) {
         // save to Elasticsearch asynchronously
         Future<Boolean> elasticsearchResult = searchManager.saveToElasticsearchAsync(data);
         // save to database and get the BookmarkingResultVO
-        BookmarkingResultVO result = saveToDatabase(username, data, PUBLIC);
+        BookmarkingResultVO result = saveToDatabase(userId, data, PUBLIC);
         // get the result of saving to Elasticsearch asynchronously
         boolean hasSavedToElasticsearch = false;
         try {
@@ -157,19 +158,19 @@ public class BookmarkServiceImpl implements BookmarkService {
         return result.setHasSavedToElasticsearch(hasSavedToElasticsearch);
     }
 
-    private BookmarkingResultVO saveToDatabase(String username, BasicWebDataDTO basic, Privacy privacy) {
+    private BookmarkingResultVO saveToDatabase(long userId, BasicWebDataDTO basic, Privacy privacy) {
         // get the result of saving to database
         BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
-        boolean hasSavedToDatabase = bean.bookmarkWithBasicWebData(basic, username, privacy);
+        boolean hasSavedToDatabase = bean.bookmarkWithBasicWebData(basic, userId, privacy);
         // return the result of saving to database
         return BookmarkingResultVO.builder().hasSavedToDatabase(hasSavedToDatabase).build();
     }
 
     @Override
-    public boolean addToBookmark(BasicWebDataRequest data, String username) {
+    public boolean addToBookmark(BasicWebDataRequest data, long userId) {
         BasicWebDataDTO basicData = BeanUtils.convert(data, BasicWebDataDTO.class);
         BookmarkServiceImpl bean = ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
-        return bean.bookmarkWithBasicWebData(basicData, username, PUBLIC);
+        return bean.bookmarkWithBasicWebData(basicData, userId, PUBLIC);
     }
 
     @Override
@@ -184,10 +185,9 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @EmptyStringCheck
-    public BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername,
+    public BookmarksAndTotalPagesVO getHomeTimeline(long currentUserId,
                                                     HomeTimeline homeTimeline,
-                                                    @DefaultValueIfEmpty String requestedUsername,
+                                                    Long requestedUserId,
                                                     PageInfoDTO pageInfo) {
         // get pagination information
         int from = pageInfo.getFrom();
@@ -195,17 +195,17 @@ public class BookmarkServiceImpl implements BookmarkService {
 
         String timelineStrategy = homeTimeline.timeline();
 
-        return this.homeTimelineStrategyContext.getHomeTimeline(timelineStrategy,
-                currentUsername, requestedUsername, from, size);
+        return this.homeTimelineStrategyContext.getHomeTimeline(
+                timelineStrategy, currentUserId, requestedUserId, from, size);
     }
 
     @Override
-    public BookmarksAndTotalPagesVO getUserBookmarks(String username,
+    public BookmarksAndTotalPagesVO getUserBookmarks(long userId,
                                                      PageInfoDTO pageInfo,
                                                      AccessPrivilege privilege) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
-        return this.userManager.getUserBookmarks(username, from, size, privilege);
+        return this.userManager.getUserBookmarks(userId, from, size, privilege);
     }
 
     @Override
@@ -235,19 +235,23 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public BookmarkVO getBookmark(int id, String userName) {
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
+    public BookmarkVO getBookmark(int id, long userId) {
+        BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(id);
 
         // data does not exist
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        // data is not public
-        // and the owner's username of data does not match the username
-        boolean noPermission = Boolean.FALSE.equals(bookmark.getIsPublic())
-                && CustomStringUtils.notEqualsIgnoreCase(userName, bookmark.getUserName());
+        // data is not public and the user is not the owner
+        Boolean isPublic = bookmark.getIsPublic();
+        boolean isNotPublic = BooleanUtils.isFalse(isPublic);
+
+        long ownerUserId = bookmark.getUserId();
+        boolean isNotOwner = ownerUserId != userId;
+
+        boolean noPermission = isNotPublic && isNotOwner;
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
-        return BeanUtils.convert(bookmark, BookmarkVO.class);
+        return bookmark;
     }
 
     @Override
@@ -255,7 +259,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         // username cannot be empty
         ThrowExceptionUtils.throwIfTrue(StringUtils.isBlank(username), ResultCode.PERMISSION_DENIED);
 
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
+        BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
         Boolean isPublic = bookmark.getIsPublic();
@@ -268,24 +272,24 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public void exportBookmarksToHtmlFile(String username,
-                                          String currentUsername,
+    public void exportBookmarksToHtmlFile(Long requestedUserId,
+                                          long currentUserId,
                                           HttpServletResponse response) {
 
-        username = StringUtils.isBlank(username) ? currentUsername : username;
+        long userId = Optional.ofNullable(requestedUserId).orElse(currentUserId);
 
         Instant now = Instant.now();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss_SSS")
                 .withZone(ZoneId.systemDefault());
         String time = dtf.format(now);
 
-        String filename = username + "_" + time + ".html";
+        String filename = userId + "_" + time + ".html";
 
-        boolean isRequestingOwnData = username.equalsIgnoreCase(currentUsername);
-        AccessPrivilege privilege = isRequestingOwnData ? AccessPrivilege.ALL
+        boolean isRequestedUserIsCurrentUser = userId == currentUserId;
+        AccessPrivilege privilege = isRequestedUserIsCurrentUser ? AccessPrivilege.ALL
                 : AccessPrivilege.LIMITED;
 
-        String html = getBookmarksByUserInHtml(username, privilege);
+        String html = getBookmarksByUserInHtml(userId, privilege);
 
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=" + filename);
@@ -301,16 +305,17 @@ public class BookmarkServiceImpl implements BookmarkService {
         }
     }
 
-    private String getBookmarksByUserInHtml(String username, AccessPrivilege privilege) {
+    private String getBookmarksByUserInHtml(long requestedUserId, AccessPrivilege privilege) {
 
-        List<BookmarkVO> bookmarks = getAllUserBookmarks(username, privilege);
+        List<BookmarkVO> bookmarks = bookmarkMapper
+                .getUserBookmarks(requestedUserId, null, null, privilege.canAccessPrivateData());
 
         StringBuilder sb = new StringBuilder();
         sb.append(HtmlFileConstant.FILE_START);
 
         // Return this message if no data available
         if (CollectionUtils.isEmpty(bookmarks)) {
-            return sb.append(username)
+            return sb.append(requestedUserId)
                     .append(" doesn't have any data.")
                     .append(HtmlFileConstant.FILE_END)
                     .toString();
@@ -331,15 +336,8 @@ public class BookmarkServiceImpl implements BookmarkService {
         return sb.append(HtmlFileConstant.FILE_END).toString();
     }
 
-    private List<BookmarkVO> getAllUserBookmarks(String userName, AccessPrivilege privilege) {
-        // from 和 size 为 null 的时候，表示不分页，直接获取全部
-        List<BookmarkDO> bookmarks =
-                bookmarkMapper.getUserBookmarks(userName, null, null, privilege.canAccessPrivateData());
-        return BeanUtils.convertList(bookmarks, BookmarkVO.class);
-    }
-
     @Override
-    public String importBookmarksFromHtmlFile(MultipartFile htmlFile, String username) {
+    public String importBookmarksFromHtmlFile(MultipartFile htmlFile, long userId) {
 
         Optional.ofNullable(htmlFile)
                 .orElseThrow(() -> new ServiceException(ResultCode.HTML_FILE_NO_BOOKMARKS));
@@ -348,7 +346,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         int[] result = new int[3];
 
         try (InputStream in = htmlFile.getInputStream()) {
-            importBookmarksAndUpdateResult(username, result, in);
+            importBookmarksAndUpdateResult(userId, result, in);
         } catch (IOException e) {
             throw new ServiceException(ResultCode.CONNECTION_ERROR);
         } catch (IllegalArgumentException e) {
@@ -362,14 +360,14 @@ public class BookmarkServiceImpl implements BookmarkService {
                 + ", Existing : " + result[2];
     }
 
-    private void importBookmarksAndUpdateResult(String username, int[] result, InputStream in) throws IOException {
+    private void importBookmarksAndUpdateResult(long userId, int[] result, InputStream in) throws IOException {
 
         Document document = Jsoup.parse(in, "UTF-8", "");
         Elements dts = document.getElementsByTag("dt");
 
         dts.forEach(dt -> {
             BasicWebDataDTO basicWebData = getBasicWebDataFromElement(dt);
-            bookmarkAndUpdateResult(username, result, basicWebData);
+            bookmarkAndUpdateResult(userId, result, basicWebData);
         });
     }
 
@@ -393,9 +391,9 @@ public class BookmarkServiceImpl implements BookmarkService {
         return webBuilder.build();
     }
 
-    private void bookmarkAndUpdateResult(String username, int[] result, BasicWebDataDTO web) {
+    private void bookmarkAndUpdateResult(long userId, int[] result, BasicWebDataDTO web) {
         try {
-            boolean success = bookmarkAndGetResult(username, web);
+            boolean success = bookmarkAndGetResult(userId, web);
             updateImportingResult(result, success);
         } catch (ServiceException e) {
             ResultCode resultCode = e.getResultCode();
@@ -403,11 +401,11 @@ public class BookmarkServiceImpl implements BookmarkService {
         }
     }
 
-    private boolean bookmarkAndGetResult(String username, BasicWebDataDTO web) {
+    private boolean bookmarkAndGetResult(long userId, BasicWebDataDTO web) {
         BookmarkServiceImpl bookmarkService =
                 ApplicationContextUtils.getBean(BookmarkServiceImpl.class);
         // the imported bookmarks are public
-        return bookmarkService.bookmarkWithBasicWebData(web, username, PUBLIC);
+        return bookmarkService.bookmarkWithBasicWebData(web, userId, PUBLIC);
     }
 
     private void updateImportingResult(int[] result, boolean success) {

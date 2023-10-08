@@ -64,11 +64,11 @@ class BookmarkControllerTest {
         // 使用了 Mockito.mockStatic 来模拟 StpUtil.getLoginIdAsString 方法的调用。
         try (MockedStatic<LoginUtils> loginUtilsMockedStatic = Mockito.mockStatic(LoginUtils.class)) {
 
-            loginUtilsMockedStatic.when(LoginUtils::getCurrentUsername).thenReturn("any");
+            loginUtilsMockedStatic.when(LoginUtils::getCurrentUserId).thenReturn(1L);
 
             // 使用了 BDDMockito.given 来设置 bookmarkService.addToBookmark 方法的预期行为。
             BDDMockito.given(bookmarkService.addToBookmark(
-                            ArgumentMatchers.any(BasicWebDataRequest.class), ArgumentMatchers.anyString()))
+                            ArgumentMatchers.any(BasicWebDataRequest.class), ArgumentMatchers.anyLong()))
                     .willReturn(true);
 
             // 使用 mockMvc.perform 方法模拟了一个 POST 请求，并检查了响应的状态码和 JSON 路径中的 code 值。
@@ -88,14 +88,14 @@ class BookmarkControllerTest {
     @Test
     @DisplayName("Should return the bookmark with the same ID")
     void shouldReturnTheBookmarkWithSameId() throws Exception {
-        String currentUsername = "currentUsername";
+        long currentUserId = 1L;
         int id = 1;
         BookmarkVO bookmark = new BookmarkVO();
         bookmark.setId(id);
 
         try (MockedStatic<LoginUtils> loginUtilsMockedStatic = Mockito.mockStatic(LoginUtils.class)) {
-            loginUtilsMockedStatic.when(LoginUtils::getCurrentUsername).thenReturn(currentUsername);
-            BDDMockito.given(bookmarkService.getBookmark(id, currentUsername))
+            loginUtilsMockedStatic.when(LoginUtils::getCurrentUserId).thenReturn(currentUserId);
+            BDDMockito.given(bookmarkService.getBookmark(id, currentUserId))
                     .willReturn(bookmark);
 
             // 使用 mockMvc.perform 方法模拟了一个 GET 请求，并检查了响应的状态码和 JSON 路径中的 id 值。
