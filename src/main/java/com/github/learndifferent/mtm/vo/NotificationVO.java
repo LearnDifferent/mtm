@@ -81,7 +81,7 @@ public class NotificationVO implements Serializable {
      * this can be used to store the ID of the user who get the message.
      * </p>
      */
-    private Integer recipientUserId;
+    private Long recipientUserId;
 
     /**
      * ID of the comment

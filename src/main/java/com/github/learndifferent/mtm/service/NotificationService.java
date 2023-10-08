@@ -15,20 +15,20 @@ public interface NotificationService {
     /**
      * Calculate the count of user's unread replies
      *
-     * @param recipientUsername username
+     * @param recipientUserId user ID
      * @return Return the number of unread replies
      * <p>If the user turned off notifications, return 0</p>
      */
-    long countUnreadReplies(String recipientUsername);
+    long countUnreadReplies(Long recipientUserId);
 
     /**
      * Calculate the count of user's unread system notifications
      *
-     * @param recipientUsername username
+     * @param recipientUserId user ID
      * @return Return the number of unread system notifications
      * <p>If the user turned off notifications, return 0</p>
      */
-    long countUnreadSystemNotifications(String recipientUsername);
+    long countUnreadSystemNotifications(Long recipientUserId);
 
     /**
      * Mark the notification as read
@@ -47,28 +47,28 @@ public interface NotificationService {
     /**
      * Get all notifications and their count
      *
-     * @param notificationType  Notification type
-     * @param recipientUsername Username of the recipient who will receive the notifications
-     * @param loadCount         Number of notifications to be loaded
-     * @param isOrderReversed   true if reverse order
+     * @param notificationType Notification type
+     * @param recipientUserId  User ID of the recipient who will receive the notifications
+     * @param loadCount        Number of notifications to be loaded
+     * @param isOrderReversed  true if reverse order
      * @return Notifications and count
      */
     NotificationsAndCountVO getAllNotificationsAndCount(NotificationType notificationType,
-                                                        String recipientUsername,
+                                                        Long recipientUserId,
                                                         int loadCount,
                                                         boolean isOrderReversed);
 
     /**
      * Retrieve unread notifications and their count
      *
-     * @param notificationType  Notification type
-     * @param recipientUsername Username of the recipient who will receive the notifications
-     * @param loadCount         Number of notifications to be loaded
-     * @param isOrderReversed   true if reverse order
+     * @param notificationType Notification type
+     * @param recipientUserId  User ID of the recipient who will receive the notifications
+     * @param loadCount        Number of notifications to be loaded
+     * @param isOrderReversed  true if reverse order
      * @return Unread notifications and count
      */
     NotificationsAndCountVO getUnreadNotificationsAndCount(NotificationType notificationType,
-                                                           String recipientUsername,
+                                                           Long recipientUserId,
                                                            int loadCount,
                                                            boolean isOrderReversed);
 
@@ -83,18 +83,18 @@ public interface NotificationService {
     /**
      * Check if the user has unread system notifications
      *
-     * @param recipientUsername username
+     * @param recipientUserId user ID
      * @return true if the user has unread system notifications
      */
-    boolean checkIfHasUnreadSysNotifications(String recipientUsername);
+    boolean checkIfHasUnreadSysNotifications(Long recipientUserId);
 
     /**
      * Count the total number of reply notifications
      *
-     * @param recipientUsername username
+     * @param recipientUserId user ID
      * @return total number of reply notifications
      */
-    long countAllReplyNotifications(String recipientUsername);
+    long countAllReplyNotifications(Long recipientUserId);
 
     /**
      * Count the total number of system notifications
@@ -106,32 +106,32 @@ public interface NotificationService {
     /**
      * Generate a User Role Change Notification
      *
-     * @param username Username of the user
+     * @param userId User ID of the user
      * @return User Role Change Notification
      * (It will be an empty string if the user role is not changed)
      */
-    String generateRoleChangeNotification(String username);
+    String generateRoleChangeNotification(Long userId);
 
     /**
      * Delete Role Change Notification for the User
      *
-     * @param username Username of the user
+     * @param userId User ID of the user
      */
-    void deleteRoleChangeNotification(String username);
+    void deleteRoleChangeNotification(Long userId);
 
     /**
      * Check if the user has turned off notifications
      *
-     * @param username username
+     * @param userId User ID
      * @return true if the user has turned off notifications
      */
-    boolean checkIfTurnOffNotifications(String username);
+    boolean checkIfTurnOffNotifications(Long userId);
 
     /**
      * Turn on notifications if the user turned off notifications and
      * turn off notifications if the user turned on notifications
      *
-     * @param username username of the user who wants to turn on/off notifications
+     * @param userId user ID of the user who wants to turn on/off notifications
      */
-    void turnOnTurnOffNotifications(String username);
+    void turnOnTurnOffNotifications(Long userId);
 }

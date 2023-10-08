@@ -28,7 +28,7 @@ public interface CommentMapper {
      * @param commentId ID of the comment
      * @return ID of the user who sent the comment
      */
-    Integer getCommentSenderUserId(int commentId);
+    Long getCommentSenderUserId(int commentId);
 
     /**
      * Check if a comment exists

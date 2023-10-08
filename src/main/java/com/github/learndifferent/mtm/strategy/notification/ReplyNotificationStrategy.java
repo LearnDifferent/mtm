@@ -79,7 +79,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         // the notification belongs to the owner of the bookmark data if replyToCommentId is null,
         // and belongs to the owner of the comment data if it's not null
         boolean shouldNotifyBookmarkOwner = Objects.isNull(replyToCommentId);
-        Integer recipientUserId =
+        Long recipientUserId =
                 shouldNotifyBookmarkOwner ? bookmarkMapper.getBookmarkOwnerUserId(bookmarkId)
                         : commentMapper.getCommentSenderUserId(replyToCommentId);
         notification.setRecipientUserId(recipientUserId);
@@ -102,7 +102,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
     private void markNotificationAsRead(NotificationVO notification) {
         long notificationId = notification.getId();
-        Integer recipientUserId = notification.getRecipientUserId();
+        Long recipientUserId = notification.getRecipientUserId();
         updateNotificationReadStatus(notificationId, recipientUserId, false);
     }
 
@@ -112,13 +112,13 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private void updateNotificationReadStatus(NotificationDTO notification, boolean isUnread) {
-        Integer userId = notification.getRecipientUserId();
+        Long userId = notification.getRecipientUserId();
         long notificationId = notification.getId();
 
         updateNotificationReadStatus(notificationId, userId, isUnread);
     }
 
-    private void updateNotificationReadStatus(long notificationId, Integer recipientUserId, boolean isUnread) {
+    private void updateNotificationReadStatus(long notificationId, Long recipientUserId, boolean isUnread) {
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
         long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);
         // set read status in Redis (0 for read, 1 for unread)
@@ -129,7 +129,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     @Override
-    public NotificationsAndCountVO getAllNotificationsAndCount(Integer recipientUserId,
+    public NotificationsAndCountVO getAllNotificationsAndCount(Long recipientUserId,
                                                                int loadCount,
                                                                boolean isOrderReversed) {
         long count = countAllNotifications(recipientUserId);
@@ -147,7 +147,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         return NotificationsAndCountVO.of(notifications, count);
     }
 
-    private Stream<NotificationDTO> getNotificationsWithoutReadStatus(Integer userId,
+    private Stream<NotificationDTO> getNotificationsWithoutReadStatus(Long userId,
                                                                       int loadCount,
                                                                       boolean isOrderReverse) {
         boolean illegalLoadCount = loadCount <= 0;
@@ -185,7 +185,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private NotificationVO getReadStatusAndGenerateNotificationVO(NotificationDTO notification) {
-        Integer userId = notification.getRecipientUserId();
+        Long userId = notification.getRecipientUserId();
         long notificationId = notification.getId();
 
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(userId);
@@ -200,7 +200,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
     private void updateCommentAndReadStatusBasedOnConditions(NotificationVO notification) {
         Integer bookmarkId = notification.getBookmarkId();
-        Integer recipientUserId = notification.getRecipientUserId();
+        Long recipientUserId = notification.getRecipientUserId();
 
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
         // if the bookmark does not exist
@@ -248,14 +248,13 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         notification.setAccessStatus(NotificationAccessStatus.ACCESSIBLE);
     }
 
-    private boolean checkIfRecipientUserIsOwnerOfBookmark(Integer recipientUserId, BookmarkDO bookmark) {
-        String bookmarkOwnerUsername = bookmark.getUserName();
-        Integer bookmarkOwnerUserId = userMapper.getUserIdByUsername(bookmarkOwnerUsername);
+    private boolean checkIfRecipientUserIsOwnerOfBookmark(Long recipientUserId, BookmarkDO bookmark) {
+        Long bookmarkOwnerUserId = bookmark.getUserId();
         return recipientUserId.equals(bookmarkOwnerUserId);
     }
 
     @Override
-    public long countAllNotifications(Integer recipientUserId) {
+    public long countAllNotifications(Long recipientUserId) {
         String key = RedisKeyUtils.getReplyNotificationKey(recipientUserId);
         Long size = this.redisTemplate.opsForList().size(key);
         return Optional.ofNullable(size).orElse(0L);

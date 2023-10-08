@@ -11,5 +11,7 @@ public final class IdGeneratorConstant {
     private IdGeneratorConstant() {
     }
 
+    public static final String BOOKMARK = "bookmark";
+
     public static final int STEP = 1000;
 }

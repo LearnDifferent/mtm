@@ -9,7 +9,8 @@
         <result column="role" jdbcType="VARCHAR" property="role"/>
     </resultMap>
 
-    <select id="getRankingBookmarkNumByRole" resultType="com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO">
+    <select id="getRankingBookmarkNumByRole"
+            resultType="com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO">
         select
             -- 按照用户角色分组、以用户收藏数倒序排序
             row_number() over (partition by role order by bookmarkNumber desc) as ranking,
@@ -17,28 +18,30 @@
             bookmarkNumber,
             userName
         from (
-                -- 获取所有用户收藏的网页数，用户名及其角色
-                 select
-                        count(b.user_name) bookmarkNumber,
-                        b.user_name as     userName,
-                        u.role      as     role
+                 -- 获取所有用户收藏的网页数，用户名及其角色
+                 select count(b.id) as bookmarkNumber,
+                        u.user_name as userName,
+                        u.role      as role
                  from bookmark b
-                          inner join user u on b.user_name = u.user_name
+                          inner join user u on b.user_id = u.id
                  where b.is_deleted = 0
                    and u.is_deleted = 0
-                 group by userName, role
+                 group by u.user_name, u.role
              ) t
-        -- 最终的排序，按照 admin, user, guest 的角色顺序排序，角色相等的情况下按照收藏数倒序排序
-        order by
-                 case when role = 'guest' then 0 when role = 'user' then 1
-                      else 2 end desc,
+             -- 最终的排序，按照 admin, user, guest 的角色顺序排序，角色相等的情况下按照收藏数倒序排序
+        order by case
+                     when role = 'guest' then 0
+                     when role = 'user' then 1
+                     else 2
+                     end
+                desc,
                  bookmarkNumber desc;
     </select>
 
     <select id="getNamesAndPublicBookmarkNums" resultType="com.github.learndifferent.mtm.vo.UserBookmarkNumberVO">
         select count(b.id) bookmarkNumber, u.user_name userName
         from bookmark b
-        inner join user u on b.user_name = u.user_name
+        inner join user u on b.user_id = u.id
         <where>
             <if test="list != null and list.size() != 0">
                 <foreach collection="list" separator="or" open="(" close=") and" item="userName">
@@ -111,7 +114,7 @@
         where is_deleted = 0;
     </select>
 
-    <select id="getUserIdByNameAndPassword" resultType="java.lang.Integer">
+    <select id="getUserIdByNameAndPassword" resultType="java.lang.Long">
         select id
         from user
         where user_name = #{userName}
@@ -119,20 +122,23 @@
           and is_deleted = 0
         limit 1;
     </select>
-    <select id="getUserIdByUsername" resultType="java.lang.Integer">
+    <select id="getUserIdByUsername" resultType="java.lang.Long">
         select id
         from user
         where user_name = #{username}
-          and is_deleted = 0 limit 1;
+          and is_deleted = 0
+        limit 1;
     </select>
     <select id="searchUserDataByKeyword"
             resultType="com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo">
-        select u.id, u.user_name, u.creation_time as createTime, role, count(b.id) as bookmarkNumber
+        select u.id, u.user_name, u.creation_time as createTime, u.role, count(b.id) as bookmarkNumber
         from user u
-                 left join bookmark b on u.user_name = b.user_name and b.is_deleted = 0
-        where u.user_name like concat(#{keyword}, '%')
-          and u.is_deleted = 0
-        group by u.id, u.user_name, u.creation_time, role
+                 inner join bookmark b
+                            on u.id = b.user_id
+                                and u.user_name like concat(#{keyword}, '%')
+                                and b.is_deleted = 0
+                                and u.is_deleted = 0
+        group by u.id, u.user_name, u.creation_time, u.role
         order by bookmarkNumber desc;
     </select>
     <select id="countUserByKeyword" resultType="java.lang.Long">

@@ -228,7 +228,7 @@ public class SearchManager {
     }
 
     @Async("asyncTaskExecutor")
-    public void removeUserFromElasticsearchAsync(int id) {
+    public void removeUserFromElasticsearchAsync(long id) {
 
         DeleteRequest request = new DeleteRequest(SearchConstant.INDEX_USER, String.valueOf(id));
         try {

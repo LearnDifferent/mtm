@@ -16,21 +16,21 @@ import org.jsoup.nodes.Document;
 public class WebScraperRequest {
 
     private WebScraperRequest(String requestedUrl,
-                              String username,
+                              Long userId,
                               Document document,
                               BasicWebDataDTO data) {
         this.requestedUrl = requestedUrl;
-        this.username = username;
+        this.userId = userId;
         this.document = document;
         this.data = data;
     }
 
-    public static WebScraperRequest initRequest(String requestedUrl, String username) {
-        return new WebScraperRequest(requestedUrl, username, null, null);
+    public static WebScraperRequest initRequest(String requestedUrl, long userId) {
+        return new WebScraperRequest(requestedUrl, userId, null, null);
     }
 
     private String requestedUrl;
-    private String username;
+    private Long userId;
     private Document document;
     private BasicWebDataDTO data;
 }

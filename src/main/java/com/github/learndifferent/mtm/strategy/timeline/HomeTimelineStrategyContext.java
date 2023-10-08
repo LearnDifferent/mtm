@@ -1,7 +1,6 @@
 package com.github.learndifferent.mtm.strategy.timeline;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import java.util.Map;
@@ -19,14 +18,14 @@ public class HomeTimelineStrategyContext {
     private final Map<String, HomeTimelineStrategy> strategies;
 
     public BookmarksAndTotalPagesVO getHomeTimeline(String strategyName,
-                                                    String currentUsername,
-                                                    String requestedUsername,
+                                                    long currentUserId,
+                                                    Long requestedUserId,
                                                     int from,
                                                     int size) {
         boolean hasNoStrategy = !strategies.containsKey(strategyName);
         ThrowExceptionUtils.throwIfTrue(hasNoStrategy, ResultCode.NO_RESULTS_FOUND);
 
         HomeTimelineStrategy strategy = strategies.get(strategyName);
-        return strategy.getHomeTimeline(currentUsername, requestedUsername, from, size);
+        return strategy.getHomeTimeline(currentUserId, requestedUserId, from, size);
     }
 }

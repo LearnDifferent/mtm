@@ -52,14 +52,14 @@ public class NotificationStrategyContext {
     }
 
     public NotificationsAndCountVO getAllNotificationsAndCount(NotificationType notificationType,
-                                                               Integer recipientUserId,
+                                                               Long recipientUserId,
                                                                int loadCount,
                                                                boolean isOrderReversed) {
         return checkAndGetStrategy(notificationType)
                 .getAllNotificationsAndCount(recipientUserId, loadCount, isOrderReversed);
     }
 
-    public long countAllNotifications(NotificationType notificationType, Integer recipientUserId) {
+    public long countAllNotifications(NotificationType notificationType, Long recipientUserId) {
         return checkAndGetStrategy(notificationType)
                 .countAllNotifications(recipientUserId);
     }

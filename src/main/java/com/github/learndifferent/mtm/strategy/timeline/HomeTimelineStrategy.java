@@ -17,13 +17,13 @@ public interface HomeTimelineStrategy {
     /**
      * Get bookmarked websites and total pages for the current user on the home page
      *
-     * @param currentUsername   username of the user that is currently logged in
-     * @param requestedUsername username of the user whose data is being requested
-     * @param from              from
-     * @param size              size
+     * @param currentUserid   user ID of the user that is currently logged in
+     * @param requestedUserId user ID of the user whose data is being requested
+     * @param from            from
+     * @param size            size
      * @return Paginated bookmarks and total Pages
      */
-    BookmarksAndTotalPagesVO getHomeTimeline(String currentUsername, String requestedUsername, int from, int size);
+    BookmarksAndTotalPagesVO getHomeTimeline(long currentUserid, Long requestedUserId, int from, int size);
 
     /**
      * Convert list of {@link BookmarkDO} to list of {@link BookmarkVO}

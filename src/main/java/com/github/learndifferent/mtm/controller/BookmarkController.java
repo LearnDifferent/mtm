@@ -3,7 +3,6 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
-import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
@@ -26,7 +25,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,8 +79,8 @@ public class BookmarkController {
                                                 String url,
                                         @RequestParam("privacy") Privacy privacy,
                                         @RequestParam("mode") AddDataMode mode) {
-        String currentUsername = getCurrentUsername();
-        return bookmarkService.bookmark(url, currentUsername, privacy, mode);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        return bookmarkService.bookmark(url, currentUserId, privacy, mode);
     }
 
     /**
@@ -97,8 +95,8 @@ public class BookmarkController {
     @PostMapping
     @IdempotencyCheck
     public ResultVO<ResultCode> addToBookmark(@RequestBody @Validated BasicWebDataRequest basicData) {
-        String currentUsername = getCurrentUsername();
-        boolean success = bookmarkService.addToBookmark(basicData, currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = bookmarkService.addToBookmark(basicData, currentUserId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
@@ -161,8 +159,8 @@ public class BookmarkController {
                                   @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                   @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                           Integer id) {
-        String currentUsername = getCurrentUsername();
-        return bookmarkService.getBookmark(id, currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        return bookmarkService.getBookmark(id, currentUserId);
     }
 
     /**
@@ -174,27 +172,25 @@ public class BookmarkController {
     @GetMapping("/get/user")
     public BookmarksAndTotalPagesVO getCurrentUserBookmarks(@PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                     PageInfoDTO pageInfo) {
-        String currentUsername = getCurrentUsername();
-        return bookmarkService.getUserBookmarks(currentUsername, pageInfo, AccessPrivilege.ALL);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        return bookmarkService.getUserBookmarks(currentUserId, pageInfo, AccessPrivilege.ALL);
     }
 
     /**
      * Get paginated public bookmarks of a user
      *
-     * @param username username of the user whose public bookmarks is being requested
+     * @param userId   username of the user whose public bookmarks is being requested
      * @param pageInfo pagination info
      * @return paginated public bookmarks of the user and the total pages
      */
-    @GetMapping("/get/user/{username}")
-    public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("username")
-                                                           @NotBlank(message = ErrorInfoConstant.USER_NOT_FOUND)
-                                                           @Length(min = ConstraintConstant.USERNAME_MIN_LENGTH,
-                                                                   max = ConstraintConstant.USERNAME_MAX_LENGTH,
-                                                                   message = ErrorInfoConstant.USERNAME_LENGTH)
-                                                                   String username,
+    @GetMapping("/get/user/{userId}")
+    public BookmarksAndTotalPagesVO getUserPublicBookmarks(@PathVariable("userId")
+                                                           @NotNull(message = ErrorInfoConstant.USER_NOT_FOUND)
+                                                           @Positive(message = ErrorInfoConstant.USER_NOT_FOUND)
+                                                                   Long userId,
                                                            @PageInfo(size = 8, paramName = PageInfoParam.CURRENT_PAGE)
                                                                    PageInfoDTO pageInfo) {
-        return bookmarkService.getUserBookmarks(username, pageInfo, AccessPrivilege.LIMITED);
+        return bookmarkService.getUserBookmarks(userId, pageInfo, AccessPrivilege.LIMITED);
     }
 
     /**

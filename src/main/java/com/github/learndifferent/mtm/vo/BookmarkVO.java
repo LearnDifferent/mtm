@@ -22,7 +22,11 @@ public class BookmarkVO implements Serializable {
      */
     private Integer id;
     /**
-     * name of the user who bookmarked the website
+     * ID of the owner of the bookmark
+     */
+    private Long userId;
+    /**
+     * Username of the owner of the bookmark
      */
     private String userName;
     /**

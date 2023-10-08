@@ -8,19 +8,18 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchDTO;
-import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
@@ -43,16 +42,16 @@ public class UserManager {
     private final NotificationManager notificationManager;
     private final SearchManager searchManager;
 
-    public BookmarksAndTotalPagesVO getUserBookmarks(String username,
+    public BookmarksAndTotalPagesVO getUserBookmarks(long userId,
                                                      int from,
                                                      int size,
                                                      AccessPrivilege privilege) {
 
-        int totalCounts = bookmarkMapper.countUserBookmarks(username, privilege.canAccessPrivateData());
+        int totalCounts = bookmarkMapper.countUserBookmarks(userId, privilege.canAccessPrivateData());
         int totalPages = PaginationUtils.getTotalPages(totalCounts, size);
 
-        List<BookmarkDO> b = bookmarkMapper.getUserBookmarks(username, from, size, privilege.canAccessPrivateData());
-        List<BookmarkVO> bookmarks = BeanUtils.convertList(b, BookmarkVO.class);
+        List<BookmarkVO> bookmarks = bookmarkMapper.getUserBookmarks(userId, from, size,
+                privilege.canAccessPrivateData());
 
         return BookmarksAndTotalPagesVO.builder().totalPages(totalPages).bookmarks(bookmarks).build();
     }
@@ -72,10 +71,10 @@ public class UserManager {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean deleteAllDataRelatedToUser(String username, String notEncryptedPassword) {
 
-        int userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
+        long userId = checkUserExistsAndReturnUserId(username, notEncryptedPassword);
 
         // Delete bookmarks related to the user
-        bookmarkMapper.deleteUserBookmarks(username);
+        bookmarkMapper.deleteUserBookmarks(userId);
         // Delete comment data related to the user
         commentMapper.deleteCommentsByUsername(username);
 
@@ -92,13 +91,13 @@ public class UserManager {
     /**
      * Check if the user has already bookmarked the web page
      *
-     * @param username username
-     * @param url      URL
+     * @param userId User ID
+     * @param url    URL
      * @throws ServiceException Throw an exception with a ResultCode of {@link ResultCode#ALREADY_SAVED}
      *                          to indicate that the user has already bookmarked the web page
      */
-    public void checkIfUserBookmarked(String username, String url) {
-        boolean hasUserBookmarked = bookmarkMapper.checkIfUserBookmarked(username, url);
+    public void checkIfUserBookmarked(long userId, String url) {
+        boolean hasUserBookmarked = bookmarkMapper.checkIfUserBookmarked(userId, url);
         // If the user has already bookmarked the web page, throw an exception.
         ThrowExceptionUtils.throwIfTrue(hasUserBookmarked, ResultCode.ALREADY_SAVED);
     }
@@ -114,11 +113,10 @@ public class UserManager {
      *                                                                  not exist, with the result code of {@link
      *                                                                  ResultCode#USER_NOT_EXIST}
      */
-    private int checkUserExistsAndReturnUserId(String username, String notEncryptedPassword) {
+    private long checkUserExistsAndReturnUserId(String username, String notEncryptedPassword) {
         String password = Md5Util.getMd5(notEncryptedPassword);
-        Integer id = userMapper.getUserIdByNameAndPassword(username, password);
-        ThrowExceptionUtils.throwIfNull(id, ResultCode.USER_NOT_EXIST);
-        return id;
+        Long id = userMapper.getUserIdByNameAndPassword(username, password);
+        return Optional.ofNullable(id).orElseThrow(() -> new ServiceException(ResultCode.USER_NOT_EXIST));
     }
 
     /**

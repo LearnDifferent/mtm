@@ -109,13 +109,11 @@ public class TagServiceImpl implements TagService {
 
         return ids.stream()
                 // get a bookmark by ID
-                .map(bookmarkMapper::getBookmarkById)
+                .map(bookmarkMapper::getBookmarkWithUsernameById)
                 // bookmark should not be null
                 .filter(Objects::nonNull)
                 // bookmark should be public or own by the user
                 .filter(b -> b.getIsPublic() || StringUtils.equalsIgnoreCase(b.getUserName(), username))
-                // convert bookmarkDO to BookmarkVO
-                .map(bookmarkDO -> BeanUtils.convert(bookmarkDO, BookmarkVO.class))
                 // collect all bookmarks
                 .collect(Collectors.toList());
     }
@@ -157,11 +155,11 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Cacheable(value = "tag:popular")
-    public List<PopularTagDTO> getPopularTags(String username, PageInfoDTO pageInfo) {
+    public List<PopularTagDTO> getPopularTags(long userId, PageInfoDTO pageInfo) {
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
 
-        List<TagAndCountDO> tags = tagMapper.getPopularTags(username, from, size);
+        List<TagAndCountDO> tags = tagMapper.getPopularTags(userId, from, size);
         throwExceptionIfEmpty(tags);
 
         return BeanUtils.convertList(tags, PopularTagDTO.class);

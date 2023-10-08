@@ -60,9 +60,11 @@
         false as isRead,
         <!-- if bookmark is private and the recipient user is not the bookmark owner,
         then the access status is 'UNAUTHORIZED'-->
-        if(b.is_public = 0 and lower(b.user_name) != lower(b.user_name),
+        if(
+        b.is_public = 0 and b.user_id != #{recipientUserId},
         'UNAUTHORIZED',
-        'ACCESSIBLE')
+        'ACCESSIBLE'
+        )
         as accessStatus
 
         <!-- From .... -->

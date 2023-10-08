@@ -36,10 +36,10 @@ public class TagDataSearchMySqlStrategy implements DataSearchStrategy {
             rangeTo = tmp;
         }
 
-        String username = LoginUtils.getCurrentUsername();
+        long currentUserId = LoginUtils.getCurrentUserId();
         List<TagForSearchDTO> tagData = this.tagMapper
-                .searchTagDataByKeywordAndRange(keyword, username, rangeFrom, rangeTo, from, size);
-        long totalCount = this.tagMapper.countTagDataByKeywordAndRange(keyword, username, rangeFrom, rangeTo);
+                .searchTagDataByKeywordAndRange(keyword, currentUserId, rangeFrom, rangeTo, from, size);
+        long totalCount = this.tagMapper.countTagDataByKeywordAndRange(keyword, currentUserId, rangeFrom, rangeTo);
         int totalPages = PaginationUtils.getTotalPages((int) totalCount, size);
 
         return SearchResultsDTO.builder()

@@ -21,9 +21,14 @@ import lombok.experimental.Accessors;
 public class VisitedBookmarkVO implements Serializable {
 
     /**
+     * User ID
+     */
+    private Long userId;
+
+    /**
      * Username
      */
-    private String userName;
+    private String username;
 
     /**
      * Title
