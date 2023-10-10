@@ -72,12 +72,12 @@ public interface UserMapper {
                                     @Param("password") String password);
 
     /**
-     * Get user role by username
+     * Get user role
      *
-     * @param userName username
+     * @param userId User ID
      * @return user role
      */
-    String getRoleByName(String userName);
+    String getRoleByUserId(long userId);
 
     /**
      * Get user role by ID
