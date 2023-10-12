@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.annotation.validation;
 
+import com.github.learndifferent.mtm.constant.consist.PermissionCheckConstant;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -32,11 +33,21 @@ public @interface ModificationPermissionCheck {
         /**
          * Bookmark
          */
-        BOOKMARK,
+        BOOKMARK(PermissionCheckConstant.BOOKMARK),
         /**
          * Comment
          */
-        COMMENT
+        COMMENT(PermissionCheckConstant.COMMENT);
+
+        CheckType(final String name) {
+            this.name = name;
+        }
+
+        private final String name;
+
+        public String getName() {
+            return this.name;
+        }
     }
 
     /**
