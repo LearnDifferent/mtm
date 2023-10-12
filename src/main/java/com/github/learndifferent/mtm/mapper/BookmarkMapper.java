@@ -243,4 +243,13 @@ public interface BookmarkMapper {
      */
     boolean checkIfBookmarkAvailable(@Param("bookmarkId") Integer bookmarkId,
                                      @Param("userId") Long userId);
+
+    /**
+     * Check if the user has permission to modify the bookmark
+     *
+     * @param bookmarkId bookmark ID
+     * @param userId     user ID
+     * @return true if the user has permission
+     */
+    boolean checkModificationPermission(Long bookmarkId, Long userId);
 }

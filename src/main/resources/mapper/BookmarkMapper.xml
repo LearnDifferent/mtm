@@ -322,4 +322,15 @@
                          and (b.is_public = 1 or b.user_id = #{userId})
                    )
     </select>
+
+    <select id="checkModificationPermission" resultType="java.lang.Boolean">
+        select exists(
+                       select null
+                       from bookmark
+                       where is_deleted = 0
+                         and id = #{bookmarkId}
+                         and user_id = #{userId}
+                   )
+    </select>
+
 </mapper>
