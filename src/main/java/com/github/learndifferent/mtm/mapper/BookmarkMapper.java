@@ -223,7 +223,7 @@ public interface BookmarkMapper {
      * @param id ID
      * @return bookmark
      */
-    BookmarkDO getBookmarkById(Integer id);
+    BookmarkDO getBookmarkById(long id);
 
     /**
      * Retrieve the bookmark by ID

@@ -105,7 +105,7 @@ public class BookmarkController {
      *
      * @param id ID of the bookmark
      * @return {@link ResultCode#DELETE_SUCCESS} if success. {@link ResultCode#DELETE_FAILED}
-     * @throws ServiceException {@link BookmarkService#deleteBookmark(Long, Long)} will throw
+     * @throws ServiceException {@link BookmarkService#deleteBookmark(long, long)} will throw
      *                          an exception if the user currently logged in does not have permission to delete,
      *                          the result code will be {@link ResultCode#PERMISSION_DENIED}
      */
@@ -127,7 +127,7 @@ public class BookmarkController {
      *
      * @param id ID of the bookmark
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#UPDATE_FAILED} if failure.
-     * @throws ServiceException {@link BookmarkService#changePrivacySettings(Integer, String)}
+     * @throws ServiceException {@link BookmarkService#changePrivacySettings(long, long)}
      *                          will throw an exception with {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if the bookmark does not exist and with {@link ResultCode#PERMISSION_DENIED}
      *                          if the user currently logged in has no permission to change the bookmark privacy
@@ -138,9 +138,9 @@ public class BookmarkController {
     public ResultVO<ResultCode> changePrivacySettings(@RequestParam("id")
                                                       @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                       @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                              Integer id) {
-        String currentUsername = getCurrentUsername();
-        boolean success = bookmarkService.changePrivacySettings(id, currentUsername);
+                                                              Long id) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = bookmarkService.changePrivacySettings(id, currentUserId);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.UPDATE_FAILED);
     }
 
@@ -208,9 +208,5 @@ public class BookmarkController {
     public List<VisitedBookmarkVO> getVisitedBookmarks(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         return bookmarkService.getVisitedBookmarks(pageInfo);
-    }
-
-    private String getCurrentUsername() {
-        return LoginUtils.getCurrentUsername();
     }
 }

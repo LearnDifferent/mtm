@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
@@ -133,28 +133,27 @@ public interface BookmarkService {
      * @param id     ID of the bookmark
      * @param userId user ID of the user who is deleting the bookmark
      * @return true if success
-     * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck
+     * @throws ServiceException {@link ModificationPermissionCheck
      *                          ModificationPermissionCheck} annotation will check the permissions and throw
      *                          an exception with the result code of {@link ResultCode#PERMISSION_DENIED}
      *                          if there is no permissions
      */
-    boolean deleteBookmark(Long id, Long userId);
+    boolean deleteBookmark(long id, long userId);
 
     /**
-     * Make the bookmarked website private if it's public
-     * and make it public if it's private.
+     * Make the bookmark private if it's public and make it public if it's private.
      *
-     * @param id       ID of the bookmark
-     * @param userName name of user who trying to change the privacy settings
+     * @param id     ID of the bookmark
+     * @param userId ID of the user who trying to change the privacy settings
      * @return success or failure
      * @throws ServiceException If the bookmark does not exist, the result code will be
      *                          {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}.
-     *                          And {@link ModifyBookmarkPermissionCheck
+     *                          And {@link ModificationPermissionCheck
      *                          ModifyBookmarkPermissionCheck} annotation
      *                          will throw exception with {@link ResultCode#PERMISSION_DENIED}
      *                          if the user has no permission to change the bookmark privacy settings.
      */
-    boolean changePrivacySettings(Integer id, String userName);
+    boolean changePrivacySettings(long id, long userId);
 
     /**
      * Get a bookmark

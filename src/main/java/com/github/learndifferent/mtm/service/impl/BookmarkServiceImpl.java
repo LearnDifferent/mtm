@@ -3,14 +3,11 @@ package com.github.learndifferent.mtm.service.impl;
 import static com.github.learndifferent.mtm.constant.enums.AddDataMode.ADD_TO_DATABASE_AND_ELASTICSEARCH;
 import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
-import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.CheckType;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Id;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.UserId;
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
@@ -214,8 +211,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @ModificationPermissionCheck(type = CheckType.BOOKMARK)
-    public boolean deleteBookmark(@Id Long id, @UserId Long userId) {
-        // ID will not be null after checking by @ModificationPermissionCheck
+    public boolean deleteBookmark(@Id long id, @UserId long userId) {
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
             // delete views
@@ -227,15 +223,20 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @ModifyBookmarkPermissionCheck
-    public boolean changePrivacySettings(@BookmarkId Integer id, @Username String userName) {
-        // ID will not be null after checking by @ModifyBookmarkPermissionCheck
+    @ModificationPermissionCheck(type = CheckType.BOOKMARK)
+    public boolean changePrivacySettings(@Id long id, @UserId long userId) {
+        log.info("Changing privacy settings: id = {}, userId = {}", id, userId);
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        boolean newPrivacy = !bookmark.getIsPublic();
-        BookmarkDO webWithNewPrivacy = bookmark.setIsPublic(newPrivacy);
-        return bookmarkMapper.updateBookmark(webWithNewPrivacy);
+        boolean previousPublicStatus = bookmark.getIsPublic();
+        log.info("Previous public status: {}, bookmark: {}", previousPublicStatus, bookmark);
+
+        boolean currentPublicStatus = !previousPublicStatus;
+        BookmarkDO bookmarkWithUpdatedPublicStatus = bookmark.setIsPublic(currentPublicStatus);
+        log.info("Current public status: {}, bookmark: {}", currentPublicStatus, bookmarkWithUpdatedPublicStatus);
+
+        return bookmarkMapper.updateBookmark(bookmarkWithUpdatedPublicStatus);
     }
 
     @Override
