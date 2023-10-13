@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.strategy.permission;
 
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.PermissionCheckConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -32,7 +33,18 @@ public class TagPermissionCheckStrategy implements PermissionCheckStrategy {
         Long id = permissionCheckRequest.getId();
         Long userId = permissionCheckRequest.getUserId();
         String tag = permissionCheckRequest.getTag();
+        ActionType actionType = permissionCheckRequest.getActionType();
 
+        if (ActionType.DELETE.equals(actionType)) {
+            checkPermission(id, userId);
+        } else {
+            checkIsValid(tag);
+            checkPermission(id, userId);
+            checkIsPresent(id, tag);
+        }
+    }
+
+    private void checkIsValid(String tag) {
         log.info("Check if the tag is valid: {}", tag);
         boolean isBlank = StringUtils.isBlank(tag);
         ThrowExceptionUtils.throwIfTrue(isBlank, ResultCode.TAG_NOT_EXISTS);
@@ -43,7 +55,9 @@ public class TagPermissionCheckStrategy implements PermissionCheckStrategy {
         boolean isTooShort = tag.length() < ConstraintConstant.TAG_MIN_LENGTH;
         ThrowExceptionUtils.throwIfTrue(isTooShort, ResultCode.TAG_TOO_SHORT);
         log.info("Tag {} is valid", tag);
+    }
 
+    private void checkPermission(Long id, Long userId) {
         log.info("Checking permission. Bookmark ID: {}, User ID: {}", id, userId);
         boolean hasNoBookmarkPermission = !bookmarkMapper.checkModificationPermission(id, userId);
         if (hasNoBookmarkPermission) {
@@ -51,10 +65,13 @@ public class TagPermissionCheckStrategy implements PermissionCheckStrategy {
             throw new ServiceException(ResultCode.PERMISSION_DENIED);
         }
         log.info("User {} has permission to modify tag (bookmark ID: {})", userId, id);
+    }
 
+    private void checkIsPresent(Long id, String tag) {
         log.info("Checking if the tag already exists. Tag: {}, Bookmark ID: {}", tag, id);
         boolean isPresent = tagMapper.checkIfTagExists(tag, id);
         ThrowExceptionUtils.throwIfTrue(isPresent, ResultCode.TAG_EXISTS);
         log.info("Tag {} is checked. Bookmark ID: {}.", tag, id);
     }
+
 }

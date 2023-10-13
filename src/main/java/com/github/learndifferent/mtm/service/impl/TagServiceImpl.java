@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
@@ -146,7 +147,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @AccessPermissionCheck(dataType = DataType.BOOKMARK)
+    @AccessPermissionCheck(dataType = DataType.TAG, actionType = ActionType.DELETE)
     public boolean deleteTag(@UserId long userId, @Id long bookmarkId, String tagName) {
         log.info("Delete tag: {}, User ID: {}, Bookmark ID: {}", tagName, userId, bookmarkId);
         // This will delete the tag (prefix of the key is "tag:a") of the bookmark
