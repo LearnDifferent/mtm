@@ -62,8 +62,8 @@ public interface CommentMapper {
      * @param isDesc           True if descending order
      * @return the comments
      */
-    List<CommentDO> getBookmarkComments(@Param("bookmarkId") Integer bookmarkId,
-                                        @Param("replyToCommentId") Integer replyToCommentId,
+    List<CommentDO> getBookmarkComments(@Param("bookmarkId") long bookmarkId,
+                                        @Param("replyToCommentId") Long replyToCommentId,
                                         @Param("load") Integer load,
                                         @Param("isDesc") Boolean isDesc);
 

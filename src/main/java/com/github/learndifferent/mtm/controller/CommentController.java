@@ -55,7 +55,7 @@ public class CommentController {
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the
      *                                                                  comments, {@link CommentService#getCommentByIds(Integer,
-     *                                                                  Integer, String)} will throw an exception with
+     *                                                                  long, long)} will throw an exception with
      *                                                                  the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
@@ -64,9 +64,9 @@ public class CommentController {
                                                @RequestParam("bookmarkId")
                                                @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                       Integer bookmarkId) {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        CommentVO comment = commentService.getCommentByIds(id, bookmarkId, currentUsername);
+                                                       Long bookmarkId) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        CommentVO comment = commentService.getCommentByIds(id, bookmarkId, currentUserId);
         return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
     }
 
@@ -84,24 +84,24 @@ public class CommentController {
      * or an empty list with {@link ResultCode#NO_RESULTS_FOUND} if there is no comments of the bookmark
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the
-     *                                                                  comments, {@link CommentService#getBookmarkComments(Integer,
-     *                                                                  Integer, Integer, String, Order)}
+     *                                                                  comments, {@link CommentService#getBookmarkComments(long,
+     *                                                                  Long, Integer, long, Order)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @GetMapping("/bookmark")
     public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("id")
-                                                         @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                         @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                                 Integer bookmarkId,
+                                                             @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                             @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                                     Long bookmarkId,
                                                          @RequestParam(value = "replyToCommentId", required = false)
-                                                                 Integer replyToCommentId,
+                                                                     Long replyToCommentId,
                                                          @RequestParam("load") Integer load,
                                                          @RequestParam("order") Order order) {
-        String currentUsername = LoginUtils.getCurrentUsername();
+        long currentUserId = LoginUtils.getCurrentUserId();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
-                bookmarkId, replyToCommentId, load, currentUsername, order);
+                bookmarkId, replyToCommentId, load, currentUserId, order);
 
         ResultCode code = CollectionUtils.isEmpty(comments) ? ResultCode.NO_RESULTS_FOUND
                 : ResultCode.SUCCESS;

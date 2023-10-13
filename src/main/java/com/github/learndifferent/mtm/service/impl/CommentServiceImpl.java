@@ -5,8 +5,12 @@ import com.github.learndifferent.mtm.annotation.common.Comment;
 import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
-import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -30,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -44,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
@@ -51,10 +57,11 @@ public class CommentServiceImpl implements CommentService {
     private final NotificationManager notificationManager;
 
     @Override
-    @GetCommentsCheck
+    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.READ)
     public CommentVO getCommentByIds(Integer id,
-                                     @BookmarkId Integer bookmarkId,
-                                     @Username String username) {
+                                     @Id long bookmarkId,
+                                     @UserId long userId) {
+        log.info("Get comment. Comment ID: {}, User ID: {}, Bookmark ID: {}", id, userId, bookmarkId);
         return Optional.ofNullable(id)
                 // get the comment VO if comment ID is not null
                 .map(this::getCommentByCommentIdAndBookmarkIdAndReturnCommentVO)
@@ -71,11 +78,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @GetCommentsCheck
-    public List<BookmarkCommentVO> getBookmarkComments(@BookmarkId Integer bookmarkId,
-                                                       Integer replyToCommentId,
+    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.READ)
+    public List<BookmarkCommentVO> getBookmarkComments(@Id long bookmarkId,
+                                                       Long replyToCommentId,
                                                        Integer load,
-                                                       @Username String username,
+                                                       @UserId long userId,
                                                        Order order) {
         return commentMapper
                 .getBookmarkComments(bookmarkId, replyToCommentId, load, order.isDesc())

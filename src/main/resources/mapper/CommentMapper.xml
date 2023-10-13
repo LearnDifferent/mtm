@@ -19,14 +19,16 @@
                if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
         from comment
         where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getCommentSenderName" resultType="java.lang.String">
         select username
         from comment
         where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getCommentSenderUserId" resultType="java.lang.Long">
@@ -42,7 +44,8 @@
         select `comment`
         from comment
         where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
@@ -50,10 +53,8 @@
         reply_to_comment_id) as reply_to_comment_id
         from comment
         <where>
-            <if test="bookmarkId != null">
-                bookmark_id = #{bookmarkId,jdbcType=INTEGER} and
-            </if>
-            reply_to_comment_id = ifnull(#{replyToCommentId}, -1)
+            bookmark_id = #{bookmarkId}
+            and reply_to_comment_id = ifnull(#{replyToCommentId}, -1)
             and is_deleted = 0
         </where>
         order by `creation_time`

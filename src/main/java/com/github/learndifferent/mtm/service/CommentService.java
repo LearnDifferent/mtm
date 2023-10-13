@@ -19,19 +19,19 @@ public interface CommentService {
      *
      * @param id         ID of the comment (Return null if {@code id} is null)
      * @param bookmarkId ID of the bookmark
-     * @param username   Username of the user who is trying to get the comment
+     * @param userId     ID of the user who is trying to get the comment
      * @return the comment (null if comment does not exist)
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the website's
-     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck
-     *                                                                  GetCommentsCheck} annotation will throw an
+     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
+     *                                                                  AccessPermissionCheck} annotation will throw an
      *                                                                  exception with the
      *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    CommentVO getCommentByIds(Integer id, Integer bookmarkId, String username);
+    CommentVO getCommentByIds(Integer id, long bookmarkId, long userId);
 
     /**
      * Get comments of a bookmark
@@ -42,23 +42,23 @@ public interface CommentService {
      *                         null if this is not a reply
      *                         </p>
      * @param load             Amount of data to load
-     * @param username         Username of the user who is trying to get comments
+     * @param userId           ID of the user who is trying to get comments
      * @param order            {@link Order#ASC} if ascending order, {@link Order#DESC} if descending order
      * @return Return a list of {@link BookmarkCommentVO} or an empty list if there is no comment of the bookmark
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the website's
-     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck
-     *                                                                  GetCommentsCheck} annotation will throw an
+     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
+     *                                                                  AccessPermissionCheck} annotation will throw an
      *                                                                  exception with the
      *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    List<BookmarkCommentVO> getBookmarkComments(Integer bookmarkId,
-                                                Integer replyToCommentId,
+    List<BookmarkCommentVO> getBookmarkComments(long bookmarkId,
+                                                Long replyToCommentId,
                                                 Integer load,
-                                                String username,
+                                                long userId,
                                                 Order order);
 
     /**
