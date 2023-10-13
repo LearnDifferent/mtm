@@ -23,7 +23,7 @@ public class DeleteTagManager {
     }
 
     @CacheEvict(value = "tag:a", key = "#bookmarkId")
-    public boolean deleteTag(String tagName, int bookmarkId) {
+    public boolean deleteTag(String tagName, long bookmarkId) {
         return tagMapper.deleteTag(tagName, bookmarkId);
     }
 

@@ -74,7 +74,7 @@ public interface TagMapper {
      * @param bookmarkId ID of the bookmark that the tag applied to
      * @return True if success. False if failure or the tag does not exist.
      */
-    boolean deleteTag(@Param("tagName") String tagName, @Param("bookmarkId") int bookmarkId);
+    boolean deleteTag(@Param("tagName") String tagName, @Param("bookmarkId") long bookmarkId);
 
     /**
      * Delete all tags of a bookmark

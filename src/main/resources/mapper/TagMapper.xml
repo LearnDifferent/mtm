@@ -37,7 +37,7 @@
         delete
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
-          and bookmark_id = #{bookmarkId,jdbcType=INTEGER};
+          and bookmark_id = #{bookmarkId};
     </update>
     <update id="deleteAllTagsByBookmarkId">
         delete

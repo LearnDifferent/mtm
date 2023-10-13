@@ -3,6 +3,10 @@ package com.github.learndifferent.mtm.service.impl;
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Tag;
 import com.github.learndifferent.mtm.annotation.common.Username;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.CheckType;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.UserId;
 import com.github.learndifferent.mtm.annotation.validation.tag.TagCheck;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -26,6 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CachePut;
@@ -41,6 +46,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TagServiceImpl implements TagService {
 
     private final TagMapper tagMapper;
@@ -145,10 +151,10 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @ModifyBookmarkPermissionCheck
-    public boolean deleteTag(@Username String username, @BookmarkId Integer bookmarkId, String tagName) {
-        // Bookmark ID will not be null after checking by @ModifyBookmarkPermissionCheck.
-        // This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
+    @ModificationPermissionCheck(type = CheckType.BOOKMARK)
+    public boolean deleteTag(@UserId long userId, @Id long bookmarkId, String tagName) {
+        log.info("Delete tag: {}, User ID: {}, Bookmark ID: {}", tagName, userId, bookmarkId);
+        // This will delete the tag (prefix of the key is "tag:a") of the bookmark
         // stored in the cache if no exception is thrown.
         return deleteTagManager.deleteTag(tagName, bookmarkId);
     }

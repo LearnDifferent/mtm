@@ -223,10 +223,10 @@ public class TagController {
      */
     @DeleteMapping
     @IdempotencyCheck
-    public ResultVO<ResultCode> deleteTag(@RequestParam("bookmarkId") Integer bookmarkId,
+    public ResultVO<ResultCode> deleteTag(@RequestParam("bookmarkId") Long bookmarkId,
                                           @RequestParam("tagName") String tagName) {
-        String currentUsername = getCurrentUsername();
-        boolean success = tagService.deleteTag(currentUsername, bookmarkId, tagName);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = tagService.deleteTag(currentUserId, bookmarkId, tagName);
         return success ? ResultCreator.okResult() : ResultCreator.defaultFailResult();
     }
 
