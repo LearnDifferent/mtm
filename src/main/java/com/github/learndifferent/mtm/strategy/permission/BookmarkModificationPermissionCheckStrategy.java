@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BookmarkModificationPermissionCheckStrategy implements ModificationPermissionCheckStrategy {
 
-    private BookmarkMapper bookmarkMapper;
+    private final BookmarkMapper bookmarkMapper;
 
     @Override
     public void check(PermissionCheckRequest permissionCheckRequest) {

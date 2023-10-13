@@ -251,5 +251,6 @@ public interface BookmarkMapper {
      * @param userId     user ID
      * @return true if the user has permission
      */
-    boolean checkModificationPermission(Long bookmarkId, Long userId);
+    boolean checkModificationPermission(@Param("bookmarkId") Long bookmarkId,
+                                        @Param("userId") Long userId);
 }

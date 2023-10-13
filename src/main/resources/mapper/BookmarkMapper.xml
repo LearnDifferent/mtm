@@ -189,7 +189,7 @@
     <update id="deleteBookmarkById">
         update bookmark
         set is_deleted = 1
-        where id = #{id,jdbcType=INTEGER};
+        where id = #{id};
     </update>
 
     <update id="deleteUserBookmarks">
