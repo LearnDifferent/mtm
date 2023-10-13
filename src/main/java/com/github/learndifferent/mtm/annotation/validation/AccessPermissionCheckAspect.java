@@ -1,12 +1,12 @@
 package com.github.learndifferent.mtm.annotation.validation;
 
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.CheckType;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Id;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Tag;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.UserId;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CheckType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.PermissionCheckRequest;
-import com.github.learndifferent.mtm.strategy.permission.ModificationPermissionCheckStrategy;
+import com.github.learndifferent.mtm.strategy.permission.PermissionCheckStrategy;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -22,7 +22,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
 /**
- * Data modification permission check
+ * Data access permission check
  *
  * @author zhou
  * @date 2023/10/12
@@ -31,12 +31,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ModificationPermissionCheckAspect {
+public class AccessPermissionCheckAspect {
 
-    private final Map<String, ModificationPermissionCheckStrategy> strategies;
+    private final Map<String, PermissionCheckStrategy> strategies;
 
-    @Before("@annotation(modificationPermissionCheck)")
-    public void check(JoinPoint joinPoint, ModificationPermissionCheck modificationPermissionCheck) {
+    @Before("@annotation(accessPermissionCheck)")
+    public void check(JoinPoint joinPoint, AccessPermissionCheck accessPermissionCheck) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
@@ -75,7 +75,7 @@ public class ModificationPermissionCheckAspect {
         ThrowExceptionUtils.throwIfTrue(id < 0L, "Can't find the ID");
         ThrowExceptionUtils.throwIfTrue(userId < 0L, "Can't find the User ID");
 
-        CheckType type = modificationPermissionCheck.type();
+        CheckType type = accessPermissionCheck.type();
         String typeName = type.getName();
 
         log.info("Checking permission. Type: {}, ID: {}, User ID: {}", typeName, id, userId);

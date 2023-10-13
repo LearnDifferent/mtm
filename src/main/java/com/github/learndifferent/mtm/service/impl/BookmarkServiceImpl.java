@@ -4,10 +4,10 @@ import static com.github.learndifferent.mtm.constant.enums.AddDataMode.ADD_TO_DA
 import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.CheckType;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Id;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.UserId;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CheckType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
@@ -210,7 +210,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @ModificationPermissionCheck(type = CheckType.BOOKMARK)
+    @AccessPermissionCheck(type = CheckType.BOOKMARK)
     public boolean deleteBookmark(@Id long id, @UserId long userId) {
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
@@ -223,7 +223,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @ModificationPermissionCheck(type = CheckType.BOOKMARK)
+    @AccessPermissionCheck(type = CheckType.BOOKMARK)
     public boolean changePrivacySettings(@Id long id, @UserId long userId) {
         log.info("Changing privacy settings: id = {}, userId = {}", id, userId);
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);

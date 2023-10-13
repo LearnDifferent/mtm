@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
- * Check the permission to modify a tag and validate if the tag is valid
+ * Check the permission to access a tag and validate if the tag is valid
  *
  * @author zhou
  * @date 2023/10/13
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Component(PermissionCheckConstant.TAG)
 @RequiredArgsConstructor
 @Slf4j
-public class TagModificationPermissionCheckStrategy implements ModificationPermissionCheckStrategy {
+public class TagPermissionCheckStrategy implements PermissionCheckStrategy {
 
     private final BookmarkMapper bookmarkMapper;
     private final TagMapper tagMapper;

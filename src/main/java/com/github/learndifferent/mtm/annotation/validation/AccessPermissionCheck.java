@@ -7,24 +7,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Data modification permission check
+ * Data access permission check
  *
  * @author zhou
  * @date 2023/10/12
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ModificationPermissionCheck {
+public @interface AccessPermissionCheck {
 
     /**
-     * Modification permission check type
+     * Data permission check type
      *
      * @return {@link CheckType}
      */
     CheckType type();
 
     /**
-     * Modification permission check type
+     * Data permission check type
      *
      * @author zhou
      * @date 2023/10/12

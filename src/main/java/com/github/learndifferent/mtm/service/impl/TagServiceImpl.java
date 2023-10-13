@@ -1,10 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.CheckType;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Id;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Tag;
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.UserId;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CheckType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
@@ -50,7 +50,7 @@ public class TagServiceImpl implements TagService {
     private final BookmarkMapper bookmarkMapper;
 
     @Override
-    @ModificationPermissionCheck(type = CheckType.TAG)
+    @AccessPermissionCheck(type = CheckType.TAG)
     @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
     public String applyTag(@UserId long userId, @Id long bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
@@ -146,7 +146,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @ModificationPermissionCheck(type = CheckType.BOOKMARK)
+    @AccessPermissionCheck(type = CheckType.BOOKMARK)
     public boolean deleteTag(@UserId long userId, @Id long bookmarkId, String tagName) {
         log.info("Delete tag: {}, User ID: {}, Bookmark ID: {}", tagName, userId, bookmarkId);
         // This will delete the tag (prefix of the key is "tag:a") of the bookmark

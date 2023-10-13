@@ -3,12 +3,12 @@ package com.github.learndifferent.mtm.strategy.permission;
 import com.github.learndifferent.mtm.query.PermissionCheckRequest;
 
 /**
- * Data modification permission check strategy
+ * Data access permission check strategy
  *
  * @author zhou
  * @date 2023/10/12
  */
-public interface ModificationPermissionCheckStrategy {
+public interface PermissionCheckStrategy {
 
     /**
      * Check data modification permission

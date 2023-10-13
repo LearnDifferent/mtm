@@ -9,14 +9,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * Check if the user has permission to modify the bookmark
+ * Check if the user has permission to access the bookmark
  *
  * @author zhou
  * @date 2023/10/12
  */
 @Component(PermissionCheckConstant.BOOKMARK)
 @RequiredArgsConstructor
-public class BookmarkModificationPermissionCheckStrategy implements ModificationPermissionCheckStrategy {
+public class BookmarkPermissionCheckStrategy implements PermissionCheckStrategy {
 
     private final BookmarkMapper bookmarkMapper;
 

@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -27,8 +27,8 @@ public interface TagService {
      * @param tagName    the tag to apply
      * @return Return the tag if applied successfully, or empty string if failed to apply
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method is annotated with
-     *                                                                  {@link ModificationPermissionCheck
-     *                                                                  ModificationPermissionCheck} annotation, so
+     *                                                                  {@link AccessPermissionCheck
+     *                                                                  AccessPermissionCheck} annotation, so
      *                                                                  it will throw an exception with the result code
      *                                                                  of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS} if the bookmarked
@@ -137,8 +137,8 @@ public interface TagService {
      * @param tagName    name of the tag to be deleted
      * @return True if success. False if failure or the tag does not exist.
      * @throws com.github.learndifferent.mtm.exception.ServiceException This method is annotated with
-     *                                                                  {@link ModificationPermissionCheck
-     *                                                                  ModificationPermissionCheck} annotation, so
+     *                                                                  {@link AccessPermissionCheck
+     *                                                                  AccessPermissionCheck} annotation, so
      *                                                                  it
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
