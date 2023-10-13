@@ -35,6 +35,10 @@ public @interface ModificationPermissionCheck {
          */
         BOOKMARK(PermissionCheckConstant.BOOKMARK),
         /**
+         * Tag
+         */
+        TAG(PermissionCheckConstant.TAG),
+        /**
          * Comment
          */
         COMMENT(PermissionCheckConstant.COMMENT);
@@ -53,6 +57,7 @@ public @interface ModificationPermissionCheck {
     /**
      * When the {@link CheckType} is {@link CheckType#BOOKMARK}， it represents the ID of the bookmark.
      * When the {@link CheckType} is {@link CheckType#COMMENT}, it represents the ID of the comment.
+     * When the {@link CheckType} is {@link CheckType#TAG}, it represents the ID of the bookmark.
      * etc.
      *
      * @author zhou
@@ -71,4 +76,14 @@ public @interface ModificationPermissionCheck {
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @interface UserId {}
+
+    /**
+     * Tag
+     *
+     * @author zhou
+     * @date 2023/10/13
+     */
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Tag {}
 }

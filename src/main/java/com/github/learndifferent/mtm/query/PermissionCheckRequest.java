@@ -24,4 +24,9 @@ public class PermissionCheckRequest {
      * User ID
      */
     private Long userId;
+
+    /**
+     * Tag
+     */
+    private String tag;
 }

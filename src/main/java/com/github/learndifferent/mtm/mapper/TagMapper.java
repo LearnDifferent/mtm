@@ -31,7 +31,18 @@ public interface TagMapper {
      * @param bookmarkId ID of the bookmark that the tag applied to
      * @return tag
      */
-    TagDO getSpecificTagByTagTextAndBookmarkId(@Param("tagName") String tagName, @Param("bookmarkId") int bookmarkId);
+    TagDO getSpecificTagByTagTextAndBookmarkId(@Param("tagName") String tagName,
+                                               @Param("bookmarkId") long bookmarkId);
+
+    /**
+     * Check if the tag exists
+     *
+     * @param tag        tag
+     * @param bookmarkId Bookmark ID
+     * @return true if the tag exists
+     */
+    boolean checkIfTagExists(@Param("tag") String tag,
+                             @Param("bookmarkId") long bookmarkId);
 
     /**
      * Get all tags

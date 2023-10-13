@@ -176,6 +176,11 @@ public enum ResultCode {
      */
     PASSWORD_SAME(3024, "The new password cannot be the same as the old password"),
     /**
+     * Tag is too short
+     */
+    TAG_TOO_SHORT(3025, "Tag should not be shorter than "
+            + ConstraintConstant.TAG_MIN_LENGTH + " character"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),

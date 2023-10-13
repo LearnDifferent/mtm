@@ -14,4 +14,6 @@ public final class PermissionCheckConstant {
     public static final String BOOKMARK = "bookmark-permission-check";
 
     public static final String COMMENT = "comment-permission-check";
+
+    public static final String TAG = "tag-permission-check";
 }

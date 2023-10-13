@@ -2,6 +2,7 @@ package com.github.learndifferent.mtm.annotation.validation;
 
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.CheckType;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Tag;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.UserId;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.query.PermissionCheckRequest;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -44,6 +46,8 @@ public class ModificationPermissionCheckAspect {
         long id = -1L;
         long userId = -1L;
 
+        String tag = "";
+
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
                 Object curArg = args[i];
@@ -58,6 +62,12 @@ public class ModificationPermissionCheckAspect {
                         && Objects.nonNull(curArg)
                         && Long.class.isAssignableFrom(curArg.getClass())) {
                     userId = (long) curArg;
+                }
+                if (StringUtils.isBlank(tag)
+                        && annotation instanceof Tag
+                        && Objects.nonNull(curArg)
+                        && String.class.isAssignableFrom(curArg.getClass())) {
+                    tag = (String) curArg;
                 }
             }
         }
@@ -76,7 +86,7 @@ public class ModificationPermissionCheckAspect {
             throw new ServiceException("No modification permission check strategy");
         }
 
-        PermissionCheckRequest request = new PermissionCheckRequest(id, userId);
+        PermissionCheckRequest request = new PermissionCheckRequest(id, userId, tag);
         // check
         strategies.get(typeName).check(request);
         log.info("Permission check passed. Type: {}, ID: {}, User ID: {}", typeName, id, userId);
