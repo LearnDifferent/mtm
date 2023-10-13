@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.annotation.validation;
 
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CheckType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
@@ -75,10 +76,13 @@ public class AccessPermissionCheckAspect {
         ThrowExceptionUtils.throwIfTrue(id < 0L, "Can't find the ID");
         ThrowExceptionUtils.throwIfTrue(userId < 0L, "Can't find the User ID");
 
-        CheckType type = accessPermissionCheck.type();
-        String typeName = type.getName();
+        DataType dataType = accessPermissionCheck.dataType();
+        String typeName = dataType.getName();
 
-        log.info("Checking permission. Type: {}, ID: {}, User ID: {}", typeName, id, userId);
+        ActionType actionType = accessPermissionCheck.actionType();
+
+        log.info("Checking permission. Data Type: {}, Action Type: {}, ID: {}, User ID: {}",
+                typeName, actionType, id, userId);
 
         boolean hasNoStrategy = !strategies.containsKey(typeName);
         if (hasNoStrategy) {
@@ -86,7 +90,7 @@ public class AccessPermissionCheckAspect {
             throw new ServiceException("No modification permission check strategy");
         }
 
-        PermissionCheckRequest request = new PermissionCheckRequest(id, userId, tag);
+        PermissionCheckRequest request = new PermissionCheckRequest(actionType, id, userId, tag);
         // check
         strategies.get(typeName).check(request);
         log.info("Permission check passed. Type: {}, ID: {}, User ID: {}", typeName, id, userId);

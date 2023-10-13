@@ -17,19 +17,19 @@ import java.lang.annotation.Target;
 public @interface AccessPermissionCheck {
 
     /**
-     * Data permission check type
+     * Indicate the data to access
      *
-     * @return {@link CheckType}
+     * @return {@link DataType}
      */
-    CheckType type();
+    DataType dataType();
 
     /**
-     * Data permission check type
+     * Indicate the data to access
      *
      * @author zhou
      * @date 2023/10/12
      */
-    enum CheckType {
+    enum DataType {
         /**
          * Bookmark
          */
@@ -43,7 +43,7 @@ public @interface AccessPermissionCheck {
          */
         COMMENT(PermissionCheckConstant.COMMENT);
 
-        CheckType(final String name) {
+        DataType(final String name) {
             this.name = name;
         }
 
@@ -55,9 +55,45 @@ public @interface AccessPermissionCheck {
     }
 
     /**
-     * When the {@link CheckType} is {@link CheckType#BOOKMARK}， it represents the ID of the bookmark.
-     * When the {@link CheckType} is {@link CheckType#COMMENT}, it represents the ID of the comment.
-     * When the {@link CheckType} is {@link CheckType#TAG}, it represents the ID of the bookmark.
+     * Action type
+     *
+     * @return action type
+     */
+    ActionType actionType() default ActionType.MODIFICATION;
+
+    /**
+     * Action Type
+     *
+     * @author zhou
+     * @date 2023/10/12
+     */
+    enum ActionType {
+        /**
+         * Modification
+         */
+        MODIFICATION,
+        /**
+         * Create
+         */
+        CREATE,
+        /**
+         * Read
+         */
+        READ,
+        /**
+         * Update
+         */
+        UPDATE,
+        /**
+         * Delete
+         */
+        DELETE
+    }
+
+    /**
+     * When the {@link DataType} is {@link DataType#BOOKMARK}， it represents the ID of the bookmark.
+     * When the {@link DataType} is {@link DataType#COMMENT}, it represents the ID of the comment.
+     * When the {@link DataType} is {@link DataType#TAG}, it represents the ID of the bookmark.
      * etc.
      *
      * @author zhou

@@ -5,7 +5,7 @@ import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CheckType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
@@ -210,7 +210,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @AccessPermissionCheck(type = CheckType.BOOKMARK)
+    @AccessPermissionCheck(dataType = DataType.BOOKMARK)
     public boolean deleteBookmark(@Id long id, @UserId long userId) {
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
@@ -223,7 +223,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @AccessPermissionCheck(type = CheckType.BOOKMARK)
+    @AccessPermissionCheck(dataType = DataType.BOOKMARK)
     public boolean changePrivacySettings(@Id long id, @UserId long userId) {
         log.info("Changing privacy settings: id = {}, userId = {}", id, userId);
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
