@@ -42,7 +42,7 @@
     <update id="deleteAllTagsByBookmarkId">
         delete
         from tag
-        where bookmark_id = #{bookmarkId,jdbcType=INTEGER};
+        where bookmark_id = #{bookmarkId};
     </update>
     <select id="getAllTagsAndCountOfPublicBookmarks" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
         select tag, count(bookmark_id) number

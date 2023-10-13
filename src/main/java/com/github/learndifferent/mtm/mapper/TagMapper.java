@@ -81,7 +81,7 @@ public interface TagMapper {
      *
      * @param bookmarkId ID of the bookmark
      */
-    void deleteAllTagsByBookmarkId(int bookmarkId);
+    void deleteAllTagsByBookmarkId(long bookmarkId);
 
     /**
      * Get all the tags and count the numbers of public bookmarks

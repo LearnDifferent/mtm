@@ -105,7 +105,7 @@ public class BookmarkController {
      *
      * @param id ID of the bookmark
      * @return {@link ResultCode#DELETE_SUCCESS} if success. {@link ResultCode#DELETE_FAILED}
-     * @throws ServiceException {@link BookmarkService#deleteBookmark(Integer, String)} will throw
+     * @throws ServiceException {@link BookmarkService#deleteBookmark(Long, Long)} will throw
      *                          an exception if the user currently logged in does not have permission to delete,
      *                          the result code will be {@link ResultCode#PERMISSION_DENIED}
      */
@@ -114,9 +114,9 @@ public class BookmarkController {
     public ResultVO<ResultCode> deleteBookmark(@RequestParam("id")
                                                @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                       Integer id) {
-        String currentUsername = getCurrentUsername();
-        boolean success = bookmarkService.deleteBookmark(id, currentUsername);
+                                                       Long id) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = bookmarkService.deleteBookmark(id, currentUserId);
         return success ? ResultCreator.result(ResultCode.DELETE_SUCCESS)
                 : ResultCreator.result(ResultCode.DELETE_FAILED);
     }

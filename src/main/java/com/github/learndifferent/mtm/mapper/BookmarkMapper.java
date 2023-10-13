@@ -155,7 +155,7 @@ public interface BookmarkMapper {
      * @param id ID of the bookmark
      * @return true if success
      */
-    boolean deleteBookmarkById(Integer id);
+    boolean deleteBookmarkById(Long id);
 
     /**
      * Delete user's all bookmarks

@@ -6,6 +6,10 @@ import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.CheckType;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.UserId;
 import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
@@ -209,9 +213,9 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @ModifyBookmarkPermissionCheck
-    public boolean deleteBookmark(@BookmarkId Integer id, @Username String userName) {
-        // ID will not be null after checking by @ModifyBookmarkPermissionCheck
+    @ModificationPermissionCheck(type = CheckType.BOOKMARK)
+    public boolean deleteBookmark(@Id Long id, @UserId Long userId) {
+        // ID will not be null after checking by @ModificationPermissionCheck
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
             // delete views

@@ -130,15 +130,15 @@ public interface BookmarkService {
     /**
      * Delete a bookmarked website and its associated data
      *
-     * @param id       ID of the bookmark
-     * @param userName username of the user who is deleting the bookmark
+     * @param id     ID of the bookmark
+     * @param userId user ID of the user who is deleting the bookmark
      * @return true if success
-     * @throws ServiceException {@link ModifyBookmarkPermissionCheck
-     *                          ModifyBookmarkPermissionCheck} annotation will check the permissions and throw
-     *                          an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
+     * @throws ServiceException {@link com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck
+     *                          ModificationPermissionCheck} annotation will check the permissions and throw
+     *                          an exception with the result code of {@link ResultCode#PERMISSION_DENIED}
      *                          if there is no permissions
      */
-    boolean deleteBookmark(Integer id, String userName);
+    boolean deleteBookmark(Long id, Long userId);
 
     /**
      * Make the bookmarked website private if it's public
