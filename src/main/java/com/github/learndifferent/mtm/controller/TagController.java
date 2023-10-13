@@ -51,7 +51,7 @@ public class TagController {
      * @param bookmarkId ID of the bookmark that the user currently logged in wants to apply the tag to
      * @param tagName    the tag to apply
      * @return Return the tag if applied successfully, or empty string if failed to apply
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#applyTag(String, Integer,
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#applyTag(long, long,
      *                                                                  String)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS} if
@@ -80,16 +80,16 @@ public class TagController {
     @GetMapping("/apply")
     @IdempotencyCheck
     public ResultVO<String> applyTag(@RequestParam("bookmarkId")
-                                     @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                             Integer bookmarkId,
+                                         @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                 Long bookmarkId,
                                      @RequestParam("tag")
-                                     @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
-                                     @Length(min = ConstraintConstant.TAG_MIN_LENGTH,
-                                             max = ConstraintConstant.TAG_MAX_LENGTH,
-                                             message = ErrorInfoConstant.TAG_LENGTH)
-                                             String tagName) {
-        String currentUsername = getCurrentUsername();
-        String tag = tagService.applyTag(currentUsername, bookmarkId, tagName);
+                                         @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
+                                         @Length(min = ConstraintConstant.TAG_MIN_LENGTH,
+                                                 max = ConstraintConstant.TAG_MAX_LENGTH,
+                                                 message = ErrorInfoConstant.TAG_LENGTH)
+                                                 String tagName) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        String tag = tagService.applyTag(currentUserId, bookmarkId, tagName);
         return ResultCreator.okResult(tag);
     }
 
@@ -209,7 +209,7 @@ public class TagController {
      * @param tagName    name of the tag to be deleted
      * @return {@link ResultCreator#okResult()} if success.
      * {@link ResultCreator#defaultFailResult()} if failure or the tag does not exist.
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#deleteTag(String, Integer,
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#deleteTag(long, long,
      *                                                                  String)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS} if

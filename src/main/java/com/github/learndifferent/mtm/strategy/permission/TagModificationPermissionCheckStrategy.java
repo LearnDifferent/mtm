@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
+ * Check the permission to modify a tag and validate if the tag is valid
+ *
  * @author zhou
  * @date 2023/10/13
  */

@@ -22,7 +22,7 @@ public interface TagService {
      * stored in the cache if no exception is thrown and the result is not empty.
      * </p>
      *
-     * @param username   username of the user who wants to apply the tag
+     * @param userId     ID of the user who wants to apply the tag
      * @param bookmarkId ID of the bookmark that the user wants to apply the tag to
      * @param tagName    the tag to apply
      * @return Return the tag if applied successfully, or empty string if failed to apply
@@ -38,12 +38,8 @@ public interface TagService {
      *                                                                  And if the user has no permission to apply the
      *                                                                  tag to this bookmark, the result code will be
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
-     *                                                                  PERMISSION_DENIED}
-     *                                                                  </p>
-     *                                                                  <p>
-     *                                                                  This method is also annotated with
-     *                                                                  {@link com.github.learndifferent.mtm.annotation.validation.tag.TagCheck
-     *                                                                  TagCheck} annotation, which will verify
+     *                                                                  PERMISSION_DENIED}.
+     *                                                                  This wll also verify
      *                                                                  the length of a tag and throw an exception with
      *                                                                  the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#TAG_TOO_LONG
      *                                                                  TAG_TOO_LONG} if the tag exceeds the maximum
@@ -58,7 +54,7 @@ public interface TagService {
      *                                                                  applied.
      *                                                                  </p>
      */
-    String applyTag(String username, Integer bookmarkId, String tagName);
+    String applyTag(long userId, long bookmarkId, String tagName);
 
     /**
      * Get tags by the ID of the bookmark

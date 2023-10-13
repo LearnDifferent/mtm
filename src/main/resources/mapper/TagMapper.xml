@@ -9,14 +9,6 @@
         insert into tag (tag, bookmark_id)
         values (#{tag,jdbcType=VARCHAR}, #{bookmarkId,jdbcType=INTEGER})
     </insert>
-    <select id="getSpecificTagByTagTextAndBookmarkId"
-            resultType="com.github.learndifferent.mtm.entity.TagDO">
-        select tag, bookmark_id
-        from tag
-        where tag = #{tagName,jdbcType=VARCHAR}
-          and bookmark_id = #{bookmarkId}
-        limit 1;
-    </select>
     <select id="checkIfTagExists" resultType="java.lang.Boolean">
         select exists(
                        select null

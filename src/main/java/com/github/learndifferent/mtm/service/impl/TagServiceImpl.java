@@ -1,14 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
-import com.github.learndifferent.mtm.annotation.common.Tag;
-import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.CheckType;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.Tag;
 import com.github.learndifferent.mtm.annotation.validation.ModificationPermissionCheck.UserId;
-import com.github.learndifferent.mtm.annotation.validation.tag.TagCheck;
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
@@ -54,10 +50,9 @@ public class TagServiceImpl implements TagService {
     private final BookmarkMapper bookmarkMapper;
 
     @Override
-    @ModifyBookmarkPermissionCheck
-    @TagCheck
+    @ModificationPermissionCheck(type = CheckType.TAG)
     @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
-    public String applyTag(@Username String username, @BookmarkId Integer bookmarkId, @Tag String tagName) {
+    public String applyTag(@UserId long userId, @Id long bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
         TagDO tagDO = TagDO.builder().tag(tag).bookmarkId(bookmarkId).build();
         try {

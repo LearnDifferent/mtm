@@ -25,16 +25,6 @@ public interface TagMapper {
     boolean addTag(TagDO tag);
 
     /**
-     * Get a specific tag by name of the tag and Bookmark ID
-     *
-     * @param tagName    name of the tag
-     * @param bookmarkId ID of the bookmark that the tag applied to
-     * @return tag
-     */
-    TagDO getSpecificTagByTagTextAndBookmarkId(@Param("tagName") String tagName,
-                                               @Param("bookmarkId") long bookmarkId);
-
-    /**
      * Check if the tag exists
      *
      * @param tag        tag
