@@ -186,7 +186,7 @@ public interface BookmarkMapper {
      * @param bookmarkId ID of the bookmark
      * @return user ID of the bookmark owner
      */
-    Long getBookmarkOwnerUserId(int bookmarkId);
+    Long getBookmarkOwnerUserId(long bookmarkId);
 
     /**
      * Get visited bookmarks

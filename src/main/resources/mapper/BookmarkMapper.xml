@@ -234,7 +234,7 @@
     <select id="getBookmarkOwnerUserId" resultType="java.lang.Long">
         select b.user_id
         from bookmark b
-        where b.id = #{bookmarkId,jdbcType=INTEGER}
+        where b.id = #{bookmarkId}
           and b.is_deleted = 0
         limit 1;
     </select>

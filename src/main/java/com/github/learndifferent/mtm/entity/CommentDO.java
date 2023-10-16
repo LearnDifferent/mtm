@@ -25,7 +25,7 @@ public class CommentDO implements Serializable {
     /**
      * ID of the comment
      */
-    private Integer id;
+    private Long id;
 
     /**
      * content
@@ -35,12 +35,17 @@ public class CommentDO implements Serializable {
     /**
      * ID of the bookmark
      */
-    private Integer bookmarkId;
+    private Long bookmarkId;
 
     /**
      * Username
      */
     private String username;
+
+    /**
+     * User ID
+     */
+    private Long userId;
 
     /**
      * Creation time
@@ -53,7 +58,7 @@ public class CommentDO implements Serializable {
      * null if this is not a reply
      * </p>
      */
-    private Integer replyToCommentId;
+    private Long replyToCommentId;
 
     private static final long serialVersionUID = 1L;
 }

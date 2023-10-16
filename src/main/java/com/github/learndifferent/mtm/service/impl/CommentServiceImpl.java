@@ -1,14 +1,14 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.annotation.common.BookmarkId;
-import com.github.learndifferent.mtm.annotation.common.Comment;
 import com.github.learndifferent.mtm.annotation.common.CommentId;
-import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Comment;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
@@ -128,14 +128,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @AddCommentCheck
+    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.CREATE)
     public boolean addCommentAndSendNotification(@Comment String comment,
-                                                 @BookmarkId Integer bookmarkId,
-                                                 @Username String username,
-                                                 @ReplyToCommentId Integer replyToCommentId) {
-        // bookmarkId will not be null after checking by @AddCommentCheck
+                                                 @Id long bookmarkId,
+                                                 @UserId long userId,
+                                                 @ReplyToCommentId Long replyToCommentId) {
         CommentDO commentDO = CommentDO.builder()
-                .comment(comment).bookmarkId(bookmarkId).username(username)
+                .comment(comment)
+                .bookmarkId(bookmarkId)
+                .userId(userId)
                 .replyToCommentId(replyToCommentId)
                 .creationTime(Instant.now())
                 .build();
@@ -151,7 +152,7 @@ public class CommentServiceImpl implements CommentService {
 
     private void recordHistoryAndSendNotification(CommentDO commentDO) {
         // add history
-        Integer commentId = commentDO.getId();
+        Long commentId = commentDO.getId();
         String comment = commentDO.getComment();
         Instant creationTime = commentDO.getCreationTime();
         CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment, creationTime);

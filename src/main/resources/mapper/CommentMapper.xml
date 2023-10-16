@@ -35,7 +35,7 @@
         select u.id
         from comment c
                  left join user u on c.username = u.user_name
-        where c.id = #{commentId,jdbcType=INTEGER}
+        where c.id = #{commentId}
           and c.is_deleted = 0
         limit 1;
     </select>

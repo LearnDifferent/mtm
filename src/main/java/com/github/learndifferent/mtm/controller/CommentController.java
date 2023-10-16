@@ -134,7 +134,7 @@ public class CommentController {
      *                         </p>
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addCommentAndSendNotification(String,
-     *                                                                  Integer, String, Integer)} will throw an
+     *                                                                  long, long, Long)} will throw an
      *                                                                  exception with the result code of {@link
      *                                                                  ResultCode#PERMISSION_DENIED}
      *                                                                  if the user has no permissions to comment on
@@ -174,12 +174,13 @@ public class CommentController {
                                               @RequestParam("bookmarkId")
                                               @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                               @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                      Integer bookmarkId,
+                                                      Long bookmarkId,
                                               @RequestParam(value = "replyToCommentId",
-                                                            required = false) Integer replyToCommentId) {
-        String currentUsername = LoginUtils.getCurrentUsername();
+                                                            required = false)
+                                                      Long replyToCommentId) {
+        long currentUserId = LoginUtils.getCurrentUserId();
         boolean success = commentService.addCommentAndSendNotification(
-                comment, bookmarkId, currentUsername, replyToCommentId);
+                comment, bookmarkId, currentUserId, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 

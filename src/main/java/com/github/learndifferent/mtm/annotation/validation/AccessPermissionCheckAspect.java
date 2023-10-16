@@ -1,8 +1,10 @@
 package com.github.learndifferent.mtm.annotation.validation;
 
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Comment;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.exception.ServiceException;
@@ -48,6 +50,8 @@ public class AccessPermissionCheckAspect {
         long userId = -1L;
 
         String tag = "";
+        String comment = "";
+        Long replyToCommentId = null;
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
@@ -70,6 +74,19 @@ public class AccessPermissionCheckAspect {
                         && String.class.isAssignableFrom(curArg.getClass())) {
                     tag = (String) curArg;
                 }
+                if (StringUtils.isBlank(comment)
+                        && annotation instanceof Comment
+                        && Objects.nonNull(curArg)
+                        && String.class.isAssignableFrom(curArg.getClass())) {
+                    comment = (String) curArg;
+                }
+                if (annotation instanceof ReplyToCommentId
+                        // The ReplyToCommentId can be null, but since its initial value is already null,
+                        // here we only consider the case when it has a long value.
+                        && Objects.nonNull(curArg)
+                        && Long.class.isAssignableFrom(curArg.getClass())) {
+                    replyToCommentId = (Long) curArg;
+                }
             }
         }
 
@@ -90,7 +107,8 @@ public class AccessPermissionCheckAspect {
             throw new ServiceException("No modification permission check strategy");
         }
 
-        PermissionCheckRequest request = new PermissionCheckRequest(actionType, id, userId, tag);
+        PermissionCheckRequest request = new PermissionCheckRequest(
+                actionType, id, userId, tag, comment, replyToCommentId);
         // check
         strategies.get(typeName).check(request);
         log.info("Permission check passed. Type: {}, ID: {}, User ID: {}", typeName, id, userId);
