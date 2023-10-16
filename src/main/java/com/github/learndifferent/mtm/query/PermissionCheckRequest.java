@@ -35,4 +35,14 @@ public class PermissionCheckRequest {
      * Tag
      */
     private String tag;
+
+    /**
+     * Comment
+     */
+    private String comment;
+
+    /**
+     * Reply to comment ID
+     */
+    private Long replyToCommentId;
 }

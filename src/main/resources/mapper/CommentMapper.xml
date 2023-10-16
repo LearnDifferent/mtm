@@ -75,6 +75,22 @@
                         and is_deleted = 0)
     </select>
 
+    <select id="checkIfCommentPresent" resultType="java.lang.Boolean">
+        select exists(select null
+                      from comment
+                      where comment = #{comment}
+                        and user_id = #{username}
+                        and bookmark_id = #{bookmarkId}
+                        and is_deleted = 0)
+    </select>
+
+    <select id="checkIfCommentPresentById" resultType="java.lang.Boolean">
+        select exists(select null
+                      from comment
+                      where id = #{id}
+                        and is_deleted = 0)
+    </select>
+
     <select id="countRepliesFromComment" resultType="java.lang.Integer">
         select count(*)
         from comment

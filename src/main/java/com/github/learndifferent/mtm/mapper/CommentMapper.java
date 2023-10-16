@@ -43,6 +43,26 @@ public interface CommentMapper {
                                  @Param("username") String username);
 
     /**
+     * Check if a comment is present
+     *
+     * @param comment    comment
+     * @param bookmarkId bookmark ID
+     * @param userId     user ID
+     * @return true if the comment is present
+     */
+    boolean checkIfCommentPresent(@Param("comment") String comment,
+                                  @Param("bookmarkId") long bookmarkId,
+                                  @Param("userId") long userId);
+
+    /**
+     * Check if a comment is present by comment ID
+     *
+     * @param id Comment ID
+     * @return true if the comment is present
+     */
+    boolean checkIfCommentPresentById(@Param("id") long id);
+
+    /**
      * Get the text of the comment
      *
      * @param id ID of the comment
