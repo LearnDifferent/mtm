@@ -64,11 +64,10 @@ public interface CommentService {
     /**
      * Delete a comment by id
      *
-     * @param id       ID of the comment
-     * @param username username of the user who is trying to delete the comment
+     * @param id     ID of the comment
+     * @param userId ID user ID of the user who is trying to delete the comment
      * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck
-     *                                                                  ModifyCommentCheck} annotation will throw
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw
      *                                                                  exceptions with the
      *                                                                  result codes of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS
      *                                                                  COMMENT_NOT_EXISTS} or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
@@ -76,7 +75,7 @@ public interface CommentService {
      *                                                                  exist or the user has no permissions to delete
      *                                                                  the comment
      */
-    boolean deleteCommentById(Integer id, String username);
+    boolean deleteCommentById(long id, long userId);
 
     /**
      * Add a comment and send a notification to the user who is about to receive it

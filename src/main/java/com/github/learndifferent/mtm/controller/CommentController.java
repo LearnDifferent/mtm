@@ -226,8 +226,8 @@ public class CommentController {
      *
      * @param id ID of the comment
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#deleteCommentById(Integer,
-     *                                                                  String)}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#deleteCommentById(long,
+     *                                                                  long)}
      *                                                                  will throw exceptions with the
      *                                                                  result codes of {@link ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
@@ -239,9 +239,9 @@ public class CommentController {
     public ResultVO<ResultCode> deleteComment(@RequestParam("id")
                                               @NotNull(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
                                               @Positive(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
-                                                      Integer id) {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        boolean success = commentService.deleteCommentById(id, currentUsername);
+                                                      Long id) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = commentService.deleteCommentById(id, currentUserId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 }

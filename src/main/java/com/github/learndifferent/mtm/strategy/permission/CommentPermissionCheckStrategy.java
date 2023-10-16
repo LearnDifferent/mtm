@@ -56,6 +56,9 @@ public class CommentPermissionCheckStrategy implements PermissionCheckStrategy {
                 // Check if the comment is present and if the user has permission to access it
                 checkIfCommentPresentAndUserPermission(commentId, userId);
                 break;
+            case DELETE:
+                checkIfCommentPresentAndUserPermission(commentId, userId);
+                break;
             default:
                 log.warn("Can't find the valid action type: {}", actionType);
         }

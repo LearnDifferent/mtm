@@ -68,15 +68,6 @@
         </if>;
     </select>
 
-    <select id="checkIfCommentExists" resultType="java.lang.Boolean">
-        select exists(select null
-                      from comment
-                      where comment = #{comment}
-                        and username = #{username}
-                        and bookmark_id = #{bookmarkId}
-                        and is_deleted = 0)
-    </select>
-
     <select id="checkIfCommentPresent" resultType="java.lang.Boolean">
         select exists(select null
                       from comment

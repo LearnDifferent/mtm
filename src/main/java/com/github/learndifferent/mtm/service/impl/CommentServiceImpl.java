@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
@@ -9,7 +8,6 @@ import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
-import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.CommentHistoryDTO;
@@ -119,9 +117,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @ModifyCommentCheck
-    public boolean deleteCommentById(@CommentId Integer id, @Username String username) {
-        // commentId will not be null after checking by @ModifyCommentCheck
+    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.DELETE)
+    public boolean deleteCommentById(@CommentId long id, @UserId long userId) {
         return commentMapper.deleteCommentById(id);
     }
 

@@ -31,18 +31,6 @@ public interface CommentMapper {
     Long getCommentSenderUserId(long commentId);
 
     /**
-     * Check if a comment exists
-     *
-     * @param comment    comment content
-     * @param bookmarkId ID of the bookmark
-     * @param username   username of the user who sent the comment
-     * @return true if a comment exists
-     */
-    boolean checkIfCommentExists(@Param("comment") String comment,
-                                 @Param("bookmarkId") int bookmarkId,
-                                 @Param("username") String username);
-
-    /**
      * Check if a comment is present
      *
      * @param comment    comment
@@ -111,7 +99,7 @@ public interface CommentMapper {
      * @param id ID of the comment
      * @return true if success
      */
-    boolean deleteCommentById(int id);
+    boolean deleteCommentById(long id);
 
     /**
      * Delete comments of the user

@@ -39,7 +39,6 @@ import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.strategy.timeline.HomeTimelineStrategyContext;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.BeanUtils;
-import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -64,7 +63,6 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -257,23 +255,6 @@ public class BookmarkServiceImpl implements BookmarkService {
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
         return bookmark;
-    }
-
-    @Override
-    public void checkBookmarkExistsAndUserPermission(int id, String username) {
-        // username cannot be empty
-        ThrowExceptionUtils.throwIfTrue(StringUtils.isBlank(username), ResultCode.PERMISSION_DENIED);
-
-        BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(id);
-        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
-
-        Boolean isPublic = bookmark.getIsPublic();
-        boolean isPrivate = Boolean.FALSE.equals(isPublic);
-
-        String owner = bookmark.getUserName();
-
-        boolean hasNoPermission = isPrivate && CustomStringUtils.notEqualsIgnoreCase(username, owner);
-        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     @Override

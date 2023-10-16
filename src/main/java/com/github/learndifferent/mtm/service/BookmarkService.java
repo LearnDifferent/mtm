@@ -170,17 +170,6 @@ public interface BookmarkService {
     BookmarkVO getBookmark(int id, long userId);
 
     /**
-     * Check if the bookmark exists and if the user has permission to access it
-     *
-     * @param id       ID of the bookmark
-     * @param username username of the user who is trying to access the bookmark
-     * @throws ServiceException throw an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
-     *                          if the bookmark dose not exist, or {@link ResultCode#PERMISSION_DENIED}
-     *                          if the user has no permission
-     */
-    void checkBookmarkExistsAndUserPermission(int id, String username);
-
-    /**
      * Export user's bookmarks to HTML file.
      * <p>
      * Export bookmarks belonging to the user that is currently logged in
