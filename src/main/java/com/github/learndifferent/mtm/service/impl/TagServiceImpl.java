@@ -1,9 +1,8 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -51,7 +50,7 @@ public class TagServiceImpl implements TagService {
     private final BookmarkMapper bookmarkMapper;
 
     @Override
-    @AccessPermissionCheck(dataType = DataType.TAG)
+    @AccessPermissionCheck(dataAccessType = DataAccessType.TAG_CREATE)
     @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
     public String applyTag(@UserId long userId, @BookmarkId long bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
@@ -147,7 +146,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @AccessPermissionCheck(dataType = DataType.TAG, actionType = ActionType.DELETE)
+    @AccessPermissionCheck(dataAccessType = DataAccessType.TAG_DELETE)
     public boolean deleteTag(@UserId long userId, @BookmarkId long bookmarkId, String tagName) {
         log.info("Delete tag: {}, User ID: {}, Bookmark ID: {}", tagName, userId, bookmarkId);
         // This will delete the tag (prefix of the key is "tag:a") of the bookmark

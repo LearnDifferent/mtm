@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.query;
 
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,11 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class PermissionCheckRequest {
-
-    /**
-     * Action type
-     */
-    private ActionType actionType;
 
     /**
      * ID

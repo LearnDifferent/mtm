@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.strategy.permission;
 
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.PermissionCheckConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -20,28 +19,23 @@ import org.springframework.stereotype.Component;
  * @author zhou
  * @date 2023/10/13
  */
-@Component(PermissionCheckConstant.TAG)
+@Component(PermissionCheckConstant.TAG_CREATE)
 @RequiredArgsConstructor
 @Slf4j
-public class TagPermissionCheckStrategy implements PermissionCheckStrategy {
+public class TagCreatePermissionCheckStrategy implements PermissionCheckStrategy {
 
     private final BookmarkMapper bookmarkMapper;
     private final TagMapper tagMapper;
 
     @Override
-    public void check(PermissionCheckRequest permissionCheckRequest) {
+    public void checkPermission(PermissionCheckRequest permissionCheckRequest) {
         Long bookmarkId = permissionCheckRequest.getBookmarkId();
         Long userId = permissionCheckRequest.getUserId();
         String tag = permissionCheckRequest.getTag();
-        ActionType actionType = permissionCheckRequest.getActionType();
 
-        if (ActionType.DELETE.equals(actionType)) {
-            checkPermission(bookmarkId, userId);
-        } else {
-            checkIsValid(tag);
-            checkPermission(bookmarkId, userId);
-            checkIsPresent(bookmarkId, tag);
-        }
+        checkIsValid(tag);
+        checkPermission(bookmarkId, userId);
+        checkIsPresent(bookmarkId, tag);
     }
 
     private void checkIsValid(String tag) {

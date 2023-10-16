@@ -21,7 +21,7 @@ public class BookmarkPermissionCheckStrategy implements PermissionCheckStrategy 
     private final BookmarkMapper bookmarkMapper;
 
     @Override
-    public void check(PermissionCheckRequest permissionCheckRequest) {
+    public void checkPermission(PermissionCheckRequest permissionCheckRequest) {
         Long bookmarkId = permissionCheckRequest.getBookmarkId();
         Long userId = permissionCheckRequest.getUserId();
         boolean hasNoPermission = !bookmarkMapper.checkModificationPermission(bookmarkId, userId);

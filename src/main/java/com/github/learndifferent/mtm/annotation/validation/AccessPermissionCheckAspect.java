@@ -1,10 +1,9 @@
 package com.github.learndifferent.mtm.annotation.validation;
 
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Comment;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CommentId;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
@@ -101,24 +100,22 @@ public class AccessPermissionCheckAspect {
         ThrowExceptionUtils.throwIfTrue(bookmarkId < 0L, "Can't find the ID");
         ThrowExceptionUtils.throwIfTrue(userId < 0L, "Can't find the User ID");
 
-        DataType dataType = accessPermissionCheck.dataType();
-        String typeName = dataType.getName();
+        DataAccessType dataAccessType = accessPermissionCheck.dataAccessType();
+        String typeName = dataAccessType.getName();
 
-        ActionType actionType = accessPermissionCheck.actionType();
-
-        log.info("Checking permission. Data Type: {}, Action Type: {}, ID: {}, User ID: {}",
-                typeName, actionType, bookmarkId, userId);
+        log.info("Checking permission. Type: {}, ID: {}, User ID: {}",
+                typeName, bookmarkId, userId);
 
         boolean hasNoStrategy = !strategies.containsKey(typeName);
         if (hasNoStrategy) {
-            log.warn("No modification permission check strategy found. Strategy: {}", typeName);
-            throw new ServiceException("No modification permission check strategy");
+            log.warn("No permission check strategy found. Strategy: {}", typeName);
+            throw new ServiceException("No permission check strategy");
         }
 
         PermissionCheckRequest request = new PermissionCheckRequest(
-                actionType, bookmarkId, userId, tag, commentId, comment, replyToCommentId);
+                bookmarkId, userId, tag, commentId, comment, replyToCommentId);
         // check
-        strategies.get(typeName).check(request);
+        strategies.get(typeName).checkPermission(request);
         log.info("Permission check passed. Type: {}, ID: {}, User ID: {}", typeName, bookmarkId, userId);
     }
 }

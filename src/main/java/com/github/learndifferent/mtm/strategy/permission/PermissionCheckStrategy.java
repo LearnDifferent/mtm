@@ -11,9 +11,9 @@ import com.github.learndifferent.mtm.query.PermissionCheckRequest;
 public interface PermissionCheckStrategy {
 
     /**
-     * Check data modification permission
+     * Check data access permission
      *
      * @param permissionCheckRequest permission check request
      */
-    void check(PermissionCheckRequest permissionCheckRequest);
+    void checkPermission(PermissionCheckRequest permissionCheckRequest);
 }

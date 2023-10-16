@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.strategy.permission;
 
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
 import com.github.learndifferent.mtm.constant.consist.PermissionCheckConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -16,52 +15,30 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
- * Check if the user has permission to access the bookmark
+ * Check if the user has permission to create the comment
  *
  * @author zhou
  * @date 2023/10/13
  */
-@Component(PermissionCheckConstant.COMMENT)
+@Component(PermissionCheckConstant.COMMENT_CREATE)
 @RequiredArgsConstructor
 @Slf4j
-public class CommentPermissionCheckStrategy implements PermissionCheckStrategy {
+public class CommentCreatePermissionCheckStrategy implements PermissionCheckStrategy {
 
     private final BookmarkMapper bookmarkMapper;
     private final CommentMapper commentMapper;
 
     @Override
-    public void check(PermissionCheckRequest permissionCheckRequest) {
+    public void checkPermission(PermissionCheckRequest permissionCheckRequest) {
         Long bookmarkId = permissionCheckRequest.getBookmarkId();
         Long userId = permissionCheckRequest.getUserId();
-        Long commentId = permissionCheckRequest.getCommentId();
-        ActionType actionType = permissionCheckRequest.getActionType();
         String comment = permissionCheckRequest.getComment();
         Long replyToCommentId = permissionCheckRequest.getReplyToCommentId();
 
-        switch (actionType) {
-            case READ:
-                checkPermissionByBookmarkAndUser(bookmarkId, userId);
-                break;
-            case CREATE:
-                checkIfNewCommentValid(comment);
-                checkPermissionByBookmarkAndUser(bookmarkId, userId);
-                checkIfDuplicate(comment, bookmarkId, userId);
-                checkIfReplyToCommentPresent(replyToCommentId);
-                break;
-            case UPDATE:
-                checkIfNewCommentValid(comment);
-                checkPermissionByBookmarkAndUser(bookmarkId, userId);
-                checkIfDuplicate(comment, bookmarkId, userId);
-                checkIfReplyToCommentPresent(replyToCommentId);
-                // Check if the comment is present and if the user has permission to access it
-                checkIfCommentPresentAndUserPermission(commentId, userId);
-                break;
-            case DELETE:
-                checkIfCommentPresentAndUserPermission(commentId, userId);
-                break;
-            default:
-                log.warn("Can't find the valid action type: {}", actionType);
-        }
+        checkIfNewCommentValid(comment);
+        checkPermissionByBookmarkAndUser(bookmarkId, userId);
+        checkIfDuplicate(comment, bookmarkId, userId);
+        checkIfReplyToCommentPresent(replyToCommentId);
     }
 
     private void checkPermissionByBookmarkAndUser(long bookmarkId, long userId) {
@@ -106,18 +83,5 @@ public class CommentPermissionCheckStrategy implements PermissionCheckStrategy {
         boolean isPresent = commentMapper.checkIfCommentPresentById(replyToCommentId);
         ThrowExceptionUtils.throwIfTrue(isPresent, ResultCode.COMMENT_NOT_EXISTS);
         log.info("Reply to comment is present: {}", replyToCommentId);
-    }
-
-    private void checkIfCommentPresentAndUserPermission(long commentId, long userId) {
-        log.info("Check if the comment is present: {}", commentId);
-        Long commentUserId = commentMapper.getCommentUserIdByCommentId(commentId);
-        boolean isNotPresent = Objects.isNull(commentUserId);
-        ThrowExceptionUtils.throwIfTrue(isNotPresent, ResultCode.COMMENT_NOT_EXISTS);
-        log.info("Comment is present: {}", commentId);
-
-        log.info("Check if the user has permission to access the comment: {}, User ID: {}", commentId, userId);
-        boolean hasNoPermission = !commentUserId.equals(userId);
-        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
-        log.info("User has permission to access the comment: {}, User ID: {}", commentId, userId);
     }
 }

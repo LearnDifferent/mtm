@@ -1,11 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Comment;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CommentId;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.constant.enums.Order;
@@ -53,7 +52,7 @@ public class CommentServiceImpl implements CommentService {
     private final NotificationManager notificationManager;
 
     @Override
-    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.READ)
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_READ)
     public CommentVO getCommentByIds(Integer id,
                                      @BookmarkId long bookmarkId,
                                      @UserId long userId) {
@@ -74,7 +73,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.READ)
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_READ)
     public List<BookmarkCommentVO> getBookmarkComments(@BookmarkId long bookmarkId,
                                                        Long replyToCommentId,
                                                        Integer load,
@@ -117,13 +116,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.DELETE)
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_DELETE)
     public boolean deleteCommentById(@CommentId long id, @UserId long userId) {
         return commentMapper.deleteCommentById(id);
     }
 
     @Override
-    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.CREATE)
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_CREATE)
     public boolean addCommentAndSendNotification(@Comment String comment,
                                                  @BookmarkId long bookmarkId,
                                                  @UserId long userId,
@@ -168,7 +167,7 @@ public class CommentServiceImpl implements CommentService {
         return commentServiceImpl.editComment(id, comment, userId, bookmarkId);
     }
 
-    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.UPDATE)
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_UPDATE)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean editComment(@CommentId Long id,
                                @Comment String comment,

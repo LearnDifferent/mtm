@@ -17,11 +17,11 @@ import java.lang.annotation.Target;
 public @interface AccessPermissionCheck {
 
     /**
-     * Indicate the data to access
+     * Data Access Type
      *
-     * @return {@link DataType}
+     * @return {@link DataAccessType}
      */
-    DataType dataType();
+    DataAccessType dataAccessType();
 
     /**
      * Indicate the data to access
@@ -29,21 +29,37 @@ public @interface AccessPermissionCheck {
      * @author zhou
      * @date 2023/10/12
      */
-    enum DataType {
+    enum DataAccessType {
         /**
          * Bookmark
          */
         BOOKMARK(PermissionCheckConstant.BOOKMARK),
         /**
-         * Tag
+         * Create tag
          */
-        TAG(PermissionCheckConstant.TAG),
+        TAG_CREATE(PermissionCheckConstant.TAG_CREATE),
         /**
-         * Comment
+         * Delete tag
          */
-        COMMENT(PermissionCheckConstant.COMMENT);
+        TAG_DELETE(PermissionCheckConstant.TAG_DELETE),
+        /**
+         * Read comment
+         */
+        COMMENT_READ(PermissionCheckConstant.COMMENT_READ),
+        /**
+         * Create Comment
+         */
+        COMMENT_CREATE(PermissionCheckConstant.COMMENT_CREATE),
+        /**
+         * Update Comment
+         */
+        COMMENT_UPDATE(PermissionCheckConstant.COMMENT_UPDATE),
+        /**
+         * Delete Comment
+         */
+        COMMENT_DELETE(PermissionCheckConstant.COMMENT_DELETE);
 
-        DataType(final String name) {
+        DataAccessType(final String name) {
             this.name = name;
         }
 
@@ -52,42 +68,6 @@ public @interface AccessPermissionCheck {
         public String getName() {
             return this.name;
         }
-    }
-
-    /**
-     * Action type
-     *
-     * @return action type
-     */
-    ActionType actionType() default ActionType.MODIFICATION;
-
-    /**
-     * Action Type
-     *
-     * @author zhou
-     * @date 2023/10/12
-     */
-    enum ActionType {
-        /**
-         * Modification
-         */
-        MODIFICATION,
-        /**
-         * Create
-         */
-        CREATE,
-        /**
-         * Read
-         */
-        READ,
-        /**
-         * Update
-         */
-        UPDATE,
-        /**
-         * Delete
-         */
-        DELETE
     }
 
     /**
