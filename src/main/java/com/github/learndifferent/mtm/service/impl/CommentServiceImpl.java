@@ -1,16 +1,14 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
-import com.github.learndifferent.mtm.annotation.common.CommentId;
 import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Comment;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
-import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
 import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -59,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.READ)
     public CommentVO getCommentByIds(Integer id,
-                                     @Id long bookmarkId,
+                                     @BookmarkId long bookmarkId,
                                      @UserId long userId) {
         log.info("Get comment. Comment ID: {}, User ID: {}, Bookmark ID: {}", id, userId, bookmarkId);
         return Optional.ofNullable(id)
@@ -79,7 +77,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.READ)
-    public List<BookmarkCommentVO> getBookmarkComments(@Id long bookmarkId,
+    public List<BookmarkCommentVO> getBookmarkComments(@BookmarkId long bookmarkId,
                                                        Long replyToCommentId,
                                                        Integer load,
                                                        @UserId long userId,
@@ -130,7 +128,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.CREATE)
     public boolean addCommentAndSendNotification(@Comment String comment,
-                                                 @Id long bookmarkId,
+                                                 @BookmarkId long bookmarkId,
                                                  @UserId long userId,
                                                  @ReplyToCommentId Long replyToCommentId) {
         CommentDO commentDO = CommentDO.builder()
@@ -163,26 +161,26 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public boolean editComment(UpdateCommentRequest commentInfo, String username) {
-        Integer id = commentInfo.getId();
+    public boolean editComment(UpdateCommentRequest commentInfo, long userId) {
+        long id = commentInfo.getId();
         String comment = commentInfo.getComment();
-        Integer bookmarkId = commentInfo.getBookmarkId();
+        long bookmarkId = commentInfo.getBookmarkId();
 
         CommentServiceImpl commentServiceImpl =
                 ApplicationContextUtils.getBean(CommentServiceImpl.class);
-        return commentServiceImpl.editComment(id, comment, username, bookmarkId);
+        return commentServiceImpl.editComment(id, comment, userId, bookmarkId);
     }
 
-    @AddCommentCheck
-    @ModifyCommentCheck
+    @AccessPermissionCheck(dataType = DataType.COMMENT, actionType = ActionType.UPDATE)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean editComment(@CommentId Integer id,
+    public boolean editComment(@CommentId Long id,
                                @Comment String comment,
-                               @Username String username,
-                               @BookmarkId Integer bookmarkId) {
-        // id will not be null after checking by @ModifyCommentCheck
+                               @UserId Long userId,
+                               @BookmarkId Long bookmarkId) {
+        log.info("Editing comment {}. New Comment: {}, User ID: {}, Bookmark ID: {}", id, comment, userId, bookmarkId);
         boolean success = commentMapper.updateComment(id, comment);
         if (success) {
+            log.info("Edited comment {}. Comment: {}, User ID: {}, Bookmark ID: {}", id, comment, userId, bookmarkId);
             CommentHistoryDTO history = CommentHistoryDTO.of(id, comment);
             addHistory(history);
         }

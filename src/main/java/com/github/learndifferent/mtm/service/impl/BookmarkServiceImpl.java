@@ -5,8 +5,8 @@ import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
@@ -211,7 +211,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @AccessPermissionCheck(dataType = DataType.BOOKMARK)
-    public boolean deleteBookmark(@Id long id, @UserId long userId) {
+    public boolean deleteBookmark(@BookmarkId long id, @UserId long userId) {
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
             // delete views
@@ -224,7 +224,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @AccessPermissionCheck(dataType = DataType.BOOKMARK)
-    public boolean changePrivacySettings(@Id long id, @UserId long userId) {
+    public boolean changePrivacySettings(@BookmarkId long id, @UserId long userId) {
         log.info("Changing privacy settings: id = {}, userId = {}", id, userId);
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);

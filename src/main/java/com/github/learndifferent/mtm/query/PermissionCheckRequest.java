@@ -24,7 +24,7 @@ public class PermissionCheckRequest {
     /**
      * ID
      */
-    private Long id;
+    private Long bookmarkId;
 
     /**
      * User ID
@@ -35,6 +35,11 @@ public class PermissionCheckRequest {
      * Tag
      */
     private String tag;
+
+    /**
+     * Comment ID
+     */
+    private Long commentId;
 
     /**
      * Comment

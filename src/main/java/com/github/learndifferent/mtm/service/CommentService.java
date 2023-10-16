@@ -89,8 +89,7 @@ public interface CommentService {
      *                         null if this is not a reply
      *                         </p>
      * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck
-     *                                                                  AddCommentCheck} annotation will throw an
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an
      *                                                                  exception with the result code of {@link
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
@@ -134,17 +133,14 @@ public interface CommentService {
      * Edit a comment
      *
      * @param commentInfo comment information to update
-     * @param username    username of the user who is trying to update the comment
+     * @param userId      user ID of the user who is trying to update the comment
      * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException This method will call an annotated method and
-     *                                                                  its {@link com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck}
-     *                                                                  annotation will throw exceptions with the
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This method will throw exceptions with the
      *                                                                  result codes of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the comment does not exist or the user has
      *                                                                  no permissions to update the comment.
-     *                                                                  {@link com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck}
-     *                                                                  annotation will throw an exception
+     *                                                                  And also will throw an exception
      *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the username is not the current user's name
      *                                                                  or the user has no permissions to comment on
@@ -158,7 +154,7 @@ public interface CommentService {
      *                                                                  If it fails to update the edit history, the
      *                                                                  result code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
      */
-    boolean editComment(UpdateCommentRequest commentInfo, String username);
+    boolean editComment(UpdateCommentRequest commentInfo, long userId);
 
     /**
      * Get the number of comments (exclude replies) of a bookmarked website

@@ -91,18 +91,14 @@ public @interface AccessPermissionCheck {
     }
 
     /**
-     * When the {@link DataType} is {@link DataType#BOOKMARK}， it represents the ID of the bookmark.
-     * When the {@link DataType} is {@link DataType#COMMENT} and the {@link ActionType} is {@link ActionType#CREATE}, it
-     * represents the ID of the bookmark.
-     * When the {@link DataType} is {@link DataType#TAG}, it represents the ID of the bookmark.
-     * etc.
+     * Bookmark ID
      *
      * @author zhou
      * @date 2023/10/12
      */
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
-    @interface Id {}
+    @interface BookmarkId {}
 
     /**
      * User ID
@@ -123,6 +119,14 @@ public @interface AccessPermissionCheck {
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @interface Tag {}
+
+    /**
+     * Comment ID
+     *
+     * @author zhou
+     * @date 2023/10/16
+     */
+    @interface CommentId {}
 
     /**
      * Comment

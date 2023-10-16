@@ -1,9 +1,10 @@
 package com.github.learndifferent.mtm.annotation.validation;
 
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ActionType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Comment;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataType;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Id;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
@@ -46,27 +47,34 @@ public class AccessPermissionCheckAspect {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Object[] args = joinPoint.getArgs();
 
-        long id = -1L;
+        long bookmarkId = -1L;
         long userId = -1L;
 
         String tag = "";
+        long commentId = -1L;
         String comment = "";
         Long replyToCommentId = null;
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
                 Object curArg = args[i];
-                if (id < 0L
-                        && annotation instanceof Id
+                if (bookmarkId < 0L
+                        && annotation instanceof BookmarkId
                         && Objects.nonNull(curArg)
                         && Long.class.isAssignableFrom(curArg.getClass())) {
-                    id = (long) curArg;
+                    bookmarkId = (long) curArg;
                 }
                 if (userId < 0L
                         && annotation instanceof UserId
                         && Objects.nonNull(curArg)
                         && Long.class.isAssignableFrom(curArg.getClass())) {
                     userId = (long) curArg;
+                }
+                if (commentId < 0L
+                        && annotation instanceof CommentId
+                        && Objects.nonNull(curArg)
+                        && Long.class.isAssignableFrom(curArg.getClass())) {
+                    commentId = (long) curArg;
                 }
                 if (StringUtils.isBlank(tag)
                         && annotation instanceof Tag
@@ -90,7 +98,7 @@ public class AccessPermissionCheckAspect {
             }
         }
 
-        ThrowExceptionUtils.throwIfTrue(id < 0L, "Can't find the ID");
+        ThrowExceptionUtils.throwIfTrue(bookmarkId < 0L, "Can't find the ID");
         ThrowExceptionUtils.throwIfTrue(userId < 0L, "Can't find the User ID");
 
         DataType dataType = accessPermissionCheck.dataType();
@@ -99,7 +107,7 @@ public class AccessPermissionCheckAspect {
         ActionType actionType = accessPermissionCheck.actionType();
 
         log.info("Checking permission. Data Type: {}, Action Type: {}, ID: {}, User ID: {}",
-                typeName, actionType, id, userId);
+                typeName, actionType, bookmarkId, userId);
 
         boolean hasNoStrategy = !strategies.containsKey(typeName);
         if (hasNoStrategy) {
@@ -108,9 +116,9 @@ public class AccessPermissionCheckAspect {
         }
 
         PermissionCheckRequest request = new PermissionCheckRequest(
-                actionType, id, userId, tag, comment, replyToCommentId);
+                actionType, bookmarkId, userId, tag, commentId, comment, replyToCommentId);
         // check
         strategies.get(typeName).check(request);
-        log.info("Permission check passed. Type: {}, ID: {}, User ID: {}", typeName, id, userId);
+        log.info("Permission check passed. Type: {}, ID: {}, User ID: {}", typeName, bookmarkId, userId);
     }
 }

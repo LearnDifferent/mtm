@@ -31,21 +31,30 @@ public class CommentPermissionCheckStrategy implements PermissionCheckStrategy {
 
     @Override
     public void check(PermissionCheckRequest permissionCheckRequest) {
-        Long id = permissionCheckRequest.getId();
+        Long bookmarkId = permissionCheckRequest.getBookmarkId();
         Long userId = permissionCheckRequest.getUserId();
+        Long commentId = permissionCheckRequest.getCommentId();
         ActionType actionType = permissionCheckRequest.getActionType();
         String comment = permissionCheckRequest.getComment();
         Long replyToCommentId = permissionCheckRequest.getReplyToCommentId();
 
         switch (actionType) {
             case READ:
-                checkPermissionByBookmarkAndUser(id, userId);
+                checkPermissionByBookmarkAndUser(bookmarkId, userId);
                 break;
             case CREATE:
-                checkIfCommentValid(comment);
-                checkPermissionByBookmarkAndUser(id, userId);
-                checkIfDuplicate(comment, id, userId);
+                checkIfNewCommentValid(comment);
+                checkPermissionByBookmarkAndUser(bookmarkId, userId);
+                checkIfDuplicate(comment, bookmarkId, userId);
                 checkIfReplyToCommentPresent(replyToCommentId);
+                break;
+            case UPDATE:
+                checkIfNewCommentValid(comment);
+                checkPermissionByBookmarkAndUser(bookmarkId, userId);
+                checkIfDuplicate(comment, bookmarkId, userId);
+                checkIfReplyToCommentPresent(replyToCommentId);
+                // Check if the comment is present and if the user has permission to access it
+                checkIfCommentPresentAndUserPermission(commentId, userId);
                 break;
             default:
                 log.warn("Can't find the valid action type: {}", actionType);
@@ -69,7 +78,7 @@ public class CommentPermissionCheckStrategy implements PermissionCheckStrategy {
         ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
-    private void checkIfCommentValid(String comment) {
+    private void checkIfNewCommentValid(String comment) {
         log.info("Check if the comment is valid: {}", comment);
         boolean isBlank = StringUtils.isBlank(comment);
         ThrowExceptionUtils.throwIfTrue(isBlank, ResultCode.COMMENT_EMPTY);
@@ -94,5 +103,18 @@ public class CommentPermissionCheckStrategy implements PermissionCheckStrategy {
         boolean isPresent = commentMapper.checkIfCommentPresentById(replyToCommentId);
         ThrowExceptionUtils.throwIfTrue(isPresent, ResultCode.COMMENT_NOT_EXISTS);
         log.info("Reply to comment is present: {}", replyToCommentId);
+    }
+
+    private void checkIfCommentPresentAndUserPermission(long commentId, long userId) {
+        log.info("Check if the comment is present: {}", commentId);
+        Long commentUserId = commentMapper.getCommentUserIdByCommentId(commentId);
+        boolean isNotPresent = Objects.isNull(commentUserId);
+        ThrowExceptionUtils.throwIfTrue(isNotPresent, ResultCode.COMMENT_NOT_EXISTS);
+        log.info("Comment is present: {}", commentId);
+
+        log.info("Check if the user has permission to access the comment: {}, User ID: {}", commentId, userId);
+        boolean hasNoPermission = !commentUserId.equals(userId);
+        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
+        log.info("User has permission to access the comment: {}, User ID: {}", commentId, userId);
     }
 }

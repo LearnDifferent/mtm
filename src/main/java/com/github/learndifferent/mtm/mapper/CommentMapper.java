@@ -55,6 +55,15 @@ public interface CommentMapper {
                                   @Param("userId") long userId);
 
     /**
+     * Get user ID of the comment by comment ID
+     *
+     * @param id Comment ID
+     * @return If a comment exists, return the user ID of that comment.
+     * If the comment does not exist, return null.
+     */
+    Long getCommentUserIdByCommentId(long id);
+
+    /**
      * Check if a comment is present by comment ID
      *
      * @param id Comment ID
@@ -126,7 +135,7 @@ public interface CommentMapper {
      * @param comment comment
      * @return true if success
      */
-    boolean updateComment(@Param("id") int id, @Param("comment") String comment);
+    boolean updateComment(@Param("id") long id, @Param("comment") String comment);
 
     /**
      * Get the number of comments (exclude replies) of a bookmark

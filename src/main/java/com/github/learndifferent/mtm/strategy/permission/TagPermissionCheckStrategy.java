@@ -30,17 +30,17 @@ public class TagPermissionCheckStrategy implements PermissionCheckStrategy {
 
     @Override
     public void check(PermissionCheckRequest permissionCheckRequest) {
-        Long id = permissionCheckRequest.getId();
+        Long bookmarkId = permissionCheckRequest.getBookmarkId();
         Long userId = permissionCheckRequest.getUserId();
         String tag = permissionCheckRequest.getTag();
         ActionType actionType = permissionCheckRequest.getActionType();
 
         if (ActionType.DELETE.equals(actionType)) {
-            checkPermission(id, userId);
+            checkPermission(bookmarkId, userId);
         } else {
             checkIsValid(tag);
-            checkPermission(id, userId);
-            checkIsPresent(id, tag);
+            checkPermission(bookmarkId, userId);
+            checkIsPresent(bookmarkId, tag);
         }
     }
 
@@ -57,21 +57,21 @@ public class TagPermissionCheckStrategy implements PermissionCheckStrategy {
         log.info("Tag {} is valid", tag);
     }
 
-    private void checkPermission(Long id, Long userId) {
-        log.info("Checking permission. Bookmark ID: {}, User ID: {}", id, userId);
-        boolean hasNoBookmarkPermission = !bookmarkMapper.checkModificationPermission(id, userId);
+    private void checkPermission(Long bookmarkId, Long userId) {
+        log.info("Checking permission. Bookmark ID: {}, User ID: {}", bookmarkId, userId);
+        boolean hasNoBookmarkPermission = !bookmarkMapper.checkModificationPermission(bookmarkId, userId);
         if (hasNoBookmarkPermission) {
-            log.info("User {} has no permission to modify tag (bookmark ID: {})", userId, id);
+            log.info("User {} has no permission to modify tag (bookmark ID: {})", userId, bookmarkId);
             throw new ServiceException(ResultCode.PERMISSION_DENIED);
         }
-        log.info("User {} has permission to modify tag (bookmark ID: {})", userId, id);
+        log.info("User {} has permission to modify tag (bookmark ID: {})", userId, bookmarkId);
     }
 
-    private void checkIsPresent(Long id, String tag) {
-        log.info("Checking if the tag already exists. Tag: {}, Bookmark ID: {}", tag, id);
-        boolean isPresent = tagMapper.checkIfTagExists(tag, id);
+    private void checkIsPresent(Long bookmarkId, String tag) {
+        log.info("Checking if the tag already exists. Tag: {}, Bookmark ID: {}", tag, bookmarkId);
+        boolean isPresent = tagMapper.checkIfTagExists(tag, bookmarkId);
         ThrowExceptionUtils.throwIfTrue(isPresent, ResultCode.TAG_EXISTS);
-        log.info("Tag {} is checked. Bookmark ID: {}.", tag, id);
+        log.info("Tag {} is checked. Bookmark ID: {}.", tag, bookmarkId);
     }
 
 }

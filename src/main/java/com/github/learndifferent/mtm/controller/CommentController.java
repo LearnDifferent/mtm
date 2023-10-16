@@ -190,7 +190,7 @@ public class CommentController {
      * @param commentInfo Request body containing the comment information to update
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#editComment(UpdateCommentRequest,
-     *                                                                  String)} will throw exceptions with the
+     *                                                                  long)} will throw exceptions with the
      *                                                                  result codes of {@link ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      *                                                                  if the comment does not exist or the user has
@@ -216,8 +216,8 @@ public class CommentController {
     @PostMapping
     @IdempotencyCheck
     public ResultVO<ResultCode> updateComment(@RequestBody @Validated UpdateCommentRequest commentInfo) {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        boolean success = commentService.editComment(commentInfo, currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = commentService.editComment(commentInfo, currentUserId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
