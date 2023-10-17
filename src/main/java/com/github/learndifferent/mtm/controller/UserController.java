@@ -4,7 +4,8 @@ import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyC
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification;
 import com.github.learndifferent.mtm.annotation.general.notification.SystemNotification.MessageType;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
-import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
@@ -172,13 +173,13 @@ public class UserController {
      *
      * @param pageInfo pagination information
      * @return users
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
+     *                                                                  code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the user is not admin
      */
     @GetMapping("/all")
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public List<UserVO> getUsers(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         return userService.getUsers(pageInfo);
@@ -241,13 +242,13 @@ public class UserController {
      * @return Return {@link ResultCode#SUCCESS} if success.
      * <p>Return {@link ResultVO} with the result code of {@link ResultCode#PERMISSION_DENIED}
      * if failure, or the user role is neither {@code admin} nor {@code user}</p>
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
+     *                                                                  code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the current user is not admin
      */
     @GetMapping("/role")
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     @IdempotencyCheck
     public ResultVO<ResultCode> changeUserRole(@RequestParam("id") Integer id,
                                                @RequestParam("newRole") String newRole) {
@@ -260,13 +261,13 @@ public class UserController {
      * Check if the user currently logged in is admin
      *
      * @return {@link ResultCode#SUCCESS} if the current user is admin
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
+     *                                                                  code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED}
      *                                                                  if the user is not admin
      */
     @GetMapping("/admin")
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public ResultVO<ResultCode> checkAdmin() {
         return ResultCreator.okResult();
     }

@@ -61,7 +61,11 @@ public @interface AccessPermissionCheck {
         /**
          * Delete Comment
          */
-        COMMENT_DELETE(PermissionCheckConstant.COMMENT_DELETE);
+        COMMENT_DELETE(PermissionCheckConstant.COMMENT_DELETE),
+        /**
+         * Is admin
+         */
+        IS_ADMIN(PermissionCheckConstant.IS_ADMIN);
 
         DataAccessType(final String name) {
             this.name = name;

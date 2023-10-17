@@ -3,7 +3,8 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.log.SystemLog;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
-import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.OptsType;
@@ -72,11 +73,11 @@ public class SearchController {
                                              @NotBlank(message = ErrorInfoConstant.NO_DATA)
                                                      String keyword,
                                              @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 10)
-                                                         PageInfoDTO pageInfo,
+                                                     PageInfoDTO pageInfo,
                                              @RequestParam(required = false, value = "rangeFrom")
-                                                         Integer rangeFrom,
+                                                     Integer rangeFrom,
                                              @RequestParam(required = false, value = "rangeTo")
-                                                         Integer rangeTo) {
+                                                     Integer rangeTo) {
 
         SearchResultsDTO results = searchService.search(mode, keyword, pageInfo, rangeFrom, rangeTo);
         return ResultCreator.okResult(results);
@@ -90,14 +91,13 @@ public class SearchController {
      *             and tag data if {@link SearchMode#TAG}
      * @return true if deleted
      * @throws com.github.learndifferent.mtm.exception.ServiceException Only admin can delete all website data, and
-     *                                                                  if the current user is not admin,
-     *                                                                  {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
+     *                                                                  if the current user is not admin.
+     *                                                                  This will throw an exception with the result code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
     @DeleteMapping
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     @IdempotencyCheck
     public ResultVO<Boolean> deleteDataForSearch(@RequestParam("mode") SearchMode mode) {
         boolean isDeleted = searchService.checkAndDeleteIndexInElasticsearch(mode);

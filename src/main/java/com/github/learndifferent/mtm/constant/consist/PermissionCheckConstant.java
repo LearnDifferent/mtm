@@ -16,6 +16,7 @@ public final class PermissionCheckConstant {
     public static final String COMMENT_DELETE = "comment-delete-permission-check";
     public static final String TAG_CREATE = "tag-create-permission-check";
     public static final String TAG_DELETE = "tag-delete-permission-check";
+    public static final String IS_ADMIN = "is-admin-permission-check";
 
     private PermissionCheckConstant() {
     }

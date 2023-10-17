@@ -2,7 +2,8 @@ package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
-import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
@@ -198,13 +199,13 @@ public class BookmarkController {
      *
      * @param pageInfo Pagination information
      * @return visited bookmarks
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
+     *                                                                  code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the user is not admin
      */
     @GetMapping("/visited-bookmarks")
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public List<VisitedBookmarkVO> getVisitedBookmarks(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         return bookmarkService.getVisitedBookmarks(pageInfo);
