@@ -30,9 +30,9 @@ public class NotificationDTO implements Serializable {
                                                          String sender,
                                                          String message,
                                                          Instant creationTime,
-                                                         Integer commentId,
-                                                         Integer bookmarkId,
-                                                         Integer replyToCommentId) {
+                                                         Long commentId,
+                                                         Long bookmarkId,
+                                                         Long replyToCommentId) {
         return NotificationDTO.builder()
                 .id(id)
                 .notificationType(NotificationType.REPLY_NOTIFICATION)
@@ -108,7 +108,7 @@ public class NotificationDTO implements Serializable {
      * ID of the comment
      * <p>If the comment ID is null ,the comment doesn't exist</p>
      */
-    private Integer commentId;
+    private Long commentId;
 
     /**
      * ID of the bookmark
@@ -116,13 +116,13 @@ public class NotificationDTO implements Serializable {
      * <p>If the bookmark ID is not null and the message is null,
      * the user has no permission of the bookmark</p>
      */
-    private Integer bookmarkId;
+    private Long bookmarkId;
 
     /**
      * The ID of the comment being replied to
      * <p>Null if not replying to any comment, indicating it's a bookmark comment.</p>
      */
-    private Integer replyToCommentId;
+    private Long replyToCommentId;
 
     private static final long serialVersionUID = 1L;
 }

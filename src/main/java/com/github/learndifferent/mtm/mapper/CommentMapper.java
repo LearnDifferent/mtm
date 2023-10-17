@@ -28,19 +28,36 @@ public interface CommentMapper {
      * @param commentId ID of the comment
      * @return ID of the user who sent the comment
      */
-    Long getCommentSenderUserId(int commentId);
+    Long getCommentSenderUserId(long commentId);
 
     /**
-     * Check if a comment exists
+     * Check if a comment is present
      *
-     * @param comment    comment content
-     * @param bookmarkId ID of the bookmark
-     * @param username   username of the user who sent the comment
-     * @return true if a comment exists
+     * @param comment    comment
+     * @param bookmarkId bookmark ID
+     * @param userId     user ID
+     * @return true if the comment is present
      */
-    boolean checkIfCommentExists(@Param("comment") String comment,
-                                 @Param("bookmarkId") int bookmarkId,
-                                 @Param("username") String username);
+    boolean checkIfCommentPresent(@Param("comment") String comment,
+                                  @Param("bookmarkId") long bookmarkId,
+                                  @Param("userId") long userId);
+
+    /**
+     * Get user ID of the comment by comment ID
+     *
+     * @param id Comment ID
+     * @return If a comment exists, return the user ID of that comment.
+     * If the comment does not exist, return null.
+     */
+    Long getCommentUserIdByCommentId(long id);
+
+    /**
+     * Check if a comment is present by comment ID
+     *
+     * @param id Comment ID
+     * @return true if the comment is present
+     */
+    boolean checkIfCommentPresentById(@Param("id") long id);
 
     /**
      * Get the text of the comment
@@ -62,8 +79,8 @@ public interface CommentMapper {
      * @param isDesc           True if descending order
      * @return the comments
      */
-    List<CommentDO> getBookmarkComments(@Param("bookmarkId") Integer bookmarkId,
-                                        @Param("replyToCommentId") Integer replyToCommentId,
+    List<CommentDO> getBookmarkComments(@Param("bookmarkId") long bookmarkId,
+                                        @Param("replyToCommentId") Long replyToCommentId,
                                         @Param("load") Integer load,
                                         @Param("isDesc") Boolean isDesc);
 
@@ -82,7 +99,7 @@ public interface CommentMapper {
      * @param id ID of the comment
      * @return true if success
      */
-    boolean deleteCommentById(int id);
+    boolean deleteCommentById(long id);
 
     /**
      * Delete comments of the user
@@ -106,7 +123,7 @@ public interface CommentMapper {
      * @param comment comment
      * @return true if success
      */
-    boolean updateComment(@Param("id") int id, @Param("comment") String comment);
+    boolean updateComment(@Param("id") long id, @Param("comment") String comment);
 
     /**
      * Get the number of comments (exclude replies) of a bookmark

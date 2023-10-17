@@ -1,63 +1,41 @@
-package com.github.learndifferent.mtm.annotation.validation.user.create;
+package com.github.learndifferent.mtm.strategy.permission;
 
 import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
-import com.github.learndifferent.mtm.annotation.common.Password;
-import com.github.learndifferent.mtm.annotation.common.Username;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Password;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Username;
+import com.github.learndifferent.mtm.constant.consist.ConstraintConstant;
+import com.github.learndifferent.mtm.constant.consist.PermissionCheckConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.exception.ServiceException;
-import com.github.learndifferent.mtm.service.UserService;
+import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
-import com.github.learndifferent.mtm.vo.UserVO;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * Verify username and password.
- * If failed verification, throw an exception with one of these result codes according to the situation:
- * <li>{@link ResultCode#USER_ALREADY_EXIST}</li>
- * <li>{@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}</li>
- * <li>{@link ResultCode#USERNAME_TOO_LONG}</li>
- * <li>{@link ResultCode#USERNAME_EMPTY}</li>
- * <li>{@link ResultCode#PASSWORD_TOO_LONG}</li>
- * <li>{@link ResultCode#PASSWORD_EMPTY}</li>
+ * User creation check
  *
  * @author zhou
- * @date 2021/09/13
+ * @date 2023/10/17
  */
-@Aspect
-@Component
-public class UserCreationCheckAspect {
+@Component(PermissionCheckConstant.USER_CREATE)
+@RequiredArgsConstructor
+@Slf4j
+public class UserCreationCheckStrategy implements PermissionCheckStrategy {
 
-    private final UserService userService;
+    private final UserMapper userMapper;
 
-    @Autowired
-    public UserCreationCheckAspect(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Before("@annotation(annotation)")
-    public void check(JoinPoint jp, UserCreationCheck annotation) throws Throwable {
-
-        Object[] args = jp.getArgs();
-
-        MethodSignature signature = (MethodSignature) jp.getSignature();
-        Method method = signature.getMethod();
-        Annotation[][] annotations = method.getParameterAnnotations();
-
+    @Override
+    public void checkPermission(Annotation[][] parameterAnnotations, Object[] args) {
         String username = "";
         String password = "";
 
         AnnotationHelper helper = new AnnotationHelper(Username.class, Password.class);
 
-        for (int i = 0; i < annotations.length; i++) {
-            for (Annotation a : annotations[i]) {
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            for (Annotation a : parameterAnnotations[i]) {
                 if (helper.hasNotFoundAnnotation(Username.class)
                         && a instanceof Username
                         && args[i] != null
@@ -81,17 +59,19 @@ public class UserCreationCheckAspect {
             }
         }
 
+        helper.checkIfFoundAllRequiredAnnotations();
+
         checkUsernameAndPassword(username, password);
     }
 
     private void checkUsernameAndPassword(String username, String password) {
         checkIfEmpty(username, ResultCode.USERNAME_EMPTY);
         checkIfEmpty(password, ResultCode.PASSWORD_EMPTY);
-        checkIfTooLong(password, 50, ResultCode.PASSWORD_TOO_LONG);
-        checkIfTooLong(username, 30, ResultCode.USERNAME_TOO_LONG);
+        checkIfTooLong(password, ConstraintConstant.PASSWORD_MAX_LENGTH, ResultCode.PASSWORD_TOO_LONG);
+        checkIfTooLong(username, ConstraintConstant.USERNAME_MAX_LENGTH, ResultCode.USERNAME_TOO_LONG);
         checkIfPasswordTooShort(password);
         checkIfOnlyLetterNumber(username);
-        checkIfUsernameExist(username);
+        checkIfUsernameDuplicate(username);
     }
 
     private void checkIfEmpty(String str, ResultCode resultCode) {
@@ -105,7 +85,6 @@ public class UserCreationCheckAspect {
      * @param str        string
      * @param length     longest length
      * @param resultCode result code
-     * @throws ServiceException throw an exception if string is too long
      */
     private void checkIfTooLong(String str, int length, ResultCode resultCode) {
         boolean tooLong = str.length() > length;
@@ -113,8 +92,7 @@ public class UserCreationCheckAspect {
     }
 
     private void checkIfPasswordTooShort(String password) {
-        int length = 8;
-        boolean tooShort = password.length() < length;
+        boolean tooShort = password.length() < ConstraintConstant.PASSWORD_MIN_LENGTH;
         ThrowExceptionUtils.throwIfTrue(tooShort, ResultCode.PASSWORD_TOO_SHORT);
     }
 
@@ -122,8 +100,6 @@ public class UserCreationCheckAspect {
      * Check if string contains only letters and numbers
      *
      * @param str string
-     * @throws ServiceException if the string contains other characters,
-     *                          throw an exception with the result code of {@link ResultCode#USERNAME_ONLY_LETTERS_NUMBERS}
      */
     private void checkIfOnlyLetterNumber(String str) {
         String regex = "^[a-z0-9A-Z]+$";
@@ -132,14 +108,12 @@ public class UserCreationCheckAspect {
     }
 
     /**
-     * Check if username exists
+     * Check if username is duplicated
      *
      * @param username username
-     * @throws ServiceException if the username is already taken,
-     *                          throw an exception with the result code of {@link ResultCode#USER_ALREADY_EXIST}
      */
-    private void checkIfUsernameExist(String username) {
-        UserVO userHasThatName = userService.getUserByName(username);
-        ThrowExceptionUtils.throwIfNotNull(userHasThatName, ResultCode.USER_ALREADY_EXIST);
+    private void checkIfUsernameDuplicate(String username) {
+        boolean isPresent = userMapper.checkIfUsernamePresent(username);
+        ThrowExceptionUtils.throwIfTrue(isPresent, ResultCode.USER_ALREADY_EXIST);
     }
 }

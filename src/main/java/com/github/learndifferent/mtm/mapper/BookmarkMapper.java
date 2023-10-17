@@ -155,7 +155,7 @@ public interface BookmarkMapper {
      * @param id ID of the bookmark
      * @return true if success
      */
-    boolean deleteBookmarkById(Integer id);
+    boolean deleteBookmarkById(Long id);
 
     /**
      * Delete user's all bookmarks
@@ -186,7 +186,7 @@ public interface BookmarkMapper {
      * @param bookmarkId ID of the bookmark
      * @return user ID of the bookmark owner
      */
-    Long getBookmarkOwnerUserId(int bookmarkId);
+    Long getBookmarkOwnerUserId(long bookmarkId);
 
     /**
      * Get visited bookmarks
@@ -223,7 +223,7 @@ public interface BookmarkMapper {
      * @param id ID
      * @return bookmark
      */
-    BookmarkDO getBookmarkById(Integer id);
+    BookmarkDO getBookmarkById(long id);
 
     /**
      * Retrieve the bookmark by ID
@@ -243,4 +243,13 @@ public interface BookmarkMapper {
      */
     boolean checkIfBookmarkAvailable(@Param("bookmarkId") Integer bookmarkId,
                                      @Param("userId") Long userId);
+
+    /**
+     * Check if the user is the owner of the bookmark
+     *
+     * @param bookmarkId bookmark ID
+     * @param userId     user ID
+     * @return true if the user is the owner
+     */
+    boolean checkIfOwner(@Param("bookmarkId") Long bookmarkId, @Param("userId") Long userId);
 }

@@ -23,6 +23,6 @@
     <delete id="deleteViewData">
         delete
         from bookmark_view
-        where bookmark_id = #{bookmarkId,jdbcType=INTEGER};
+        where bookmark_id = #{bookmarkId};
     </delete>
 </mapper>

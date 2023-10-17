@@ -42,5 +42,5 @@ public interface BookmarkViewMapper {
      * @param bookmarkId ID
      * @return true if success
      */
-    boolean deleteViewData(int bookmarkId);
+    boolean deleteViewData(long bookmarkId);
 }

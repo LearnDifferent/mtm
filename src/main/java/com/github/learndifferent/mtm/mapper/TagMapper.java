@@ -25,13 +25,14 @@ public interface TagMapper {
     boolean addTag(TagDO tag);
 
     /**
-     * Get a specific tag by name of the tag and Bookmark ID
+     * Check if the tag exists
      *
-     * @param tagName    name of the tag
-     * @param bookmarkId ID of the bookmark that the tag applied to
-     * @return tag
+     * @param tag        tag
+     * @param bookmarkId Bookmark ID
+     * @return true if the tag exists
      */
-    TagDO getSpecificTagByTagTextAndBookmarkId(@Param("tagName") String tagName, @Param("bookmarkId") int bookmarkId);
+    boolean checkIfTagExists(@Param("tag") String tag,
+                             @Param("bookmarkId") long bookmarkId);
 
     /**
      * Get all tags
@@ -74,14 +75,14 @@ public interface TagMapper {
      * @param bookmarkId ID of the bookmark that the tag applied to
      * @return True if success. False if failure or the tag does not exist.
      */
-    boolean deleteTag(@Param("tagName") String tagName, @Param("bookmarkId") int bookmarkId);
+    boolean deleteTag(@Param("tagName") String tagName, @Param("bookmarkId") long bookmarkId);
 
     /**
      * Delete all tags of a bookmark
      *
      * @param bookmarkId ID of the bookmark
      */
-    void deleteAllTagsByBookmarkId(int bookmarkId);
+    void deleteAllTagsByBookmarkId(long bookmarkId);
 
     /**
      * Get all the tags and count the numbers of public bookmarks

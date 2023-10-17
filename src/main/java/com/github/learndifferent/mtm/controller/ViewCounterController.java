@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.controller;
 
-import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.ViewCounterService;
@@ -55,13 +56,13 @@ public class ViewCounterController {
      * or add the view data from database to Redis if the Redis has no view data
      *
      * @return Return a list of keys that failed to save
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
+     *                                                                  code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED} if the user is not admin
      */
     @GetMapping("/update")
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public ResultVO<List<String>> updateViews() {
         List<String> failKeys = viewCounterService.updateViewsAndReturnFailKeys();
         return ResultCreator.okResult(failKeys);

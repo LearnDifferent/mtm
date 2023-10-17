@@ -73,8 +73,8 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
 
     @Override
     public void sendNotification(NotificationDTO notification) {
-        Integer replyToCommentId = notification.getReplyToCommentId();
-        Integer bookmarkId = notification.getBookmarkId();
+        Long replyToCommentId = notification.getReplyToCommentId();
+        Long bookmarkId = notification.getBookmarkId();
 
         // the notification belongs to the owner of the bookmark data if replyToCommentId is null,
         // and belongs to the owner of the comment data if it's not null

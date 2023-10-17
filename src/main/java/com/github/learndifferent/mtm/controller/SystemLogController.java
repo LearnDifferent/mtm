@@ -1,7 +1,8 @@
 package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
-import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
@@ -35,13 +36,13 @@ public class SystemLogController {
      *
      * @param pageInfo pagination information
      * @return system logs
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
+     *                                                                  code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED}
      *                                                                  if the user is not admin
      */
     @GetMapping("/logs")
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public ResultVO<List<SysLog>> getSystemLogs(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 
@@ -54,13 +55,13 @@ public class SystemLogController {
      *
      * @param pageInfo pagination information
      * @return system logs
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED}
      *                                                                  if the user is not admin
      */
     @GetMapping("/logs/no-cache")
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public ResultVO<List<SysLog>> getSystemLogsFromDatabaseDirectly(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
 

@@ -2,12 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.github.learndifferent.mtm.mapper.CommentMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.CommentDO">
-        <id column="id" jdbcType="INTEGER" property="id"/>
+        <id column="id" jdbcType="BIGINT" property="id"/>
         <result column="comment" jdbcType="VARCHAR" property="comment"/>
-        <result column="bookmark_id" jdbcType="INTEGER" property="bookmarkId"/>
+        <result column="bookmark_id" jdbcType="BIGINT" property="bookmarkId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
         <result column="creation_time" jdbcType="TIMESTAMP" property="creationTime"/>
-        <result column="reply_to_comment_id" jdbcType="INTEGER" property="replyToCommentId"/>
+        <result column="reply_to_comment_id" jdbcType="BIGINT" property="replyToCommentId"/>
     </resultMap>
 
     <select id="getCommentById" resultMap="BaseResultMap">
@@ -15,25 +16,28 @@
                comment,
                bookmark_id,
                username,
+               user_id,
                creation_time,
                if(reply_to_comment_id = -1, null, reply_to_comment_id) as reply_to_comment_id
         from comment
-        where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+        where id = #{id}
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getCommentSenderName" resultType="java.lang.String">
         select username
         from comment
-        where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+        where id = #{id}
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getCommentSenderUserId" resultType="java.lang.Long">
         select u.id
         from comment c
                  left join user u on c.username = u.user_name
-        where c.id = #{commentId,jdbcType=INTEGER}
+        where c.id = #{commentId}
           and c.is_deleted = 0
         limit 1;
     </select>
@@ -41,8 +45,9 @@
     <select id="getCommentTextById" resultType="java.lang.String">
         select `comment`
         from comment
-        where id = #{id,jdbcType=INTEGER}
-          and is_deleted = 0 limit 1;
+        where id = #{id}
+          and is_deleted = 0
+        limit 1;
     </select>
 
     <select id="getBookmarkComments" resultMap="BaseResultMap">
@@ -50,10 +55,8 @@
         reply_to_comment_id) as reply_to_comment_id
         from comment
         <where>
-            <if test="bookmarkId != null">
-                bookmark_id = #{bookmarkId,jdbcType=INTEGER} and
-            </if>
-            reply_to_comment_id = ifnull(#{replyToCommentId}, -1)
+            bookmark_id = #{bookmarkId}
+            and reply_to_comment_id = ifnull(#{replyToCommentId}, -1)
             and is_deleted = 0
         </where>
         order by `creation_time`
@@ -65,12 +68,26 @@
         </if>;
     </select>
 
-    <select id="checkIfCommentExists" resultType="java.lang.Boolean">
+    <select id="checkIfCommentPresent" resultType="java.lang.Boolean">
         select exists(select null
                       from comment
                       where comment = #{comment}
-                        and username = #{username}
+                        and user_id = #{username}
                         and bookmark_id = #{bookmarkId}
+                        and is_deleted = 0)
+    </select>
+
+    <select id="getCommentUserIdByCommentId" resultType="java.lang.Long">
+        select user_id
+        from comment
+        where id = #{id}
+          and is_deleted = 0
+    </select>
+
+    <select id="checkIfCommentPresentById" resultType="java.lang.Boolean">
+        select exists(select null
+                      from comment
+                      where id = #{id}
                         and is_deleted = 0)
     </select>
 
@@ -84,7 +101,7 @@
     <update id="deleteCommentById" parameterType="java.lang.Integer">
         update comment
         set is_deleted = 1
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id}
     </update>
 
     <update id="deleteCommentsByUsername">
@@ -96,14 +113,14 @@
     <insert id="addComment" keyColumn="id" keyProperty="id" useGeneratedKeys="true"
             parameterType="com.github.learndifferent.mtm.entity.CommentDO">
         insert into comment (`comment`, bookmark_id, `username`, creation_time, `reply_to_comment_id`)
-        values (#{comment,jdbcType=VARCHAR}, #{bookmarkId,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR},
+        values (#{comment,jdbcType=VARCHAR}, #{bookmarkId}, #{username,jdbcType=VARCHAR},
                 #{creationTime,jdbcType=TIMESTAMP}, ifnull(#{replyToCommentId}, -1))
     </insert>
 
     <update id="updateComment">
         update comment
         set comment = #{comment,jdbcType=VARCHAR}
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id}
     </update>
 
     <select id="countCommentByBookmarkId" resultType="java.lang.Integer">
