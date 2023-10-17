@@ -1,5 +1,7 @@
 package com.github.learndifferent.mtm.annotation.common;
 
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -22,6 +24,7 @@ public class AnnotationHelper {
 
     @SafeVarargs
     public AnnotationHelper(Class<? extends Annotation>... requiredAnnotations) {
+        log.info("Finding annotations: " + Arrays.toString(requiredAnnotations));
         this.requiredAnnotations = Arrays.stream(requiredAnnotations).collect(Collectors.toSet());
         this.foundAnnotations = new HashSet<>();
     }
@@ -34,6 +37,7 @@ public class AnnotationHelper {
     public void findAnnotation(Class<? extends Annotation> annotation) {
         if (requiredAnnotations.contains(annotation)) {
             foundAnnotations.add(annotation);
+            log.info("Found annotation: " + annotation.getSimpleName());
         } else {
             log.warn("Annotation not required: " + annotation.getSimpleName());
         }
@@ -63,7 +67,22 @@ public class AnnotationHelper {
      * @return true if all required annotations have been found
      */
     public boolean hasFoundAllRequiredAnnotations() {
-        return foundAnnotations.containsAll(requiredAnnotations);
+        boolean hasFoundAll = foundAnnotations.containsAll(requiredAnnotations);
+        if (hasFoundAll) {
+            log.info("All required annotations have been found.");
+        }
+        return hasFoundAll;
     }
 
+    public void checkIfFoundAllRequiredAnnotations() {
+        if (!hasFoundAllRequiredAnnotations()) {
+            requiredAnnotations.removeAll(foundAnnotations);
+
+            StringBuilder sb = new StringBuilder("Missing required annotations: ");
+            requiredAnnotations.forEach(a -> sb.append(a.getSimpleName()).append(", "));
+            log.warn(sb.toString());
+
+            throw new ServiceException(ResultCode.MISSING_REQUIRED_ANNOTATIONS);
+        }
+    }
 }

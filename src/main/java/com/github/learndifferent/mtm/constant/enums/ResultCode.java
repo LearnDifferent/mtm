@@ -181,6 +181,10 @@ public enum ResultCode {
     TAG_TOO_SHORT(3025, "Tag should not be shorter than "
             + ConstraintConstant.TAG_MIN_LENGTH + " character"),
     /**
+     * Missing required annotations
+     */
+    MISSING_REQUIRED_ANNOTATIONS(3026, "Missing required annotations"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),

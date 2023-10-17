@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.strategy.permission;
 
-import com.github.learndifferent.mtm.query.PermissionCheckRequest;
+import java.lang.annotation.Annotation;
 
 /**
  * Data access permission check strategy
@@ -13,7 +13,8 @@ public interface PermissionCheckStrategy {
     /**
      * Check data access permission
      *
-     * @param permissionCheckRequest permission check request
+     * @param parameterAnnotations parameter annotations
+     * @param args                 args
      */
-    void checkPermission(PermissionCheckRequest permissionCheckRequest);
+    void checkPermission(Annotation[][] parameterAnnotations, Object[] args);
 }
