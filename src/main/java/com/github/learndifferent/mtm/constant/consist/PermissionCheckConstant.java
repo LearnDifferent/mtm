@@ -17,6 +17,7 @@ public final class PermissionCheckConstant {
     public static final String TAG_CREATE = "tag-create-permission-check";
     public static final String TAG_DELETE = "tag-delete-permission-check";
     public static final String IS_ADMIN = "is-admin-permission-check";
+    public static final String IS_NOT_GUEST = "is-not-guest-permission-check";
 
     private PermissionCheckConstant() {
     }

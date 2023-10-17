@@ -6,7 +6,6 @@ import com.github.learndifferent.mtm.annotation.general.notification.SystemNotif
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
-import com.github.learndifferent.mtm.annotation.validation.user.role.guest.NotGuest;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
@@ -116,7 +115,7 @@ public class UserController {
      * @param userName The username of the user to be deleted
      * @param password The password that the user entered
      * @return The result code will be {@link ResultCode#SUCCESS} if success and {@link ResultCode#USER_NOT_EXIST} if failure
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link NotGuest} annotation will throw an
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an
      *                                                                  exception with the result code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED}
      *                                                                  if the user role is 'guest' for the reason
@@ -137,7 +136,7 @@ public class UserController {
      *                                                                  </p>
      */
     @DeleteMapping
-    @NotGuest
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_NOT_GUEST)
     @IdempotencyCheck
     public ResultVO<ResultCode> deleteUser(@RequestParam("userName") String userName,
                                            @RequestParam("password") String password) {
@@ -220,10 +219,10 @@ public class UserController {
      * @return {@link ResultVO} with the result code of {@link ResultCode#PASSWORD_CHANGED} or {@link ResultCode#UPDATE_FAILED}
      * @throws com.github.learndifferent.mtm.exception.ServiceException an exception with the result code of
      *                                                                  {@link ResultCode#PERMISSION_DENIED} will be
-     *                                                                  thrown by the {@link NotGuest} annotation
+     *                                                                  thrown by the this method
      *                                                                  if the user is guest
      */
-    @NotGuest
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_NOT_GUEST)
     @PostMapping("/change-password")
     @IdempotencyCheck
     public ResultVO<ResultCode> changePassword(@RequestBody @Validated ChangePasswordRequest passwordInfo) {

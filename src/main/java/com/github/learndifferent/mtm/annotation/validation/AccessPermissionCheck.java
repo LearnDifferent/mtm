@@ -63,6 +63,10 @@ public @interface AccessPermissionCheck {
          */
         COMMENT_DELETE(PermissionCheckConstant.COMMENT_DELETE),
         /**
+         * Not guest
+         */
+        IS_NOT_GUEST(PermissionCheckConstant.IS_NOT_GUEST),
+        /**
          * Is admin
          */
         IS_ADMIN(PermissionCheckConstant.IS_ADMIN);
