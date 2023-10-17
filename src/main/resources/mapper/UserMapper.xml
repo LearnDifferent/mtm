@@ -163,4 +163,8 @@
         </set>
         where id = #{id};
     </update>
+
+    <select id="checkIfUsernamePresent" resultType="java.lang.Boolean">
+        select exists(select null from user where user_name = #{username})
+    </select>
 </mapper>

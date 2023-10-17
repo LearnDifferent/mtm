@@ -9,7 +9,7 @@ package com.github.learndifferent.mtm.constant.consist;
 public final class PermissionCheckConstant {
 
     public static final String BOOKMARK = "bookmark-permission-check";
-    public static final String COMMENT = "comment-permission-check";
+    public static final String USER_CREATE = "user-create-permission-check";
     public static final String COMMENT_CREATE = "comment-create-permission-check";
     public static final String COMMENT_READ = "comment-read-permission-check";
     public static final String COMMENT_UPDATE = "comment-update-permission-check";

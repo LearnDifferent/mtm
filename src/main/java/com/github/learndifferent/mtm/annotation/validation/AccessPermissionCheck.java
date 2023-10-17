@@ -35,6 +35,10 @@ public @interface AccessPermissionCheck {
          */
         BOOKMARK(PermissionCheckConstant.BOOKMARK),
         /**
+         * Create user
+         */
+        USER_CREATE(PermissionCheckConstant.USER_CREATE),
+        /**
          * Create tag
          */
         TAG_CREATE(PermissionCheckConstant.TAG_CREATE),
@@ -123,4 +127,20 @@ public @interface AccessPermissionCheck {
      * @date 2023/10/16
      */
     @interface ReplyToCommentId {}
+
+    /**
+     * Username
+     *
+     * @author zhou
+     * @date 2023/10/17
+     */
+    @interface Username {}
+
+    /**
+     * Password
+     *
+     * @author zhou
+     * @date 2023/10/17
+     */
+    @interface Password {}
 }
