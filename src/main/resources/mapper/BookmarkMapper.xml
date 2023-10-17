@@ -323,7 +323,7 @@
                    )
     </select>
 
-    <select id="checkModificationPermission" resultType="java.lang.Boolean">
+    <select id="checkIfOwner" resultType="java.lang.Boolean">
         select exists(
                        select null
                        from bookmark
