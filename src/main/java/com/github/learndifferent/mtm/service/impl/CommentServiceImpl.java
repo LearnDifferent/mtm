@@ -1,13 +1,12 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
-import com.github.learndifferent.mtm.annotation.common.Comment;
-import com.github.learndifferent.mtm.annotation.common.CommentId;
-import com.github.learndifferent.mtm.annotation.common.ReplyToCommentId;
-import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck;
-import com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck;
-import com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Comment;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CommentId;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.CommentHistoryDTO;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommentServiceImpl implements CommentService {
 
     private final CommentMapper commentMapper;
@@ -51,10 +52,11 @@ public class CommentServiceImpl implements CommentService {
     private final NotificationManager notificationManager;
 
     @Override
-    @GetCommentsCheck
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_READ)
     public CommentVO getCommentByIds(Integer id,
-                                     @BookmarkId Integer bookmarkId,
-                                     @Username String username) {
+                                     @BookmarkId long bookmarkId,
+                                     @UserId long userId) {
+        log.info("Get comment. Comment ID: {}, User ID: {}, Bookmark ID: {}", id, userId, bookmarkId);
         return Optional.ofNullable(id)
                 // get the comment VO if comment ID is not null
                 .map(this::getCommentByCommentIdAndBookmarkIdAndReturnCommentVO)
@@ -71,11 +73,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @GetCommentsCheck
-    public List<BookmarkCommentVO> getBookmarkComments(@BookmarkId Integer bookmarkId,
-                                                       Integer replyToCommentId,
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_READ)
+    public List<BookmarkCommentVO> getBookmarkComments(@BookmarkId long bookmarkId,
+                                                       Long replyToCommentId,
                                                        Integer load,
-                                                       @Username String username,
+                                                       @UserId long userId,
                                                        Order order) {
         return commentMapper
                 .getBookmarkComments(bookmarkId, replyToCommentId, load, order.isDesc())
@@ -114,21 +116,21 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @ModifyCommentCheck
-    public boolean deleteCommentById(@CommentId Integer id, @Username String username) {
-        // commentId will not be null after checking by @ModifyCommentCheck
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_DELETE)
+    public boolean deleteCommentById(@CommentId long id, @UserId long userId) {
         return commentMapper.deleteCommentById(id);
     }
 
     @Override
-    @AddCommentCheck
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_CREATE)
     public boolean addCommentAndSendNotification(@Comment String comment,
-                                                 @BookmarkId Integer bookmarkId,
-                                                 @Username String username,
-                                                 @ReplyToCommentId Integer replyToCommentId) {
-        // bookmarkId will not be null after checking by @AddCommentCheck
+                                                 @BookmarkId long bookmarkId,
+                                                 @UserId long userId,
+                                                 @ReplyToCommentId Long replyToCommentId) {
         CommentDO commentDO = CommentDO.builder()
-                .comment(comment).bookmarkId(bookmarkId).username(username)
+                .comment(comment)
+                .bookmarkId(bookmarkId)
+                .userId(userId)
                 .replyToCommentId(replyToCommentId)
                 .creationTime(Instant.now())
                 .build();
@@ -144,7 +146,7 @@ public class CommentServiceImpl implements CommentService {
 
     private void recordHistoryAndSendNotification(CommentDO commentDO) {
         // add history
-        Integer commentId = commentDO.getId();
+        Long commentId = commentDO.getId();
         String comment = commentDO.getComment();
         Instant creationTime = commentDO.getCreationTime();
         CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment, creationTime);
@@ -155,26 +157,26 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public boolean editComment(UpdateCommentRequest commentInfo, String username) {
-        Integer id = commentInfo.getId();
+    public boolean editComment(UpdateCommentRequest commentInfo, long userId) {
+        long id = commentInfo.getId();
         String comment = commentInfo.getComment();
-        Integer bookmarkId = commentInfo.getBookmarkId();
+        long bookmarkId = commentInfo.getBookmarkId();
 
         CommentServiceImpl commentServiceImpl =
                 ApplicationContextUtils.getBean(CommentServiceImpl.class);
-        return commentServiceImpl.editComment(id, comment, username, bookmarkId);
+        return commentServiceImpl.editComment(id, comment, userId, bookmarkId);
     }
 
-    @AddCommentCheck
-    @ModifyCommentCheck
+    @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_UPDATE)
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean editComment(@CommentId Integer id,
+    public boolean editComment(@CommentId Long id,
                                @Comment String comment,
-                               @Username String username,
-                               @BookmarkId Integer bookmarkId) {
-        // id will not be null after checking by @ModifyCommentCheck
+                               @UserId Long userId,
+                               @BookmarkId Long bookmarkId) {
+        log.info("Editing comment {}. New Comment: {}, User ID: {}, Bookmark ID: {}", id, comment, userId, bookmarkId);
         boolean success = commentMapper.updateComment(id, comment);
         if (success) {
+            log.info("Edited comment {}. Comment: {}, User ID: {}, Bookmark ID: {}", id, comment, userId, bookmarkId);
             CommentHistoryDTO history = CommentHistoryDTO.of(id, comment);
             addHistory(history);
         }

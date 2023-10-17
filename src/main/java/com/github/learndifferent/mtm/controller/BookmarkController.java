@@ -2,7 +2,8 @@ package com.github.learndifferent.mtm.controller;
 
 import com.github.learndifferent.mtm.annotation.general.idempotency.IdempotencyCheck;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
-import com.github.learndifferent.mtm.annotation.validation.user.role.admin.AdminValidation;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
@@ -105,7 +106,7 @@ public class BookmarkController {
      *
      * @param id ID of the bookmark
      * @return {@link ResultCode#DELETE_SUCCESS} if success. {@link ResultCode#DELETE_FAILED}
-     * @throws ServiceException {@link BookmarkService#deleteBookmark(Integer, String)} will throw
+     * @throws ServiceException {@link BookmarkService#deleteBookmark(long, long)} will throw
      *                          an exception if the user currently logged in does not have permission to delete,
      *                          the result code will be {@link ResultCode#PERMISSION_DENIED}
      */
@@ -114,9 +115,9 @@ public class BookmarkController {
     public ResultVO<ResultCode> deleteBookmark(@RequestParam("id")
                                                @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                       Integer id) {
-        String currentUsername = getCurrentUsername();
-        boolean success = bookmarkService.deleteBookmark(id, currentUsername);
+                                                       Long id) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = bookmarkService.deleteBookmark(id, currentUserId);
         return success ? ResultCreator.result(ResultCode.DELETE_SUCCESS)
                 : ResultCreator.result(ResultCode.DELETE_FAILED);
     }
@@ -127,7 +128,7 @@ public class BookmarkController {
      *
      * @param id ID of the bookmark
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#UPDATE_FAILED} if failure.
-     * @throws ServiceException {@link BookmarkService#changePrivacySettings(Integer, String)}
+     * @throws ServiceException {@link BookmarkService#changePrivacySettings(long, long)}
      *                          will throw an exception with {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                          if the bookmark does not exist and with {@link ResultCode#PERMISSION_DENIED}
      *                          if the user currently logged in has no permission to change the bookmark privacy
@@ -138,9 +139,9 @@ public class BookmarkController {
     public ResultVO<ResultCode> changePrivacySettings(@RequestParam("id")
                                                       @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                       @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                              Integer id) {
-        String currentUsername = getCurrentUsername();
-        boolean success = bookmarkService.changePrivacySettings(id, currentUsername);
+                                                              Long id) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = bookmarkService.changePrivacySettings(id, currentUserId);
         return success ? ResultCreator.okResult() : ResultCreator.result(ResultCode.UPDATE_FAILED);
     }
 
@@ -198,19 +199,15 @@ public class BookmarkController {
      *
      * @param pageInfo Pagination information
      * @return visited bookmarks
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link AdminValidation} annotation
-     *                                                                  will throw an exception with the result code of
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an exception with the result
+     *                                                                  code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the user is not admin
      */
     @GetMapping("/visited-bookmarks")
-    @AdminValidation
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public List<VisitedBookmarkVO> getVisitedBookmarks(
             @PageInfo(size = 20, paramName = PageInfoParam.CURRENT_PAGE) PageInfoDTO pageInfo) {
         return bookmarkService.getVisitedBookmarks(pageInfo);
-    }
-
-    private String getCurrentUsername() {
-        return LoginUtils.getCurrentUsername();
     }
 }

@@ -9,12 +9,13 @@
         insert into tag (tag, bookmark_id)
         values (#{tag,jdbcType=VARCHAR}, #{bookmarkId,jdbcType=INTEGER})
     </insert>
-    <select id="getSpecificTagByTagTextAndBookmarkId" resultType="com.github.learndifferent.mtm.entity.TagDO">
-        select tag, bookmark_id
-        from tag
-        where tag = #{tagName,jdbcType=VARCHAR}
-          and bookmark_id = #{bookmarkId,jdbcType=INTEGER}
-        limit 1;
+    <select id="checkIfTagExists" resultType="java.lang.Boolean">
+        select exists(
+                       select null
+                       from tag
+                       where tag = #{tag}
+                         and bookmark_id = #{bookmarkId}
+                   )
     </select>
     <select id="getAllTags" resultType="java.lang.String">
         select distinct tag
@@ -37,12 +38,12 @@
         delete
         from tag
         where tag = #{tagName,jdbcType=VARCHAR}
-          and bookmark_id = #{bookmarkId,jdbcType=INTEGER};
+          and bookmark_id = #{bookmarkId};
     </update>
     <update id="deleteAllTagsByBookmarkId">
         delete
         from tag
-        where bookmark_id = #{bookmarkId,jdbcType=INTEGER};
+        where bookmark_id = #{bookmarkId};
     </update>
     <select id="getAllTagsAndCountOfPublicBookmarks" resultType="com.github.learndifferent.mtm.entity.TagAndCountDO">
         select tag, count(bookmark_id) number

@@ -3,10 +3,11 @@ package com.github.learndifferent.mtm.service.impl;
 import static com.github.learndifferent.mtm.constant.enums.AddDataMode.ADD_TO_DATABASE_AND_ELASTICSEARCH;
 import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
-import com.github.learndifferent.mtm.annotation.common.Username;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
@@ -38,7 +39,6 @@ import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.strategy.timeline.HomeTimelineStrategyContext;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.BeanUtils;
-import com.github.learndifferent.mtm.utils.CustomStringUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -63,7 +63,6 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -209,9 +208,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @ModifyBookmarkPermissionCheck
-    public boolean deleteBookmark(@BookmarkId Integer id, @Username String userName) {
-        // ID will not be null after checking by @ModifyBookmarkPermissionCheck
+    @AccessPermissionCheck(dataAccessType = DataAccessType.BOOKMARK)
+    public boolean deleteBookmark(@BookmarkId long id, @UserId long userId) {
         boolean success = bookmarkMapper.deleteBookmarkById(id);
         if (success) {
             // delete views
@@ -223,15 +221,20 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    @ModifyBookmarkPermissionCheck
-    public boolean changePrivacySettings(@BookmarkId Integer id, @Username String userName) {
-        // ID will not be null after checking by @ModifyBookmarkPermissionCheck
+    @AccessPermissionCheck(dataAccessType = DataAccessType.BOOKMARK)
+    public boolean changePrivacySettings(@BookmarkId long id, @UserId long userId) {
+        log.info("Changing privacy settings: id = {}, userId = {}", id, userId);
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        boolean newPrivacy = !bookmark.getIsPublic();
-        BookmarkDO webWithNewPrivacy = bookmark.setIsPublic(newPrivacy);
-        return bookmarkMapper.updateBookmark(webWithNewPrivacy);
+        boolean previousPublicStatus = bookmark.getIsPublic();
+        log.info("Previous public status: {}, bookmark: {}", previousPublicStatus, bookmark);
+
+        boolean currentPublicStatus = !previousPublicStatus;
+        BookmarkDO bookmarkWithUpdatedPublicStatus = bookmark.setIsPublic(currentPublicStatus);
+        log.info("Current public status: {}, bookmark: {}", currentPublicStatus, bookmarkWithUpdatedPublicStatus);
+
+        return bookmarkMapper.updateBookmark(bookmarkWithUpdatedPublicStatus);
     }
 
     @Override
@@ -252,23 +255,6 @@ public class BookmarkServiceImpl implements BookmarkService {
         ThrowExceptionUtils.throwIfTrue(noPermission, ResultCode.PERMISSION_DENIED);
 
         return bookmark;
-    }
-
-    @Override
-    public void checkBookmarkExistsAndUserPermission(int id, String username) {
-        // username cannot be empty
-        ThrowExceptionUtils.throwIfTrue(StringUtils.isBlank(username), ResultCode.PERMISSION_DENIED);
-
-        BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(id);
-        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
-
-        Boolean isPublic = bookmark.getIsPublic();
-        boolean isPrivate = Boolean.FALSE.equals(isPublic);
-
-        String owner = bookmark.getUserName();
-
-        boolean hasNoPermission = isPrivate && CustomStringUtils.notEqualsIgnoreCase(username, owner);
-        ThrowExceptionUtils.throwIfTrue(hasNoPermission, ResultCode.PERMISSION_DENIED);
     }
 
     @Override

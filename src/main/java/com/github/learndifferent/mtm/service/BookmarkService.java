@@ -1,6 +1,6 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
@@ -130,31 +130,30 @@ public interface BookmarkService {
     /**
      * Delete a bookmarked website and its associated data
      *
-     * @param id       ID of the bookmark
-     * @param userName username of the user who is deleting the bookmark
+     * @param id     ID of the bookmark
+     * @param userId user ID of the user who is deleting the bookmark
      * @return true if success
-     * @throws ServiceException {@link ModifyBookmarkPermissionCheck
-     *                          ModifyBookmarkPermissionCheck} annotation will check the permissions and throw
-     *                          an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
+     * @throws ServiceException {@link AccessPermissionCheck
+     *                          AccessPermissionCheck} annotation will check the permissions and throw
+     *                          an exception with the result code of {@link ResultCode#PERMISSION_DENIED}
      *                          if there is no permissions
      */
-    boolean deleteBookmark(Integer id, String userName);
+    boolean deleteBookmark(long id, long userId);
 
     /**
-     * Make the bookmarked website private if it's public
-     * and make it public if it's private.
+     * Make the bookmark private if it's public and make it public if it's private.
      *
-     * @param id       ID of the bookmark
-     * @param userName name of user who trying to change the privacy settings
+     * @param id     ID of the bookmark
+     * @param userId ID of the user who trying to change the privacy settings
      * @return success or failure
      * @throws ServiceException If the bookmark does not exist, the result code will be
      *                          {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}.
-     *                          And {@link ModifyBookmarkPermissionCheck
-     *                          ModifyBookmarkPermissionCheck} annotation
+     *                          And {@link AccessPermissionCheck
+     *                          AccessPermissionCheck} annotation
      *                          will throw exception with {@link ResultCode#PERMISSION_DENIED}
      *                          if the user has no permission to change the bookmark privacy settings.
      */
-    boolean changePrivacySettings(Integer id, String userName);
+    boolean changePrivacySettings(long id, long userId);
 
     /**
      * Get a bookmark
@@ -169,17 +168,6 @@ public interface BookmarkService {
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
     BookmarkVO getBookmark(int id, long userId);
-
-    /**
-     * Check if the bookmark exists and if the user has permission to access it
-     *
-     * @param id       ID of the bookmark
-     * @param username username of the user who is trying to access the bookmark
-     * @throws ServiceException throw an exception with the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
-     *                          if the bookmark dose not exist, or {@link ResultCode#PERMISSION_DENIED}
-     *                          if the user has no permission
-     */
-    void checkBookmarkExistsAndUserPermission(int id, String username);
 
     /**
      * Export user's bookmarks to HTML file.

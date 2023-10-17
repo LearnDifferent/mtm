@@ -1,10 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.annotation.common.BookmarkId;
-import com.github.learndifferent.mtm.annotation.common.Tag;
-import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.validation.tag.TagCheck;
-import com.github.learndifferent.mtm.annotation.validation.website.permission.ModifyBookmarkPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Tag;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.PopularTagDTO;
@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CachePut;
@@ -41,6 +42,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TagServiceImpl implements TagService {
 
     private final TagMapper tagMapper;
@@ -48,10 +50,9 @@ public class TagServiceImpl implements TagService {
     private final BookmarkMapper bookmarkMapper;
 
     @Override
-    @ModifyBookmarkPermissionCheck
-    @TagCheck
+    @AccessPermissionCheck(dataAccessType = DataAccessType.TAG_CREATE)
     @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
-    public String applyTag(@Username String username, @BookmarkId Integer bookmarkId, @Tag String tagName) {
+    public String applyTag(@UserId long userId, @BookmarkId long bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
         TagDO tagDO = TagDO.builder().tag(tag).bookmarkId(bookmarkId).build();
         try {
@@ -145,10 +146,10 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    @ModifyBookmarkPermissionCheck
-    public boolean deleteTag(@Username String username, @BookmarkId Integer bookmarkId, String tagName) {
-        // Bookmark ID will not be null after checking by @ModifyBookmarkPermissionCheck.
-        // This will delete the tag (prefix of the key is "tag:a") of the bookmarked site
+    @AccessPermissionCheck(dataAccessType = DataAccessType.TAG_DELETE)
+    public boolean deleteTag(@UserId long userId, @BookmarkId long bookmarkId, String tagName) {
+        log.info("Delete tag: {}, User ID: {}, Bookmark ID: {}", tagName, userId, bookmarkId);
+        // This will delete the tag (prefix of the key is "tag:a") of the bookmark
         // stored in the cache if no exception is thrown.
         return deleteTagManager.deleteTag(tagName, bookmarkId);
     }

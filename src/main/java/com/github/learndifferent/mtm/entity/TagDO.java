@@ -28,7 +28,7 @@ public class TagDO implements Serializable {
     /**
      * ID of the bookmark that tag applied to
      */
-    private Integer bookmarkId;
+    private Long bookmarkId;
 
     private static final long serialVersionUID = 1L;
 }

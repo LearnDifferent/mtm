@@ -50,8 +50,8 @@ class CommentControllerTest {
          */
         private final int ID = 100;
         private final CommentVO COMMENT = new CommentVO().setId(ID);
-        private final Integer BOOKMARK_ID = 1;
-        private final String USER_NAME = "user1";
+        private final long BOOKMARK_ID = 1L;
+        private final long USER_NAME = 1L;
 
         @BeforeEach
         void setUp() {

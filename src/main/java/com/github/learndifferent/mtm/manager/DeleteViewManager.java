@@ -30,7 +30,7 @@ public class DeleteViewManager {
      *
      * @param id ID of the bookmark
      */
-    public void deleteBookmarkView(int id) {
+    public void deleteBookmarkView(long id) {
         boolean success = bookmarkViewMapper.deleteViewData(id);
         if (success) {
             // remove from Redis

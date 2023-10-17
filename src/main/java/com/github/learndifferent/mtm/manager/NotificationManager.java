@@ -50,9 +50,9 @@ public class NotificationManager {
     }
 
     public void sendReplyNotification(CommentDO comment) {
-        Integer commentId = comment.getId();
-        Integer bookmarkId = comment.getBookmarkId();
-        Integer replyToCommentId = comment.getReplyToCommentId();
+        Long commentId = comment.getId();
+        Long bookmarkId = comment.getBookmarkId();
+        Long replyToCommentId = comment.getReplyToCommentId();
         String commentMessage = comment.getComment();
 
         String sendUsername = comment.getUsername();

@@ -55,7 +55,7 @@ public class CommentController {
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the
      *                                                                  comments, {@link CommentService#getCommentByIds(Integer,
-     *                                                                  Integer, String)} will throw an exception with
+     *                                                                  long, long)} will throw an exception with
      *                                                                  the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
@@ -64,9 +64,9 @@ public class CommentController {
                                                @RequestParam("bookmarkId")
                                                @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                       Integer bookmarkId) {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        CommentVO comment = commentService.getCommentByIds(id, bookmarkId, currentUsername);
+                                                       Long bookmarkId) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        CommentVO comment = commentService.getCommentByIds(id, bookmarkId, currentUserId);
         return comment != null ? ResultCreator.okResult(comment) : ResultCreator.failResult();
     }
 
@@ -84,24 +84,24 @@ public class CommentController {
      * or an empty list with {@link ResultCode#NO_RESULTS_FOUND} if there is no comments of the bookmark
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the
-     *                                                                  comments, {@link CommentService#getBookmarkComments(Integer,
-     *                                                                  Integer, Integer, String, Order)}
+     *                                                                  comments, {@link CommentService#getBookmarkComments(long,
+     *                                                                  Long, Integer, long, Order)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @GetMapping("/bookmark")
     public ResultVO<List<BookmarkCommentVO>> getComments(@RequestParam("id")
-                                                         @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                         @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                                 Integer bookmarkId,
+                                                             @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                             @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                                     Long bookmarkId,
                                                          @RequestParam(value = "replyToCommentId", required = false)
-                                                                 Integer replyToCommentId,
+                                                                     Long replyToCommentId,
                                                          @RequestParam("load") Integer load,
                                                          @RequestParam("order") Order order) {
-        String currentUsername = LoginUtils.getCurrentUsername();
+        long currentUserId = LoginUtils.getCurrentUserId();
         List<BookmarkCommentVO> comments = commentService.getBookmarkComments(
-                bookmarkId, replyToCommentId, load, currentUsername, order);
+                bookmarkId, replyToCommentId, load, currentUserId, order);
 
         ResultCode code = CollectionUtils.isEmpty(comments) ? ResultCode.NO_RESULTS_FOUND
                 : ResultCode.SUCCESS;
@@ -134,7 +134,7 @@ public class CommentController {
      *                         </p>
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addCommentAndSendNotification(String,
-     *                                                                  Integer, String, Integer)} will throw an
+     *                                                                  long, long, Long)} will throw an
      *                                                                  exception with the result code of {@link
      *                                                                  ResultCode#PERMISSION_DENIED}
      *                                                                  if the user has no permissions to comment on
@@ -174,12 +174,13 @@ public class CommentController {
                                               @RequestParam("bookmarkId")
                                               @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                               @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                      Integer bookmarkId,
+                                                      Long bookmarkId,
                                               @RequestParam(value = "replyToCommentId",
-                                                            required = false) Integer replyToCommentId) {
-        String currentUsername = LoginUtils.getCurrentUsername();
+                                                            required = false)
+                                                      Long replyToCommentId) {
+        long currentUserId = LoginUtils.getCurrentUserId();
         boolean success = commentService.addCommentAndSendNotification(
-                comment, bookmarkId, currentUsername, replyToCommentId);
+                comment, bookmarkId, currentUserId, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
@@ -189,7 +190,7 @@ public class CommentController {
      * @param commentInfo Request body containing the comment information to update
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#editComment(UpdateCommentRequest,
-     *                                                                  String)} will throw exceptions with the
+     *                                                                  long)} will throw exceptions with the
      *                                                                  result codes of {@link ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      *                                                                  if the comment does not exist or the user has
@@ -215,8 +216,8 @@ public class CommentController {
     @PostMapping
     @IdempotencyCheck
     public ResultVO<ResultCode> updateComment(@RequestBody @Validated UpdateCommentRequest commentInfo) {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        boolean success = commentService.editComment(commentInfo, currentUsername);
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = commentService.editComment(commentInfo, currentUserId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 
@@ -225,8 +226,8 @@ public class CommentController {
      *
      * @param id ID of the comment
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#deleteCommentById(Integer,
-     *                                                                  String)}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#deleteCommentById(long,
+     *                                                                  long)}
      *                                                                  will throw exceptions with the
      *                                                                  result codes of {@link ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
@@ -238,9 +239,9 @@ public class CommentController {
     public ResultVO<ResultCode> deleteComment(@RequestParam("id")
                                               @NotNull(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
                                               @Positive(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
-                                                      Integer id) {
-        String currentUsername = LoginUtils.getCurrentUsername();
-        boolean success = commentService.deleteCommentById(id, currentUsername);
+                                                      Long id) {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        boolean success = commentService.deleteCommentById(id, currentUserId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 }

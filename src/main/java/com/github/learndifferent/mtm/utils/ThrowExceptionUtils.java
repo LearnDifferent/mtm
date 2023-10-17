@@ -51,6 +51,12 @@ public class ThrowExceptionUtils {
         }
     }
 
+    public static void throwIfTrue(boolean expression, String message) {
+        if (expression) {
+            throw new ServiceException(message);
+        }
+    }
+
     /**
      * Throw a {@link IdempotencyException} if the expression is true
      *

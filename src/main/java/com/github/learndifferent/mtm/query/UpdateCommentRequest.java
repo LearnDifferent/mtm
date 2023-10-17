@@ -31,7 +31,7 @@ public class UpdateCommentRequest implements Serializable {
      */
     @NotNull(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
     @Positive(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
-    private Integer id;
+    private Long id;
 
     /**
      * New comment
@@ -46,7 +46,7 @@ public class UpdateCommentRequest implements Serializable {
      */
     @NotNull(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
     @Positive(message = ErrorInfoConstant.COMMENT_NOT_FOUND)
-    private Integer bookmarkId;
+    private Long bookmarkId;
 
     private static final long serialVersionUID = 1L;
 }

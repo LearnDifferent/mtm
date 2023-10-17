@@ -148,4 +148,12 @@ public interface UserMapper {
      * @return the number of users
      */
     Long countUserByKeyword(String keyword);
+
+    /**
+     * Check if the username is present
+     *
+     * @param username username
+     * @return true if the username exists (including the case of deleted user)
+     */
+    boolean checkIfUsernamePresent(String username);
 }

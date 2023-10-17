@@ -1,8 +1,9 @@
 package com.github.learndifferent.mtm.manager;
 
-import com.github.learndifferent.mtm.annotation.common.Password;
-import com.github.learndifferent.mtm.annotation.common.Username;
-import com.github.learndifferent.mtm.annotation.validation.user.create.UserCreationCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Password;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Username;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
@@ -128,7 +129,7 @@ public class UserManager {
      * @param notEncryptedPassword not encrypted password
      * @param role                 user role
      * @return true if success
-     * @throws ServiceException {@link UserCreationCheck} annotation will verify and throw an exception
+     * @throws ServiceException This will verify and throw an exception
      *                          if something goes wrong. If the username is already taken, the result code will be
      *                          {@link ResultCode#USER_ALREADY_EXIST}.
      *                          If username contains not only letters and numbers, the result code will be {@link
@@ -142,7 +143,7 @@ public class UserManager {
      *                          If password is not greater than 8 characters, the result code will be
      *                          {@link ResultCode#PASSWORD_TOO_SHORT}
      */
-    @UserCreationCheck
+    @AccessPermissionCheck(dataAccessType = DataAccessType.USER_CREATE)
     public String createUserAndGetUsername(@Username String username,
                                            @Password String notEncryptedPassword,
                                            UserRole role) {

@@ -19,19 +19,19 @@ public interface CommentService {
      *
      * @param id         ID of the comment (Return null if {@code id} is null)
      * @param bookmarkId ID of the bookmark
-     * @param username   Username of the user who is trying to get the comment
+     * @param userId     ID of the user who is trying to get the comment
      * @return the comment (null if comment does not exist)
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the website's
-     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck
-     *                                                                  GetCommentsCheck} annotation will throw an
+     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
+     *                                                                  AccessPermissionCheck} annotation will throw an
      *                                                                  exception with the
      *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    CommentVO getCommentByIds(Integer id, Integer bookmarkId, String username);
+    CommentVO getCommentByIds(Integer id, long bookmarkId, long userId);
 
     /**
      * Get comments of a bookmark
@@ -42,33 +42,32 @@ public interface CommentService {
      *                         null if this is not a reply
      *                         </p>
      * @param load             Amount of data to load
-     * @param username         Username of the user who is trying to get comments
+     * @param userId           ID of the user who is trying to get comments
      * @param order            {@link Order#ASC} if ascending order, {@link Order#DESC} if descending order
      * @return Return a list of {@link BookmarkCommentVO} or an empty list if there is no comment of the bookmark
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the website's
-     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.comment.get.GetCommentsCheck
-     *                                                                  GetCommentsCheck} annotation will throw an
+     *                                                                  comments, {@link com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
+     *                                                                  AccessPermissionCheck} annotation will throw an
      *                                                                  exception with the
      *                                                                  result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#WEBSITE_DATA_NOT_EXISTS
      *                                                                  WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    List<BookmarkCommentVO> getBookmarkComments(Integer bookmarkId,
-                                                Integer replyToCommentId,
+    List<BookmarkCommentVO> getBookmarkComments(long bookmarkId,
+                                                Long replyToCommentId,
                                                 Integer load,
-                                                String username,
+                                                long userId,
                                                 Order order);
 
     /**
      * Delete a comment by id
      *
-     * @param id       ID of the comment
-     * @param username username of the user who is trying to delete the comment
+     * @param id     ID of the comment
+     * @param userId ID user ID of the user who is trying to delete the comment
      * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck
-     *                                                                  ModifyCommentCheck} annotation will throw
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw
      *                                                                  exceptions with the
      *                                                                  result codes of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS
      *                                                                  COMMENT_NOT_EXISTS} or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
@@ -76,21 +75,20 @@ public interface CommentService {
      *                                                                  exist or the user has no permissions to delete
      *                                                                  the comment
      */
-    boolean deleteCommentById(Integer id, String username);
+    boolean deleteCommentById(long id, long userId);
 
     /**
      * Add a comment and send a notification to the user who is about to receive it
      *
      * @param comment          comment
      * @param bookmarkId       ID of the bookmark
-     * @param username         username of the user who is trying to add the comment
+     * @param userId           User ID of the user who is trying to add the comment
      * @param replyToCommentId ID of the comment to reply
      *                         <p>
      *                         null if this is not a reply
      *                         </p>
      * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck
-     *                                                                  AddCommentCheck} annotation will throw an
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This will throw an
      *                                                                  exception with the result code of {@link
      *                                                                  com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
@@ -126,25 +124,22 @@ public interface CommentService {
      *                                                                  </p>
      */
     boolean addCommentAndSendNotification(String comment,
-                                          Integer bookmarkId,
-                                          String username,
-                                          Integer replyToCommentId);
+                                          long bookmarkId,
+                                          long userId,
+                                          Long replyToCommentId);
 
     /**
      * Edit a comment
      *
      * @param commentInfo comment information to update
-     * @param username    username of the user who is trying to update the comment
+     * @param userId      user ID of the user who is trying to update the comment
      * @return true if success
-     * @throws com.github.learndifferent.mtm.exception.ServiceException This method will call an annotated method and
-     *                                                                  its {@link com.github.learndifferent.mtm.annotation.validation.comment.modify.ModifyCommentCheck}
-     *                                                                  annotation will throw exceptions with the
+     * @throws com.github.learndifferent.mtm.exception.ServiceException This method will throw exceptions with the
      *                                                                  result codes of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#COMMENT_NOT_EXISTS}
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the comment does not exist or the user has
      *                                                                  no permissions to update the comment.
-     *                                                                  {@link com.github.learndifferent.mtm.annotation.validation.comment.add.AddCommentCheck}
-     *                                                                  annotation will throw an exception
+     *                                                                  And also will throw an exception
      *                                                                  with the result code of {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED}
      *                                                                  if the username is not the current user's name
      *                                                                  or the user has no permissions to comment on
@@ -158,7 +153,7 @@ public interface CommentService {
      *                                                                  If it fails to update the edit history, the
      *                                                                  result code will be {@link com.github.learndifferent.mtm.constant.enums.ResultCode#UPDATE_FAILED}
      */
-    boolean editComment(UpdateCommentRequest commentInfo, String username);
+    boolean editComment(UpdateCommentRequest commentInfo, long userId);
 
     /**
      * Get the number of comments (exclude replies) of a bookmarked website
