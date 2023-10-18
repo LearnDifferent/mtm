@@ -54,13 +54,14 @@ public class CommentController {
      * {@link ResultCode#FAILED}
      * @throws com.github.learndifferent.mtm.exception.ServiceException If the bookmark does not exist or the user
      *                                                                  does not have permissions to get the
-     *                                                                  comments, {@link CommentService#getCommentByIds(Integer,
-     *                                                                  long, long)} will throw an exception with
+     *                                                                  comments, {@link CommentService#getCommentByIds(Long,
+     *                                                                  long, long)}
+     *                                                                  will throw an exception with
      *                                                                  the result code of {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      *                                                                  or {@link ResultCode#PERMISSION_DENIED}
      */
     @GetMapping
-    public ResultVO<CommentVO> getCommentByIds(@RequestParam(value = "id", required = false) Integer id,
+    public ResultVO<CommentVO> getCommentByIds(@RequestParam(value = "id", required = false) Long id,
                                                @RequestParam("bookmarkId")
                                                @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
@@ -115,11 +116,11 @@ public class CommentController {
      * @return number of comments of the bookmarked website
      */
     @GetMapping("/bookmark/{id}")
-    public ResultVO<Integer> countComment(@PathVariable("id")
-                                          @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                          @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                  Integer bookmarkId) {
-        int number = commentService.countCommentByBookmarkId(bookmarkId);
+    public ResultVO<Long> countComment(@PathVariable("id")
+                                       @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                       @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                               Long bookmarkId) {
+        long number = commentService.countCommentByBookmarkId(bookmarkId);
         return ResultCreator.okResult(number);
     }
 
@@ -134,8 +135,9 @@ public class CommentController {
      *                         </p>
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addCommentAndSendNotification(String,
-     *                                                                  long, long, Long)} will throw an
-     *                                                                  exception with the result code of {@link
+     *                                                                  long, long, String, Long)}
+     *                                                                  will throw an exception with the result code of
+     *                                                                  {@link
      *                                                                  ResultCode#PERMISSION_DENIED}
      *                                                                  if the user has no permissions to comment on
      *                                                                  this bookmark.
@@ -179,8 +181,9 @@ public class CommentController {
                                                             required = false)
                                                       Long replyToCommentId) {
         long currentUserId = LoginUtils.getCurrentUserId();
+        String currentUsername = LoginUtils.getCurrentUsername();
         boolean success = commentService.addCommentAndSendNotification(
-                comment, bookmarkId, currentUserId, replyToCommentId);
+                comment, bookmarkId, currentUserId, currentUsername, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 

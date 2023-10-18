@@ -7,8 +7,8 @@ import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
-import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.strategy.notification.NotificationStrategyContext;
 import com.github.learndifferent.mtm.utils.JsonUtils;
@@ -49,7 +49,7 @@ public class NotificationManager {
         return idGeneratorService.generateId(NotificationConstant.SYSTEM_NOTIFICATION);
     }
 
-    public void sendReplyNotification(CommentDO comment) {
+    public void sendReplyNotification(CommentDTO comment) {
         Long commentId = comment.getId();
         Long bookmarkId = comment.getBookmarkId();
         Long replyToCommentId = comment.getReplyToCommentId();

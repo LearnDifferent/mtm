@@ -31,7 +31,7 @@ public interface CommentService {
      *                                                                  or {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED}
      */
-    CommentVO getCommentByIds(Integer id, long bookmarkId, long userId);
+    CommentVO getCommentByIds(Long id, long bookmarkId, long userId);
 
     /**
      * Get comments of a bookmark
@@ -83,6 +83,7 @@ public interface CommentService {
      * @param comment          comment
      * @param bookmarkId       ID of the bookmark
      * @param userId           User ID of the user who is trying to add the comment
+     * @param username         Username of the user who is trying to add the comment
      * @param replyToCommentId ID of the comment to reply
      *                         <p>
      *                         null if this is not a reply
@@ -126,6 +127,7 @@ public interface CommentService {
     boolean addCommentAndSendNotification(String comment,
                                           long bookmarkId,
                                           long userId,
+                                          String username,
                                           Long replyToCommentId);
 
     /**
@@ -162,5 +164,5 @@ public interface CommentService {
      * @param bookmarkId ID of the bookmark
      * @return number of comments of the bookmarked website
      */
-    int countCommentByBookmarkId(Integer bookmarkId);
+    long countCommentByBookmarkId(Long bookmarkId);
 }
