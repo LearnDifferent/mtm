@@ -77,7 +77,7 @@ public class UserManager {
         // Delete bookmarks related to the user
         bookmarkMapper.deleteUserBookmarks(userId);
         // Delete comment data related to the user
-        commentMapper.deleteCommentsByUsername(username);
+        commentMapper.deleteCommentsByUserId(userId);
 
         // Delete all notifications related to the user (Redis don't need transaction in this situation)
         notificationManager.deleteReplyNotificationData(userId);

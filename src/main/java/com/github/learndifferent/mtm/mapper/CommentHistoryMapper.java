@@ -28,5 +28,5 @@ public interface CommentHistoryMapper {
      * @param commentId ID of the comment
      * @return history
      */
-    List<CommentHistoryDO> getHistory(int commentId);
+    List<CommentHistoryDO> getHistory(long commentId);
 }
