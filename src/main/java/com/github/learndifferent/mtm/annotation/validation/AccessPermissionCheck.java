@@ -118,6 +118,8 @@ public @interface AccessPermissionCheck {
      * @author zhou
      * @date 2023/10/16
      */
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
     @interface CommentId {}
 
     /**
@@ -126,6 +128,8 @@ public @interface AccessPermissionCheck {
      * @author zhou
      * @date 2023/10/16
      */
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
     @interface Comment {}
 
     /**
@@ -134,6 +138,8 @@ public @interface AccessPermissionCheck {
      * @author zhou
      * @date 2023/10/16
      */
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
     @interface ReplyToCommentId {}
 
     /**
@@ -142,6 +148,8 @@ public @interface AccessPermissionCheck {
      * @author zhou
      * @date 2023/10/17
      */
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
     @interface Username {}
 
     /**
@@ -150,5 +158,7 @@ public @interface AccessPermissionCheck {
      * @author zhou
      * @date 2023/10/17
      */
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
     @interface Password {}
 }
