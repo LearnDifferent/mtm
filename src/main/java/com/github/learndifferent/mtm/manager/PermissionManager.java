@@ -72,8 +72,9 @@ public class PermissionManager {
 
     public void checkIfReplyToCommentPresent(Long replyToCommentId) {
         log.info("Checking if the reply to comment is present: {}", replyToCommentId);
-        if (Objects.nonNull(replyToCommentId)) {
+        if (Objects.isNull(replyToCommentId)) {
             log.info("This is no a reply, it's a comment");
+            return;
         }
         boolean isPresent = commentMapper.checkIfCommentPresentById(replyToCommentId);
         ThrowExceptionUtils.throwIfTrue(isPresent, ResultCode.COMMENT_NOT_EXISTS);
