@@ -36,9 +36,8 @@ CREATE TABLE IF NOT EXISTS `comment`
 (
     `id`                  bigint unsigned NOT NULL AUTO_INCREMENT,
     `comment`             varchar(140)    NOT NULL,
-    `bookmark_id`         bigint          NOT NULL,
-    `user_id`             bigint          NOT NULL,
-    `username`            varchar(50)     NOT NULL,
+    `bookmark_id`         bigint unsigned NOT NULL,
+    `user_id`             bigint unsigned NOT NULL,
     `creation_time`       datetime        NOT NULL,
     `reply_to_comment_id` bigint          NOT NULL DEFAULT -1,
     `is_deleted`          tinyint(1)               DEFAULT 0,
@@ -115,11 +114,11 @@ CREATE TABLE IF NOT EXISTS `reply_notification`
     `id`                  bigint unsigned NOT NULL,
     `message`             varchar(600),
     `creation_time`       timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `sender`              varchar(256)    NOT NULL,
-    `recipient_user_id`   int unsigned,
-    `comment_id`          int unsigned,
-    `bookmark_id`         int unsigned,
-    `reply_to_comment_id` int unsigned,
+    `sender_user_id`      bigint unsigned NOT NULL,
+    `recipient_user_id`   bigint unsigned NOT NULL,
+    `comment_id`          bigint unsigned NOT NULL,
+    `bookmark_id`         bigint unsigned NOT NULL,
+    `reply_to_comment_id` bigint unsigned,
     `is_read`             boolean                  DEFAULT false,
     `update_time`         timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
@@ -129,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `reply_notification`
 CREATE TABLE IF NOT EXISTS `user_system_notification`
 (
     `notification_id`   bigint unsigned NOT NULL,
-    `recipient_user_id` int unsigned    NOT NULL,
+    `recipient_user_id` bigint unsigned NOT NULL,
     `message`           varchar(600),
     `creation_time`     timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `sender`            varchar(256)    NOT NULL,

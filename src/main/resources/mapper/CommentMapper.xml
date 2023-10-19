@@ -48,7 +48,7 @@
         select exists(select null
                       from comment
                       where comment = #{comment}
-                        and user_id = #{username}
+                        and user_id = #{userId}
                         and bookmark_id = #{bookmarkId}
                         and is_deleted = 0)
     </select>

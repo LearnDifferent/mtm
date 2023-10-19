@@ -135,7 +135,7 @@ public class CommentController {
      *                         </p>
      * @return {@link ResultCode#SUCCESS} if success. {@link ResultCode#FAILED} if failure.
      * @throws com.github.learndifferent.mtm.exception.ServiceException {@link CommentService#addCommentAndSendNotification(String,
-     *                                                                  long, long, String, Long)}
+     *                                                                  long, long, Long)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link
      *                                                                  ResultCode#PERMISSION_DENIED}
@@ -181,9 +181,8 @@ public class CommentController {
                                                             required = false)
                                                       Long replyToCommentId) {
         long currentUserId = LoginUtils.getCurrentUserId();
-        String currentUsername = LoginUtils.getCurrentUsername();
         boolean success = commentService.addCommentAndSendNotification(
-                comment, bookmarkId, currentUserId, currentUsername, replyToCommentId);
+                comment, bookmarkId, currentUserId, replyToCommentId);
         return success ? ResultCreator.okResult() : ResultCreator.failResult();
     }
 

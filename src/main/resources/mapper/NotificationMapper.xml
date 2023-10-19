@@ -16,7 +16,7 @@
         insert into reply_notification(id,
                                        message,
                                        creation_time,
-                                       sender,
+                                       sender_user_id,
                                        recipient_user_id,
                                        comment_id,
                                        bookmark_id,
@@ -25,7 +25,7 @@
         values (#{id},
                 #{message},
                 #{creationTime},
-                #{sender},
+                #{senderUserId},
                 #{recipientUserId},
                 #{commentId},
                 #{bookmarkId},
@@ -51,8 +51,9 @@
         <!-- the reply notification message is the newest comment content -->
         c.comment as message,
         rn.creation_time,
-        <!-- the sender is the user who sent the comment -->
-        c.username as sender,
+        <!-- sender username -->
+        u_name_tbl.user_name as sender,
+        rn.sender_user_id,
         rn.recipient_user_id,
         rn.comment_id,
         rn.bookmark_id,
@@ -67,24 +68,15 @@
         )
         as accessStatus
 
-        <!-- From .... -->
-        <include refid="Unread_Reply_Notifications_From_Join_Where_Clause">
-        </include>
-
-        order by rn.id
-        <if test="isDescending == true">
-            desc
-        </if>
-        limit #{loadCount}
-    </select>
-
-    <sql id="Unread_Reply_Notifications_From_Join_Where_Clause">
         from reply_notification rn
         inner join user u
         <!-- Filter the recipient user by using an 'inner join'.
         This ensures the recipient user is present and targeted -->
         on rn.recipient_user_id = #{recipientUserId}
         and u.id = rn.recipient_user_id
+        <!-- join user table again to get the sender user name -->
+        left join user u_name_tbl
+        on u_name_tbl.id = rn.sender_user_id
         left join bookmark b
         on rn.is_read = 0
         and rn.bookmark_id = b.id
@@ -104,11 +96,42 @@
         and b.id is not null
         <!-- consider as 'read' if comment is not present -->
         and c.id is not null
-    </sql>
+
+        order by rn.id
+        <if test="isDescending == true">
+            desc
+        </if>
+        limit #{loadCount}
+    </select>
 
     <select id="countUnreadReplyNotifications" resultType="java.lang.Integer">
         select count(*)
-        <include refid="Unread_Reply_Notifications_From_Join_Where_Clause"/>
+        from reply_notification rn
+        inner join user u
+        <!-- Filter the recipient user by using an 'inner join'.
+        This ensures the recipient user is present and targeted -->
+        on rn.recipient_user_id = #{recipientUserId}
+        and u.id = rn.recipient_user_id
+        <!-- Note: Don't need to join user table again because we don't need username here -->
+        left join bookmark b
+        on rn.is_read = 0
+        and rn.bookmark_id = b.id
+        <!-- consider as 'read' if bookmark is deleted -->
+        and b.is_deleted = 0
+        left join comment c
+        on rn.comment_id = c.id
+        <!-- consider as 'read' if comment is deleted -->
+        and c.is_deleted = 0
+        <!-- consider as 'read' if comment is blank -->
+        and c.comment is not null
+        and c.comment != ''
+        where
+        <!-- is_read is false -->
+        rn.is_read = 0
+        <!-- consider as 'read' if bookmark is not present -->
+        and b.id is not null
+        <!-- consider as 'read' if comment is not present -->
+        and c.id is not null
     </select>
 
     <select id="getUnreadSystemNotifications" resultType="com.github.learndifferent.mtm.vo.NotificationVO">

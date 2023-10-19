@@ -4,6 +4,7 @@ import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.enums.NotificationAccessStatus;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.NotificationDTO;
+import com.github.learndifferent.mtm.dto.UserIdAndUsernameDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
@@ -16,8 +17,11 @@ import com.github.learndifferent.mtm.vo.NotificationVO;
 import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
@@ -46,8 +50,8 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     private final StringRedisTemplate redisTemplate;
     private final BookmarkMapper bookmarkMapper;
     private final CommentMapper commentMapper;
-    private final UserMapper userMapper;
     private final NotificationMapper notificationMapper;
+    private final UserMapper userMapper;
 
     private final ExecutorService executorService = new ThreadPoolExecutor(2,
             5,
@@ -143,6 +147,9 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
                 .map(this::getReadStatusAndGenerateNotificationVO)
                 .peek(this::updateCommentAndReadStatusBasedOnConditions)
                 .collect(Collectors.toList());
+
+        // update sender username
+        updateSenderUsername(notifications);
 
         return NotificationsAndCountVO.of(notifications, count);
     }
@@ -246,6 +253,33 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         // set the comment message if nothing wrong
         notification.setMessage(comment);
         notification.setAccessStatus(NotificationAccessStatus.ACCESSIBLE);
+    }
+
+    private void updateSenderUsername(List<NotificationVO> notifications) {
+        Set<Long> ids = notifications
+                .stream()
+                .map(NotificationVO::getSenderUserId)
+                .collect(Collectors.toSet());
+
+        Map<Long, UserIdAndUsernameDTO> userIdAndUsernameMap = userMapper.getUserIdAndUsernameMap(ids);
+
+        // transfer the map to a map with key as user ID and value as username
+        Map<Long, String> userIdsAndUsernames = userIdAndUsernameMap
+                .entrySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        entry -> entry.getValue().getUsername()
+                ));
+
+        for (NotificationVO notification : notifications) {
+            Long senderUserId = notification.getSenderUserId();
+            // get the username
+            String username = userIdsAndUsernames.getOrDefault(senderUserId,
+                    "[The user does not exist or has been deleted]");
+            // set the username
+            notification.setSender(username);
+        }
     }
 
     private boolean checkIfRecipientUserIsOwnerOfBookmark(Long recipientUserId, BookmarkDO bookmark) {

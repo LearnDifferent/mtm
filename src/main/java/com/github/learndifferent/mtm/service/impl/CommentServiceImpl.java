@@ -127,36 +127,33 @@ public class CommentServiceImpl implements CommentService {
     public boolean addCommentAndSendNotification(@Comment String comment,
                                                  @BookmarkId long bookmarkId,
                                                  @UserId long userId,
-                                                 String username,
                                                  @ReplyToCommentId Long replyToCommentId) {
-        CommentDTO commentDTO = CommentDTO.builder()
+        CommentDO commentDO = CommentDO.builder()
                 .comment(comment)
                 .bookmarkId(bookmarkId)
                 .userId(userId)
-                .username(username)
                 .replyToCommentId(replyToCommentId)
                 .creationTime(Instant.now())
                 .build();
 
-        CommentDO commentDO = BeanUtils.convert(commentDTO, CommentDO.class);
         boolean success = commentMapper.addComment(commentDO);
         if (success) {
-            recordHistoryAndSendNotification(commentDTO);
+            recordHistoryAndSendNotification(commentDO);
         }
 
         return success;
     }
 
-    private void recordHistoryAndSendNotification(CommentDTO commentDTO) {
+    private void recordHistoryAndSendNotification(CommentDO commentDO) {
         // add history
-        Long commentId = commentDTO.getId();
-        String comment = commentDTO.getComment();
-        Instant creationTime = commentDTO.getCreationTime();
+        Long commentId = commentDO.getId();
+        String comment = commentDO.getComment();
+        Instant creationTime = commentDO.getCreationTime();
         CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment, creationTime);
         addHistory(history);
 
         // send notification
-        notificationManager.sendReplyNotification(commentDTO);
+        notificationManager.sendReplyNotification(commentDO);
     }
 
     @Override
