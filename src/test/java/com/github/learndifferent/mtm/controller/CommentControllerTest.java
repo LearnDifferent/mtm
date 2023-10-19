@@ -48,7 +48,7 @@ class CommentControllerTest {
         /**
          * Comment ID
          */
-        private final int ID = 100;
+        private final long ID = 100L;
         private final CommentVO COMMENT = new CommentVO().setId(ID);
         private final long BOOKMARK_ID = 1L;
         private final long USER_NAME = 1L;

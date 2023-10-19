@@ -9,6 +9,7 @@ import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.constant.enums.Order;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.dto.CommentHistoryDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.entity.CommentHistoryDO;
@@ -53,7 +54,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_READ)
-    public CommentVO getCommentByIds(Integer id,
+    public CommentVO getCommentByIds(Long id,
                                      @BookmarkId long bookmarkId,
                                      @UserId long userId) {
         log.info("Get comment. Comment ID: {}, User ID: {}, Bookmark ID: {}", id, userId, bookmarkId);
@@ -64,9 +65,9 @@ public class CommentServiceImpl implements CommentService {
                 .orElse(null);
     }
 
-    private CommentVO getCommentByCommentIdAndBookmarkIdAndReturnCommentVO(Integer id) {
-        CommentDO commentDO = commentMapper.getCommentById(id);
-        CommentVO comment = BeanUtils.convert(commentDO, CommentVO.class);
+    private CommentVO getCommentByCommentIdAndBookmarkIdAndReturnCommentVO(long id) {
+        CommentDTO commentDTO = commentMapper.getCommentById(id);
+        CommentVO comment = BeanUtils.convert(commentDTO, CommentVO.class);
         List<CommentHistoryVO> history = getHistory(id);
         comment.setHistory(history);
         return comment;
@@ -83,7 +84,7 @@ public class CommentServiceImpl implements CommentService {
                 .getBookmarkComments(bookmarkId, replyToCommentId, load, order.isDesc())
                 .stream()
                 // convert to BookmarkCommentVO
-                .map(commentDO -> BeanUtils.convert(commentDO, BookmarkCommentVO.class))
+                .map(commentDTO -> BeanUtils.convert(commentDTO, BookmarkCommentVO.class))
                 // update the comment
                 .peek(this::updateBookmarkComment)
                 // collect comments
@@ -92,8 +93,8 @@ public class CommentServiceImpl implements CommentService {
 
     private void updateBookmarkComment(BookmarkCommentVO comment) {
         // Get a count of the replies from this comment (comment id won't be null)
-        int id = comment.getId();
-        int repliesCount = commentMapper.countRepliesFromComment(id);
+        long id = comment.getId();
+        long repliesCount = commentMapper.countRepliesFromComment(id);
         comment.setRepliesCount(repliesCount);
         // Get the edit history of the comment
         List<CommentHistoryVO> history = getHistory(id);
@@ -107,7 +108,7 @@ public class CommentServiceImpl implements CommentService {
      * @return Return edit history of the comment if the comment has been edited.
      * Otherwise, return an empty list.
      */
-    private List<CommentHistoryVO> getHistory(Integer commentId) {
+    private List<CommentHistoryVO> getHistory(long commentId) {
         List<CommentHistoryDO> history = commentHistoryMapper.getHistory(commentId);
         List<CommentHistoryVO> result = BeanUtils.convertList(history, CommentHistoryVO.class);
 
@@ -126,34 +127,36 @@ public class CommentServiceImpl implements CommentService {
     public boolean addCommentAndSendNotification(@Comment String comment,
                                                  @BookmarkId long bookmarkId,
                                                  @UserId long userId,
+                                                 String username,
                                                  @ReplyToCommentId Long replyToCommentId) {
-        CommentDO commentDO = CommentDO.builder()
+        CommentDTO commentDTO = CommentDTO.builder()
                 .comment(comment)
                 .bookmarkId(bookmarkId)
                 .userId(userId)
+                .username(username)
                 .replyToCommentId(replyToCommentId)
                 .creationTime(Instant.now())
                 .build();
 
-        // this insert method uses generated keys, which means it'll set the ID to the CommentDO
+        CommentDO commentDO = BeanUtils.convert(commentDTO, CommentDO.class);
         boolean success = commentMapper.addComment(commentDO);
         if (success) {
-            recordHistoryAndSendNotification(commentDO);
+            recordHistoryAndSendNotification(commentDTO);
         }
 
         return success;
     }
 
-    private void recordHistoryAndSendNotification(CommentDO commentDO) {
+    private void recordHistoryAndSendNotification(CommentDTO commentDTO) {
         // add history
-        Long commentId = commentDO.getId();
-        String comment = commentDO.getComment();
-        Instant creationTime = commentDO.getCreationTime();
+        Long commentId = commentDTO.getId();
+        String comment = commentDTO.getComment();
+        Instant creationTime = commentDTO.getCreationTime();
         CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment, creationTime);
         addHistory(history);
 
         // send notification
-        notificationManager.sendReplyNotification(commentDO);
+        notificationManager.sendReplyNotification(commentDTO);
     }
 
     @Override
@@ -190,9 +193,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Cacheable(value = "comment:count", key = "#bookmarkId")
-    public int countCommentByBookmarkId(Integer bookmarkId) {
+    public long countCommentByBookmarkId(Long bookmarkId) {
         return Optional.ofNullable(bookmarkId)
                 .map(commentMapper::countCommentByBookmarkId)
-                .orElse(0);
+                .orElse(0L);
     }
 }

@@ -25,7 +25,7 @@ public class CommentVO implements Serializable {
     /**
      * ID of the comment
      */
-    private Integer id;
+    private Long id;
 
     /**
      * Content
@@ -35,7 +35,7 @@ public class CommentVO implements Serializable {
     /**
      * ID of the bookmark
      */
-    private Integer bookmarkId;
+    private Long bookmarkId;
 
     /**
      * Username
@@ -53,7 +53,7 @@ public class CommentVO implements Serializable {
      * Null if this is not a reply
      * </p>
      */
-    private Integer replyToCommentId;
+    private Long replyToCommentId;
 
     /**
      * Edit history of the comment

@@ -1,8 +1,7 @@
-package com.github.learndifferent.mtm.vo;
+package com.github.learndifferent.mtm.dto;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,17 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * Comment data of a bookmark
- *
  * @author zhou
- * @date 2021/9/29
+ * @date 2023/10/18
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Accessors(chain = true)
-public class BookmarkCommentVO implements Serializable {
+@Builder
+public class CommentDTO implements Serializable {
 
     /**
      * ID of the comment
@@ -28,19 +25,24 @@ public class BookmarkCommentVO implements Serializable {
     private Long id;
 
     /**
-     * Content
+     * content
      */
     private String comment;
 
     /**
-     * User ID
+     * ID of the bookmark
      */
-    private Long userId;
+    private Long bookmarkId;
 
     /**
      * Username
      */
     private String username;
+
+    /**
+     * User ID
+     */
+    private Long userId;
 
     /**
      * Creation time
@@ -50,21 +52,10 @@ public class BookmarkCommentVO implements Serializable {
     /**
      * ID of the comment to reply
      * <p>
-     * Null if this is not a reply
+     * null if this is not a reply
      * </p>
      */
-    private Integer replyToCommentId;
-
-    /**
-     * Count of the replies from this comment
-     */
-    private Long repliesCount;
-
-    /**
-     * Edit history of the comment
-     * <p>If the comment has not been edited, this will be an empty list</p>
-     */
-    private List<CommentHistoryVO> history;
+    private Long replyToCommentId;
 
     private static final long serialVersionUID = 1L;
 }

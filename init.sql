@@ -34,13 +34,14 @@ CREATE TABLE IF NOT EXISTS `bookmark`
 
 CREATE TABLE IF NOT EXISTS `comment`
 (
-    `id`                  int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `comment`             varchar(140)     NOT NULL,
-    `bookmark_id`         int(11)          NOT NULL,
-    `username`            varchar(50)      NOT NULL,
-    `creation_time`       datetime         NOT NULL,
-    `reply_to_comment_id` int(11)          NOT NULL DEFAULT -1,
-    `is_deleted`          tinyint(1)                DEFAULT 0,
+    `id`                  bigint unsigned NOT NULL AUTO_INCREMENT,
+    `comment`             varchar(140)    NOT NULL,
+    `bookmark_id`         bigint          NOT NULL,
+    `user_id`             bigint          NOT NULL,
+    `username`            varchar(50)     NOT NULL,
+    `creation_time`       datetime        NOT NULL,
+    `reply_to_comment_id` bigint          NOT NULL DEFAULT -1,
+    `is_deleted`          tinyint(1)               DEFAULT 0,
     PRIMARY KEY (`id`),
     KEY `idx_comment_bookmark_id_username` (`bookmark_id`, `username`),
     KEY `idx_comment_reply_to_comment_id_bookmark_id_creation_time` (`reply_to_comment_id`, `bookmark_id`, `creation_time`)
@@ -49,9 +50,9 @@ CREATE TABLE IF NOT EXISTS `comment`
 
 CREATE TABLE IF NOT EXISTS `comment_history`
 (
-    `comment_id`    int(11) unsigned NOT NULL,
-    `comment`       varchar(140)     NOT NULL,
-    `creation_time` datetime         NOT NULL,
+    `comment_id`    bigint unsigned NOT NULL,
+    `comment`       varchar(140)    NOT NULL,
+    `creation_time` datetime        NOT NULL,
     KEY `idx_comment_history_id_time` (`comment_id`, `creation_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

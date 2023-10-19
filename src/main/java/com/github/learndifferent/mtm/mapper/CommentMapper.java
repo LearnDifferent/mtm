@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.CommentDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
@@ -20,7 +21,7 @@ public interface CommentMapper {
      * @param id ID of the comment
      * @return the comment
      */
-    CommentDO getCommentById(int id);
+    CommentDTO getCommentById(long id);
 
     /**
      * Retrieve the ID of the user who sent the comment
@@ -43,6 +44,14 @@ public interface CommentMapper {
                                   @Param("userId") long userId);
 
     /**
+     * Check if a comment is present by comment ID
+     *
+     * @param id Comment ID
+     * @return true if the comment is present
+     */
+    boolean checkIfCommentPresentById(@Param("id") long id);
+
+    /**
      * Get user ID of the comment by comment ID
      *
      * @param id Comment ID
@@ -50,14 +59,6 @@ public interface CommentMapper {
      * If the comment does not exist, return null.
      */
     Long getCommentUserIdByCommentId(long id);
-
-    /**
-     * Check if a comment is present by comment ID
-     *
-     * @param id Comment ID
-     * @return true if the comment is present
-     */
-    boolean checkIfCommentPresentById(@Param("id") long id);
 
     /**
      * Get the text of the comment
@@ -79,10 +80,10 @@ public interface CommentMapper {
      * @param isDesc           True if descending order
      * @return the comments
      */
-    List<CommentDO> getBookmarkComments(@Param("bookmarkId") long bookmarkId,
-                                        @Param("replyToCommentId") Long replyToCommentId,
-                                        @Param("load") Integer load,
-                                        @Param("isDesc") Boolean isDesc);
+    List<CommentDTO> getBookmarkComments(@Param("bookmarkId") long bookmarkId,
+                                         @Param("replyToCommentId") Long replyToCommentId,
+                                         @Param("load") Integer load,
+                                         @Param("isDesc") Boolean isDesc);
 
     /**
      * Get a count of the replies from this comment
@@ -91,7 +92,7 @@ public interface CommentMapper {
      * @param countRepliesFromCommentId Count the replies from this comment
      * @return a count of the replies from a comment
      */
-    int countRepliesFromComment(int countRepliesFromCommentId);
+    long countRepliesFromComment(long countRepliesFromCommentId);
 
     /**
      * Delete a comment by id
@@ -104,12 +105,12 @@ public interface CommentMapper {
     /**
      * Delete comments of the user
      *
-     * @param username username of the user
+     * @param userId user ID of the user
      */
-    void deleteCommentsByUsername(String username);
+    void deleteCommentsByUserId(long userId);
 
     /**
-     * Add a comment (this method is using generated keys)
+     * Add a comment
      *
      * @param comment comment
      * @return true if success
@@ -131,5 +132,5 @@ public interface CommentMapper {
      * @param bookmarkId ID of the bookmark
      * @return number of comments of the bookmarked website
      */
-    int countCommentByBookmarkId(int bookmarkId);
+    long countCommentByBookmarkId(long bookmarkId);
 }
