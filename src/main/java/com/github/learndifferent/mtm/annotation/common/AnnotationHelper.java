@@ -80,9 +80,10 @@ public class AnnotationHelper {
 
             StringBuilder sb = new StringBuilder("Missing required annotations: ");
             requiredAnnotations.forEach(a -> sb.append(a.getSimpleName()).append(", "));
-            log.warn(sb.toString());
+            String msg = sb.toString();
+            log.warn(msg);
 
-            throw new ServiceException(ResultCode.MISSING_REQUIRED_ANNOTATIONS);
+            throw new ServiceException(ResultCode.MISSING_REQUIRED_ANNOTATIONS, msg);
         }
     }
 }
