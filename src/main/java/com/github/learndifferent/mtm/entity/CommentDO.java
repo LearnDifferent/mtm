@@ -38,11 +38,6 @@ public class CommentDO implements Serializable {
     private Long bookmarkId;
 
     /**
-     * Username
-     */
-    private String username;
-
-    /**
      * User ID
      */
     private Long userId;

@@ -83,7 +83,6 @@ public interface CommentService {
      * @param comment          comment
      * @param bookmarkId       ID of the bookmark
      * @param userId           User ID of the user who is trying to add the comment
-     * @param username         Username of the user who is trying to add the comment
      * @param replyToCommentId ID of the comment to reply
      *                         <p>
      *                         null if this is not a reply
@@ -127,7 +126,6 @@ public interface CommentService {
     boolean addCommentAndSendNotification(String comment,
                                           long bookmarkId,
                                           long userId,
-                                          String username,
                                           Long replyToCommentId);
 
     /**

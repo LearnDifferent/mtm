@@ -2,10 +2,14 @@ package com.github.learndifferent.mtm.mapper;
 
 import com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
+import com.github.learndifferent.mtm.dto.UserIdAndUsernameDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -156,4 +160,18 @@ public interface UserMapper {
      * @return true if the username exists (including the case of deleted user)
      */
     boolean checkIfUsernamePresent(String username);
+
+    /**
+     * Retrieves a map of user IDs and corresponding usernames for the given set of user IDs.
+     * <p>
+     * The {@code @MapKey("userId")} annotation indicates that
+     * the {@code userId} field of the {@link UserIdAndUsernameDTO} class should be used
+     * as the key in the resulting map
+     * </p>
+     *
+     * @param userIds The set of user IDs
+     * @return A map with user IDs as keys and {@link UserIdAndUsernameDTO} objects as values
+     */
+    @MapKey("userId")
+    Map<Long, UserIdAndUsernameDTO> getUserIdAndUsernameMap(@Param("userIds") Set<Long> userIds);
 }
