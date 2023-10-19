@@ -27,7 +27,7 @@ import lombok.experimental.Accessors;
 public class NotificationDTO implements Serializable {
 
     public static NotificationDTO ofNewReplyNotification(long id,
-                                                         String sender,
+                                                         long senderUserId,
                                                          String message,
                                                          Instant creationTime,
                                                          Long commentId,
@@ -38,7 +38,7 @@ public class NotificationDTO implements Serializable {
                 .notificationType(NotificationType.REPLY_NOTIFICATION)
                 .message(message)
                 .creationTime(creationTime)
-                .sender(sender)
+                .senderUserId(senderUserId)
                 .commentId(commentId)
                 .bookmarkId(bookmarkId)
                 .replyToCommentId(replyToCommentId)
@@ -83,12 +83,19 @@ public class NotificationDTO implements Serializable {
     private Instant creationTime;
 
     /**
-     * When the notification is a reply (or comment) notification,
-     * it represents the username of the sender.
+     * When the notification is a newly added reply (or comment) notification,
+     * this will be null and when returning the value to user
+     * this will represent the username of the sender.
      * If the notification is a system notification,
      * it represents the sender of the system notification.
      */
     private String sender;
+
+    /**
+     * If the notification is a reply (or comment) notification,
+     * it represents the user ID  of the sender.
+     */
+    private Long senderUserId;
 
     /**
      * When the {@link NotificationType} is {@link NotificationType#REPLY_NOTIFICATION},

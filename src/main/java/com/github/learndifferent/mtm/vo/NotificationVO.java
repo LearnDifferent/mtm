@@ -62,12 +62,19 @@ public class NotificationVO implements Serializable {
     private Instant creationTime;
 
     /**
-     * When the notification is a reply (or comment) notification,
-     * it represents the username of the sender.
+     * When the notification is a newly added reply (or comment) notification,
+     * this will be null and when returning the value to user
+     * this will represent the username of the sender.
      * If the notification is a system notification,
      * it represents the sender of the system notification.
      */
     private String sender;
+
+    /**
+     * If the notification is a reply (or comment) notification,
+     * it represents the user ID  of the sender.
+     */
+    private Long senderUserId;
 
     /**
      * When the {@link NotificationType} is {@link NotificationType#REPLY_NOTIFICATION},
