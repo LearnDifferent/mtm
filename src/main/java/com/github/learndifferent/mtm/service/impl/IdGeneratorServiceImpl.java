@@ -183,7 +183,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
     }
 
     @Override
-    public long generateId(String tag) {
+    public long generateId(String tag, String tableName, String primaryKeyColumnName) {
         if (!isInitialized) {
             log.warn("ID Generator Service has not been initialized");
             boolean initFail = !init();
@@ -199,7 +199,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
             // the first ID will be 1, so the max ID in database will be step + 1
             long maxId = IdGeneratorConstant.STEP + 1;
             boolean wasPreviouslyAbsent = idGeneratorMapper
-                    .insertIfNotPresent(tag, maxId, IdGeneratorConstant.STEP, null);
+                    .insertIfNotPresent(tag, maxId, IdGeneratorConstant.STEP, tableName, primaryKeyColumnName, null);
             if (wasPreviouslyAbsent) {
                 // if the record was previously absent and now exists,
                 // generate the first ID (which is 1) for the newly added tag
@@ -223,12 +223,12 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
             // which also initializes the segment buffer.
             // Therefore, in most cases, this process will not be executed.
             Segment currentSegment = buffer.getCurrentSegment();
-            updateSegmentFromDb(tag, currentSegment);
+            updateSegmentFromDb(tag, currentSegment, tableName, primaryKeyColumnName);
             log.info("Init buffer. Update tag {} and segment {} from db", tag, currentSegment);
             buffer.setInitialized(true);
         }
         //  get the ID from buffer if initialized
-        long id = getIdFromSegmentBuffer(buffer);
+        long id = getIdFromSegmentBuffer(buffer, tableName, primaryKeyColumnName);
 
         // save the current ID to cache
         String currentIdKey = RedisKeyUtils.getCurrentIdKey(tag);
@@ -273,14 +273,15 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
         log.info("Init buffer. Add tag {} and segment {} from db", tag, firstSegment);
     }
 
-    private void updateSegmentFromDb(String tag, Segment segment) {
+    private void updateSegmentFromDb(String tag, Segment segment, String tableName, String primaryKeyColumnName) {
 
         SegmentBuffer buffer = segment.getBuffer();
         boolean isInitialized = buffer.isInitialized();
 
         // if the buffer has been initialized, get the max ID from the segment
         // if the buffer has NOT been initialized, update the max ID and get it from database
-        long maxId = isInitialized ? segment.getMaxId() : updateAndGetMaxIdFromDatabase(tag);
+        long maxId = isInitialized ? segment.getMaxId()
+                : updateAndGetMaxIdFromDatabase(tag, tableName, primaryKeyColumnName);
 
         // current ID
         long currentId = getCurrentIdFromRedisCacheOrCalculateIt(tag, maxId);
@@ -311,9 +312,9 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
         return maxId - IdGeneratorConstant.STEP;
     }
 
-    private long updateAndGetMaxIdFromDatabase(String tag) {
+    private long updateAndGetMaxIdFromDatabase(String tag, String tableName, String primaryKeyColumnName) {
         IdGeneratorServiceImpl bean = ApplicationContextUtils.getBean(IdGeneratorServiceImpl.class);
-        return bean.updateOrInsertRecordAndGetMaxId(tag);
+        return bean.updateOrInsertRecordAndGetMaxId(tag, tableName, primaryKeyColumnName);
     }
 
     private void setMaxIdAndCurrentIdForSegment(long maxId, long currentId, Segment segment) {
@@ -332,13 +333,14 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
      * @return max ID
      */
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public long updateOrInsertRecordAndGetMaxId(String tag) {
-        idGeneratorMapper.updateMaxIdOrInsertIfNotPresent(tag, IdGeneratorConstant.STEP, null);
+    public long updateOrInsertRecordAndGetMaxId(String tag, String tableName, String primaryKeyColumnName) {
+        idGeneratorMapper.updateMaxIdOrInsertIfNotPresent(
+                tag, IdGeneratorConstant.STEP, tableName, primaryKeyColumnName, null);
         Long maxId = idGeneratorMapper.getMaxId(tag);
         return Optional.ofNullable(maxId).orElseThrow(() -> new ServiceException("Can't get the max ID"));
     }
 
-    private long getIdFromSegmentBuffer(SegmentBuffer buffer) {
+    private long getIdFromSegmentBuffer(SegmentBuffer buffer, String tableName, String primaryKeyColumnName) {
         while (true) {
             // ----- Start: read lock  ------
             Lock readLock = buffer.getReadLock();
@@ -367,7 +369,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
                         try {
                             // update the next segment
                             String tag = buffer.getTag();
-                            updateSegmentFromDb(tag, nextSegment);
+                            updateSegmentFromDb(tag, nextSegment, tableName, primaryKeyColumnName);
                             isUpdated = true;
                             log.info("update segment [tag: {}] from database {}", tag, nextSegment);
                         } catch (ServiceException e) {
