@@ -103,8 +103,6 @@ CREATE TABLE IF NOT EXISTS `id_generator`
     `biz_tag`                 varchar(256) NOT NULL,
     `max_id`                  bigint       NOT NULL DEFAULT '1',
     `step`                    int          NOT NULL DEFAULT '100',
-    `table_name`              varchar(32)  NOT NULL,
-    `primary_key_column_name` varchar(16)  NOT NULL DEFAULT 'id',
     `description`             varchar(256)          DEFAULT NULL,
     `update_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`biz_tag`)
