@@ -3,14 +3,14 @@
 <mapper namespace="com.github.learndifferent.mtm.mapper.IdGeneratorMapper">
     <!-- The primary key is biz_tag, therefore the 'insert ignore into' clause will be effective -->
     <insert id="insertIfNotPresent">
-        insert ignore into id_generator(biz_tag, max_id, step, description, table_name, primary_key_column_name)
-        values (#{bizTag}, #{maxId}, #{step}, #{description}, #{tableName}, #{primaryKeyColumnName})
+        insert ignore into id_generator(biz_tag, max_id, step, description)
+        values (#{bizTag}, #{maxId}, #{step}, #{description})
     </insert>
 
     <!-- The primary key is biz_tag, therefore the ON DUPLICATE KEY UPDATE clause will be effective -->
     <update id="updateMaxIdOrInsertIfNotPresent">
-        insert into id_generator(biz_tag, max_id, step, description, table_name, primary_key_column_name)
-        values (#{bizTag}, 1, #{step}, #{description}, #{tableName}, #{primaryKeyColumnName})
+        insert into id_generator(biz_tag, max_id, step, description)
+        values (#{bizTag}, 1, #{step}, #{description})
         ON DUPLICATE KEY UPDATE max_id = max_id + step
     </update>
 
@@ -24,5 +24,12 @@
     <select id="getAllBizTags" resultType="java.lang.String">
         select biz_tag
         from id_generator;
+    </select>
+
+    <select id="getLastId" resultType="java.lang.Long">
+        select ${primaryKeyColumnName}
+        from ${tableName}
+        order by ${primaryKeyColumnName} desc
+        limit 1
     </select>
 </mapper>

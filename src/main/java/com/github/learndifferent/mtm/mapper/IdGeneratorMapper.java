@@ -20,8 +20,6 @@ public interface IdGeneratorMapper {
      * @param bizTag               business tag
      * @param maxId                max ID
      * @param step                 step
-     * @param tableName            table name
-     * @param primaryKeyColumnName primary key column name
      * @param description          description
      * @return Return true if the business tag is not present and insert successfully.
      * <p>Return false if the business tag already exists in the database,
@@ -30,8 +28,6 @@ public interface IdGeneratorMapper {
     boolean insertIfNotPresent(@Param("bizTag") String bizTag,
                                @Param("maxId") long maxId,
                                @Param("step") int step,
-                               @Param("tableName") String tableName,
-                               @Param("primaryKeyColumnName") String primaryKeyColumnName,
                                @Param("description") String description);
 
     /**
@@ -39,14 +35,10 @@ public interface IdGeneratorMapper {
      *
      * @param bizTag               business tag
      * @param step                 step
-     * @param tableName            table name
-     * @param primaryKeyColumnName primary key column name
      * @param description          description (allow null)
      */
     void updateMaxIdOrInsertIfNotPresent(@Param("bizTag") String bizTag,
                                          @Param("step") int step,
-                                         @Param("tableName") String tableName,
-                                         @Param("primaryKeyColumnName") String primaryKeyColumnName,
                                          @Param("description") String description);
 
     /**
@@ -63,8 +55,14 @@ public interface IdGeneratorMapper {
      * @return all business tags
      */
     List<String> getAllBizTags();
+
+    /**
+     * Get the last ID of the table
+     *
+     * @param primaryKeyColumnName primary key column name
+     * @param tableName            table name
+     * @return last ID
+     */
+    Long getLastId(@Param("primaryKeyColumnName") String primaryKeyColumnName,
+                   @Param("tableName") String tableName);
 }
-
-
-
-
