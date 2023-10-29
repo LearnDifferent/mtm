@@ -121,7 +121,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, long userId, Privacy privacy) {
         userManager.checkIfUserBookmarked(userId, data.getUrl());
 
-        long id = idGeneratorService.generateId(IdGeneratorConstant.BOOKMARK);
+        long id = idGeneratorService.generateId(IdGeneratorConstant.BOOKMARK_TAG,
+                IdGeneratorConstant.BOOKMARK_TABLE, IdGeneratorConstant.ID_COLUMN);
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, id, userId, privacy);
         return bookmarkMapper.addBookmark(newBookmark);
     }

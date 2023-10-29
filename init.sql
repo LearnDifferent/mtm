@@ -100,11 +100,11 @@ CREATE TABLE IF NOT EXISTS `tag`
 
 CREATE TABLE IF NOT EXISTS `id_generator`
 (
-    `biz_tag`     varchar(256) NOT NULL,
-    `max_id`      bigint       NOT NULL DEFAULT '1',
-    `step`        int          NOT NULL DEFAULT '100',
-    `description` varchar(256)          DEFAULT NULL,
-    `update_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `biz_tag`                 varchar(256) NOT NULL,
+    `max_id`                  bigint       NOT NULL DEFAULT '1',
+    `step`                    int          NOT NULL DEFAULT '100',
+    `description`             varchar(256)          DEFAULT NULL,
+    `update_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`biz_tag`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

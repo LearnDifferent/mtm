@@ -17,10 +17,10 @@ public interface IdGeneratorMapper {
      * If the business tag is not present, insert the record and return true.
      * If the business tag already exists in the database, return false (which means 0 row affected).
      *
-     * @param bizTag      business tag
-     * @param maxId       max ID
-     * @param step        step
-     * @param description description
+     * @param bizTag               business tag
+     * @param maxId                max ID
+     * @param step                 step
+     * @param description          description
      * @return Return true if the business tag is not present and insert successfully.
      * <p>Return false if the business tag already exists in the database,
      * which means the record should not be inserted.</p>
@@ -33,9 +33,9 @@ public interface IdGeneratorMapper {
     /**
      * Update the max ID or insert a new record if the record does not exist
      *
-     * @param bizTag      business tag
-     * @param step        step
-     * @param description description (allow null)
+     * @param bizTag               business tag
+     * @param step                 step
+     * @param description          description (allow null)
      */
     void updateMaxIdOrInsertIfNotPresent(@Param("bizTag") String bizTag,
                                          @Param("step") int step,
@@ -55,8 +55,14 @@ public interface IdGeneratorMapper {
      * @return all business tags
      */
     List<String> getAllBizTags();
+
+    /**
+     * Get the last ID of the table
+     *
+     * @param primaryKeyColumnName primary key column name
+     * @param tableName            table name
+     * @return last ID
+     */
+    Long getLastId(@Param("primaryKeyColumnName") String primaryKeyColumnName,
+                   @Param("tableName") String tableName);
 }
-
-
-
-
