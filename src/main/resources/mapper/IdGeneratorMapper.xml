@@ -25,4 +25,11 @@
         select biz_tag
         from id_generator;
     </select>
+
+    <select id="getLastId" resultType="java.lang.Long">
+        select ${primaryKeyColumnName}
+        from ${tableName}
+        order by ${primaryKeyColumnName} desc
+        limit 1
+    </select>
 </mapper>

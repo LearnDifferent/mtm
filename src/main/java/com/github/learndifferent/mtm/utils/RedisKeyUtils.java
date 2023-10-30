@@ -108,8 +108,4 @@ public class RedisKeyUtils {
     public static long getSysNotificationReadStatusTrackNotificationsOfUserOffset(long notificationId) {
         return notificationId;
     }
-
-    public static String getCurrentIdKey(String bizTag) {
-        return RedisConstant.CURRENT_ID_PREFIX + bizTag;
-    }
 }

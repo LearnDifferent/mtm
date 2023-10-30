@@ -7,11 +7,11 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.IdGeneratorMapper;
 import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,9 +28,7 @@ import java.util.concurrent.locks.Lock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +45,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class IdGeneratorServiceImpl implements IdGeneratorService {
 
     private final IdGeneratorMapper idGeneratorMapper;
-    private final StringRedisTemplate redisTemplate;
 
     /**
      * Key is the business tag,
@@ -183,7 +180,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
     }
 
     @Override
-    public long generateId(String tag) {
+    public long generateId(String tag, String tableName, String primaryKeyColumnName) {
         if (!isInitialized) {
             log.warn("ID Generator Service has not been initialized");
             boolean initFail = !init();
@@ -223,18 +220,12 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
             // which also initializes the segment buffer.
             // Therefore, in most cases, this process will not be executed.
             Segment currentSegment = buffer.getCurrentSegment();
-            updateSegmentFromDb(tag, currentSegment);
+            updateSegmentFromDb(tag, currentSegment, tableName, primaryKeyColumnName);
             log.info("Init buffer. Update tag {} and segment {} from db", tag, currentSegment);
             buffer.setInitialized(true);
         }
         //  get the ID from buffer if initialized
-        long id = getIdFromSegmentBuffer(buffer);
-
-        // save the current ID to cache
-        String currentIdKey = RedisKeyUtils.getCurrentIdKey(tag);
-        redisTemplate.opsForValue().set(currentIdKey, String.valueOf(id));
-
-        return id;
+        return getIdFromSegmentBuffer(buffer, tableName, primaryKeyColumnName);
     }
 
     private long generateFirstIdForNewlyAddedTag(String tag, long maxId) {
@@ -273,7 +264,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
         log.info("Init buffer. Add tag {} and segment {} from db", tag, firstSegment);
     }
 
-    private void updateSegmentFromDb(String tag, Segment segment) {
+    private void updateSegmentFromDb(String tag, Segment segment, String tableName, String primaryKeyColumnName) {
 
         SegmentBuffer buffer = segment.getBuffer();
         boolean isInitialized = buffer.isInitialized();
@@ -283,32 +274,28 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
         long maxId = isInitialized ? segment.getMaxId() : updateAndGetMaxIdFromDatabase(tag);
 
         // current ID
-        long currentId = getCurrentIdFromRedisCacheOrCalculateIt(tag, maxId);
+        long currentId = getCurrentIdFromDatabaseOrCalculateIt(maxId, tableName, primaryKeyColumnName);
         // set max ID and current iD
         setMaxIdAndCurrentIdForSegment(maxId, currentId, segment);
     }
 
-    private long getCurrentIdFromRedisCacheOrCalculateIt(String tag, long maxId) {
-        // if the current ID is in the Redis cache, get it from the cache
-        String currentIdKey = RedisKeyUtils.getCurrentIdKey(tag);
-        String currentIdString = redisTemplate.opsForValue().get(currentIdKey);
-        boolean hasCurrentIdInCache = StringUtils.isNotBlank(currentIdString);
-        if (hasCurrentIdInCache) {
-            try {
-                // get the current ID in the Redis cache
-                long currentIdInCache = Long.parseLong(currentIdString);
-                if (checkIfCurrentIdValid(currentIdInCache, maxId)) {
-                    // if the current ID in cache is valid, return it
-                    log.info("Retrieve current ID {} from Redis cache", currentIdInCache);
-                    return currentIdInCache;
-                }
-            } catch (NumberFormatException e) {
-                log.error("Failed to parse current ID string {} from Redis cache", currentIdString, e);
-            }
+    private long getCurrentIdFromDatabaseOrCalculateIt(long maxId,
+                                                       String tableName,
+                                                       String primaryKeyColumnName) {
+        // get the last ID of the table
+        Long lastId = idGeneratorMapper.getLastId(primaryKeyColumnName, tableName);
+
+        // if the last ID is not null and is valid, return it as current ID
+        if (Objects.nonNull(lastId) && checkIfCurrentIdValid(lastId, maxId)) {
+            // if the current ID in cache is valid, return it
+            log.info("Retrieve current ID {} from primary key {} of table {}", lastId, primaryKeyColumnName, tableName);
+            return lastId;
         }
-        // if the current ID is not in the Redis cache, or it's not valid,
-        // calculate it from the max ID and step
-        return maxId - IdGeneratorConstant.STEP;
+
+        // calculate it from the max ID and step otherwise
+        long currentId = maxId - IdGeneratorConstant.STEP;
+        log.info("Calculate current ID {} from max ID {} and step {}", currentId, maxId, IdGeneratorConstant.STEP);
+        return currentId;
     }
 
     private long updateAndGetMaxIdFromDatabase(String tag) {
@@ -338,7 +325,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
         return Optional.ofNullable(maxId).orElseThrow(() -> new ServiceException("Can't get the max ID"));
     }
 
-    private long getIdFromSegmentBuffer(SegmentBuffer buffer) {
+    private long getIdFromSegmentBuffer(SegmentBuffer buffer, String tableName, String primaryKeyColumnName) {
         while (true) {
             // ----- Start: read lock  ------
             Lock readLock = buffer.getReadLock();
@@ -367,7 +354,7 @@ public class IdGeneratorServiceImpl implements IdGeneratorService {
                         try {
                             // update the next segment
                             String tag = buffer.getTag();
-                            updateSegmentFromDb(tag, nextSegment);
+                            updateSegmentFromDb(tag, nextSegment, tableName, primaryKeyColumnName);
                             isUpdated = true;
                             log.info("update segment [tag: {}] from database {}", tag, nextSegment);
                         } catch (ServiceException e) {

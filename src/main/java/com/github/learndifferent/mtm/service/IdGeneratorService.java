@@ -18,8 +18,10 @@ public interface IdGeneratorService {
     /**
      * Generate ID
      *
-     * @param tag business tag
+     * @param tag                  business tag
+     * @param tableName            table name
+     * @param primaryKeyColumnName primary key column name
      * @return ID
      */
-    long generateId(String tag);
+    long generateId(String tag, String tableName, String primaryKeyColumnName);
 }

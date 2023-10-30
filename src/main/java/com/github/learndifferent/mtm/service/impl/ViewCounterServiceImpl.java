@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -94,13 +95,20 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         List<ViewDataDO> data = this.bookmarkViewMapper.getAllViewData();
 
         // save to Redis
-        Map<String, String> kv = data.stream().collect(Collectors.toMap(
+        Map<String, String> map = data.stream().collect(Collectors.toMap(
                 d -> RedisConstant.WEB_VIEW_COUNT_PREFIX + d.getBookmarkId(),
                 d -> String.valueOf(d.getViews())));
-        this.redisTemplate.opsForValue().multiSet(kv);
+        if (MapUtils.isEmpty(map)) {
+            log.info("No views data");
+            return Collections.emptyList();
+        }
+
+        log.info("Saving views data to Redis: {}", map);
+
+        this.redisTemplate.opsForValue().multiSet(map);
 
         // add the keys to set in Redis
-        Set<String> keySet = kv.keySet();
+        Set<String> keySet = map.keySet();
         int size = keySet.size();
         String[] keys = keySet.toArray(new String[size]);
         this.redisTemplate.opsForSet().add(RedisConstant.VIEW_KEY_SET, keys);

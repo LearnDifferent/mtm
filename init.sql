@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `comment`
     `reply_to_comment_id` bigint          NOT NULL DEFAULT -1,
     `is_deleted`          tinyint(1)               DEFAULT 0,
     PRIMARY KEY (`id`),
-    KEY `idx_comment_bookmark_id_username` (`bookmark_id`, `username`),
+    KEY `idx_comment_bookmark_id_user_id` (`bookmark_id`, `user_id`),
     KEY `idx_comment_reply_to_comment_id_bookmark_id_creation_time` (`reply_to_comment_id`, `bookmark_id`, `creation_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -100,11 +100,11 @@ CREATE TABLE IF NOT EXISTS `tag`
 
 CREATE TABLE IF NOT EXISTS `id_generator`
 (
-    `biz_tag`     varchar(256) NOT NULL,
-    `max_id`      bigint       NOT NULL DEFAULT '1',
-    `step`        int          NOT NULL DEFAULT '100',
-    `description` varchar(256)          DEFAULT NULL,
-    `update_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `biz_tag`                 varchar(256) NOT NULL,
+    `max_id`                  bigint       NOT NULL DEFAULT '1',
+    `step`                    int          NOT NULL DEFAULT '100',
+    `description`             varchar(256)          DEFAULT NULL,
+    `update_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`biz_tag`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

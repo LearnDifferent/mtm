@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.manager;
 import static com.github.learndifferent.mtm.constant.enums.UserRole.ADMIN;
 import static com.github.learndifferent.mtm.constant.enums.UserRole.USER;
 
+import com.github.learndifferent.mtm.constant.consist.IdGeneratorConstant;
 import com.github.learndifferent.mtm.constant.consist.NotificationConstant;
 import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.constant.enums.NotificationType;
@@ -42,11 +43,13 @@ public class NotificationManager {
     private final IdGeneratorService idGeneratorService;
 
     private long generateReplyNotificationId() {
-        return idGeneratorService.generateId(NotificationConstant.REPLY_NOTIFICATION);
+        return idGeneratorService.generateId(NotificationConstant.REPLY_NOTIFICATION,
+                IdGeneratorConstant.REPLY_NOTIFICATION_TABLE, IdGeneratorConstant.ID_COLUMN);
     }
 
     private long generateSystemNotificationId() {
-        return idGeneratorService.generateId(NotificationConstant.SYSTEM_NOTIFICATION);
+        return idGeneratorService.generateId(NotificationConstant.SYSTEM_NOTIFICATION,
+                IdGeneratorConstant.SYSTEM_NOTIFICATION_TABLE, IdGeneratorConstant.ID_COLUMN);
     }
 
     public void sendReplyNotification(CommentDO comment) {
