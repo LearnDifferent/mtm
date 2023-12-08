@@ -9,6 +9,13 @@ package com.github.learndifferent.mtm.service;
 public interface IdGeneratorService {
 
     /**
+     * Generate ID
+     *
+     * @return ID
+     */
+    long generateId();
+
+    /**
      * Initialize
      *
      * @return true if initialization is successful
