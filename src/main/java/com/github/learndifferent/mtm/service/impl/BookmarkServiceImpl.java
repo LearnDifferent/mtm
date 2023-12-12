@@ -237,7 +237,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public BookmarkVO getBookmark(int id, long userId) {
+    public BookmarkVO getBookmark(long id, long userId) {
         BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(id);
 
         // data does not exist

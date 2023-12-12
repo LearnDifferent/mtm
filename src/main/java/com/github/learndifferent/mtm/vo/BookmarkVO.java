@@ -20,7 +20,7 @@ public class BookmarkVO implements Serializable {
     /**
      * ID of the bookmark
      */
-    private Integer id;
+    private Long id;
     /**
      * ID of the owner of the bookmark
      */

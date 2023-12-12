@@ -64,9 +64,9 @@ public interface TagMapper {
      * @param size    size
      * @return Bookmark IDs
      */
-    List<Integer> getBookmarkIdsByTagName(@Param("tagName") String tagName,
-                                          @Param("from") int from,
-                                          @Param("size") int size);
+    List<Long> getBookmarkIdsByTagName(@Param("tagName") String tagName,
+                                       @Param("from") int from,
+                                       @Param("size") int size);
 
     /**
      * Delete a tag
