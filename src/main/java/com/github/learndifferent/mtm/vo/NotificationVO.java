@@ -102,7 +102,7 @@ public class NotificationVO implements Serializable {
      * <p>If the bookmark ID is not null and the message is null,
      * the user has no permission of the bookmark</p>
      */
-    private Integer bookmarkId;
+    private Long bookmarkId;
 
     /**
      * The ID of the comment being replied to

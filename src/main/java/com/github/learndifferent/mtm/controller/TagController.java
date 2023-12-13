@@ -110,10 +110,10 @@ public class TagController {
      */
     @GetMapping
     public ResultVO<List<String>> getTags(@RequestParam(value = "bookmarkId", required = false)
-                                          @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                  Integer bookmarkId,
+                                              @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                      Long bookmarkId,
                                           @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
-                                                  PageInfoDTO pageInfo) {
+                                                      PageInfoDTO pageInfo) {
         List<String> tags = tagService.getTags(bookmarkId, pageInfo);
         return ResultCreator.okResult(tags);
     }
@@ -125,7 +125,7 @@ public class TagController {
      * @return a tag of the bookmark, or empty string if the bookmark has no tags
      */
     @GetMapping("/one")
-    public ResultVO<String> getTag(@RequestParam(value = "bookmarkId") Integer bookmarkId) {
+    public ResultVO<String> getTag(@RequestParam(value = "bookmarkId") Long bookmarkId) {
         String tag = tagService.getTagOrReturnEmpty(bookmarkId);
         return ResultCreator.okResult(tag);
     }

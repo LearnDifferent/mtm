@@ -206,7 +206,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private void updateCommentAndReadStatusBasedOnConditions(NotificationVO notification) {
-        Integer bookmarkId = notification.getBookmarkId();
+        Long bookmarkId = notification.getBookmarkId();
         Long recipientUserId = notification.getRecipientUserId();
 
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);

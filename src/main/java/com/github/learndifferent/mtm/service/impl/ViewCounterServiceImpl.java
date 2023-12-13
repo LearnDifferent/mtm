@@ -44,7 +44,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     private final static int LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX = RedisConstant.WEB_VIEW_COUNT_PREFIX.length();
 
     @Override
-    public void increaseViewsAndAddToSet(Integer bookmarkId) {
+    public void increaseViewsAndAddToSet(Long bookmarkId) {
         if (Objects.isNull(bookmarkId)) {
             return;
         }
@@ -55,7 +55,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     }
 
     @Override
-    public int countViews(Integer bookmarkId) {
+    public int countViews(Long bookmarkId) {
 
         if (Objects.isNull(bookmarkId)) {
             return 0;

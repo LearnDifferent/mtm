@@ -67,7 +67,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Cacheable(value = "tag:all", condition = "#bookmarkId == null")
-    public List<String> getTags(Integer bookmarkId, PageInfoDTO pageInfo) {
+    public List<String> getTags(Long bookmarkId, PageInfoDTO pageInfo) {
 
         int from = pageInfo.getFrom();
         int size = pageInfo.getSize();
@@ -82,7 +82,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Cacheable(value = "tag:a", key = "#bookmarkId")
-    public String getTagOrReturnEmpty(Integer bookmarkId) {
+    public String getTagOrReturnEmpty(Long bookmarkId) {
 
         return Optional.ofNullable(bookmarkId)
                 // query the tags

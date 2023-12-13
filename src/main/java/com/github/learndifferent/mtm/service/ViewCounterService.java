@@ -20,7 +20,7 @@ public interface ViewCounterService {
      *
      * @param bookmarkId ID of the bookmark
      */
-    void increaseViewsAndAddToSet(Integer bookmarkId);
+    void increaseViewsAndAddToSet(Long bookmarkId);
 
     /**
      * Count the number of views of a bookmark stored in Redis
@@ -28,7 +28,7 @@ public interface ViewCounterService {
      * @param bookmarkId ID of the bookmark
      * @return views
      */
-    int countViews(Integer bookmarkId);
+    int countViews(Long bookmarkId);
 
     /**
      * Save the numbers of views from Redis to the database,
