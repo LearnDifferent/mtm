@@ -42,11 +42,23 @@ public class NotificationManager {
     private final NotificationStrategyContext notificationStrategyContext;
     private final IdGeneratorService idGeneratorService;
 
+    /**
+     * Get ID
+     *
+     * @return ID
+     * @deprecated
+     */
     private long generateReplyNotificationId() {
         return idGeneratorService.generateId(NotificationConstant.REPLY_NOTIFICATION,
                 IdGeneratorConstant.REPLY_NOTIFICATION_TABLE, IdGeneratorConstant.ID_COLUMN);
     }
 
+    /**
+     * Get ID
+     *
+     * @return ID
+     * @deprecated
+     */
     private long generateSystemNotificationId() {
         return idGeneratorService.generateId(NotificationConstant.SYSTEM_NOTIFICATION,
                 IdGeneratorConstant.SYSTEM_NOTIFICATION_TABLE, IdGeneratorConstant.ID_COLUMN);
@@ -61,7 +73,7 @@ public class NotificationManager {
         long sendUserId = comment.getUserId();
         Instant creationTime = comment.getCreationTime();
 
-        long id = generateReplyNotificationId();
+        long id = idGeneratorService.generateId();
 
         NotificationDTO notification = NotificationDTO.ofNewReplyNotification(
                 id, sendUserId, commentMessage, creationTime, commentId, bookmarkId, replyToCommentId);
@@ -69,7 +81,7 @@ public class NotificationManager {
     }
 
     public void sendSystemNotification(String sender, String message) {
-        long id = generateSystemNotificationId();
+        long id = idGeneratorService.generateId();
         NotificationDTO notification = NotificationDTO.ofNewSystemNotification(id, sender, message);
         notificationStrategyContext.sendNotification(notification);
     }

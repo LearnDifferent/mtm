@@ -89,7 +89,7 @@ class BookmarkControllerTest {
     @DisplayName("Should return the bookmark with the same ID")
     void shouldReturnTheBookmarkWithSameId() throws Exception {
         long currentUserId = 1L;
-        int id = 1;
+        Long id = 1L;
         BookmarkVO bookmark = new BookmarkVO();
         bookmark.setId(id);
 
