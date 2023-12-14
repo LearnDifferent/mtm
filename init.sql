@@ -4,9 +4,9 @@ USE mtm;
 
 CREATE TABLE IF NOT EXISTS `user`
 (
-    `id`            int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `user_name`     varchar(50)      NOT NULL,
-    `password`      varchar(255)     NOT NULL,
+    `id`            bigint(11) unsigned NOT NULL,
+    `user_name`     varchar(50)         NOT NULL,
+    `password`      varchar(255)        NOT NULL,
     `creation_time` datetime    DEFAULT NULL,
     `role`          varchar(10) DEFAULT 'guest',
     `is_deleted`    boolean     DEFAULT false,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `bookmark`
 
 CREATE TABLE IF NOT EXISTS `comment`
 (
-    `id`                  bigint unsigned NOT NULL AUTO_INCREMENT,
+    `id`                  bigint unsigned NOT NULL,
     `comment`             varchar(140)    NOT NULL,
     `bookmark_id`         bigint unsigned NOT NULL,
     `user_id`             bigint unsigned NOT NULL,
@@ -69,8 +69,8 @@ CREATE TABLE IF NOT EXISTS `system_log`
 
 CREATE TABLE IF NOT EXISTS `bookmark_view`
 (
-    `bookmark_id` int(11) not null,
-    `views`       int(11) not null,
+    `bookmark_id` bigint(11) not null,
+    `views`       int(11)    not null,
     /*
         当 SQL 为：
     ```sql
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `bookmark_view`
 CREATE TABLE IF NOT EXISTS `tag`
 (
     `tag`         varchar(8) not null,
-    `bookmark_id` int(11)    not null,
+    `bookmark_id` bigint(11) not null,
     UNIQUE KEY `idx_tag_tag_bookmark_id` (`tag`, `bookmark_id`),
     KEY `idx_tag_bookmark_id` (`bookmark_id`)
 ) ENGINE = InnoDB
@@ -100,11 +100,11 @@ CREATE TABLE IF NOT EXISTS `tag`
 
 CREATE TABLE IF NOT EXISTS `id_generator`
 (
-    `biz_tag`                 varchar(256) NOT NULL,
-    `max_id`                  bigint       NOT NULL DEFAULT '1',
-    `step`                    int          NOT NULL DEFAULT '100',
-    `description`             varchar(256)          DEFAULT NULL,
-    `update_time`             timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `biz_tag`     varchar(256) NOT NULL,
+    `max_id`      bigint       NOT NULL DEFAULT '1',
+    `step`        int          NOT NULL DEFAULT '100',
+    `description` varchar(256)          DEFAULT NULL,
+    `update_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`biz_tag`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
