@@ -3,11 +3,11 @@
 <mapper namespace="com.github.learndifferent.mtm.mapper.TagMapper">
     <resultMap id="BaseResultMap" type="com.github.learndifferent.mtm.entity.TagDO">
         <result column="tag" jdbcType="VARCHAR" property="tag"/>
-        <result column="bookmark_id" jdbcType="INTEGER" property="bookmarkId"/>
+        <result column="bookmark_id" jdbcType="BIGINT" property="bookmarkId"/>
     </resultMap>
     <insert id="addTag" parameterType="com.github.learndifferent.mtm.entity.TagDO">
         insert into tag (tag, bookmark_id)
-        values (#{tag,jdbcType=VARCHAR}, #{bookmarkId,jdbcType=INTEGER})
+        values (#{tag}, #{bookmarkId})
     </insert>
     <select id="checkIfTagExists" resultType="java.lang.Boolean">
         select exists(
@@ -25,7 +25,7 @@
     <select id="getTagsByBookmarkId" resultType="java.lang.String">
         select tag
         from tag
-        where bookmark_id = #{bookmarkId,jdbcType=INTEGER}
+        where bookmark_id = #{bookmarkId}
         limit #{from}, #{size};
     </select>
     <select id="getBookmarkIdsByTagName" resultType="java.lang.Long">
