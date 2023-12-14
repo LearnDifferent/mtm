@@ -4,7 +4,6 @@ import com.github.learndifferent.mtm.annotation.common.AnnotationHelper;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.Comment;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.CommentId;
-import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.ReplyToCommentId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
 import com.github.learndifferent.mtm.constant.consist.PermissionCheckConstant;
 import com.github.learndifferent.mtm.manager.PermissionManager;
@@ -33,10 +32,9 @@ public class CommentUpdatePermissionCheckStrategy implements PermissionCheckStra
         long userId = -1L;
         long commentId = -1L;
         String comment = "";
-        Long replyToCommentId = null;
 
         AnnotationHelper helper = new AnnotationHelper(
-                BookmarkId.class, UserId.class, CommentId.class, Comment.class, ReplyToCommentId.class);
+                BookmarkId.class, UserId.class, CommentId.class, Comment.class);
 
         for (int i = 0; i < parameterAnnotations.length; i++) {
             for (Annotation annotation : parameterAnnotations[i]) {
@@ -73,18 +71,6 @@ public class CommentUpdatePermissionCheckStrategy implements PermissionCheckStra
                     helper.findAnnotation(Comment.class);
                     break;
                 }
-                if (helper.hasNotFoundAnnotation(ReplyToCommentId.class)
-                        && annotation instanceof ReplyToCommentId) {
-                    helper.findAnnotation(ReplyToCommentId.class);
-
-                    if (Objects.nonNull(curArg)
-                            && Long.class.isAssignableFrom(curArg.getClass())) {
-                        // The ReplyToCommentId can be null, but since its initial value is already null,
-                        // here we only consider the case when it has a long value.
-                        replyToCommentId = (Long) curArg;
-                    }
-                    break;
-                }
             }
             if (helper.hasFoundAllRequiredAnnotations()) {
                 break;
@@ -93,10 +79,10 @@ public class CommentUpdatePermissionCheckStrategy implements PermissionCheckStra
 
         helper.checkIfFoundAllRequiredAnnotations();
 
-        check(bookmarkId, userId, commentId, comment, replyToCommentId);
+        check(bookmarkId, userId, commentId, comment);
     }
 
-    private void check(long bookmarkId, long userId, long commentId, String comment, Long replyToCommentId) {
+    private void check(long bookmarkId, long userId, long commentId, String comment) {
         permissionManager.checkIfCommentValid(comment);
 
         log.info("Checking comment access permission. Bookmark ID: {}, User ID: {}", bookmarkId, userId);
@@ -104,8 +90,6 @@ public class CommentUpdatePermissionCheckStrategy implements PermissionCheckStra
         log.info("Checked comment access permission. Bookmark ID: {}, User ID: {}", bookmarkId, userId);
 
         permissionManager.checkIfCommentDuplicate(comment, bookmarkId, userId);
-
-        permissionManager.checkIfReplyToCommentPresent(replyToCommentId);
 
         permissionManager.checkIfCommentPresentAndUserPermissionGranted(commentId, userId);
     }
