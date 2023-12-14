@@ -18,6 +18,7 @@ import com.github.learndifferent.mtm.mapper.CommentHistoryMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.query.UpdateCommentRequest;
 import com.github.learndifferent.mtm.service.CommentService;
+import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -51,6 +52,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentMapper commentMapper;
     private final CommentHistoryMapper commentHistoryMapper;
     private final NotificationManager notificationManager;
+    private final IdGeneratorService idGeneratorService;
 
     @Override
     @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_READ)
@@ -128,7 +130,9 @@ public class CommentServiceImpl implements CommentService {
                                                  @BookmarkId long bookmarkId,
                                                  @UserId long userId,
                                                  @ReplyToCommentId Long replyToCommentId) {
+        long id = idGeneratorService.generateId();
         CommentDO commentDO = CommentDO.builder()
+                .id(id)
                 .comment(comment)
                 .bookmarkId(bookmarkId)
                 .userId(userId)
@@ -136,9 +140,19 @@ public class CommentServiceImpl implements CommentService {
                 .creationTime(Instant.now())
                 .build();
 
+        log.info("Adding comment. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+                id, comment, userId, bookmarkId);
         boolean success = commentMapper.addComment(commentDO);
+
         if (success) {
+            log.info("Comment added. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+                    id, comment, userId, bookmarkId);
             recordHistoryAndSendNotification(commentDO);
+            log.info("Comment history and notification sent. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+                    id, comment, userId, bookmarkId);
+        } else {
+            log.info("Failed to add comment. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+                    id, comment, userId, bookmarkId);
         }
 
         return success;

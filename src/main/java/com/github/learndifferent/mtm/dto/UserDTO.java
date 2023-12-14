@@ -17,12 +17,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class UserDTO implements Serializable {
 
-    public static UserDTO ofNewUser(String username, String notEncryptedPassword, UserRole role) {
+    public static UserDTO ofNewUser(long id, String username, String notEncryptedPassword, UserRole role) {
         // encrypt and set password
         String password = Md5Util.getMd5(notEncryptedPassword);
         // get creation time
         Instant creationTime = Instant.now();
-        return new UserDTO(null, username, password, creationTime, role.role());
+        return new UserDTO(id, username, password, creationTime, role.role());
     }
 
     public static UserDTO ofPasswordUpdate(Long id, String notEncryptedOldPassword, String notEncryptedNewPassword) {
