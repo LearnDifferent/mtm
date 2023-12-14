@@ -163,7 +163,8 @@ public class CommentServiceImpl implements CommentService {
         Long commentId = commentDO.getId();
         String comment = commentDO.getComment();
         Instant creationTime = commentDO.getCreationTime();
-        CommentHistoryDTO history = CommentHistoryDTO.of(commentId, comment, creationTime);
+        long id = idGeneratorService.generateId();
+        CommentHistoryDTO history = CommentHistoryDTO.of(id, commentId, comment, creationTime);
         addHistory(history);
 
         // send notification
@@ -191,7 +192,8 @@ public class CommentServiceImpl implements CommentService {
         boolean success = commentMapper.updateComment(id, comment);
         if (success) {
             log.info("Edited comment {}. Comment: {}, User ID: {}, Bookmark ID: {}", id, comment, userId, bookmarkId);
-            CommentHistoryDTO history = CommentHistoryDTO.of(id, comment);
+            long commentHistoryId = idGeneratorService.generateId();
+            CommentHistoryDTO history = CommentHistoryDTO.of(commentHistoryId, id, comment);
             addHistory(history);
         }
         return success;

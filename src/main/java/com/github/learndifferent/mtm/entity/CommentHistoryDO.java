@@ -18,6 +18,11 @@ import lombok.NoArgsConstructor;
 public class CommentHistoryDO implements Serializable {
 
     /**
+     * ID
+     */
+    private Long id;
+
+    /**
      * ID of the comment
      */
     private Long commentId;
