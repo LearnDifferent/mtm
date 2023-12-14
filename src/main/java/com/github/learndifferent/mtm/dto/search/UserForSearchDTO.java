@@ -26,7 +26,7 @@ public class UserForSearchDTO implements Serializable {
     /**
      * ID
      */
-    private Integer id;
+    private Long id;
 
     /**
      * Username

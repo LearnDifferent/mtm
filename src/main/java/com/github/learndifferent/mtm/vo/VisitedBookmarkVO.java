@@ -43,7 +43,7 @@ public class VisitedBookmarkVO implements Serializable {
     /**
      * ID of the bookmark
      */
-    private Integer bookmarkId;
+    private Long bookmarkId;
 
     /**
      * True if this is a public bookmark

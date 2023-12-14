@@ -206,7 +206,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private void updateCommentAndReadStatusBasedOnConditions(NotificationVO notification) {
-        Integer bookmarkId = notification.getBookmarkId();
+        Long bookmarkId = notification.getBookmarkId();
         Long recipientUserId = notification.getRecipientUserId();
 
         BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
@@ -236,7 +236,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
             return;
         }
 
-        Integer commentId = notification.getCommentId();
+        Long commentId = notification.getCommentId();
         String comment = commentMapper.getCommentTextById(commentId);
         if (StringUtils.isBlank(comment)) {
             // set message and comment ID to null to indicate the comment doesn't exist

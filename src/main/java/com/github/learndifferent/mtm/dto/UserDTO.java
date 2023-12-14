@@ -25,7 +25,7 @@ public class UserDTO implements Serializable {
         return new UserDTO(null, username, password, creationTime, role.role());
     }
 
-    public static UserDTO ofPasswordUpdate(Integer id, String notEncryptedOldPassword, String notEncryptedNewPassword) {
+    public static UserDTO ofPasswordUpdate(Long id, String notEncryptedOldPassword, String notEncryptedNewPassword) {
         // check blank
         boolean isAnyBlank = StringUtils.isAnyBlank(notEncryptedOldPassword, notEncryptedNewPassword);
         ThrowExceptionUtils.throwIfTrue(isAnyBlank, ResultCode.PASSWORD_EMPTY);
@@ -39,11 +39,11 @@ public class UserDTO implements Serializable {
         return new UserDTO(id, null, newPassword, null, null);
     }
 
-    public static UserDTO ofRoleUpdate(Integer id, UserRole role) {
+    public static UserDTO ofRoleUpdate(Long id, UserRole role) {
         return new UserDTO(id, null, null, null, role.role());
     }
 
-    private UserDTO(Integer id, String userName, String password, Instant createTime, String role) {
+    private UserDTO(Long id, String userName, String password, Instant createTime, String role) {
         this.id = id;
         this.userName = userName;
         this.password = password;
@@ -54,7 +54,7 @@ public class UserDTO implements Serializable {
     /**
      * ID
      */
-    private final Integer id;
+    private final Long id;
 
     /**
      * Username
@@ -76,7 +76,7 @@ public class UserDTO implements Serializable {
      */
     private final String role;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

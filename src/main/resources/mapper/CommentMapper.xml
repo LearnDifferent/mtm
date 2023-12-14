@@ -108,7 +108,7 @@
           and is_deleted = 0;
     </select>
 
-    <update id="deleteCommentById" parameterType="java.lang.Integer">
+    <update id="deleteCommentById" parameterType="java.lang.Long">
         update comment
         set is_deleted = 1
         where id = #{id}

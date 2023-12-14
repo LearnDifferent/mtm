@@ -159,7 +159,7 @@ public class BookmarkController {
     public BookmarkVO getBookmark(@RequestParam("id")
                                   @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                   @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                          Integer id) {
+                                          Long id) {
         long currentUserId = LoginUtils.getCurrentUserId();
         return bookmarkService.getBookmark(id, currentUserId);
     }

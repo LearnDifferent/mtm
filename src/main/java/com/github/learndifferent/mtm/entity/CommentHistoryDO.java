@@ -20,7 +20,7 @@ public class CommentHistoryDO implements Serializable {
     /**
      * ID of the comment
      */
-    private Integer commentId;
+    private Long commentId;
 
     /**
      * Comment

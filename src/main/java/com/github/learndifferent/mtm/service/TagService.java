@@ -74,7 +74,7 @@ public interface TagService {
      *                                                                  if the bookmarked website data is NOT
      *                                                                  associated with any tags
      */
-    List<String> getTags(Integer bookmarkId, PageInfoDTO pageInfo);
+    List<String> getTags(Long bookmarkId, PageInfoDTO pageInfo);
 
     /**
      * Get a tag of the bookmark
@@ -89,7 +89,7 @@ public interface TagService {
      * @param bookmarkId ID of the bookmark
      * @return a tag, or return empty string if there is no tag
      */
-    String getTagOrReturnEmpty(Integer bookmarkId);
+    String getTagOrReturnEmpty(Long bookmarkId);
 
     /**
      * Search bookmarks by a certain tag.

@@ -203,7 +203,7 @@ public class NotificationManager {
      * @param newRole    the new role that the user has been assigned to
      */
     @Async("asyncTaskExecutor")
-    public void logRoleChangesAsync(int id, UserRole formerRole, UserRole newRole) {
+    public void logRoleChangesAsync(long id, UserRole formerRole, UserRole newRole) {
         if (formerRole.equals(newRole)) {
             return;
         }

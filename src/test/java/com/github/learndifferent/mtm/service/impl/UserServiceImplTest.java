@@ -37,7 +37,7 @@ class UserServiceImplTest {
 
         private final String USERNAME = "user1";
         private final String ROLE = UserRole.USER.role();
-        private final Integer USER_ID = 10;
+        private final Long USER_ID = 10L;
         private final String PASSWORD = "123456";
         private final Instant CREATION_TIME = Instant.now();
 

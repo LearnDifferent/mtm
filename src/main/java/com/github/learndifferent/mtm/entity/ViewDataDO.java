@@ -23,7 +23,7 @@ public class ViewDataDO implements Serializable {
     /**
      * ID of the bookmark
      */
-    private Integer bookmarkId;
+    private Long bookmarkId;
 
     /**
      * The number of views of the bookmark

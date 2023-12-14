@@ -89,7 +89,7 @@ public interface UserMapper {
      * @param id ID
      * @return user role
      */
-    String getUserRoleById(int id);
+    String getUserRoleById(long id);
 
     /**
      * Get user by username

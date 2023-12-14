@@ -53,7 +53,7 @@ public class BookmarkCommentVO implements Serializable {
      * Null if this is not a reply
      * </p>
      */
-    private Integer replyToCommentId;
+    private Long replyToCommentId;
 
     /**
      * Count of the replies from this comment
