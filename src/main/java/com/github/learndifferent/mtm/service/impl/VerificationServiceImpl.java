@@ -131,7 +131,7 @@ public class VerificationServiceImpl implements VerificationService {
             ThrowExceptionUtils.throwIfTrue(isCurrentUserNotAdmin, ResultCode.PERMISSION_DENIED);
         }
 
-        Integer userId = user.getId();
+        Long userId = user.getId();
         String name = user.getUserName();
 
         return UserLoginInfoDTO.of(name, userId);

@@ -102,7 +102,7 @@ public class TagController {
      * @param bookmarkId ID of the bookmark
      * @param pageInfo   pagination information
      * @return paginated tags
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(Integer, PageInfoDTO)}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(Long, PageInfoDTO)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
      *                                                                  if the bookmarked website data is NOT

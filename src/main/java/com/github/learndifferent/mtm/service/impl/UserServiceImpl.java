@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changeUserRoleAndRecordChanges(Integer id, String newRole) {
+    public boolean changeUserRoleAndRecordChanges(Long id, String newRole) {
         return Optional.ofNullable(id)
                 // get the current role by ID
                 .map(userMapper::getUserRoleById)
@@ -120,7 +120,7 @@ public class UserServiceImpl implements UserService {
                 .orElse(false);
     }
 
-    private boolean changeUserRoleAndRecordChanges(int id, String curRole, String newRole) {
+    private boolean changeUserRoleAndRecordChanges(long id, String curRole, String newRole) {
         try {
             UserRole currentRole = UserRole.valueOf(curRole.toUpperCase());
             UserRole newUserRole = UserRole.valueOf(newRole.toUpperCase());
@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private boolean changeUserRoleAndRecordChanges(int id, UserRole curRole, UserRole newRole) {
+    private boolean changeUserRoleAndRecordChanges(long id, UserRole curRole, UserRole newRole) {
         if (curRole.equals(newRole)) {
             // return true if no changes need to be done
             return true;
@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
                 || (ADMIN.equals(curRole) && USER.equals(newRole));
     }
 
-    private boolean updateUserRole(Integer id, UserRole role) {
+    private boolean updateUserRole(Long id, UserRole role) {
         UserDTO user = UserDTO.ofRoleUpdate(id, role);
         return userMapper.updateUser(user);
     }

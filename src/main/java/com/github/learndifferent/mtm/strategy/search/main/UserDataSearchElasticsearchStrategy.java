@@ -116,7 +116,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
     }
 
     private UserForSearchWithMoreInfo convertToUser(Map<String, Object> source) {
-        Integer id = (Integer) source.get(SearchConstant.USER_ID);
+        Long id = (Long) source.get(SearchConstant.USER_ID);
         String username = String.valueOf(source.get(SearchConstant.USER_NAME));
         String role = String.valueOf(source.get(SearchConstant.ROLE));
 

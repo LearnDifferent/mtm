@@ -159,7 +159,7 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         int views = Integer.parseInt(val);
         // get bookmark id
         String bookmarkIdStr = key.substring(LENGTH_OF_KEY_WEB_VIEW_COUNT_PREFIX);
-        int bookmarkId = Integer.parseInt(bookmarkIdStr);
+        long bookmarkId = Long.parseLong(bookmarkIdStr);
         // create data
         ViewDataDO data = ViewDataDO.builder().views(views).bookmarkId(bookmarkId).build();
         // add data to set

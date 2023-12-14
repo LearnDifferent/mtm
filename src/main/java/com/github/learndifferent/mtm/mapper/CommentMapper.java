@@ -66,7 +66,7 @@ public interface CommentMapper {
      * @param id ID of the comment
      * @return the text of the comment
      */
-    String getCommentTextById(int id);
+    String getCommentTextById(long id);
 
     /**
      * Get comments of a bookmark

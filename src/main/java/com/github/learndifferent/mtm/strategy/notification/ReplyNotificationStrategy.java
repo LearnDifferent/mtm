@@ -236,7 +236,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
             return;
         }
 
-        Integer commentId = notification.getCommentId();
+        Long commentId = notification.getCommentId();
         String comment = commentMapper.getCommentTextById(commentId);
         if (StringUtils.isBlank(comment)) {
             // set message and comment ID to null to indicate the comment doesn't exist

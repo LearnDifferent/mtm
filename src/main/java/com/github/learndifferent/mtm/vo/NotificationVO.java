@@ -94,7 +94,7 @@ public class NotificationVO implements Serializable {
      * ID of the comment
      * <p>If the comment ID is null ,the comment doesn't exist</p>
      */
-    private Integer commentId;
+    private Long commentId;
 
     /**
      * ID of the bookmark
@@ -108,7 +108,7 @@ public class NotificationVO implements Serializable {
      * The ID of the comment being replied to
      * <p>Null if not replying to any comment, indicating it's a bookmark comment.</p>
      */
-    private Integer replyToCommentId;
+    private Long replyToCommentId;
 
     /**
      * True if the notification is read

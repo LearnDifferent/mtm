@@ -239,7 +239,7 @@ public class UserController {
     @GetMapping("/role")
     @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     @IdempotencyCheck
-    public ResultVO<ResultCode> changeUserRole(@RequestParam("id") Integer id,
+    public ResultVO<ResultCode> changeUserRole(@RequestParam("id") Long id,
                                                @RequestParam("newRole") String newRole) {
 
         boolean success = userService.changeUserRoleAndRecordChanges(id, newRole);

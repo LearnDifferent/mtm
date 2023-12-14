@@ -176,7 +176,7 @@ public class SearchManager {
 
     private IndexRequest getIndexRequest(UserForSearchDTO user) {
         IndexRequest request = new IndexRequest(SearchConstant.INDEX_USER);
-        Integer id = user.getId();
+        Long id = user.getId();
         String json = JsonUtils.toJson(user);
         request.id(String.valueOf(id)).source(json, XContentType.JSON);
         return request;
