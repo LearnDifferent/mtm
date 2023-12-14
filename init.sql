@@ -60,12 +60,14 @@ CREATE TABLE IF NOT EXISTS `comment_history`
 
 CREATE TABLE IF NOT EXISTS `system_log`
 (
-    `title`    varchar(256)  NOT NULL,
-    `opt_type` varchar(10)   NOT NULL,
-    `method`   varchar(128)  NOT NULL,
-    `msg`      varchar(1024) NOT NULL,
-    `status`   varchar(10)   NOT NULL,
-    `opt_time` datetime      NOT NULL
+    `id`       bigint unsigned NOT NULL,
+    `title`    varchar(256)    NOT NULL,
+    `opt_type` varchar(10)     NOT NULL,
+    `method`   varchar(128)    NOT NULL,
+    `msg`      varchar(1024)   NOT NULL,
+    `status`   varchar(10)     NOT NULL,
+    `opt_time` datetime        NOT NULL,
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
