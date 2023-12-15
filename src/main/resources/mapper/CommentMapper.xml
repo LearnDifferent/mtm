@@ -108,7 +108,7 @@
           and is_deleted = 0;
     </select>
 
-    <update id="deleteCommentById" parameterType="java.lang.Integer">
+    <update id="deleteCommentById" parameterType="java.lang.Long">
         update comment
         set is_deleted = 1
         where id = #{id}
@@ -120,10 +120,9 @@
         where user_id = #{userId}
     </update>
 
-    <insert id="addComment" keyColumn="id" keyProperty="id" useGeneratedKeys="true"
-            parameterType="com.github.learndifferent.mtm.entity.CommentDO">
-        insert into comment (`comment`, bookmark_id, `user_id`, creation_time, `reply_to_comment_id`)
-        values (#{comment}, #{bookmarkId}, #{userId}, #{creationTime}, ifnull(#{replyToCommentId}, -1))
+    <insert id="addComment" parameterType="com.github.learndifferent.mtm.entity.CommentDO">
+        insert into comment (`id`, `comment`, bookmark_id, `user_id`, creation_time, `reply_to_comment_id`)
+        values (#{id}, #{comment}, #{bookmarkId}, #{userId}, #{creationTime}, ifnull(#{replyToCommentId}, -1))
     </insert>
 
     <update id="updateComment">

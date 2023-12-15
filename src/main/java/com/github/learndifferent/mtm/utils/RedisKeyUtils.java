@@ -85,8 +85,8 @@ public class RedisKeyUtils {
         return RedisConstant.USER_REPLY_NOTIFICATION_READ_STATUS_PREFIX + recipientUserId;
     }
 
-    public static long getReplyNotificationReadStatusOffset(long notificationId) {
-        return notificationId;
+    public static int getReplyNotificationReadStatusOffset(Long notificationId) {
+        return notificationId.hashCode();
     }
 
     public static String getSystemNotificationKey() {
@@ -98,14 +98,14 @@ public class RedisKeyUtils {
     }
 
     public static long getSysNotificationReadStatusReadByUserOffset(Long userId) {
-        return userId;
+        return userId.hashCode();
     }
 
     public static String getSysNotificationReadStatusTrackNotificationsOfUserKey(Long userId) {
         return RedisConstant.SYS_NOTIFICATION_READ_STATUS_TRACK_NOTIFICATIONS_OF_USER_PREFIX + userId;
     }
 
-    public static long getSysNotificationReadStatusTrackNotificationsOfUserOffset(long notificationId) {
-        return notificationId;
+    public static int getSysNotificationReadStatusTrackNotificationsOfUserOffset(Long notificationId) {
+        return notificationId.hashCode();
     }
 }

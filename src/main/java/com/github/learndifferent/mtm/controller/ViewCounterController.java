@@ -35,7 +35,7 @@ public class ViewCounterController {
      * @param bookmarkId ID of the bookmark
      */
     @GetMapping
-    public void increaseViews(@RequestParam("bookmarkId") Integer bookmarkId) {
+    public void increaseViews(@RequestParam("bookmarkId") Long bookmarkId) {
         viewCounterService.increaseViewsAndAddToSet(bookmarkId);
     }
 
@@ -46,7 +46,7 @@ public class ViewCounterController {
      * @return views
      */
     @GetMapping("/count")
-    public ResultVO<Integer> countViews(@RequestParam("bookmarkId") Integer bookmarkId) {
+    public ResultVO<Integer> countViews(@RequestParam("bookmarkId") Long bookmarkId) {
         int views = viewCounterService.countViews(bookmarkId);
         return ResultCreator.okResult(views);
     }

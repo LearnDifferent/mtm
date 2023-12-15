@@ -16,7 +16,6 @@ import com.github.learndifferent.mtm.query.UserIdentificationRequest;
 import com.github.learndifferent.mtm.query.UsernamesRequest;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
-import com.github.learndifferent.mtm.service.NotificationService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.service.VerificationService;
 import com.github.learndifferent.mtm.utils.IpUtils;
@@ -26,7 +25,7 @@ import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,20 +43,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
     private final VerificationService verificationService;
-    private final NotificationService notificationService;
-
-    @Autowired
-    public UserController(UserService userService,
-                          VerificationService verificationService,
-                          NotificationService notificationService) {
-        this.userService = userService;
-        this.verificationService = verificationService;
-        this.notificationService = notificationService;
-    }
 
     /**
      * Create a user and return the username
@@ -249,7 +239,7 @@ public class UserController {
     @GetMapping("/role")
     @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     @IdempotencyCheck
-    public ResultVO<ResultCode> changeUserRole(@RequestParam("id") Integer id,
+    public ResultVO<ResultCode> changeUserRole(@RequestParam("id") Long id,
                                                @RequestParam("newRole") String newRole) {
 
         boolean success = userService.changeUserRoleAndRecordChanges(id, newRole);

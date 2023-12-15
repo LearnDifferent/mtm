@@ -167,7 +167,7 @@ public interface BookmarkService {
      *                          {@link ResultCode#PERMISSION_DENIED}
      *                          or {@link ResultCode#WEBSITE_DATA_NOT_EXISTS}
      */
-    BookmarkVO getBookmark(int id, long userId);
+    BookmarkVO getBookmark(long id, long userId);
 
     /**
      * Export user's bookmarks to HTML file.

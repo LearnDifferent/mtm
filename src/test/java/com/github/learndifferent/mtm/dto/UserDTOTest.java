@@ -14,7 +14,7 @@ class UserDTOTest {
     @DisplayName("Password should be encrypted")
     void passwordShouldBeEncrypted() {
         String password = "123456789";
-        UserDTO user = UserDTO.ofNewUser("username", password, UserRole.USER);
+        UserDTO user = UserDTO.ofNewUser(1L, "username", password, UserRole.USER);
         Assertions.assertNotEquals(password, user.getPassword());
     }
 }

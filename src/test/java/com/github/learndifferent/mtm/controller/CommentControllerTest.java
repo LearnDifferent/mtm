@@ -51,13 +51,13 @@ class CommentControllerTest {
         private final long ID = 100L;
         private final CommentVO COMMENT = new CommentVO().setId(ID);
         private final long BOOKMARK_ID = 1L;
-        private final long USER_NAME = 1L;
+        private final long USER_ID = 1L;
 
         @BeforeEach
         void setUp() {
             // 使用 BDDMockito.given 方法设置 mock 对象的预期行为。
             // willReturn 方法表示当调用指定的方法时，应返回的值。
-            given(commentService.getCommentByIds(ID, BOOKMARK_ID, USER_NAME))
+            given(commentService.getCommentByIds(ID, BOOKMARK_ID, USER_ID))
                     .willReturn(COMMENT);
         }
 
@@ -69,7 +69,7 @@ class CommentControllerTest {
             // 这个 mock 对象将在测试中替代实际的静态方法。
             try (MockedStatic<LoginUtils> loginUtilsMockedStatic = mockStatic(LoginUtils.class)) {
                 // 使用 when 方法设置静态方法的预期行为。thenReturn 方法表示当调用指定的静态方法时，应返回的值。
-                loginUtilsMockedStatic.when(LoginUtils::getCurrentUsername).thenReturn(USER_NAME);
+                loginUtilsMockedStatic.when(LoginUtils::getCurrentUserId).thenReturn(USER_ID);
                 // 使用 mockMvc.perform 方法模拟 HTTP 请求
                 mockMvc.perform(
                                 // 接受一个 MockHttpServletRequestBuilder 对象，用于构建 HTTP 请求。
@@ -94,7 +94,7 @@ class CommentControllerTest {
         void shouldReturnResultCodeOf500() throws Exception {
             String emptyId = "0";
             try (MockedStatic<LoginUtils> loginUtilsMockedStatic = mockStatic(LoginUtils.class)) {
-                loginUtilsMockedStatic.when(LoginUtils::getCurrentUsername).thenReturn(USER_NAME);
+                loginUtilsMockedStatic.when(LoginUtils::getCurrentUserId).thenReturn(USER_ID);
                 mockMvc.perform(
                                 get("/comment")
                                         .param("id", emptyId)

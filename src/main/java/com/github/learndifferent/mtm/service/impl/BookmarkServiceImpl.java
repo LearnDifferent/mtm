@@ -11,7 +11,6 @@ import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
 import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
 import com.github.learndifferent.mtm.chain.WebScraperRequest;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
-import com.github.learndifferent.mtm.constant.consist.IdGeneratorConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;
 import com.github.learndifferent.mtm.constant.enums.HomeTimeline;
@@ -121,8 +120,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     public boolean bookmarkWithBasicWebData(BasicWebDataDTO data, long userId, Privacy privacy) {
         userManager.checkIfUserBookmarked(userId, data.getUrl());
 
-        long id = idGeneratorService.generateId(IdGeneratorConstant.BOOKMARK_TAG,
-                IdGeneratorConstant.BOOKMARK_TABLE, IdGeneratorConstant.ID_COLUMN);
+        long id = idGeneratorService.generateId();
         NewBookmarkDTO newBookmark = NewBookmarkDTO.of(data, id, userId, privacy);
         return bookmarkMapper.addBookmark(newBookmark);
     }
@@ -239,7 +237,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public BookmarkVO getBookmark(int id, long userId) {
+    public BookmarkVO getBookmark(long id, long userId) {
         BookmarkVO bookmark = bookmarkMapper.getBookmarkWithUsernameById(id);
 
         // data does not exist

@@ -80,14 +80,14 @@ public class TagController {
     @GetMapping("/apply")
     @IdempotencyCheck
     public ResultVO<String> applyTag(@RequestParam("bookmarkId")
-                                         @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                 Long bookmarkId,
+                                     @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                             Long bookmarkId,
                                      @RequestParam("tag")
-                                         @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
-                                         @Length(min = ConstraintConstant.TAG_MIN_LENGTH,
-                                                 max = ConstraintConstant.TAG_MAX_LENGTH,
-                                                 message = ErrorInfoConstant.TAG_LENGTH)
-                                                 String tagName) {
+                                     @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
+                                     @Length(min = ConstraintConstant.TAG_MIN_LENGTH,
+                                             max = ConstraintConstant.TAG_MAX_LENGTH,
+                                             message = ErrorInfoConstant.TAG_LENGTH)
+                                             String tagName) {
         long currentUserId = LoginUtils.getCurrentUserId();
         String tag = tagService.applyTag(currentUserId, bookmarkId, tagName);
         return ResultCreator.okResult(tag);
@@ -102,7 +102,7 @@ public class TagController {
      * @param bookmarkId ID of the bookmark
      * @param pageInfo   pagination information
      * @return paginated tags
-     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(Integer, PageInfoDTO)}
+     * @throws com.github.learndifferent.mtm.exception.ServiceException {@link TagService#getTags(Long, PageInfoDTO)}
      *                                                                  will throw an exception with the result code of
      *                                                                  {@link ResultCode#NO_RESULTS_FOUND}
      *                                                                  if the bookmarked website data is NOT
@@ -111,7 +111,7 @@ public class TagController {
     @GetMapping
     public ResultVO<List<String>> getTags(@RequestParam(value = "bookmarkId", required = false)
                                           @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                  Integer bookmarkId,
+                                                  Long bookmarkId,
                                           @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
                                                   PageInfoDTO pageInfo) {
         List<String> tags = tagService.getTags(bookmarkId, pageInfo);
@@ -125,7 +125,7 @@ public class TagController {
      * @return a tag of the bookmark, or empty string if the bookmark has no tags
      */
     @GetMapping("/one")
-    public ResultVO<String> getTag(@RequestParam(value = "bookmarkId") Integer bookmarkId) {
+    public ResultVO<String> getTag(@RequestParam(value = "bookmarkId") Long bookmarkId) {
         String tag = tagService.getTagOrReturnEmpty(bookmarkId);
         return ResultCreator.okResult(tag);
     }

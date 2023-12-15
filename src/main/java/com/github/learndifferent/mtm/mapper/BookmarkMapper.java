@@ -231,7 +231,7 @@ public interface BookmarkMapper {
      * @param id ID
      * @return bookmark
      */
-    BookmarkVO getBookmarkWithUsernameById(Integer id);
+    BookmarkVO getBookmarkWithUsernameById(Long id);
 
     /**
      * Check if the bookmark exists, bookmark has not been deleted
@@ -241,7 +241,7 @@ public interface BookmarkMapper {
      * @param userId     ID of the user
      * @return return true if the bookmark exists and has not been deleted
      */
-    boolean checkIfBookmarkAvailable(@Param("bookmarkId") Integer bookmarkId,
+    boolean checkIfBookmarkAvailable(@Param("bookmarkId") Long bookmarkId,
                                      @Param("userId") Long userId);
 
     /**
