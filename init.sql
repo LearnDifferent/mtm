@@ -4,9 +4,9 @@ USE mtm;
 
 CREATE TABLE IF NOT EXISTS `user`
 (
-    `id`            bigint(11) unsigned NOT NULL,
-    `user_name`     varchar(50)         NOT NULL,
-    `password`      varchar(255)        NOT NULL,
+    `id`            bigint unsigned NOT NULL,
+    `user_name`     varchar(50)     NOT NULL,
+    `password`      varchar(255)    NOT NULL,
     `creation_time` datetime    DEFAULT NULL,
     `role`          varchar(10) DEFAULT 'guest',
     `is_deleted`    boolean     DEFAULT false,
@@ -73,8 +73,9 @@ CREATE TABLE IF NOT EXISTS `system_log`
 
 CREATE TABLE IF NOT EXISTS `bookmark_view`
 (
-    `bookmark_id` bigint(11) not null,
-    `views`       int(11)    not null,
+    `bookmark_id` bigint  not null,
+    `views`       int(11) not null,
+    PRIMARY KEY (`bookmark_id`),
     /*
         当 SQL 为：
     ```sql
@@ -88,15 +89,16 @@ CREATE TABLE IF NOT EXISTS `bookmark_view`
         的时候，使用 `views`, `bookmark_id` 的联合索引，
         可以达到 Backward index scan; Using index
      */
-
     KEY `idx_bookmark_view_views_bookmark_id` (`views`, `bookmark_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `tag`
 (
-    `tag`         varchar(8) not null,
-    `bookmark_id` bigint(11) not null,
+    `id`          bigint unsigned NOT NULL,
+    `tag`         varchar(8)      not null,
+    `bookmark_id` bigint(11)      not null,
+    PRIMARY KEY (`id`),
     UNIQUE KEY `idx_tag_tag_bookmark_id` (`tag`, `bookmark_id`),
     KEY `idx_tag_bookmark_id` (`bookmark_id`)
 ) ENGINE = InnoDB
