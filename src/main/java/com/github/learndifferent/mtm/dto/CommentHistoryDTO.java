@@ -12,19 +12,25 @@ import java.util.Objects;
  */
 public class CommentHistoryDTO implements Serializable {
 
-    public static CommentHistoryDTO of(long commentId, String comment) {
-        return of(commentId, comment, Instant.now());
+    public static CommentHistoryDTO of(long id, long commentId, String comment) {
+        return of(id, commentId, comment, Instant.now());
     }
 
-    public static CommentHistoryDTO of(long commentId, String comment, Instant creationTime) {
-        return new CommentHistoryDTO(commentId, comment, creationTime);
+    public static CommentHistoryDTO of(long id, long commentId, String comment, Instant creationTime) {
+        return new CommentHistoryDTO(id, commentId, comment, creationTime);
     }
 
-    private CommentHistoryDTO(Long commentId, String comment, Instant creationTime) {
+    private CommentHistoryDTO(Long id, Long commentId, String comment, Instant creationTime) {
+        this.id = id;
         this.commentId = commentId;
         this.comment = comment;
         this.creationTime = creationTime;
     }
+
+    /**
+     * ID
+     */
+    private final Long id;
 
     /**
      * ID of the comment

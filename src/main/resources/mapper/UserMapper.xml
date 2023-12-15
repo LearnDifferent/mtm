@@ -59,10 +59,9 @@
         order by bookmarkNumber desc;
     </select>
 
-    <insert id="addUser" keyColumn="id" keyProperty="id" useGeneratedKeys="true"
-            parameterType="com.github.learndifferent.mtm.dto.UserDTO">
-        insert into user (`user_name`, `password`, `creation_time`, `role`)
-        values (#{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+    <insert id="addUser" parameterType="com.github.learndifferent.mtm.dto.UserDTO">
+        insert into user (`id`, `user_name`, `password`, `creation_time`, `role`)
+        values (#{id}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{role,jdbcType=VARCHAR})
     </insert>
 

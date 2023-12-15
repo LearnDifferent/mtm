@@ -80,14 +80,14 @@ public class TagController {
     @GetMapping("/apply")
     @IdempotencyCheck
     public ResultVO<String> applyTag(@RequestParam("bookmarkId")
-                                         @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                 Long bookmarkId,
+                                     @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                             Long bookmarkId,
                                      @RequestParam("tag")
-                                         @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
-                                         @Length(min = ConstraintConstant.TAG_MIN_LENGTH,
-                                                 max = ConstraintConstant.TAG_MAX_LENGTH,
-                                                 message = ErrorInfoConstant.TAG_LENGTH)
-                                                 String tagName) {
+                                     @NotBlank(message = ErrorInfoConstant.TAG_EMPTY)
+                                     @Length(min = ConstraintConstant.TAG_MIN_LENGTH,
+                                             max = ConstraintConstant.TAG_MAX_LENGTH,
+                                             message = ErrorInfoConstant.TAG_LENGTH)
+                                             String tagName) {
         long currentUserId = LoginUtils.getCurrentUserId();
         String tag = tagService.applyTag(currentUserId, bookmarkId, tagName);
         return ResultCreator.okResult(tag);
@@ -110,10 +110,10 @@ public class TagController {
      */
     @GetMapping
     public ResultVO<List<String>> getTags(@RequestParam(value = "bookmarkId", required = false)
-                                              @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
-                                                      Long bookmarkId,
+                                          @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
+                                                  Long bookmarkId,
                                           @PageInfo(paramName = PageInfoParam.CURRENT_PAGE, size = 100)
-                                                      PageInfoDTO pageInfo) {
+                                                  PageInfoDTO pageInfo) {
         List<String> tags = tagService.getTags(bookmarkId, pageInfo);
         return ResultCreator.okResult(tags);
     }

@@ -10,16 +10,16 @@
         <result column="opt_time" jdbcType="TIMESTAMP" property="optTime"/>
     </resultMap>
     <insert id="saveSystemLog" parameterType="com.github.learndifferent.mtm.entity.SysLog">
-        insert into system_log (title, opt_type, `method`,
+        insert into system_log (id, title, opt_type, `method`,
                                 msg, `status`, opt_time)
-        values (#{title,jdbcType=VARCHAR}, #{optType,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR},
+        values (#{id}, #{title,jdbcType=VARCHAR}, #{optType,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR},
                 #{msg,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{optTime,jdbcType=TIMESTAMP})
     </insert>
 
     <select id="getSystemLogs" resultType="com.github.learndifferent.mtm.entity.SysLog">
-        select title, opt_type, method, msg, status, opt_time
+        select id, title, opt_type, method, msg, status, opt_time
         from system_log
-        order by opt_time desc
+        order by id desc
         limit #{from}, #{size};
     </select>
 </mapper>

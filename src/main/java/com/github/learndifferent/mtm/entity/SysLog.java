@@ -26,6 +26,11 @@ import lombok.experimental.Accessors;
 public class SysLog implements Serializable {
 
     /**
+     * ID
+     */
+    private Long id;
+
+    /**
      * Title
      */
     private String title;

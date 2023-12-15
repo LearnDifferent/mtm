@@ -14,6 +14,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
+import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
@@ -42,6 +43,7 @@ public class UserManager {
     private final CommentMapper commentMapper;
     private final NotificationManager notificationManager;
     private final SearchManager searchManager;
+    private final IdGeneratorService idGeneratorService;
 
     public BookmarksAndTotalPagesVO getUserBookmarks(long userId,
                                                      int from,
@@ -148,7 +150,8 @@ public class UserManager {
                                            @Password String notEncryptedPassword,
                                            UserRole role) {
 
-        UserDTO user = UserDTO.ofNewUser(username, notEncryptedPassword, role);
+        long id = idGeneratorService.generateId();
+        UserDTO user = UserDTO.ofNewUser(id, username, notEncryptedPassword, role);
         try {
             return createUserAndGetUsername(user);
         } catch (DuplicateKeyException e) {
@@ -170,8 +173,8 @@ public class UserManager {
     private void saveToElasticsearchAsync(UserDTO user) {
         // add to Elasticsearch asynchronously
         UserForSearchDTO data = UserForSearchDTO.builder()
-                .userName(user.getUserName())
                 .id(user.getId())
+                .userName(user.getUserName())
                 .createTime(user.getCreateTime())
                 .role(user.getRole())
                 .build();

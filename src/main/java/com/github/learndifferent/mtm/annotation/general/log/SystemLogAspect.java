@@ -6,6 +6,7 @@ import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.exception.IdempotencyException;
 import com.github.learndifferent.mtm.exception.ServiceException;
+import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import java.lang.reflect.Method;
 import java.time.Instant;
@@ -29,11 +30,16 @@ import org.springframework.stereotype.Component;
 public class SystemLogAspect {
 
     private final SystemLogService logService;
+    private final IdGeneratorService idGeneratorService;
 
     @Around("@annotation(annotation)")
     public Object around(ProceedingJoinPoint pjp, SystemLog annotation) throws Throwable {
 
         SysLog.SysLogBuilder sysLog = SysLog.builder();
+
+        long id = idGeneratorService.generateId();
+        sysLog.id(id);
+
         OptsType optsType = annotation.optsType();
         sysLog.optType(optsType.value()).optTime(Instant.now());
 
@@ -91,7 +97,8 @@ public class SystemLogAspect {
             throw e;
 
         } finally {
-            logService.saveSystemLogAsync(sysLog.build());
+            SysLog log = sysLog.build();
+            logService.saveSystemLogAsync(log);
         }
     }
 }

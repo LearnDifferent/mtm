@@ -3,11 +3,11 @@
 <mapper namespace="com.github.learndifferent.mtm.mapper.CommentHistoryMapper">
 
     <insert id="addHistory" parameterType="com.github.learndifferent.mtm.dto.CommentHistoryDTO">
-        insert into comment_history (comment_id, comment, creation_time)
-        values (#{commentId}, #{comment}, #{creationTime});
+        insert into comment_history (id, comment_id, comment, creation_time)
+        values (#{id}, #{commentId}, #{comment}, #{creationTime});
     </insert>
     <select id="getHistory" resultType="com.github.learndifferent.mtm.entity.CommentHistoryDO">
-        select comment_id, comment, creation_time
+        select id, comment_id, comment, creation_time
         from comment_history
         where comment_id = #{commentId}
         order by creation_time desc;
