@@ -21,6 +21,11 @@ import lombok.experimental.Accessors;
 public class TagDO implements Serializable {
 
     /**
+     * ID
+     */
+    private Long id;
+
+    /**
      * Tag
      */
     private String tag;

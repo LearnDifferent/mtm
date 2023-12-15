@@ -6,8 +6,8 @@
         <result column="bookmark_id" jdbcType="BIGINT" property="bookmarkId"/>
     </resultMap>
     <insert id="addTag" parameterType="com.github.learndifferent.mtm.entity.TagDO">
-        insert into tag (tag, bookmark_id)
-        values (#{tag}, #{bookmarkId})
+        insert into tag (id, tag, bookmark_id)
+        values (#{id}, #{tag}, #{bookmarkId})
     </insert>
     <select id="checkIfTagExists" resultType="java.lang.Boolean">
         select exists(

@@ -14,6 +14,7 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.DeleteTagManager;
 import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.TagMapper;
+import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.service.TagService;
 import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
@@ -48,18 +49,25 @@ public class TagServiceImpl implements TagService {
     private final TagMapper tagMapper;
     private final DeleteTagManager deleteTagManager;
     private final BookmarkMapper bookmarkMapper;
+    private final IdGeneratorService idGeneratorService;
 
     @Override
     @AccessPermissionCheck(dataAccessType = DataAccessType.TAG_CREATE)
     @CachePut(value = "tag:a", key = "#bookmarkId", unless = "''.equals(#result)")
     public String applyTag(@UserId long userId, @BookmarkId long bookmarkId, @Tag String tagName) {
         String tag = tagName.trim();
-        TagDO tagDO = TagDO.builder().tag(tag).bookmarkId(bookmarkId).build();
+        long id = idGeneratorService.generateId();
+
+        TagDO tagDO = TagDO.builder().id(id).tag(tag).bookmarkId(bookmarkId).build();
         try {
             // a unique index is defined on tag and bookmark_id,
             // a DuplicateKeyException will be thrown if there is a duplication
+            log.info("Applying tag. ID {}, tag: {}, bookmark ID: {}, user ID: {}", id, tag, bookmarkId, userId);
             tagMapper.addTag(tagDO);
+            log.info("Applied tag. ID {}, tag: {}, bookmark ID: {}, user ID: {}", id, tag, bookmarkId, userId);
         } catch (DuplicateKeyException e) {
+            log.warn("The tag has already been applied. ID {}, tag: {}, bookmark ID: {}, user ID: {}",
+                    id, tag, bookmarkId, userId);
             throw new ServiceException(ResultCode.TAG_EXISTS);
         }
         return tagDO.getTag();
