@@ -22,7 +22,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -115,8 +114,8 @@ public class CommentController {
      * @param bookmarkId ID of the bookmark
      * @return number of comments of the bookmarked website
      */
-    @GetMapping("/bookmark/{id}")
-    public ResultVO<Long> countComment(@PathVariable("id")
+    @GetMapping("/bookmark/count")
+    public ResultVO<Long> countComment(@RequestParam("bookmarkId")
                                        @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                        @Positive(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)
                                                Long bookmarkId) {
