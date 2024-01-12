@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import cn.hutool.core.util.IdUtil;
 import com.github.learndifferent.mtm.constant.consist.IdGeneratorConstant;
 import com.github.learndifferent.mtm.dto.id.Segment;
 import com.github.learndifferent.mtm.dto.id.SegmentBuffer;
@@ -7,8 +8,6 @@ import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.IdGeneratorMapper;
 import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
-import com.github.yitter.contract.IdGeneratorOptions;
-import com.github.yitter.idgen.YitIdHelper;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,17 +45,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class IdGeneratorServiceImpl implements IdGeneratorService {
 
-    @PostConstruct
-    public void initIdGenerator() {
-        log.info("Initialize YitIdHelper");
-        IdGeneratorOptions options = new IdGeneratorOptions();
-        YitIdHelper.setIdGenerator(options);
-        log.info("Initialize YitIdHelper success");
-    }
-
     @Override
     public long generateId() {
-        return YitIdHelper.nextId();
+        return IdUtil.getSnowflakeNextId();
     }
 
     private final IdGeneratorMapper idGeneratorMapper;
