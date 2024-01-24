@@ -42,9 +42,4 @@ public interface ViewCounterService {
      * @see BookmarkService#getVisitedBookmarks(PageInfoDTO)
      */
     List<String> updateViewsAndReturnFailKeys();
-
-    /**
-     * A scheduled task to run {@link #updateViewsAndReturnFailKeys()} every 12 hours
-     */
-    void updateViewsScheduledTask();
 }
