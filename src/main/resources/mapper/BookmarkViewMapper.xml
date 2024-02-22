@@ -5,6 +5,10 @@
         <result column="bookmark_id" jdbcType="BIGINT" property="bookmarkId"/>
         <result column="views" jdbcType="INTEGER" property="views"/>
     </resultMap>
+    <insert id="upsertBookmarkView" parameterType="com.github.learndifferent.mtm.entity.ViewDataDO">
+        replace into bookmark_view (bookmark_id, views)
+        values (#{bookmarkId}, #{views})
+    </insert>
     <insert id="addAll" parameterType="com.github.learndifferent.mtm.entity.ViewDataDO">
         insert into bookmark_view (bookmark_id, views)
         values
