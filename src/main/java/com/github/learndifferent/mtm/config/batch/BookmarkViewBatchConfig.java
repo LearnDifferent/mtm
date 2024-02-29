@@ -62,6 +62,7 @@ public class BookmarkViewBatchConfig {
         log.info("[BookmarkViewBatch] Update bookmark views step is started");
         return stepBuilderFactory
                 .get(STEP_NAME)
+                .allowStartIfComplete(true)
                 .<ViewDataDO, ViewDataDO>chunk(10)
                 .reader(updateBookmarkViewReader())
                 .writer(updateBookmarkViewWriter())
