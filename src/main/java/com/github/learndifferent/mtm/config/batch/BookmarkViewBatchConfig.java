@@ -16,6 +16,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
@@ -68,6 +69,7 @@ public class BookmarkViewBatchConfig {
     }
 
     @Bean
+    @StepScope
     public ItemWriter<ViewDataDO> updateBookmarkViewWriter() {
         log.info("[BookmarkViewBatch - BatchItemWriter] Updating bookmark views");
         MyBatisBatchItemWriterBuilder<ViewDataDO> writerBuilder = new MyBatisBatchItemWriterBuilder<>();
@@ -79,6 +81,7 @@ public class BookmarkViewBatchConfig {
     }
 
     @Bean
+    @StepScope
     public ItemReader<ViewDataDO> updateBookmarkViewReader() {
         log.info("[BookmarkViewBatch - BatchItemReader] Update bookmark views reader is started");
         log.info("[BookmarkViewBatch - BatchItemReader] Getting views data from Redis for updating bookmark views");
