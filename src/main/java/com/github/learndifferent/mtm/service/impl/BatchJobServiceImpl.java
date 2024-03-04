@@ -19,6 +19,7 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -33,6 +34,8 @@ public class BatchJobServiceImpl implements BatchJobService {
 
     private final JobLauncher jobLauncher;
     private final Job bookmarkViewBatchJob;
+
+    public static final long TWELVE_HOURS = 43_200_000L;
 
     public BatchJobServiceImpl(JobLauncher jobLauncher,
                                @Qualifier(BookmarkViewBatchConfig.JOB_NAME) Job bookmarkViewBatchJob) {
@@ -68,6 +71,16 @@ public class BatchJobServiceImpl implements BatchJobService {
             log.error("Batch Job Error", e);
             throw new ServiceException(ResultCode.BATCH_JOB_ERROR);
         }
+    }
+
+    /**
+     * A scheduled task to run {@link #updateBookmarkView()} every {@link #TWELVE_HOURS}
+     */
+    @Scheduled(fixedRate = TWELVE_HOURS)
+    public void updateBookmarkViewScheduled() {
+        log.info("[BatchJobService] Scheduled Job - updateBookmarkView() is started");
+        BatchJobVO result = this.updateBookmarkView();
+        log.info("[BatchJobService] Scheduled Job - updateBookmarkView() is finished. Result: {}", result);
     }
 
     private JobParameters getTimestampJobParameters() {
