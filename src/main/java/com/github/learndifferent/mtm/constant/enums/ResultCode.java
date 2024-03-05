@@ -185,6 +185,10 @@ public enum ResultCode {
      */
     MISSING_REQUIRED_ANNOTATIONS(3026, "Missing required annotations"),
     /**
+     * Batch Job is not getting launched
+     */
+    BATCH_JOB_ERROR(3027, "Batch Job is not getting launched"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),

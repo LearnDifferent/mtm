@@ -60,6 +60,7 @@ public class ViewCounterController {
      *                                                                  code of
      *                                                                  {@link com.github.learndifferent.mtm.constant.enums.ResultCode#PERMISSION_DENIED
      *                                                                  PERMISSION_DENIED} if the user is not admin
+     * @deprecated Use {@link BatchJobController#updateBookmarkView()} instead
      */
     @GetMapping("/update")
     @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
