@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -164,11 +163,5 @@ public class ViewCounterServiceImpl implements ViewCounterService {
         ViewDataDO data = ViewDataDO.builder().views(views).bookmarkId(bookmarkId).build();
         // add data to set
         set.add(data);
-    }
-
-    @Override
-    @Scheduled(fixedRate = 43_200_000)
-    public void updateViewsScheduledTask() {
-        this.getCurrentBean().updateViewsAndReturnFailKeys();
     }
 }

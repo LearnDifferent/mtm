@@ -18,7 +18,7 @@ import com.github.learndifferent.mtm.vo.FindPageVO;
 import com.github.learndifferent.mtm.vo.SearchDataStatusVO;
 import java.util.Set;
 import javax.validation.constraints.NotBlank;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,14 +36,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/search")
 @Validated
+@RequiredArgsConstructor
 public class SearchController {
 
     private final SearchService searchService;
-
-    @Autowired
-    public SearchController(SearchService searchService) {
-        this.searchService = searchService;
-    }
 
     /**
      * Search
