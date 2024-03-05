@@ -1,6 +1,8 @@
 package com.github.learndifferent.mtm.controller;
 
 
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
+import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.service.BatchJobService;
 import com.github.learndifferent.mtm.vo.BatchJobVO;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,8 @@ public class BatchJobController {
 
     private final BatchJobService batchJobService;
 
-    @GetMapping("/update-bookmark-view")
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
+    @GetMapping("/update-bookmark-views")
     public BatchJobVO updateBookmarkView() {
         return batchJobService.updateBookmarkView();
     }
