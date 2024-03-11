@@ -17,8 +17,8 @@ import com.github.learndifferent.mtm.vo.SearchByTagResultVO;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,14 +36,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tag")
 @Validated
+@RequiredArgsConstructor
 public class TagController {
 
     private final TagService tagService;
-
-    @Autowired
-    public TagController(TagService tagService) {
-        this.tagService = tagService;
-    }
 
     /**
      * Apply a tag
