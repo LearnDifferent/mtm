@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `system_menu`
 (
     `id`                   bigint unsigned NOT NULL AUTO_INCREMENT,
     `menu_name`            varchar(63)     NOT NULL,
-    `parent_id`            bigint unsigned,
+    `parent_id`            bigint unsigned NOT NULL default 0,
     `display_order`        int(4)          NULL     DEFAULT 0 COMMENT 'Display Order',
     `permissions`          varchar(100)    NOT NULL DEFAULT 'guest:user:admin',
     `path`                 varchar(255)    NOT NULL DEFAULT '' COMMENT 'Routing Address',
