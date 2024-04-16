@@ -50,6 +50,8 @@ custom-redis:
       "[empty:user:all]": 20
     SYSTEM_LOG:
       "[system:log]": 40
+    MENU_ALL:
+      "[menu:all]": 40
     BOOKMARK_VISITED:
       "[bookmarks:visited]": 0
     TAG_ONE:
