@@ -1,10 +1,12 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.entity.SysMenu;
 import com.github.learndifferent.mtm.mapper.SystemMenuMapper;
 import com.github.learndifferent.mtm.service.SystemMenuService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -73,5 +75,30 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     private boolean checkIfRootMenu(SysMenu menu) {
         long parentId = menu.getParentId();
         return parentId == 0L;
+    }
+
+    @Override
+    @Cacheable(value = "menu:role", key = "#role")
+    public List<SysMenu> getAllMenus(UserRole role) {
+
+        if (UserRole.ADMIN.equals(role)) {
+            // Admin role has access to all menus
+            return this.getAllMenus();
+        }
+
+        List<SysMenu> allMenus = getCurrentBean().getAllMenusFromDatabase();
+
+        // Filter menus based on role
+        List<SysMenu> menus = allMenus.stream()
+                .filter(menu -> {
+                    String permissions = menu.getPermissions();
+                    String[] perms = permissions.split(":");
+                    return Arrays.stream(perms)
+                            .anyMatch(perm -> role.role().equalsIgnoreCase(perm));
+                })
+                .collect(Collectors.toList());
+
+        // Build menu tree
+        return buildMenuTree(menus);
     }
 }
