@@ -47,6 +47,13 @@ public class SystemController {
         return ResultCreator.okResult(allMenus);
     }
 
+    @GetMapping("/menu/all")
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
+    public ResultVO<List<SysMenu>> getAllSystemMenus() {
+        List<SysMenu> allMenus = systemMenuService.getAllMenus();
+        return ResultCreator.okResult(allMenus);
+    }
+
     /**
      * Get system logs from cache and database
      *
