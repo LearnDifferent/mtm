@@ -21,5 +21,6 @@
                update_time,
                remark
         from system_menu
+        where is_hidden = false
     </select>
 </mapper>
