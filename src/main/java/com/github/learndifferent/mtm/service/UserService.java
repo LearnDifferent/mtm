@@ -129,4 +129,12 @@ public interface UserService {
      * <p>false if failure, or the user role is neither {@code admin} nor {@code user}</p>
      */
     boolean changeUserRoleAndRecordChanges(Long id, String newRole);
+
+    /**
+     * Get user role by user ID
+     *
+     * @param id User ID
+     * @return User Role
+     */
+    UserRole getUserRoleByUserId(long id);
 }

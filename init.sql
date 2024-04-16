@@ -61,12 +61,35 @@ CREATE TABLE IF NOT EXISTS `comment_history`
 CREATE TABLE IF NOT EXISTS `system_log`
 (
     `id`       bigint unsigned NOT NULL,
-    `title`    varchar(256)    NOT NULL,
+    `title`    varchar(255)    NOT NULL,
     `opt_type` varchar(10)     NOT NULL,
     `method`   varchar(128)    NOT NULL,
     `msg`      varchar(1024)   NOT NULL,
     `status`   varchar(10)     NOT NULL,
     `opt_time` datetime        NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `system_menu`
+(
+    `id`                   bigint unsigned NOT NULL AUTO_INCREMENT,
+    `menu_name`            varchar(63)     NOT NULL,
+    `parent_id`            bigint unsigned NOT NULL default 0,
+    `display_order`        int(4)          NULL     DEFAULT 0 COMMENT 'Display Order',
+    `permissions`          varchar(100)    NOT NULL DEFAULT 'guest:user:admin',
+    `path`                 varchar(255)    NOT NULL DEFAULT '' COMMENT 'Routing Address',
+    `component`            varchar(255)             DEFAULT NULL COMMENT 'Vue Component',
+    `query`                varchar(255)             DEFAULT NULL COMMENT 'Vue Component Query (if any)',
+    `is_external_link`     boolean         NOT NULL DEFAULT false COMMENT 'True if this is an external link',
+    `is_cache`             boolean         NOT NULL DEFAULT false,
+    `is_hidden`            boolean         NOT NULL DEFAULT false,
+    `material_design_icon` varchar(128)    NOT NULL DEFAULT '',
+    `created_by`           varchar(255)             DEFAULT NULL,
+    `creation_time`        timestamp       NOT NULL,
+    `updated_by`           varchar(255)             DEFAULT NULL,
+    `update_time`          timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `remark`               varchar(500),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;

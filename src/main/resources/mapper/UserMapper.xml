@@ -40,7 +40,7 @@
                      else 2
                      end
                 desc,
-                 bookmarkNumber desc;
+                 bookmarkNumber desc
     </select>
 
     <select id="getNamesAndPublicBookmarkNums" resultType="com.github.learndifferent.mtm.vo.UserBookmarkNumberVO">
@@ -56,7 +56,7 @@
             b.is_public = 1 and u.is_deleted = 0 and b.is_deleted = 0
         </where>
         group by userName
-        order by bookmarkNumber desc;
+        order by bookmarkNumber desc
     </select>
 
     <insert id="addUser" parameterType="com.github.learndifferent.mtm.dto.UserDTO">
@@ -68,7 +68,7 @@
     <update id="deleteUserByUserId">
         update user
         set is_deleted = 1
-        where id = #{id};
+        where id = #{id}
     </update>
 
     <select id="getUserByNameAndPassword" resultMap="BaseResultMap">
@@ -77,7 +77,7 @@
         where user_name = #{userName}
           and password = #{password}
           and is_deleted = 0
-        limit 1;
+        limit 1
     </select>
 
     <select id="getUserRoleById" resultType="java.lang.String">
@@ -85,22 +85,31 @@
         from user
         where id = #{id}
           and is_deleted = 0
-        limit 1;
+        limit 1
     </select>
 
     <select id="getRoleByUserId" resultType="java.lang.String">
         select role
         from user
-        where id = #{userId}
+        where id = #{id}
           and is_deleted = 0
-        limit 1;
+        limit 1
     </select>
+
+    <select id="getUserRoleByUserId" resultType="com.github.learndifferent.mtm.constant.enums.UserRole">
+        select upper(role)
+        from user
+        where id = #{id}
+          and is_deleted = 0
+        limit 1
+    </select>
+
     <select id="getUserByName" resultMap="BaseResultMap">
         select id, user_name, `password`, creation_time, `role`
         from user
         where user_name = #{userName}
           and is_deleted = 0
-        limit 1;
+        limit 1
     </select>
     <select id="getUsers" resultMap="BaseResultMap">
         select id, user_name, `password`, creation_time, `role`
@@ -115,7 +124,7 @@
     <select id="countUsers" resultType="java.lang.Integer">
         select count(*)
         from user
-        where is_deleted = 0;
+        where is_deleted = 0
     </select>
 
     <select id="getUserIdByNameAndPassword" resultType="java.lang.Long">
@@ -124,14 +133,14 @@
         where user_name = #{userName}
           and password = #{password}
           and is_deleted = 0
-        limit 1;
+        limit 1
     </select>
     <select id="getUserIdByUsername" resultType="java.lang.Long">
         select id
         from user
         where user_name = #{username}
           and is_deleted = 0
-        limit 1;
+        limit 1
     </select>
     <select id="searchUserDataByKeyword"
             resultType="com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo">
@@ -143,13 +152,13 @@
                                 and b.is_deleted = 0
                                 and u.is_deleted = 0
         group by u.id, u.user_name, u.creation_time, u.role
-        order by bookmarkNumber desc;
+        order by bookmarkNumber desc
     </select>
     <select id="countUserByKeyword" resultType="java.lang.Long">
         select count(*)
         from user
         where user_name like concat(#{keyword}, '%')
-          and is_deleted = 0;
+          and is_deleted = 0
     </select>
 
     <update id="updateUser" parameterType="com.github.learndifferent.mtm.dto.UserDTO">
@@ -165,7 +174,7 @@
                 `role` = #{role},
             </if>
         </set>
-        where id = #{id};
+        where id = #{id}
     </update>
 
     <select id="checkIfUsernamePresent" resultType="java.lang.Boolean">
