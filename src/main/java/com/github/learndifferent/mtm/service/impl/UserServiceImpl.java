@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
     public boolean changeUserRoleAndRecordChanges(Long id, String newRole) {
         return Optional.ofNullable(id)
                 // get the current role by ID
-                .map(userMapper::getUserRoleById)
+                .map(userMapper::getRoleByUserId)
                 // change the role (log the role changes if success)
                 // return the result of whether the role has been changed successfully
                 .map(curRole -> changeUserRoleAndRecordChanges(id, curRole, newRole))

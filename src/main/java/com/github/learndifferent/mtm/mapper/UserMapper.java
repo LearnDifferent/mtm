@@ -78,18 +78,10 @@ public interface UserMapper {
     /**
      * Get user role
      *
-     * @param userId User ID
+     * @param id User ID
      * @return user role
      */
-    String getRoleByUserId(long userId);
-
-    /**
-     * Get user role by ID
-     *
-     * @param id ID
-     * @return user role
-     */
-    String getUserRoleById(long id);
+    String getRoleByUserId(long id);
 
     /**
      * Get user by username
