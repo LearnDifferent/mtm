@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.UserBookmarkRankingByRoleDTO;
 import com.github.learndifferent.mtm.dto.UserDTO;
 import com.github.learndifferent.mtm.dto.UserIdAndUsernameDTO;
@@ -82,6 +83,15 @@ public interface UserMapper {
      * @return user role
      */
     String getRoleByUserId(long id);
+
+    /**
+     * Get user role
+     *
+     * @param id User ID
+     * @return user role
+     * @throws IllegalArgumentException if the user role is invalid
+     */
+    UserRole getUserRoleByUserId(long id);
 
     /**
      * Get user by username

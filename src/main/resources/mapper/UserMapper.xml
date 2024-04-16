@@ -96,6 +96,14 @@
         limit 1
     </select>
 
+    <select id="getUserRoleByUserId" resultType="com.github.learndifferent.mtm.constant.enums.UserRole">
+        select upper(role)
+        from user
+        where id = #{id}
+          and is_deleted = 0
+        limit 1
+    </select>
+
     <select id="getUserByName" resultMap="BaseResultMap">
         select id, user_name, `password`, creation_time, `role`
         from user
