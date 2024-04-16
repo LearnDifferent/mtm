@@ -1,6 +1,7 @@
 package com.github.learndifferent.mtm.entity;
 
 import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,9 @@ public class SysMenu {
 
     private Long id;
     private String menuName;
+    /**
+     * Parent Menu ID (Not Null)
+     */
     private Long parentId;
     /**
      * Display Order
@@ -45,4 +49,9 @@ public class SysMenu {
     private String updatedBy;
     private Instant updateTime;
     private String remark;
+
+    /**
+     * Children Menu
+     */
+    private List<SysMenu> children;
 }
