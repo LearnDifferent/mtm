@@ -1,5 +1,9 @@
 package com.github.learndifferent.mtm.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.learndifferent.mtm.config.CustomInstantDeserializer;
+import com.github.learndifferent.mtm.config.CustomInstantSerializer;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -45,9 +49,17 @@ public class SysMenu {
     private Boolean isHidden;
     private String materialDesignIcon;
     private String createdBy;
+
+    @JsonSerialize(using = CustomInstantSerializer.class)
+    @JsonDeserialize(using = CustomInstantDeserializer.class)
     private Instant creationTime;
+
     private String updatedBy;
+
+    @JsonSerialize(using = CustomInstantSerializer.class)
+    @JsonDeserialize(using = CustomInstantDeserializer.class)
     private Instant updateTime;
+
     private String remark;
 
     /**
