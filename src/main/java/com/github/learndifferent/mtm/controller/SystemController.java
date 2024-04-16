@@ -5,11 +5,16 @@ import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
+import com.github.learndifferent.mtm.entity.SysMenu;
 import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SystemLogService;
+import com.github.learndifferent.mtm.service.SystemMenuService;
+import com.github.learndifferent.mtm.service.UserService;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -27,9 +32,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/system")
 @Validated
 @RequiredArgsConstructor
-public class SystemLogController {
+public class SystemController {
 
     private final SystemLogService logService;
+    private final SystemMenuService systemMenuService;
+    private final UserService userService;
+
+    @GetMapping("/menu")
+    public ResultVO<List<SysMenu>> getSystemMenus() {
+        long currentUserId = LoginUtils.getCurrentUserId();
+        UserRole role = userService.getUserRoleByUserId(currentUserId);
+
+        List<SysMenu> allMenus = systemMenuService.getAllMenus(role);
+        return ResultCreator.okResult(allMenus);
+    }
 
     /**
      * Get system logs from cache and database
