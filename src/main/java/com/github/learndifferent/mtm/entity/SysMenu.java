@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.learndifferent.mtm.config.CustomInstantDeserializer;
@@ -65,5 +66,6 @@ public class SysMenu {
     /**
      * Children Menu
      */
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<SysMenu> children;
 }
