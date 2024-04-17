@@ -85,10 +85,10 @@ CREATE TABLE IF NOT EXISTS `system_menu`
     `is_cache`             boolean         NOT NULL DEFAULT false,
     `is_hidden`            boolean         NOT NULL DEFAULT false,
     `material_design_icon` varchar(128)    NOT NULL DEFAULT '',
-    `created_by`           varchar(255)             DEFAULT NULL,
-    `creation_time`        timestamp       NOT NULL,
-    `updated_by`           varchar(255)             DEFAULT NULL,
-    `update_time`          timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by`           varchar(255)             DEFAULT 'Database User',
+    `creation_time`        timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`           varchar(255)             DEFAULT 'Database User',
+    `update_time`          timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `remark`               varchar(500),
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
