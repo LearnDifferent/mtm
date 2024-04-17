@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.github.learndifferent.mtm.config.CustomInstantDeserializer;
 import com.github.learndifferent.mtm.config.CustomInstantSerializer;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SysMenu {
+public class SysMenu implements Serializable {
 
     private Long id;
     private String menuName;
@@ -68,4 +69,6 @@ public class SysMenu {
      */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<SysMenu> children;
+
+    private static final long serialVersionUID = 1L;
 }
