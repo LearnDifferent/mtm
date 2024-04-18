@@ -1,7 +1,10 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
+import com.github.learndifferent.mtm.dto.SysMenuDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.SystemMenuMapper;
 import com.github.learndifferent.mtm.service.SystemMenuService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
@@ -12,6 +15,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +28,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SystemMenuServiceImpl implements SystemMenuService {
 
     private final SystemMenuMapper systemMenuMapper;
@@ -100,5 +106,24 @@ public class SystemMenuServiceImpl implements SystemMenuService {
 
         // Build menu tree
         return buildMenuTree(menus);
+    }
+
+    @Override
+    public void addMenu(SysMenuDTO menu, long creatorId) {
+        log.info("Adding menu: {}", menu);
+
+        // Validate menu name
+        if (StringUtils.isBlank(menu.getMenuName())) {
+            log.warn("Menu name cannot be empty: {}", menu);
+            throw new ServiceException(ResultCode.MENU_NAME_EMPTY);
+        }
+
+        String user = "User ID: " + creatorId;
+        menu.setCreatedBy(user);
+        menu.setUpdatedBy(user);
+        log.info("Adding menu with creator: 【{}】", user);
+
+        systemMenuMapper.addMenu(menu);
+        log.info("Menu added: {}", menu);
     }
 }
