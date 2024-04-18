@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.github.learndifferent.mtm.dto.SysMenuDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,11 @@ public interface SystemMenuMapper {
      * @return menus
      */
     List<SysMenu> getAllMenus();
+
+    /**
+     * Add a menu
+     *
+     * @param menu menu to add
+     */
+    void addMenu(SysMenuDTO menu);
 }
