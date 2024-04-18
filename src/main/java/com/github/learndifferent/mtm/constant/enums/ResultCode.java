@@ -189,6 +189,10 @@ public enum ResultCode {
      */
     BATCH_JOB_ERROR(3027, "Batch Job is not getting launched"),
     /**
+     * Menu name is empty
+     */
+    MENU_NAME_EMPTY(3028, "Menu name cannot be empty"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),
