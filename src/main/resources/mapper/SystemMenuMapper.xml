@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.learndifferent.mtm.mapper.SystemMenuMapper">
+
+    <resultMap id="SysMenuResultMap" type="com.github.learndifferent.mtm.entity.SysMenu">
+        <id column="id" property="id"/>
+        <result column="menu_name" property="menuName"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="display_order" property="displayOrder"/>
+        <result column="path" property="path"/>
+        <result column="component" property="component"/>
+        <result column="query" property="query"/>
+        <result column="is_external_link" property="isExternalLink"/>
+        <result column="is_cache" property="isCache"/>
+        <result column="is_hidden" property="isHidden"/>
+        <result column="permissions" property="permissions"/>
+        <result column="material_design_icon" property="materialDesignIcon"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="creation_time" property="creationTime"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <resultMap id="SysMenuDTOResultMap" type="com.github.learndifferent.mtm.dto.SysMenuDTO">
+        <result column="menu_name" property="menuName"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="display_order" property="displayOrder"/>
+        <result column="permissions" property="permissions"/>
+        <result column="path" property="path"/>
+        <result column="component" property="component"/>
+        <result column="query" property="query"/>
+        <result column="is_external_link" property="isExternalLink"/>
+        <result column="is_cache" property="isCache"/>
+        <result column="is_hidden" property="isHidden"/>
+        <result column="material_design_icon" property="materialDesignIcon"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="getAllMenus" resultMap="SysMenuResultMap">
+        select id,
+               menu_name,
+               parent_id,
+               display_order,
+               path,
+               component,
+               query,
+               is_external_link,
+               is_cache,
+               is_hidden,
+               permissions,
+               material_design_icon,
+               created_by,
+               creation_time,
+               updated_by,
+               update_time,
+               remark
+        from system_menu
+        where is_hidden = false
+    </select>
+
+    <insert id="addMenu" parameterType="com.github.learndifferent.mtm.dto.SysMenuDTO">
+        INSERT INTO system_menu (
+        <trim suffixOverrides=",">
+            <if test="menuName != null">menu_name,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="displayOrder != null">display_order,</if>
+            <if test="permissions != null">permissions,</if>
+            <if test="path != null">path,</if>
+            <if test="component != null">component,</if>
+            <if test="query != null">query,</if>
+            <if test="isExternalLink != null">is_external_link,</if>
+            <if test="isCache != null">is_cache,</if>
+            <if test="isHidden != null">is_hidden,</if>
+            <if test="materialDesignIcon != null">material_design_icon,</if>
+            <if test="createdBy != null">created_by,</if>
+            <if test="updatedBy != null">updated_by,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        ) VALUES (
+        <trim suffixOverrides=",">
+            <if test="menuName != null">#{menuName},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="displayOrder != null">#{displayOrder},</if>
+            <if test="permissions != null">#{permissions},</if>
+            <if test="path != null">#{path},</if>
+            <if test="component != null">#{component},</if>
+            <if test="query != null">#{query},</if>
+            <if test="isExternalLink != null">#{isExternalLink},</if>
+            <if test="isCache != null">#{isCache},</if>
+            <if test="isHidden != null">#{isHidden},</if>
+            <if test="materialDesignIcon != null">#{materialDesignIcon},</if>
+            <if test="createdBy != null">#{createdBy},</if>
+            <if test="updatedBy != null">#{updatedBy},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+        )
+    </insert>
+</mapper>

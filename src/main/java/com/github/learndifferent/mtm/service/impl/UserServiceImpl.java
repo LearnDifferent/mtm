@@ -22,9 +22,12 @@ import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.UserBookmarkNumberVO;
 import com.github.learndifferent.mtm.vo.UserVO;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.executor.result.ResultMapException;
+import org.mybatis.spring.MyBatisSystemException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -112,7 +115,7 @@ public class UserServiceImpl implements UserService {
     public boolean changeUserRoleAndRecordChanges(Long id, String newRole) {
         return Optional.ofNullable(id)
                 // get the current role by ID
-                .map(userMapper::getUserRoleById)
+                .map(userMapper::getRoleByUserId)
                 // change the role (log the role changes if success)
                 // return the result of whether the role has been changed successfully
                 .map(curRole -> changeUserRoleAndRecordChanges(id, curRole, newRole))
@@ -158,5 +161,23 @@ public class UserServiceImpl implements UserService {
     private boolean updateUserRole(Long id, UserRole role) {
         UserDTO user = UserDTO.ofRoleUpdate(id, role);
         return userMapper.updateUser(user);
+    }
+
+    @Override
+    public UserRole getUserRoleByUserId(long id) {
+        log.info("Getting user role by user ID {}", id);
+        try {
+            UserRole role = userMapper.getUserRoleByUserId(id);
+            if (Objects.nonNull(role)) {
+                log.info("User role for user ID {} is {}", id, role);
+                return role;
+            }
+            log.warn("User role for user ID {} is null. Considered it as Guest.", id);
+        } catch (MyBatisSystemException | ResultMapException | IllegalArgumentException e) {
+            log.warn("Invalid role for user ID {}. Considered it as Guest.", id, e);
+        }
+
+        // if the role is null or invalid, it will be considered as a guest
+        return UserRole.GUEST;
     }
 }

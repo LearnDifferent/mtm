@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ * Authentication information
+ *
  * @author zhou
  * @date 2023/7/11
  */
