@@ -1,8 +1,8 @@
 package com.github.learndifferent.mtm.service;
 
 import com.github.learndifferent.mtm.constant.enums.UserRole;
-import com.github.learndifferent.mtm.dto.SysMenuDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
+import com.github.learndifferent.mtm.query.SysMenuRequest;
 import java.util.List;
 
 /**
@@ -31,8 +31,15 @@ public interface SystemMenuService {
     /**
      * Add a menu
      *
-     * @param menu      menu to add
-     * @param creatorId creator's ID
+     * @param sysMenuRequest menu to add
+     * @param creatorId      creator's ID
      */
-    void addMenu(SysMenuDTO menu, long creatorId);
+    void addMenu(SysMenuRequest sysMenuRequest, long creatorId);
+
+    /**
+     * Update a menu
+     *
+     * @param sysMenuRequest menu to update
+     */
+    void updateMenu(SysMenuRequest sysMenuRequest);
 }

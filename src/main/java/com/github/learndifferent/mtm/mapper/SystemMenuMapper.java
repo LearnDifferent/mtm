@@ -27,4 +27,11 @@ public interface SystemMenuMapper {
      * @param menu menu to add
      */
     void addMenu(SysMenuDTO menu);
+
+    /**
+     * Update Menu
+     *
+     * @param menu menu to update
+     */
+    void updateMenu(SysMenuDTO menu);
 }

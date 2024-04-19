@@ -98,4 +98,25 @@
         </trim>
         )
     </insert>
+
+    <update id="updateMenu" parameterType="com.github.learndifferent.mtm.dto.SysMenuDTO">
+        UPDATE system_menu
+        <set>
+            <if test="menuName != null">menu_name = #{menuName},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="displayOrder != null">display_order = #{displayOrder},</if>
+            <if test="permissions != null">permissions = #{permissions},</if>
+            <if test="path != null">path = #{path},</if>
+            <if test="component != null">component = #{component},</if>
+            <if test="query != null">query = #{query},</if>
+            <if test="isExternalLink != null">is_external_link = #{isExternalLink},</if>
+            <if test="isCache != null">is_cache = #{isCache},</if>
+            <if test="isHidden != null">is_hidden = #{isHidden},</if>
+            <if test="materialDesignIcon != null">material_design_icon = #{materialDesignIcon},</if>
+            <if test="createdBy != null">created_by = #{createdBy},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
 </mapper>
