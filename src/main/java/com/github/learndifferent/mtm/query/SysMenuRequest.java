@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class SysMenuRequest implements Serializable {
 
+    private Long id;
     private String menuName;
     /**
      * Parent Menu ID
