@@ -7,7 +7,6 @@ import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
-import com.github.learndifferent.mtm.dto.SysMenuDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.entity.SysMenu;
 import com.github.learndifferent.mtm.query.SysMenuRequest;
@@ -16,7 +15,6 @@ import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.service.SystemMenuService;
 import com.github.learndifferent.mtm.service.UserService;
-import com.github.learndifferent.mtm.utils.BeanUtils;
 import com.github.learndifferent.mtm.utils.LoginUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -60,10 +58,14 @@ public class SystemController {
     }
 
     @PostMapping("/menu")
-    public void createMenu(@RequestBody SysMenuRequest sysMenuRequest) {
+    public void createMenu(@RequestBody SysMenuRequest menu) {
         long currentUserId = LoginUtils.getCurrentUserId();
-        SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
         systemMenuService.addMenu(menu, currentUserId);
+    }
+
+    @PostMapping("/menu/update")
+    public void updateMenu(@RequestBody SysMenuRequest menu) {
+        systemMenuService.updateMenu(menu);
     }
 
     /**
