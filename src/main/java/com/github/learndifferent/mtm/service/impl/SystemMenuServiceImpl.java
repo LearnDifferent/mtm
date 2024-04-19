@@ -6,8 +6,10 @@ import com.github.learndifferent.mtm.dto.SysMenuDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.SystemMenuMapper;
+import com.github.learndifferent.mtm.query.SysMenuRequest;
 import com.github.learndifferent.mtm.service.SystemMenuService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
+import com.github.learndifferent.mtm.utils.BeanUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -109,7 +111,8 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     }
 
     @Override
-    public void addMenu(SysMenuDTO menu, long creatorId) {
+    public void addMenu(SysMenuRequest sysMenuRequest, long creatorId) {
+        SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
         log.info("Adding menu: {}", menu);
 
         // Validate menu name
@@ -125,5 +128,13 @@ public class SystemMenuServiceImpl implements SystemMenuService {
 
         systemMenuMapper.addMenu(menu);
         log.info("Menu added: {}", menu);
+    }
+
+    @Override
+    public void updateMenu(SysMenuRequest sysMenuRequest) {
+        log.info("Updating menu: {}", sysMenuRequest);
+        SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
+        systemMenuMapper.updateMenu(menu);
+        log.info("Menu updated: {}", menu);
     }
 }
