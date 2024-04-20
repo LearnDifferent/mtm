@@ -16,6 +16,8 @@ import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.service.SystemMenuService;
 import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.LoginUtils;
+import com.github.learndifferent.mtm.validationgroup.OnCreation;
+import com.github.learndifferent.mtm.validationgroup.OnUpdate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -58,13 +60,13 @@ public class SystemController {
     }
 
     @PostMapping("/menu")
-    public void createMenu(@RequestBody SysMenuRequest menu) {
+    public void createMenu(@RequestBody @Validated(OnCreation.class) SysMenuRequest menu) {
         long currentUserId = LoginUtils.getCurrentUserId();
         systemMenuService.addMenu(menu, currentUserId);
     }
 
     @PostMapping("/menu/update")
-    public void updateMenu(@RequestBody SysMenuRequest menu) {
+    public void updateMenu(@RequestBody @Validated(OnUpdate.class) SysMenuRequest menu) {
         systemMenuService.updateMenu(menu);
     }
 

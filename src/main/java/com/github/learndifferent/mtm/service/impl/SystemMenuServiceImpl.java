@@ -1,10 +1,8 @@
 package com.github.learndifferent.mtm.service.impl;
 
-import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.SysMenuDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
-import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.SystemMenuMapper;
 import com.github.learndifferent.mtm.query.SysMenuRequest;
 import com.github.learndifferent.mtm.service.SystemMenuService;
@@ -18,7 +16,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -114,12 +111,6 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     public void addMenu(SysMenuRequest sysMenuRequest, long creatorId) {
         SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
         log.info("Adding menu: {}", menu);
-
-        // Validate menu name
-        if (StringUtils.isBlank(menu.getMenuName())) {
-            log.warn("Menu name cannot be empty: {}", menu);
-            throw new ServiceException(ResultCode.MENU_NAME_EMPTY);
-        }
 
         String user = "User ID: " + creatorId;
         menu.setCreatedBy(user);
