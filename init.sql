@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `system_menu`
     `updated_by`           varchar(255)    NOT NULL DEFAULT 'Database User',
     `update_time`          timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `remark`               varchar(500)    NOT NULL DEFAULT '',
+    `is_deleted`           boolean         NOT NULL DEFAULT false,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
