@@ -59,6 +59,7 @@
                remark
         from system_menu
         where is_hidden = false
+          and is_deleted = false
     </select>
 
     <insert id="addMenu" parameterType="com.github.learndifferent.mtm.dto.SysMenuDTO">
