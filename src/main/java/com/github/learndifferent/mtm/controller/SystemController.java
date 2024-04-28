@@ -7,6 +7,7 @@ import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
+import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
 import com.github.learndifferent.mtm.entity.SysMenu;
 import com.github.learndifferent.mtm.query.SysMenuRequest;
@@ -19,12 +20,16 @@ import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.validationgroup.OnCreation;
 import com.github.learndifferent.mtm.validationgroup.OnUpdate;
 import java.util.List;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -68,6 +73,12 @@ public class SystemController {
     @PostMapping("/menu/update")
     public void updateMenu(@RequestBody @Validated(OnUpdate.class) SysMenuRequest menu) {
         systemMenuService.updateMenu(menu);
+    }
+
+    @DeleteMapping("/menu")
+    public void deleteMenu(@RequestParam("id") @NotNull @Positive long id) {
+        UserLoginInfoDTO userInfo = LoginUtils.getCurrentUserInfo();
+        systemMenuService.deleteMenu(id, userInfo);
     }
 
     /**

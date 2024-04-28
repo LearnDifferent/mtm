@@ -34,4 +34,11 @@ public interface SystemMenuMapper {
      * @param menu menu to update
      */
     void updateMenu(SysMenuDTO menu);
+
+    /**
+     * Delete a menu
+     *
+     * @param id menu id
+     */
+    void deleteMenu(long id);
 }
