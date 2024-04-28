@@ -2,12 +2,14 @@ package com.github.learndifferent.mtm.service.impl;
 
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.SysMenuDTO;
+import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
 import com.github.learndifferent.mtm.mapper.SystemMenuMapper;
 import com.github.learndifferent.mtm.query.SysMenuRequest;
 import com.github.learndifferent.mtm.service.SystemMenuService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.BeanUtils;
+import com.github.learndifferent.mtm.utils.LoginUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -127,5 +129,14 @@ public class SystemMenuServiceImpl implements SystemMenuService {
         SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
         systemMenuMapper.updateMenu(menu);
         log.info("Menu updated: {}", menu);
+    }
+
+    @Override
+    public void deleteMenu(long id, UserLoginInfoDTO userInfo) {
+        Long userId = userInfo.getUserId();
+        String username = userInfo.getUsername();
+        log.info("Deleting menu with ID: {} by 【user ID: {}, username: {}】", id, userId, username);
+        systemMenuMapper.deleteMenu(id);
+        log.info("Menu deleted: ID: {}", id);
     }
 }
