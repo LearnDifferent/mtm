@@ -48,19 +48,19 @@ public class SystemController {
     private final SystemMenuService systemMenuService;
     private final UserService userService;
 
-    @GetMapping("/menu")
+    @GetMapping("/menus")
+    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
+    public ResultVO<List<SysMenu>> getAllSystemMenus() {
+        List<SysMenu> allMenus = systemMenuService.getAllMenus();
+        return ResultCreator.okResult(allMenus);
+    }
+
+    @GetMapping("/menus/role")
     public ResultVO<List<SysMenu>> getSystemMenus() {
         long currentUserId = LoginUtils.getCurrentUserId();
         UserRole role = userService.getUserRoleByUserId(currentUserId);
 
         List<SysMenu> allMenus = systemMenuService.getAllMenus(role);
-        return ResultCreator.okResult(allMenus);
-    }
-
-    @GetMapping("/menu/all")
-    @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
-    public ResultVO<List<SysMenu>> getAllSystemMenus() {
-        List<SysMenu> allMenus = systemMenuService.getAllMenus();
         return ResultCreator.okResult(allMenus);
     }
 
