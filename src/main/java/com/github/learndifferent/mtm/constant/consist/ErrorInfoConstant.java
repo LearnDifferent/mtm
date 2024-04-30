@@ -44,4 +44,10 @@ public final class ErrorInfoConstant {
     public static final String USER_NOT_FOUND = "Can't find the user";
 
     public static final String NO_DATA = "No data available";
+
+    public static final String MENU_ID_NOT_POSITIVE = "Menu ID must be a positive number";
+
+    public static final String MENU_ID_BLANK = "Menu ID must not be blank";
+
+    public static final String MENU_NAME_BLANK = "Menu name must not be blank";
 }
