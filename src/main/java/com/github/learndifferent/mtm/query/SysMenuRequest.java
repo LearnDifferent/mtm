@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.query;
 
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.validationgroup.OnCreation;
 import com.github.learndifferent.mtm.validationgroup.OnUpdate;
 import java.io.Serializable;
@@ -21,11 +22,11 @@ import lombok.NoArgsConstructor;
 @Data
 public class SysMenuRequest implements Serializable {
 
-    @Positive(groups = OnUpdate.class, message = "Menu ID must be a positive number")
-    @NotNull(groups = OnUpdate.class, message = "Menu ID must not be null")
+    @Positive(groups = OnUpdate.class, message = ErrorInfoConstant.MENU_ID_NOT_POSITIVE)
+    @NotNull(groups = OnUpdate.class, message = ErrorInfoConstant.MENU_ID_BLANK)
     private Long id;
 
-    @NotBlank(groups = OnCreation.class, message = "Menu name must not be blank")
+    @NotBlank(groups = OnCreation.class, message = ErrorInfoConstant.MENU_NAME_BLANK)
     private String menuName;
     /**
      * Parent Menu ID
