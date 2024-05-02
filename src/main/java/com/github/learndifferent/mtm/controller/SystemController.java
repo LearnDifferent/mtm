@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.controller;
 import com.github.learndifferent.mtm.annotation.general.page.PageInfo;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
+import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
@@ -20,7 +21,6 @@ import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.validationgroup.OnCreation;
 import com.github.learndifferent.mtm.validationgroup.OnUpdate;
 import java.util.List;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -76,7 +76,8 @@ public class SystemController {
     }
 
     @DeleteMapping("/menu")
-    public void deleteMenu(@RequestParam("id") @NotNull @Positive long id) {
+    public void deleteMenu(@RequestParam("id")
+                           @Positive(message = ErrorInfoConstant.MENU_ID_NOT_POSITIVE) long id) {
         UserLoginInfoDTO userInfo = LoginUtils.getCurrentUserInfo();
         systemMenuService.deleteMenu(id, userInfo);
     }
