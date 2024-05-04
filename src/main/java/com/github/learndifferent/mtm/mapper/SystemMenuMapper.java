@@ -29,6 +29,14 @@ public interface SystemMenuMapper {
     void addMenu(SysMenuDTO menu);
 
     /**
+     * Get a menu by id
+     *
+     * @param id menu ID
+     * @return menu
+     */
+    SysMenu getMenuData(long id);
+
+    /**
      * Update Menu
      *
      * @param menu menu to update
