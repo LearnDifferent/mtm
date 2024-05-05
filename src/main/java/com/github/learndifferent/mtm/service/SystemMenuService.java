@@ -22,12 +22,23 @@ public interface SystemMenuService {
     List<SysMenu> getAllMenus();
 
     /**
-     * Get all Menus for a specific role
+     * Get all Menus for a specific role by user ID
      *
-     * @param role User Role
+     * @param userId User ID
      * @return All Menus for the specified role
      */
-    List<SysMenu> getAllMenus(UserRole role);
+    List<SysMenu> getAllMenus(long userId);
+
+    /**
+     * Get a menu by ID
+     *
+     * @param id       menu ID
+     * @param userInfo user information
+     * @return menu
+     * @throws com.github.learndifferent.mtm.exception.ServiceException if the menu is not found or the user does not
+     *                                                                  have permission to access it
+     */
+    SysMenu getMenu(long id, UserLoginInfoDTO userInfo);
 
     /**
      * Add a menu
