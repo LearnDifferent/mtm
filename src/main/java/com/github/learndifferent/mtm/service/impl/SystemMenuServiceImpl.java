@@ -1,19 +1,22 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.SysMenuDTO;
 import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.SystemMenuMapper;
 import com.github.learndifferent.mtm.query.SysMenuRequest;
 import com.github.learndifferent.mtm.service.SystemMenuService;
+import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.BeanUtils;
-import com.github.learndifferent.mtm.utils.LoginUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ import org.springframework.stereotype.Service;
 public class SystemMenuServiceImpl implements SystemMenuService {
 
     private final SystemMenuMapper systemMenuMapper;
+    private final UserService userService;
 
     @Cacheable("menu:all")
     public List<SysMenu> getAllMenusFromDatabase() {
@@ -85,6 +89,11 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     }
 
     @Override
+    public List<SysMenu> getAllMenus(long userId) {
+        UserRole role = userService.getUserRoleByUserId(userId);
+        return getCurrentBean().getAllMenus(role);
+    }
+
     @Cacheable(value = "menu:role", key = "#role")
     public List<SysMenu> getAllMenus(UserRole role) {
 
@@ -97,16 +106,34 @@ public class SystemMenuServiceImpl implements SystemMenuService {
 
         // Filter menus based on role
         List<SysMenu> menus = allMenus.stream()
-                .filter(menu -> {
-                    String permissions = menu.getPermissions();
-                    String[] perms = permissions.split(":");
-                    return Arrays.stream(perms)
-                            .anyMatch(perm -> role.role().equalsIgnoreCase(perm));
-                })
+                .filter(menu -> checkRolePermission(menu, role))
                 .collect(Collectors.toList());
 
         // Build menu tree
         return buildMenuTree(menus);
+    }
+
+    private boolean checkRolePermission(SysMenu menu, UserRole role) {
+        String permissions = menu.getPermissions();
+        String[] perms = permissions.split(":");
+        return Arrays.stream(perms)
+                .anyMatch(perm -> role.role().equalsIgnoreCase(perm));
+    }
+
+    @Override
+    public SysMenu getMenu(long id, UserLoginInfoDTO userInfo) {
+        Long userId = userInfo.getUserId();
+        String username = userInfo.getUsername();
+        UserRole userRole = userService.getUserRoleByUserId(id);
+
+        log.info("Getting menu with ID {} by 【user ID: {}, username: {}, user role: {}】",
+                id, userId, username, userRole.role());
+        SysMenu menu = systemMenuMapper.getMenuData(id);
+        log.info("Menu data: {}", menu);
+
+        return Optional.ofNullable(menu)
+                .filter(m -> checkRolePermission(m, userRole))
+                .orElseThrow(() -> new ServiceException(ResultCode.MENU_NOT_FOUND));
     }
 
     @Override
