@@ -46,7 +46,6 @@ public class SystemController {
 
     private final SystemLogService logService;
     private final SystemMenuService systemMenuService;
-    private final UserService userService;
 
     @GetMapping("/menus")
     @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
@@ -58,10 +57,24 @@ public class SystemController {
     @GetMapping("/menus/role")
     public ResultVO<List<SysMenu>> getSystemMenus() {
         long currentUserId = LoginUtils.getCurrentUserId();
-        UserRole role = userService.getUserRoleByUserId(currentUserId);
-
-        List<SysMenu> allMenus = systemMenuService.getAllMenus(role);
+        List<SysMenu> allMenus = systemMenuService.getAllMenus(currentUserId);
         return ResultCreator.okResult(allMenus);
+    }
+
+    /**
+     * Get a menu by ID
+     *
+     * @param id       menu ID
+     * @return menu
+     * @throws com.github.learndifferent.mtm.exception.ServiceException if the menu is not found or the user does not
+     *                                                                  have permission to access it
+     */
+    @GetMapping("/menu")
+    public ResultVO<SysMenu> getSystemMenu(@RequestParam("id")
+                                           @Positive(message = ErrorInfoConstant.MENU_ID_NOT_POSITIVE) long id) {
+        UserLoginInfoDTO userInfo = LoginUtils.getCurrentUserInfo();
+        SysMenu menu = systemMenuService.getMenu(id, userInfo);
+        return ResultCreator.okResult(menu);
     }
 
     @PostMapping("/menu")
