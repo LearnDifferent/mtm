@@ -137,14 +137,16 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     }
 
     @Override
-    public void addMenu(SysMenuRequest sysMenuRequest, long creatorId) {
+    public void addMenu(SysMenuRequest sysMenuRequest, UserLoginInfoDTO userInfo) {
+        Long userId = userInfo.getUserId();
+        String username = userInfo.getUsername();
         SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
-        log.info("Adding menu: {}", menu);
+        log.info("Adding menu: 【{}】 by 【user ID: {}, username: {}】", menu, userId, username);
 
-        String user = "User ID: " + creatorId;
+        String user = "User ID: " + userId + ", Username: " + username;
         menu.setCreatedBy(user);
         menu.setUpdatedBy(user);
-        log.info("Adding menu with creator: 【{}】", user);
+        log.info("Creating menu by: {}", user);
 
         systemMenuMapper.addMenu(menu);
         log.info("Menu added: {}", menu);
@@ -162,7 +164,7 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     public void deleteMenu(long id, UserLoginInfoDTO userInfo) {
         Long userId = userInfo.getUserId();
         String username = userInfo.getUsername();
-        log.info("Deleting menu with ID: {} by 【user ID: {}, username: {}】", id, userId, username);
+        log.info("Deleting menu with ID {} by 【user ID: {}, username: {}】", id, userId, username);
         systemMenuMapper.deleteMenu(id);
         log.info("Menu deleted: ID: {}", id);
     }
