@@ -1,6 +1,5 @@
 package com.github.learndifferent.mtm.service;
 
-import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
 import com.github.learndifferent.mtm.query.SysMenuRequest;
@@ -44,9 +43,9 @@ public interface SystemMenuService {
      * Add a menu
      *
      * @param sysMenuRequest menu to add
-     * @param creatorId      creator's ID
+     * @param userInfo       user information
      */
-    void addMenu(SysMenuRequest sysMenuRequest, long creatorId);
+    void addMenu(SysMenuRequest sysMenuRequest, UserLoginInfoDTO userInfo);
 
     /**
      * Update a menu
