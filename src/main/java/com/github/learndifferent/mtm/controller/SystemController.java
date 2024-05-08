@@ -6,7 +6,6 @@ import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
 import com.github.learndifferent.mtm.constant.consist.ErrorInfoConstant;
 import com.github.learndifferent.mtm.constant.enums.PageInfoParam;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
-import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.PageInfoDTO;
 import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.entity.SysLog;
@@ -16,7 +15,6 @@ import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.SystemLogService;
 import com.github.learndifferent.mtm.service.SystemMenuService;
-import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.LoginUtils;
 import com.github.learndifferent.mtm.validationgroup.OnCreation;
 import com.github.learndifferent.mtm.validationgroup.OnUpdate;
@@ -64,7 +62,7 @@ public class SystemController {
     /**
      * Get a menu by ID
      *
-     * @param id       menu ID
+     * @param id menu ID
      * @return menu
      * @throws com.github.learndifferent.mtm.exception.ServiceException if the menu is not found or the user does not
      *                                                                  have permission to access it
@@ -77,10 +75,15 @@ public class SystemController {
         return ResultCreator.okResult(menu);
     }
 
+    /**
+     * Create a menu
+     *
+     * @param menu menu information
+     */
     @PostMapping("/menu")
     public void createMenu(@RequestBody @Validated(OnCreation.class) SysMenuRequest menu) {
-        long currentUserId = LoginUtils.getCurrentUserId();
-        systemMenuService.addMenu(menu, currentUserId);
+        UserLoginInfoDTO userInfo = LoginUtils.getCurrentUserInfo();
+        systemMenuService.addMenu(menu, userInfo);
     }
 
     @PostMapping("/menu/update")
