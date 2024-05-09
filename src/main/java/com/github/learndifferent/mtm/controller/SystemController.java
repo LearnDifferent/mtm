@@ -45,6 +45,11 @@ public class SystemController {
     private final SystemLogService logService;
     private final SystemMenuService systemMenuService;
 
+    /**
+     * Get all system logs
+     *
+     * @return all system logs
+     */
     @GetMapping("/menus")
     @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public ResultVO<List<SysMenu>> getAllSystemMenus() {
@@ -52,8 +57,13 @@ public class SystemController {
         return ResultCreator.okResult(allMenus);
     }
 
+    /**
+     * Get all system logs by user role
+     *
+     * @return all system logs
+     */
     @GetMapping("/menus/role")
-    public ResultVO<List<SysMenu>> getSystemMenus() {
+    public ResultVO<List<SysMenu>> getSystemMenusByRole() {
         long currentUserId = LoginUtils.getCurrentUserId();
         List<SysMenu> allMenus = systemMenuService.getAllMenus(currentUserId);
         return ResultCreator.okResult(allMenus);
@@ -86,11 +96,21 @@ public class SystemController {
         systemMenuService.addMenu(menu, userInfo);
     }
 
+    /**
+     * Update a menu
+     *
+     * @param menu menu information
+     */
     @PostMapping("/menu/update")
     public void updateMenu(@RequestBody @Validated(OnUpdate.class) SysMenuRequest menu) {
         systemMenuService.updateMenu(menu);
     }
 
+    /**
+     * Delete a menu
+     *
+     * @param id menu ID
+     */
     @DeleteMapping("/menu")
     public void deleteMenu(@RequestParam("id")
                            @Positive(message = ErrorInfoConstant.MENU_ID_NOT_POSITIVE) long id) {
