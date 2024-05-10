@@ -25,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -101,7 +102,7 @@ public class SystemController {
      *
      * @param menu menu information
      */
-    @PostMapping("/menu/update")
+    @PutMapping("/menu")
     public void updateMenu(@RequestBody @Validated(OnUpdate.class) SysMenuRequest menu) {
         systemMenuService.updateMenu(menu);
     }
