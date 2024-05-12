@@ -21,7 +21,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 /**
@@ -137,6 +139,10 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "menu:all", allEntries = true),
+            @CacheEvict(value = "menu:role", allEntries = true)
+    })
     public void addMenu(SysMenuRequest sysMenuRequest, UserLoginInfoDTO userInfo) {
         Long userId = userInfo.getUserId();
         String username = userInfo.getUsername();
