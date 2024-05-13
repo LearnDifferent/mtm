@@ -159,6 +159,10 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "menu:all", allEntries = true),
+            @CacheEvict(value = "menu:role", allEntries = true)
+    })
     public void updateMenu(SysMenuRequest sysMenuRequest) {
         log.info("Updating menu: {}", sysMenuRequest);
         SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
