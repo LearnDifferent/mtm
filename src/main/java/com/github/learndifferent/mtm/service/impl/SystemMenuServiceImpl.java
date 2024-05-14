@@ -171,6 +171,10 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "menu:all", allEntries = true),
+            @CacheEvict(value = "menu:role", allEntries = true)
+    })
     public void deleteMenu(long id, UserLoginInfoDTO userInfo) {
         Long userId = userInfo.getUserId();
         String username = userInfo.getUsername();
