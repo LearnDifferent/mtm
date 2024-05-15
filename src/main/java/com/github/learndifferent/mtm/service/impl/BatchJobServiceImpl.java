@@ -49,6 +49,8 @@ public class BatchJobServiceImpl implements BatchJobService {
         JobParameters parameters = getTimestampJobParameters();
 
         try {
+            log.info("[BatchJobService] Starting batch job with parameters: {}", parameters);
+
             JobExecution execution = jobLauncher.run(bookmarkViewBatchJob, parameters);
             Long jobId = execution.getJobId();
 
@@ -58,6 +60,10 @@ public class BatchJobServiceImpl implements BatchJobService {
             long instanceId = execution.getJobInstance().getInstanceId();
             JobParameters jobParameters = execution.getJobParameters();
             Map<String, JobParameter> jobParametersMap = jobParameters.getParameters();
+
+            log.info(
+                    "[BatchJobService] Batch job (Job ID: {}, Instance Id: {}) finished with exit code: {}, description: {}",
+                    jobId, instanceId, exitCode, exitDescription);
 
             return BatchJobVO.builder()
                     .jobId(jobId)
