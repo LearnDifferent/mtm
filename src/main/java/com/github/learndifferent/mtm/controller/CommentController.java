@@ -22,7 +22,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -214,7 +214,7 @@ public class CommentController {
      *                                                                  result code will be {@link ResultCode#UPDATE_FAILED}
      *                                                                  </p>
      */
-    @PostMapping
+    @PutMapping
     @IdempotencyCheck
     public ResultVO<ResultCode> updateComment(@RequestBody @Validated UpdateCommentRequest commentInfo) {
         long currentUserId = LoginUtils.getCurrentUserId();
