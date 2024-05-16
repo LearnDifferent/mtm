@@ -189,6 +189,10 @@ public enum ResultCode {
      */
     BATCH_JOB_ERROR(3027, "Batch Job is not getting launched"),
     /**
+     * Menu is deleted, or you have no permission to view it
+     */
+    MENU_NOT_FOUND(3028, "Menu is deleted, or you have no permission to view it"),
+    /**
      * Unable to connect to the server
      */
     CONNECTION_ERROR(5001, "Unable to connect to the server. Please try again later."),

@@ -59,6 +59,30 @@
                remark
         from system_menu
         where is_hidden = false
+          and is_deleted = false
+    </select>
+
+    <select id="getMenuData"  resultMap="SysMenuResultMap">
+        select id,
+               menu_name,
+               parent_id,
+               display_order,
+               permissions,
+               path,
+               component,
+               query,
+               is_external_link,
+               is_cache,
+               is_hidden,
+               material_design_icon,
+               created_by,
+               creation_time,
+               updated_by,
+               update_time,
+               remark
+        from system_menu
+        where id = #{id}
+          and is_deleted = false
     </select>
 
     <insert id="addMenu" parameterType="com.github.learndifferent.mtm.dto.SysMenuDTO">
@@ -118,5 +142,11 @@
             <if test="remark != null">remark = #{remark},</if>
         </set>
         WHERE id = #{id}
+    </update>
+
+    <update id="deleteMenu">
+        update system_menu
+        set is_deleted = true
+        where id = #{id}
     </update>
 </mapper>

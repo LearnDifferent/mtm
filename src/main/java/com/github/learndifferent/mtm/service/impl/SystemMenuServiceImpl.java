@@ -1,22 +1,29 @@
 package com.github.learndifferent.mtm.service.impl;
 
+import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.SysMenuDTO;
+import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 import com.github.learndifferent.mtm.entity.SysMenu;
+import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.SystemMenuMapper;
 import com.github.learndifferent.mtm.query.SysMenuRequest;
 import com.github.learndifferent.mtm.service.SystemMenuService;
+import com.github.learndifferent.mtm.service.UserService;
 import com.github.learndifferent.mtm.utils.ApplicationContextUtils;
 import com.github.learndifferent.mtm.utils.BeanUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,6 +38,7 @@ import org.springframework.stereotype.Service;
 public class SystemMenuServiceImpl implements SystemMenuService {
 
     private final SystemMenuMapper systemMenuMapper;
+    private final UserService userService;
 
     @Cacheable("menu:all")
     public List<SysMenu> getAllMenusFromDatabase() {
@@ -83,6 +91,11 @@ public class SystemMenuServiceImpl implements SystemMenuService {
     }
 
     @Override
+    public List<SysMenu> getAllMenus(long userId) {
+        UserRole role = userService.getUserRoleByUserId(userId);
+        return getCurrentBean().getAllMenus(role);
+    }
+
     @Cacheable(value = "menu:role", key = "#role")
     public List<SysMenu> getAllMenus(UserRole role) {
 
@@ -95,37 +108,78 @@ public class SystemMenuServiceImpl implements SystemMenuService {
 
         // Filter menus based on role
         List<SysMenu> menus = allMenus.stream()
-                .filter(menu -> {
-                    String permissions = menu.getPermissions();
-                    String[] perms = permissions.split(":");
-                    return Arrays.stream(perms)
-                            .anyMatch(perm -> role.role().equalsIgnoreCase(perm));
-                })
+                .filter(menu -> checkRolePermission(menu, role))
                 .collect(Collectors.toList());
 
         // Build menu tree
         return buildMenuTree(menus);
     }
 
-    @Override
-    public void addMenu(SysMenuRequest sysMenuRequest, long creatorId) {
-        SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
-        log.info("Adding menu: {}", menu);
+    private boolean checkRolePermission(SysMenu menu, UserRole role) {
+        String permissions = menu.getPermissions();
+        String[] perms = permissions.split(":");
+        return Arrays.stream(perms)
+                .anyMatch(perm -> role.role().equalsIgnoreCase(perm));
+    }
 
-        String user = "User ID: " + creatorId;
+    @Override
+    public SysMenu getMenu(long id, UserLoginInfoDTO userInfo) {
+        Long userId = userInfo.getUserId();
+        String username = userInfo.getUsername();
+        UserRole userRole = userService.getUserRoleByUserId(id);
+
+        log.info("Getting menu with ID {} by 【user ID: {}, username: {}, user role: {}】",
+                id, userId, username, userRole.role());
+        SysMenu menu = systemMenuMapper.getMenuData(id);
+        log.info("Menu data: {}", menu);
+
+        return Optional.ofNullable(menu)
+                .filter(m -> checkRolePermission(m, userRole))
+                .orElseThrow(() -> new ServiceException(ResultCode.MENU_NOT_FOUND));
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(value = "menu:all", allEntries = true),
+            @CacheEvict(value = "menu:role", allEntries = true)
+    })
+    public void addMenu(SysMenuRequest sysMenuRequest, UserLoginInfoDTO userInfo) {
+        Long userId = userInfo.getUserId();
+        String username = userInfo.getUsername();
+        SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
+        log.info("Adding menu: 【{}】 by 【user ID: {}, username: {}】", menu, userId, username);
+
+        String user = "User ID: " + userId + ", Username: " + username;
         menu.setCreatedBy(user);
         menu.setUpdatedBy(user);
-        log.info("Adding menu with creator: 【{}】", user);
+        log.info("Creating menu by: {}", user);
 
         systemMenuMapper.addMenu(menu);
         log.info("Menu added: {}", menu);
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "menu:all", allEntries = true),
+            @CacheEvict(value = "menu:role", allEntries = true)
+    })
     public void updateMenu(SysMenuRequest sysMenuRequest) {
         log.info("Updating menu: {}", sysMenuRequest);
         SysMenuDTO menu = BeanUtils.convert(sysMenuRequest, SysMenuDTO.class);
         systemMenuMapper.updateMenu(menu);
         log.info("Menu updated: {}", menu);
+    }
+
+    @Override
+    @Caching(evict = {
+            @CacheEvict(value = "menu:all", allEntries = true),
+            @CacheEvict(value = "menu:role", allEntries = true)
+    })
+    public void deleteMenu(long id, UserLoginInfoDTO userInfo) {
+        Long userId = userInfo.getUserId();
+        String username = userInfo.getUsername();
+        log.info("Deleting menu with ID {} by 【user ID: {}, username: {}】", id, userId, username);
+        systemMenuMapper.deleteMenu(id);
+        log.info("Menu deleted: ID: {}", id);
     }
 }
