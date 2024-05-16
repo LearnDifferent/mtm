@@ -23,6 +23,11 @@ public class BatchJobController {
 
     private final BatchJobService batchJobService;
 
+    /**
+     * Update the view count of bookmarks
+     *
+     * @return Batch job result
+     */
     @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     @GetMapping("/update-bookmark-views")
     public BatchJobVO updateBookmarkView() {
