@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,7 @@ import org.springframework.stereotype.Component;
  */
 @Component(NotificationConstant.REPLY_NOTIFICATION)
 @RequiredArgsConstructor
+@Slf4j
 public class ReplyNotificationStrategy implements NotificationStrategy {
 
     private final StringRedisTemplate redisTemplate;
@@ -123,13 +125,22 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
     }
 
     private void updateNotificationReadStatus(long notificationId, Long recipientUserId, boolean isUnread) {
+        log.info("Updating reply notification read status. notificationId: {}, recipientUserId: {}, isUnread: {}",
+                notificationId, recipientUserId, isUnread);
+
         String key = RedisKeyUtils.getReplyNotificationReadStatusKey(recipientUserId);
+        log.info("Redis key for reply notification read status: {}", key);
+
         long offset = RedisKeyUtils.getReplyNotificationReadStatusOffset(notificationId);
+        log.info("Redis offset for reply notification read status: {}", offset);
+
         // set read status in Redis (0 for read, 1 for unread)
         redisTemplate.opsForValue().setBit(key, offset, isUnread);
+        log.info("Updated reply notification read status in Redis. notificationId: {}", notificationId);
 
         // save the read status to database
         executorService.execute(() -> notificationMapper.updateReplyNotificationReadStatus(!isUnread, notificationId));
+        log.info("Updated reply notification read status in database. notificationId: {}", notificationId);
     }
 
     @Override
