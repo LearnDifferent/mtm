@@ -59,12 +59,16 @@ public class CommentServiceImpl implements CommentService {
     public CommentVO getCommentByIds(Long id,
                                      @BookmarkId long bookmarkId,
                                      @UserId long userId) {
-        log.info("Get comment. Comment ID: {}, User ID: {}, Bookmark ID: {}", id, userId, bookmarkId);
-        return Optional.ofNullable(id)
+        log.info("[CommentService] Getting comment. Comment ID: {}, User ID: {}, Bookmark ID: {}",
+                id, userId, bookmarkId);
+        CommentVO comment = Optional.ofNullable(id)
                 // get the comment VO if comment ID is not null
                 .map(this::getCommentByCommentIdAndBookmarkIdAndReturnCommentVO)
                 // return null to signify an empty comment when the ID is null
                 .orElse(null);
+        log.info("[CommentService] Get comment. Comment ID: {}, User ID: {}, Bookmark ID: {}, Comment: {}",
+                id, userId, bookmarkId, comment);
+        return comment;
     }
 
     private CommentVO getCommentByCommentIdAndBookmarkIdAndReturnCommentVO(long id) {
@@ -82,7 +86,11 @@ public class CommentServiceImpl implements CommentService {
                                                        Integer load,
                                                        @UserId long userId,
                                                        Order order) {
-        return commentMapper
+        log.info(
+                "[CommentService] Get Bookmark (ID: {}) Comment, User ID: {}, Reply to comment ID: {}, Load: {}, Order: {}",
+                bookmarkId, userId, replyToCommentId, load, order);
+
+        List<BookmarkCommentVO> result = commentMapper
                 .getBookmarkComments(bookmarkId, replyToCommentId, load, order.isDesc())
                 .stream()
                 // convert to BookmarkCommentVO
@@ -91,6 +99,11 @@ public class CommentServiceImpl implements CommentService {
                 .peek(this::updateBookmarkComment)
                 // collect comments
                 .collect(Collectors.toList());
+
+        log.info(
+                "[CommentService] Bookmark (ID: {}) Comment, User ID: {}, Reply to comment ID: {}, Load: {}, Order: {}, Result: {}",
+                bookmarkId, userId, replyToCommentId, load, order, result);
+        return result;
     }
 
     private void updateBookmarkComment(BookmarkCommentVO comment) {
@@ -111,8 +124,10 @@ public class CommentServiceImpl implements CommentService {
      * Otherwise, return an empty list.
      */
     private List<CommentHistoryVO> getHistory(long commentId) {
+        log.info("[CommentService] Get history of the comment: {}", commentId);
         List<CommentHistoryDO> history = commentHistoryMapper.getHistory(commentId);
         List<CommentHistoryVO> result = BeanUtils.convertList(history, CommentHistoryVO.class);
+        log.info("[CommentService] History of the comment is: {}", result);
 
         return CollectionUtils.isEmpty(result) ? Collections.emptyList()
                 : Collections.unmodifiableList(result);
@@ -121,7 +136,10 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_DELETE)
     public boolean deleteCommentById(@CommentId long id, @UserId long userId) {
-        return commentMapper.deleteCommentById(id);
+        log.info("[CommentService] Deleting comment. Comment ID: {}, User ID: {}", id, userId);
+        boolean result = commentMapper.deleteCommentById(id);
+        log.info("[CommentService] Deleted comment. Comment ID: {}, User ID: {}, Result: {}", id, userId, result);
+        return result;
     }
 
     @Override
@@ -140,18 +158,20 @@ public class CommentServiceImpl implements CommentService {
                 .creationTime(Instant.now())
                 .build();
 
-        log.info("Adding comment. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+        log.info("[CommentService] Adding comment. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
                 id, comment, userId, bookmarkId);
         boolean success = commentMapper.addComment(commentDO);
 
         if (success) {
-            log.info("Comment added. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+            log.info("[CommentService] Comment added. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
                     id, comment, userId, bookmarkId);
             recordHistoryAndSendNotification(commentDO);
-            log.info("Comment history and notification sent. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+            log.info(
+                    "[CommentService] Comment history and notification sent. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
                     id, comment, userId, bookmarkId);
         } else {
-            log.info("Failed to add comment. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+            log.info(
+                    "[CommentService] Failed to add comment. Comment ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
                     id, comment, userId, bookmarkId);
         }
 
@@ -164,11 +184,20 @@ public class CommentServiceImpl implements CommentService {
         String comment = commentDO.getComment();
         Instant creationTime = commentDO.getCreationTime();
         long id = idGeneratorService.generateId();
+
+        log.info("[CommentService] Adding comment history. ID: {}, Comment ID: {}, Comment: {}, Creation Time: {}",
+                id, commentId, comment, creationTime);
         CommentHistoryDTO history = CommentHistoryDTO.of(id, commentId, comment, creationTime);
         addHistory(history);
+        log.info("[CommentService] Comment history added. ID: {}, Comment ID: {}, Comment: {}, Creation Time: {}",
+                id, commentId, comment, creationTime);
 
         // send notification
+        log.info("[CommentService] Sending comment notification. Comment ID: {}, Comment: {}, Creation Time: {}",
+                commentId, comment, creationTime);
         notificationManager.sendReplyNotification(commentDO);
+        log.info("[CommentService] Comment notification sent. Comment ID: {}, Comment: {}, Creation Time: {}",
+                commentId, comment, creationTime);
     }
 
     @Override
@@ -176,10 +205,16 @@ public class CommentServiceImpl implements CommentService {
         long id = commentInfo.getId();
         String comment = commentInfo.getComment();
         long bookmarkId = commentInfo.getBookmarkId();
+        log.info("[CommentService] Editing comment BEGIN. ID: {}, New Comment: {}, User ID: {}, Bookmark ID: {}",
+                id, comment, userId, bookmarkId);
 
         CommentServiceImpl commentServiceImpl =
                 ApplicationContextUtils.getBean(CommentServiceImpl.class);
-        return commentServiceImpl.editComment(id, comment, userId, bookmarkId);
+        boolean success = commentServiceImpl.editComment(id, comment, userId, bookmarkId);
+        log.info("[CommentService] Edited comment END. Success: {}, ID: {}, Comment: {}, User ID: {}, Bookmark ID: {}",
+                success, id, comment, userId, bookmarkId);
+
+        return success;
     }
 
     @AccessPermissionCheck(dataAccessType = DataAccessType.COMMENT_UPDATE)
@@ -188,10 +223,12 @@ public class CommentServiceImpl implements CommentService {
                                @Comment String comment,
                                @UserId Long userId,
                                @BookmarkId Long bookmarkId) {
-        log.info("Editing comment {}. New Comment: {}, User ID: {}, Bookmark ID: {}", id, comment, userId, bookmarkId);
+        log.info("[CommentService] Editing comment {}. New Comment: {}, User ID: {}, Bookmark ID: {}", id, comment,
+                userId, bookmarkId);
         boolean success = commentMapper.updateComment(id, comment);
         if (success) {
-            log.info("Edited comment {}. Comment: {}, User ID: {}, Bookmark ID: {}", id, comment, userId, bookmarkId);
+            log.info("[CommentService] Edited comment {}. Comment: {}, User ID: {}, Bookmark ID: {}", id, comment,
+                    userId, bookmarkId);
             long commentHistoryId = idGeneratorService.generateId();
             CommentHistoryDTO history = CommentHistoryDTO.of(commentHistoryId, id, comment);
             addHistory(history);
@@ -207,8 +244,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Cacheable(value = "comment:count", key = "#bookmarkId")
     public long countCommentByBookmarkId(Long bookmarkId) {
-        return Optional.ofNullable(bookmarkId)
+        log.info("[CommentService] Counting comments by bookmark ID: {}", bookmarkId);
+        long result = Optional.ofNullable(bookmarkId)
                 .map(commentMapper::countCommentByBookmarkId)
                 .orElse(0L);
+        log.info("[CommentService] Counted comments by bookmark ID: {}. Result: {}",
+                bookmarkId, result);
+        return result;
     }
 }
