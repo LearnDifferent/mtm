@@ -61,9 +61,9 @@ public class BatchJobServiceImpl implements BatchJobService {
             JobParameters jobParameters = execution.getJobParameters();
             Map<String, JobParameter> jobParametersMap = jobParameters.getParameters();
 
-            log.info(
-                    "[BatchJobService] Batch job (Job ID: {}, Instance Id: {}) finished with exit code: {}, description: {}",
-                    jobId, instanceId, exitCode, exitDescription);
+            log.info("[BatchJobService] Batch job (Job ID: {}, Instance Id: {}) "
+                            + "finished with exit code: {}, description: {}, Job Parameters: {}",
+                    jobId, instanceId, exitCode, exitDescription, jobParameters);
 
             return BatchJobVO.builder()
                     .jobId(jobId)
