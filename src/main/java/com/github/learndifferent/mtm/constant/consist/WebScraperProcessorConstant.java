@@ -1,7 +1,9 @@
 package com.github.learndifferent.mtm.constant.consist;
 
+import com.github.learndifferent.mtm.chain.scraper.AbstractWebScraperProcessor;
+
 /**
- * Constants related to {@link com.github.learndifferent.mtm.chain.AbstractWebScraperProcessor}
+ * Constants related to {@link AbstractWebScraperProcessor}
  *
  * @author zhou
  * @date 2023/8/15

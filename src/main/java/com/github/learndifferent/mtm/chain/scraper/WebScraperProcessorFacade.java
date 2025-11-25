@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.chain;
+package com.github.learndifferent.mtm.chain.scraper;
 
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import java.util.List;

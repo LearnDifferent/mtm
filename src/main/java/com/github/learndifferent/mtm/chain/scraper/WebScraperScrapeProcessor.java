@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.chain;
+package com.github.learndifferent.mtm.chain.scraper;
 
 import com.github.learndifferent.mtm.constant.consist.WebScraperProcessorConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;

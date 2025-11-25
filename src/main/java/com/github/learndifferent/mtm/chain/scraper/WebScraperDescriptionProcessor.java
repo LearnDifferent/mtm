@@ -1,4 +1,4 @@
-package com.github.learndifferent.mtm.chain;
+package com.github.learndifferent.mtm.chain.scraper;
 
 import com.github.learndifferent.mtm.constant.consist.WebScraperProcessorConstant;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
@@ -8,22 +8,22 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * Get the title from document
+ * Get the description from document
  *
  * @author zhou
  * @date 2023/8/14
  */
 @Component
-@Order(WebScraperProcessorConstant.TITLE_ORDER)
-public class WebScraperTitleProcessor extends AbstractWebScraperProcessor {
+@Order(WebScraperProcessorConstant.DESCRIPTION_ORDER)
+public class WebScraperDescriptionProcessor extends AbstractWebScraperProcessor {
 
     @Override
     public BasicWebDataDTO process(@NotNull WebScraperRequest request) {
         Document document = request.getDocument();
         BasicWebDataDTO data = request.getData();
 
-        String title = document.title();
-        data.setTitle(title);
+        String desc = document.body().text();
+        data.setDesc(desc);
 
         return this.next.process(request);
     }
