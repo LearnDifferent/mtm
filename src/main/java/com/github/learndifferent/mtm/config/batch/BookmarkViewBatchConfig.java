@@ -1,8 +1,8 @@
 package com.github.learndifferent.mtm.config.batch;
 
+import cn.hutool.core.collection.ListUtil;
 import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.entity.ViewDataDO;
-import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -90,8 +90,9 @@ public class BookmarkViewBatchConfig {
         Set<String> keys = this.redisTemplate.opsForSet().members(RedisConstant.VIEW_KEY_SET);
         boolean hasNoKeys = CollectionUtils.isEmpty(keys);
         log.info("[BookmarkViewBatch - BatchItemReader] Keys for views data {}", hasNoKeys ? "is empty" : keys);
-
-        ThrowExceptionUtils.throwIfTrue(hasNoKeys, "No keys for views data");
+        if (hasNoKeys) {
+            return new ListItemReader<>(ListUtil.empty());
+        }
 
         List<ViewDataDO> viewDataList = new ArrayList<>();
 
