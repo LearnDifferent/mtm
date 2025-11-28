@@ -16,7 +16,7 @@ spring:
     is-share: false
 server:
   port: 8080
-mybatis:
+mybatis-plus:
   type-aliases-package: com.github.learndifferent.mtm.entity
   mapper-locations: classpath:mapper/*.xml
   configuration:
