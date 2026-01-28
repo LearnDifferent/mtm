@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * 转换 DO、DTO 和 VO 等
@@ -46,7 +47,7 @@ public class BeanUtils {
      * @return 新列表
      */
     public static <T> List<T> convertList(Collection<?> sourceList, Class<T> desClass) {
-        if (sourceList == null) {
+        if (CollectionUtils.isEmpty(sourceList)) {
             return Collections.emptyList();
         }
         List<T> desList = new ArrayList<>();
