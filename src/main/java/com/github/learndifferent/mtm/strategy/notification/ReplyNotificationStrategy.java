@@ -220,7 +220,7 @@ public class ReplyNotificationStrategy implements NotificationStrategy {
         Long bookmarkId = notification.getBookmarkId();
         Long recipientUserId = notification.getRecipientUserId();
 
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
+        BookmarkDO bookmark = bookmarkMapper.selectById(bookmarkId);
         // if the bookmark does not exist
         boolean isBookmarkNotPresent = Objects.isNull(bookmark);
         if (isBookmarkNotPresent) {

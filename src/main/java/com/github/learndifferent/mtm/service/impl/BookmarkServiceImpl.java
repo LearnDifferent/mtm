@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.service.impl;
 import static com.github.learndifferent.mtm.constant.enums.AddDataMode.ADD_TO_DATABASE_AND_ELASTICSEARCH;
 import static com.github.learndifferent.mtm.constant.enums.Privacy.PUBLIC;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.learndifferent.mtm.annotation.modify.webdata.WebsiteDataClean;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
@@ -80,7 +81,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class BookmarkServiceImpl implements BookmarkService {
+public class BookmarkServiceImpl extends ServiceImpl<BookmarkMapper, BookmarkDO> implements BookmarkService {
 
     private final BookmarkMapper bookmarkMapper;
     private final SearchManager searchManager;
@@ -223,17 +224,13 @@ public class BookmarkServiceImpl implements BookmarkService {
     @AccessPermissionCheck(dataAccessType = DataAccessType.BOOKMARK)
     public boolean changePrivacySettings(@BookmarkId long id, @UserId long userId) {
         log.info("Changing privacy settings: id = {}, userId = {}", id, userId);
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(id);
-        ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
+        boolean isBookmarkExists = lambdaQuery().eq(BookmarkDO::getId, id).exists();
+        ThrowExceptionUtils.throwIfTrue(isBookmarkExists, ResultCode.WEBSITE_DATA_NOT_EXISTS);
 
-        boolean previousPublicStatus = bookmark.getIsPublic();
-        log.info("Previous public status: {}, bookmark: {}", previousPublicStatus, bookmark);
-
-        boolean currentPublicStatus = !previousPublicStatus;
-        BookmarkDO bookmarkWithUpdatedPublicStatus = bookmark.setIsPublic(currentPublicStatus);
-        log.info("Current public status: {}, bookmark: {}", currentPublicStatus, bookmarkWithUpdatedPublicStatus);
-
-        return bookmarkMapper.updateBookmark(bookmarkWithUpdatedPublicStatus);
+        return lambdaUpdate()
+                .setSql("is_public = NOT is_public")
+                .eq(BookmarkDO::getId, id)
+                .update();
     }
 
     @Override

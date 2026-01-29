@@ -37,7 +37,7 @@ public class PermissionManager {
 
     public void checkUserAccessBookmarkPermission(long bookmarkId, long userId) {
         log.info("Checking bookmark access permission. Bookmark ID: {}, User ID: {}", bookmarkId, userId);
-        BookmarkDO bookmark = bookmarkMapper.getBookmarkById(bookmarkId);
+        BookmarkDO bookmark = bookmarkMapper.selectById(bookmarkId);
         ThrowExceptionUtils.throwIfNull(bookmark, ResultCode.WEBSITE_DATA_NOT_EXISTS);
         log.info("Bookmark is present: {}", bookmark);
 

@@ -1,5 +1,9 @@
 package com.github.learndifferent.mtm.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
@@ -17,11 +21,13 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
+@TableName("bookmark")
 public class BookmarkDO implements Serializable {
 
     /**
      * ID of the bookmark
      */
+    @TableId("id")
     private Long id;
     /**
      * User ID of the owner of the bookmark
@@ -46,12 +52,16 @@ public class BookmarkDO implements Serializable {
     /**
      * Creation time
      */
+    @TableField("creation_time")
     private Instant createTime;
 
     /**
      * True if this is a public bookmark
      */
     private Boolean isPublic;
+
+    @TableLogic("is_deleted")
+    private Integer isDeleted;
 
     private static final long serialVersionUID = 1L;
 }

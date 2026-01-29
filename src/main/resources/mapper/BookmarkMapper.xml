@@ -283,20 +283,6 @@
                    )
     </select>
 
-    <select id="getBookmarkById" resultMap="BaseResultMap">
-        select id,
-               user_id,
-               title,
-               url,
-               img,
-               `desc`,
-               creation_time,
-               is_public
-        from bookmark
-        where id = #{id}
-          and is_deleted = 0;
-    </select>
-
     <select id="getBookmarkWithUsernameById" resultMap="BookmarkVOResultMap">
         select b.id,
                b.user_id,

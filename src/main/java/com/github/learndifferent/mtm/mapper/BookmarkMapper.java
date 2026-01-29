@@ -1,5 +1,6 @@
 package com.github.learndifferent.mtm.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.NewBookmarkDTO;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Repository;
  * @date 2021/09/05
  */
 @Repository
-public interface BookmarkMapper {
+public interface BookmarkMapper extends BaseMapper<BookmarkDO> {
 
     /**
      * Filter public bookmark
@@ -216,14 +217,6 @@ public interface BookmarkMapper {
      * @return the number of website data
      */
     long countWebDataByKeyword(String keyword);
-
-    /**
-     * Retrieve the bookmark by ID
-     *
-     * @param id ID
-     * @return bookmark
-     */
-    BookmarkDO getBookmarkById(long id);
 
     /**
      * Retrieve the bookmark by ID
