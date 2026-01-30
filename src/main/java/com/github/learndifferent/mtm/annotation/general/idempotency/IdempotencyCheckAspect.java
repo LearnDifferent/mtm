@@ -2,11 +2,13 @@ package com.github.learndifferent.mtm.annotation.general.idempotency;
 
 import com.github.learndifferent.mtm.constant.consist.RedisConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
+import com.github.learndifferent.mtm.utils.EnvCheckUtil;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -38,6 +40,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Order(0)
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class IdempotencyCheckAspect {
 
     /**
@@ -56,6 +59,10 @@ public class IdempotencyCheckAspect {
 
     @Around("@annotation(annotation)")
     public Object check(ProceedingJoinPoint joinPoint, IdempotencyCheck annotation) throws Throwable {
+        if (EnvCheckUtil.containTestEnv()) {
+            log.info("Contain test environment, terminate idempotency validation");
+            return joinPoint.proceed();
+        }
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
 

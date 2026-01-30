@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.annotation.validation;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.strategy.permission.PermissionCheckStrategy;
+import com.github.learndifferent.mtm.utils.EnvCheckUtil;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -30,6 +31,10 @@ public class AccessPermissionCheckAspect {
 
     @Before("@annotation(accessPermissionCheck)")
     public void check(JoinPoint joinPoint, AccessPermissionCheck accessPermissionCheck) {
+        if (EnvCheckUtil.containTestEnv()) {
+            log.info("Contain test environment, terminate permission validation");
+            return;
+        }
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
