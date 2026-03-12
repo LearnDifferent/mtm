@@ -18,9 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * 生成验证码图片的工具类。
- * 来源自 <a href="https://github.com/w8854123/shaoxia/blob/master/src/main/java/com/shaoxia/util/VerifyCodeUtils.java">GitHub</a>，
- * 仅做简单修改，不保证格式和功能的正确性。
+ * Utility class for generating CAPTCHA images
+ * Source: <a href="https://github.com/w8854123/shaoxia/blob/master/src/main/java/com/shaoxia/util/VerifyCodeUtils.java">GitHub</a>
+ * Modified slightly, no guarantees for format or functionality correctness
  *
  * @author <a href="https://github.com/w8854123">shaoxia</a>
  * @date 2016/09/12
@@ -32,7 +32,8 @@ public class VerifyCodeUtils {
     }
 
     /**
-     * 使用到Algerian字体，系统里没有的话需要安装字体，字体只显示大写，去掉了1,0,i,o几个容易混淆的字符
+     * Uses Algerian font (must be installed on the system)
+     * Only shows uppercase letters and excludes easily confused characters: 1, 0, i, o
      */
     public static final String VERIFY_CODES = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
     private static final Random RANDOM = new Random();
@@ -157,18 +158,18 @@ public class VerifyCodeUtils {
         }
         Arrays.sort(fractions);
 
-        // 设置边框色
+        // Set border color
         g2.setColor(Color.GRAY);
         g2.fillRect(0, 0, w, h);
 
         Color c = getRandColor(200, 250);
-        // 设置背景色
+        // Set background color
         g2.setColor(c);
         g2.fillRect(0, 2, w, h - 4);
 
-        // 绘制干扰线
+        // Draw interference lines
         Random random = new Random();
-        // 设置线条的颜色
+        // Set line color
         g2.setColor(getRandColor(160, 200));
         int num = 20;
         for (int i = 0; i < num; i++) {
@@ -179,7 +180,7 @@ public class VerifyCodeUtils {
             g2.drawLine(x, y, x + xl + 40, y + yl + 20);
         }
 
-        // 添加噪点（噪声率）
+        // Add noise points (noise rate)
         float yawpRate = 0.05f;
         int area = (int) (yawpRate * w * h);
         for (int i = 0; i < area; i++) {
@@ -189,7 +190,7 @@ public class VerifyCodeUtils {
             image.setRGB(x, y, rgb);
         }
 
-        // 使图片扭曲
+        // Distort the image
         shear(g2, w, h, c);
 
         g2.setColor(getRandColor(100, 160));
@@ -292,7 +293,7 @@ public class VerifyCodeUtils {
 
 
     /**
-     * 生成一张验证码图片，并保存到项目的verifyCodeImg文件夹下
+     * Generates a CAPTCHA image and saves it to the project's verifyCodeImg folder
      */
     public static String createOneCodeImage() {
         String imgName = "";

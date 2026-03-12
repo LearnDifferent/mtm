@@ -69,7 +69,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
     }
 
     private SearchRequest getUserSearchRequest(String keyword, int from, int size) {
-        // 模糊查询
+        // Wildcard queries
         WildcardQueryBuilder wildcardQueryUsername = QueryBuilders
                 .wildcardQuery(SearchConstant.USER_NAME, keyword + "*")
                 .boost(2.0F);
@@ -77,7 +77,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
         WildcardQueryBuilder wildcardQueryUserId = QueryBuilders
                 .wildcardQuery(SearchConstant.USER_ID, keyword + "*");
 
-        // 复合查询
+        // Compound query
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder()
                 .should(wildcardQueryUsername)
                 .should(wildcardQueryUserId)
@@ -93,7 +93,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
                 .from(from)
                 .size(size);
 
-        // search request
+        // Search request
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(SearchConstant.INDEX_USER).source(source);
         return searchRequest;
@@ -102,11 +102,11 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
     private List<UserForSearchWithMoreInfo> getUserResults(SearchHits hits) {
         SearchHit[] hitsArray = hits.getHits();
         return Arrays.stream(hitsArray).map(h -> {
-            // get user
+            // Get user data
             Map<String, Object> sourceAsMap = h.getSourceAsMap();
             UserForSearchWithMoreInfo user = convertToUser(sourceAsMap);
 
-            // set highlighted fields
+            // Set highlighted fields
             Map<String, HighlightField> highlightFields = h.getHighlightFields();
             Set<String> fields = highlightFields.keySet();
             user.setHighlightedFields(new ArrayList<>(fields));
@@ -132,7 +132,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
 
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
-        // the number of websites bookmarked by the user
+        // Number of websites bookmarked by the user
         int number = bookmarkMapper.countUserBookmarks(id, false);
 
         return UserForSearchWithMoreInfo.builder()

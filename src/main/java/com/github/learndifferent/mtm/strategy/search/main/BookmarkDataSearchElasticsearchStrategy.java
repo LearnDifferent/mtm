@@ -63,7 +63,7 @@ public class BookmarkDataSearchElasticsearchStrategy implements DataSearchStrate
     }
 
     private SearchRequest getBookmarkSearchRequest(String keyword, int from, int size) {
-        // 多字段匹配，title 的权限提高，设置分词器
+        // Multi-field matching with higher weight for title
         MultiMatchQueryBuilder multiMatchQuery = QueryBuilders
                 .multiMatchQuery(keyword, SearchConstant.DESC, SearchConstant.TITLE)
                 .field(SearchConstant.TITLE, 2.0F);
@@ -108,11 +108,11 @@ public class BookmarkDataSearchElasticsearchStrategy implements DataSearchStrate
 
 
     /**
-     * 实现高亮
+     * Applies highlighting to search results
      *
-     * @param hit    搜索结果
-     * @param fields 需要高亮的字段
-     * @return 高亮后的结果
+     * @param hit    Search result
+     * @param fields Fields to highlight
+     * @return Source with highlighted fields
      */
     private Map<String, Object> hitHighlightAndGetSource(SearchHit hit, String... fields) {
 
