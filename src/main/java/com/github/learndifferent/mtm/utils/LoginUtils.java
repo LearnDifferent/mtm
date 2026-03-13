@@ -6,7 +6,7 @@ import com.github.learndifferent.mtm.constant.enums.UserRole;
 import com.github.learndifferent.mtm.dto.UserLoginInfoDTO;
 
 /**
- * A class offering utilities for login
+ * Utility class for login-related operations
  *
  * @author zhou
  * @date 2023/9/19

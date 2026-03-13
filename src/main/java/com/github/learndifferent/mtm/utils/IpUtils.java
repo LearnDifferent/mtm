@@ -3,7 +3,7 @@ package com.github.learndifferent.mtm.utils;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * ip 工具
+ * IP utility class
  *
  * @author zhou
  * @date 2021/09/05

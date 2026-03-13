@@ -1,7 +1,7 @@
 package com.github.learndifferent.mtm.utils;
 
 /**
- * An utility class related to pagination
+ * A utility class for pagination
  *
  * @author zhou
  * @date 2021/09/05
@@ -35,10 +35,10 @@ public class PaginationUtils {
     }
 
     /**
-     * Make current page always greater than 0
+     * Ensure current page is always greater than 0
      *
      * @param currentPage current page
-     * @return the current page that always greater than 0
+     * @return the current page that is always greater than 0
      */
     public static int constrainGreaterThanZero(int currentPage) {
         if (currentPage < 1) {
