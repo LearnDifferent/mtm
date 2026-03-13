@@ -18,9 +18,9 @@ import java.util.Date;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
- * json 工具
+ * JSON utility class
  *
- * @author 来自网络，进行了简单的修改
+ * @author From the internet, with simple modifications
  * @date 2021/09/05
  */
 public class JsonUtils {

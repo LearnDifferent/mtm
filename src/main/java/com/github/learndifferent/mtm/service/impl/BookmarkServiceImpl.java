@@ -8,8 +8,8 @@ import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.BookmarkId;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.DataAccessType;
 import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck.UserId;
-import com.github.learndifferent.mtm.chain.WebScraperProcessorFacade;
-import com.github.learndifferent.mtm.chain.WebScraperRequest;
+import com.github.learndifferent.mtm.chain.scraper.WebScraperProcessorFacade;
+import com.github.learndifferent.mtm.chain.scraper.WebScraperRequest;
 import com.github.learndifferent.mtm.constant.consist.HtmlFileConstant;
 import com.github.learndifferent.mtm.constant.enums.AccessPrivilege;
 import com.github.learndifferent.mtm.constant.enums.AddDataMode;

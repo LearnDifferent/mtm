@@ -1,7 +1,8 @@
 package com.github.learndifferent.mtm.utils;
 
 /**
- * 用于缩短字符长度（用户名缩短为 20，标题缩短为 47，简介压平并缩短为 260）
+ * Utility for shortening text lengths
+ * (username: 20 chars, title: 47 chars, description: flattened and shortened to 260 chars)
  *
  * @author zhou
  * @date 2021/09/05
@@ -11,10 +12,10 @@ public class ShortenUtils {
     private ShortenUtils() {}
 
     /**
-     * 缩减换行等
+     * Flattens text by removing line breaks
      *
-     * @param contents 原字符串
-     * @return 缩短后的字符串
+     * @param contents Original string
+     * @return Flattened string
      */
     public static String flatten(String contents) {
         return contents.replaceAll("\r\n|\r|\n", "");

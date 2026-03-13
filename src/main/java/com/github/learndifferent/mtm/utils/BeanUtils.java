@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 转换 DO、DTO 和 VO 等
+ * Utility for converting between DO, DTO, and VO objects
  *
  * @author zhou
  * @date 2021/09/05
@@ -21,12 +21,12 @@ public class BeanUtils {
     }
 
     /**
-     * 转换当前对象为另一个类型的对象
+     * Converts the current object to another type
      *
-     * @param sourceObject 需要转换的对象
-     * @param desClass     转换到这个类
-     * @param <T>          类型
-     * @return 新对象（如果需要转换的对象为 null，就返回 null）
+     * @param sourceObject Object to convert
+     * @param desClass     Target class to convert to
+     * @param <T>          Type parameter
+     * @return New object (returns null if source object is null)
      */
     public static <T> T convert(Object sourceObject, Class<T> desClass) {
 
@@ -38,12 +38,12 @@ public class BeanUtils {
     }
 
     /**
-     * 转换整个列表
+     * Converts an entire collection to a list of another type
      *
-     * @param sourceList 原列表
-     * @param desClass   目标类
-     * @param <T>        类型
-     * @return 新列表
+     * @param sourceList Source collection
+     * @param desClass   Target class
+     * @param <T>        Type parameter
+     * @return New list
      */
     public static <T> List<T> convertList(Collection<?> sourceList, Class<T> desClass) {
         if (sourceList == null) {
@@ -58,10 +58,10 @@ public class BeanUtils {
     }
 
     /**
-     * 将对象A的值拷贝到对象B中
+     * Copies values from object A to object B
      *
-     * @param sourceObject 对象A
-     * @param desObject    对象B
+     * @param sourceObject Object A
+     * @param desObject    Object B
      */
     public static void copy(Object sourceObject, Object desObject) {
         if (sourceObject == null || desObject == null) {

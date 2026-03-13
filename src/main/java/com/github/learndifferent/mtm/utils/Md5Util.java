@@ -3,9 +3,9 @@ package com.github.learndifferent.mtm.utils;
 import org.springframework.util.DigestUtils;
 
 /**
- * MD5 工具
+ * MD5 utility class
  *
- * @author 来自网络，进行了简单修改
+ * @author From the internet, with simple modifications
  * @date 2021/09/05
  */
 public class Md5Util {

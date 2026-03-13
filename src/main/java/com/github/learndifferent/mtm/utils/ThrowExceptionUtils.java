@@ -5,7 +5,7 @@ import com.github.learndifferent.mtm.exception.IdempotencyException;
 import com.github.learndifferent.mtm.exception.ServiceException;
 
 /**
- * A utility class that can throw {@link ServiceException} and {@link IdempotencyException}
+ * Utility class for throwing {@link ServiceException} and {@link IdempotencyException}
  *
  * @author zhou
  * @date 2021/10/19
@@ -16,10 +16,10 @@ public class ThrowExceptionUtils {
     }
 
     /**
-     * Throw an exception if the object is null
+     * Throws an exception if the object is null
      *
-     * @param object     object
-     * @param resultCode {@link ResultCode}
+     * @param object     Object to check
+     * @param resultCode {@link ResultCode} for the exception
      */
     public static void throwIfNull(Object object, ResultCode resultCode) {
         if (object == null) {
@@ -28,10 +28,10 @@ public class ThrowExceptionUtils {
     }
 
     /**
-     * Throw an exception if the object is not null
+     * Throws an exception if the object is not null
      *
-     * @param object     object
-     * @param resultCode {@link ResultCode}
+     * @param object     Object to check
+     * @param resultCode {@link ResultCode} for the exception
      */
     public static void throwIfNotNull(Object object, ResultCode resultCode) {
         if (object != null) {
@@ -40,10 +40,10 @@ public class ThrowExceptionUtils {
     }
 
     /**
-     * Throw an exception if the expression is true
+     * Throws an exception if the expression is true
      *
-     * @param expression expression
-     * @param resultCode {@link ResultCode}
+     * @param expression Boolean expression to evaluate
+     * @param resultCode {@link ResultCode} for the exception
      */
     public static void throwIfTrue(boolean expression, ResultCode resultCode) {
         if (expression) {
@@ -51,6 +51,12 @@ public class ThrowExceptionUtils {
         }
     }
 
+    /**
+     * Throws an exception if the expression is true
+     *
+     * @param expression Boolean expression to evaluate
+     * @param message    Error message for the exception
+     */
     public static void throwIfTrue(boolean expression, String message) {
         if (expression) {
             throw new ServiceException(message);
@@ -58,10 +64,11 @@ public class ThrowExceptionUtils {
     }
 
     /**
-     * Throw a {@link IdempotencyException} if the expression is true
+     * Throws an {@link IdempotencyException} if the expression is true
      *
-     * @param expression expression
-     * @param resultCode {@link ResultCode}
+     * @param expression    Boolean expression to evaluate
+     * @param resultCode    {@link ResultCode} for the exception
+     * @param idempotencyKey Idempotency key for the exception
      */
     public static void throwIfTrue(boolean expression, ResultCode resultCode, String idempotencyKey) {
         if (expression) {

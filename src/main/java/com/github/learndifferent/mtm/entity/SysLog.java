@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
- * 系统日志
+ * System Log
  *
  * @author zhou
  * @date 2021/09/05

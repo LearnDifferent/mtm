@@ -6,7 +6,7 @@ import com.github.learndifferent.mtm.response.ResultCreator;
 import com.github.learndifferent.mtm.response.ResultVO;
 import com.github.learndifferent.mtm.service.ViewCounterService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,14 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/view")
+@RequiredArgsConstructor
 public class ViewCounterController {
 
     private final ViewCounterService viewCounterService;
-
-    @Autowired
-    public ViewCounterController(ViewCounterService viewCounterService) {
-        this.viewCounterService = viewCounterService;
-    }
 
     /**
      * Increase the number of views of a bookmark
