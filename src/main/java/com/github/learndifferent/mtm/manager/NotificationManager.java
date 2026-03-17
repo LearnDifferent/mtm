@@ -12,16 +12,13 @@ import com.github.learndifferent.mtm.dto.NotificationDTO;
 import com.github.learndifferent.mtm.entity.CommentDO;
 import com.github.learndifferent.mtm.service.IdGeneratorService;
 import com.github.learndifferent.mtm.strategy.notification.NotificationStrategyContext;
-import com.github.learndifferent.mtm.utils.JsonUtils;
 import com.github.learndifferent.mtm.utils.RedisKeyUtils;
 import com.github.learndifferent.mtm.vo.NotificationsAndCountVO;
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -140,43 +137,7 @@ public class NotificationManager {
     }
 
     public boolean checkIfUserHasUnreadSysNotifications(Long recipientUserId) {
-        long systemNotificationNumber = countAllSystemNotifications();
-        if (systemNotificationNumber < 1L) {
-            // if no system notifications,
-            // return false to indicate there is no unread system notifications
-            return false;
-        }
-
-        for (long i = 0L; i < systemNotificationNumber; i++) {
-            boolean hasUnread = checkIfHasUnreadSysNotificationsWhenHavingSysNotifications(recipientUserId, i);
-            if (hasUnread) {
-                return true;
-            }
-        }
-
-        // if every notification is read,
-        // return false to indicate there is no unread system notifications
-        return false;
-    }
-
-    private boolean checkIfHasUnreadSysNotificationsWhenHavingSysNotifications(Long recipientUserId,
-                                                                               long sysNotificationIndex) {
-        long readStatusOffset = RedisKeyUtils.getSysNotificationReadStatusReadByUserOffset(recipientUserId);
-        String readStatusKey = getReadStatusKeyWhenHavingSysNotifications(sysNotificationIndex);
-
-        // 0 stands for unread (false / null stands for unread)
-        Boolean result = redisTemplate.opsForValue().getBit(readStatusKey, readStatusOffset);
-        return BooleanUtils.isNotTrue(result);
-    }
-
-    private String getReadStatusKeyWhenHavingSysNotifications(long index) {
-        String systemNotificationKey = RedisKeyUtils.getSystemNotificationKey();
-        List<String> result = redisTemplate.opsForList().range(systemNotificationKey, index, index);
-        assert result != null;
-        String notificationJson = result.get(0);
-        NotificationDTO notification = JsonUtils.toObject(notificationJson, NotificationDTO.class);
-        Long id = notification.getId();
-        return RedisKeyUtils.getSysNotificationReadStatusReadByUserKey(id);
+        return countUnreadSystemNotifications(recipientUserId) > 0L;
     }
 
     public void markNotificationAsRead(NotificationDTO notification) {

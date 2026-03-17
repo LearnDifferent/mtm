@@ -145,7 +145,7 @@ public class NotificationController {
      *
      * @param message notification message
      */
-    @GetMapping("/system/send")
+    @PostMapping("/system/send")
     public void sendSystemNotification(@RequestParam("message") String message) {
         String sender = LoginUtils.getCurrentUsername();
         notificationService.sendSystemNotification(sender, message);
@@ -206,7 +206,7 @@ public class NotificationController {
      * Turn on notifications if the current user turned off notifications and
      * turn off notifications if the current user turned on notifications
      */
-    @GetMapping("/mute/switch")
+    @PostMapping("/mute/switch")
     @IdempotencyCheck
     public void turnOnTurnOffNotifications() {
         long currentUserId = LoginUtils.getCurrentUserId();

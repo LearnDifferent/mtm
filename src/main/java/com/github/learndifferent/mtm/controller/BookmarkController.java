@@ -72,7 +72,7 @@ public class BookmarkController {
      *                          {@link ResultCode#URL_ACCESS_DENIED} and {@link ResultCode#CONNECTION_ERROR}
      *                          when an error occurred during an IO operation
      */
-    @GetMapping
+    @PostMapping("/url")
     @IdempotencyCheck
     public BookmarkingResultVO bookmark(@RequestParam("url")
                                         @URL(message = ErrorInfoConstant.URL_INVALID)
@@ -134,7 +134,7 @@ public class BookmarkController {
      *                          if the user currently logged in has no permission to change the bookmark privacy
      *                          settings
      */
-    @GetMapping("/privacy")
+    @PostMapping("/privacy")
     @IdempotencyCheck
     public ResultVO<ResultCode> changePrivacySettings(@RequestParam("id")
                                                       @NotNull(message = ErrorInfoConstant.BOOKMARK_NOT_FOUND)

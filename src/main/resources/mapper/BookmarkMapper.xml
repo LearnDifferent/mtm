@@ -143,6 +143,19 @@
         and is_deleted = 0
     </select>
 
+    <select id="countPublicBookmarksByUserIds"
+            resultType="com.github.learndifferent.mtm.dto.search.UserBookmarkCountDTO">
+        select user_id as userId, count(id) as bookmarkNumber
+        from bookmark
+        where is_public = 1
+        and is_deleted = 0
+        and user_id in
+        <foreach collection="userIds" item="userId" open="(" close=")" separator=",">
+            #{userId}
+        </foreach>
+        group by user_id
+    </select>
+
     <select id="getAllPublicBasicWebDataForSearch"
             resultType="com.github.learndifferent.mtm.dto.search.WebForSearchDTO">
         select url, title, img, `desc`

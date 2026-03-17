@@ -3,6 +3,7 @@ package com.github.learndifferent.mtm.strategy.search.main;
 import com.github.learndifferent.mtm.constant.consist.SearchConstant;
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.dto.search.SearchResultsDTO;
+import com.github.learndifferent.mtm.dto.search.UserBookmarkCountDTO;
 import com.github.learndifferent.mtm.dto.search.UserForSearchWithMoreInfo;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.manager.SearchManager;
@@ -14,6 +15,8 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -101,10 +104,15 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
 
     private List<UserForSearchWithMoreInfo> getUserResults(SearchHits hits) {
         SearchHit[] hitsArray = hits.getHits();
+        List<Map<String, Object>> sources = Arrays.stream(hitsArray)
+                .map(SearchHit::getSourceAsMap)
+                .collect(Collectors.toList());
+        Map<Long, Integer> bookmarkCounts = getBookmarkCounts(sources);
+
         return Arrays.stream(hitsArray).map(h -> {
             // Get user data
             Map<String, Object> sourceAsMap = h.getSourceAsMap();
-            UserForSearchWithMoreInfo user = convertToUser(sourceAsMap);
+            UserForSearchWithMoreInfo user = convertToUser(sourceAsMap, bookmarkCounts);
 
             // Set highlighted fields
             Map<String, HighlightField> highlightFields = h.getHighlightFields();
@@ -115,7 +123,21 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
         }).collect(Collectors.toList());
     }
 
-    private UserForSearchWithMoreInfo convertToUser(Map<String, Object> source) {
+    private Map<Long, Integer> getBookmarkCounts(List<Map<String, Object>> sources) {
+        List<Long> ids = sources.stream()
+                .map(source -> (Long) source.get(SearchConstant.USER_ID))
+                .collect(Collectors.toList());
+        if (ids.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<UserBookmarkCountDTO> counts = bookmarkMapper.countPublicBookmarksByUserIds(ids);
+        Map<Long, Integer> result = new HashMap<>();
+        counts.forEach(count -> result.put(count.getUserId(), count.getBookmarkNumber()));
+        return result;
+    }
+
+    private UserForSearchWithMoreInfo convertToUser(Map<String, Object> source, Map<Long, Integer> bookmarkCounts) {
         Long id = (Long) source.get(SearchConstant.USER_ID);
         String username = String.valueOf(source.get(SearchConstant.USER_NAME));
         String role = String.valueOf(source.get(SearchConstant.ROLE));
@@ -132,8 +154,7 @@ public class UserDataSearchElasticsearchStrategy implements DataSearchStrategy {
 
         ThrowExceptionUtils.throwIfNull(creationTime, ResultCode.NO_RESULTS_FOUND);
 
-        // Number of websites bookmarked by the user
-        int number = bookmarkMapper.countUserBookmarks(id, false);
+        int number = bookmarkCounts.getOrDefault(id, 0);
 
         return UserForSearchWithMoreInfo.builder()
                 .id(id)

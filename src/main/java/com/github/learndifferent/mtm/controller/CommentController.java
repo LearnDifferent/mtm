@@ -165,7 +165,7 @@ public class CommentController {
      *                                                                  result code will be {@link ResultCode#UPDATE_FAILED}
      *                                                                  </p>
      */
-    @GetMapping("/create")
+    @PostMapping("/create")
     @IdempotencyCheck
     public ResultVO<ResultCode> createComment(@RequestParam("comment")
                                               @NotBlank(message = ErrorInfoConstant.COMMENT_EMPTY)

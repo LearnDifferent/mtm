@@ -118,10 +118,6 @@ public class ViewCounterServiceImpl implements ViewCounterService {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @CacheEvict(value = "bookmarks:visited", allEntries = true)
     public List<String> saveViewsToDbAndReturnFailKeys(Set<String> keys) {
-
-        // clear all data before adding new data
-        this.bookmarkViewMapper.clearAll();
-
         // keys that failed to save
         List<String> failKeys = new ArrayList<>();
 

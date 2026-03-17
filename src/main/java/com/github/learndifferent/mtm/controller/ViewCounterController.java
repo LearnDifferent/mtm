@@ -8,6 +8,7 @@ import com.github.learndifferent.mtm.service.ViewCounterService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +31,7 @@ public class ViewCounterController {
      *
      * @param bookmarkId ID of the bookmark
      */
-    @GetMapping
+    @PostMapping
     public void increaseViews(@RequestParam("bookmarkId") Long bookmarkId) {
         viewCounterService.increaseViewsAndAddToSet(bookmarkId);
     }
@@ -58,7 +59,7 @@ public class ViewCounterController {
      *                                                                  PERMISSION_DENIED} if the user is not admin
      * @deprecated Use {@link BatchJobController#updateBookmarkView()} instead
      */
-    @GetMapping("/update")
+    @PostMapping("/update")
     @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
     public ResultVO<List<String>> updateViews() {
         List<String> failKeys = viewCounterService.updateViewsAndReturnFailKeys();

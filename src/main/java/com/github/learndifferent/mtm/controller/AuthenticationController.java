@@ -98,7 +98,7 @@ public class AuthenticationController {
      *
      * @return {@link ResultCode#SUCCESS}
      */
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     @SystemNotification(messageType = MessageType.LOGOUT)
     public ResultVO<ResultCode> logout() {
         LoginUtils.logout();

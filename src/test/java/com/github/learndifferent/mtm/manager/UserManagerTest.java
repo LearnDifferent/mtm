@@ -1,10 +1,12 @@
 package com.github.learndifferent.mtm.manager;
 
+import com.github.learndifferent.mtm.entity.UserDO;
 import com.github.learndifferent.mtm.exception.ServiceException;
 import com.github.learndifferent.mtm.mapper.UserMapper;
-import com.github.learndifferent.mtm.utils.Md5Util;
+import com.github.learndifferent.mtm.utils.PasswordUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Instant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,10 +31,10 @@ class UserManagerTest {
         Long id = 1L;
         String username = "user1";
         String password = "password123";
-        String encryptedPassword = Md5Util.getMd5(password);
+        String encryptedPassword = PasswordUtils.encode(password);
+        UserDO user = new UserDO(id, username, encryptedPassword, Instant.now(), "user");
 
-        Mockito.when(userMapper.getUserIdByNameAndPassword(username, encryptedPassword))
-                .thenReturn(id);
+        Mockito.when(userMapper.getUserByName(username)).thenReturn(user);
 
         Method method = getCheckUserExistsAndReturnUserIdMethod();
         Object result = method.invoke(userManager, username, password);

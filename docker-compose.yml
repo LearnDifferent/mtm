@@ -5,6 +5,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - ./mysqlconfig.env
+    environment:
+      MTM_DB_USERNAME: root
+      MTM_DB_URL: jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
+      MTM_REDIS_HOST: mid
+      MTM_ELASTICSEARCH_HOST: es
     ports:
       - "8080:8080"
     networks:

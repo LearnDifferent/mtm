@@ -6,7 +6,7 @@ import com.github.learndifferent.mtm.annotation.validation.AccessPermissionCheck
 import com.github.learndifferent.mtm.service.BatchJobService;
 import com.github.learndifferent.mtm.vo.BatchJobVO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +29,7 @@ public class BatchJobController {
      * @return Batch job result
      */
     @AccessPermissionCheck(dataAccessType = DataAccessType.IS_ADMIN)
-    @GetMapping("/update-bookmark-views")
+    @PostMapping("/update-bookmark-views")
     public BatchJobVO updateBookmarkView() {
         return batchJobService.updateBookmarkView();
     }

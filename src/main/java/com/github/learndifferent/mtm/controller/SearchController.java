@@ -23,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -149,7 +150,7 @@ public class SearchController {
      *             and generate bookmark data if {@link SearchMode#WEB}.
      * @return true if success
      */
-    @GetMapping("/build")
+    @PostMapping("/build")
     @IdempotencyCheck
     public ResultVO<Boolean> generateDataForElasticsearchBasedOnDatabase(@RequestParam("mode") SearchMode mode) {
         boolean success = searchService.generateDataForElasticsearchBasedOnDatabase(mode);

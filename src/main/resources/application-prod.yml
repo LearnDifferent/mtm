@@ -1,12 +1,11 @@
 spring:
   datasource:
-    # "db" is the host of MySQL
-    url: jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai
-    username: root
-    password: LearnDifferent
+    url: ${MTM_DB_URL:jdbc:mysql://db:3306/mtm?characterEncoding=UTF-8&useTimezone=true&serverTimezone=Asia/Shanghai}
+    username: ${MTM_DB_USERNAME:root}
+    password: ${MYSQL_ROOT_PASSWORD}
 # Redis Configuration
 custom-redis:
-  host: mid
+  host: ${MTM_REDIS_HOST:mid}
 # Elasticsearch Configuration
 elasticsearch:
-  host: es
+  host: ${MTM_ELASTICSEARCH_HOST:es}

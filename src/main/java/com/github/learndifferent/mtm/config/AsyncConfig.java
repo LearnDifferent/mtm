@@ -45,7 +45,7 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setKeepAliveSeconds(aliveSeconds);
         executor.setQueueCapacity(queueCapacity);
         // Use Discard Policy because this is built for unimportant tasks
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setThreadNamePrefix("custom-async-");
         executor.initialize();
         return executor;

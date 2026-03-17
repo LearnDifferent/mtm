@@ -10,7 +10,7 @@
         values (#{bookmarkId}, #{views})
     </insert>
     <insert id="addAll" parameterType="com.github.learndifferent.mtm.entity.ViewDataDO">
-        insert into bookmark_view (bookmark_id, views)
+        replace into bookmark_view (bookmark_id, views)
         values
         <foreach collection="set" item="webAndViews" separator=",">
             (#{webAndViews.bookmarkId}, #{webAndViews.views})

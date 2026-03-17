@@ -2,7 +2,7 @@ package com.github.learndifferent.mtm.dto;
 
 import com.github.learndifferent.mtm.constant.enums.ResultCode;
 import com.github.learndifferent.mtm.constant.enums.UserRole;
-import com.github.learndifferent.mtm.utils.Md5Util;
+import com.github.learndifferent.mtm.utils.PasswordUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import java.io.Serializable;
 import java.time.Instant;
@@ -19,7 +19,7 @@ public class UserDTO implements Serializable {
 
     public static UserDTO ofNewUser(long id, String username, String notEncryptedPassword, UserRole role) {
         // encrypt and set password
-        String password = Md5Util.getMd5(notEncryptedPassword);
+        String password = PasswordUtils.encode(notEncryptedPassword);
         // get creation time
         Instant creationTime = Instant.now();
         return new UserDTO(id, username, password, creationTime, role.role());
@@ -35,8 +35,12 @@ public class UserDTO implements Serializable {
         ThrowExceptionUtils.throwIfTrue(areSame, ResultCode.PASSWORD_SAME);
 
         // encrypt and set the new password
-        String newPassword = Md5Util.getMd5(notEncryptedNewPassword);
+        String newPassword = PasswordUtils.encode(notEncryptedNewPassword);
         return new UserDTO(id, null, newPassword, null, null);
+    }
+
+    public static UserDTO ofPasswordHashUpdate(Long id, String passwordHash) {
+        return new UserDTO(id, null, passwordHash, null, null);
     }
 
     public static UserDTO ofRoleUpdate(Long id, UserRole role) {

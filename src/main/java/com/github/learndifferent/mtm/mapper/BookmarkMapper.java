@@ -4,6 +4,7 @@ import com.github.learndifferent.mtm.dto.BasicWebDataDTO;
 import com.github.learndifferent.mtm.dto.BookmarkFilterDTO;
 import com.github.learndifferent.mtm.dto.NewBookmarkDTO;
 import com.github.learndifferent.mtm.dto.PopularBookmarkDTO;
+import com.github.learndifferent.mtm.dto.search.UserBookmarkCountDTO;
 import com.github.learndifferent.mtm.dto.search.WebForSearchDTO;
 import com.github.learndifferent.mtm.entity.BookmarkDO;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
@@ -108,6 +109,14 @@ public interface BookmarkMapper {
      */
     int countUserBookmarks(@Param("userId") long userId,
                            @Param("shouldIncludePrivate") boolean shouldIncludePrivate);
+
+    /**
+     * Batch count public bookmarks for users.
+     *
+     * @param userIds user IDs
+     * @return bookmark counts grouped by user ID
+     */
+    List<UserBookmarkCountDTO> countPublicBookmarksByUserIds(@Param("userIds") List<Long> userIds);
 
     /**
      * Get public bookmarks of a user

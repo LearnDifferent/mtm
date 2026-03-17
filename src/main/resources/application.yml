@@ -62,3 +62,8 @@ custom-redis:
 idempotency-config:
   timeout: 35
   key: mtm-idempotency-key
+cors:
+  allowed-origins:
+    - ${MTM_ALLOWED_ORIGIN_1:http://localhost:80}
+    - ${MTM_ALLOWED_ORIGIN_2:http://127.0.0.1:80}
+  allow-credentials: true

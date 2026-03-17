@@ -15,8 +15,8 @@ import com.github.learndifferent.mtm.mapper.BookmarkMapper;
 import com.github.learndifferent.mtm.mapper.CommentMapper;
 import com.github.learndifferent.mtm.mapper.UserMapper;
 import com.github.learndifferent.mtm.service.IdGeneratorService;
-import com.github.learndifferent.mtm.utils.Md5Util;
 import com.github.learndifferent.mtm.utils.PaginationUtils;
+import com.github.learndifferent.mtm.utils.PasswordUtils;
 import com.github.learndifferent.mtm.utils.ThrowExceptionUtils;
 import com.github.learndifferent.mtm.vo.BookmarkVO;
 import com.github.learndifferent.mtm.vo.BookmarksAndTotalPagesVO;
@@ -117,9 +117,10 @@ public class UserManager {
      *                                                                  ResultCode#USER_NOT_EXIST}
      */
     private long checkUserExistsAndReturnUserId(String username, String notEncryptedPassword) {
-        String password = Md5Util.getMd5(notEncryptedPassword);
-        Long id = userMapper.getUserIdByNameAndPassword(username, password);
-        return Optional.ofNullable(id).orElseThrow(() -> new ServiceException(ResultCode.USER_NOT_EXIST));
+        UserDO user = getUserByNameAndPassword(username, notEncryptedPassword);
+        return Optional.ofNullable(user)
+                .map(UserDO::getId)
+                .orElseThrow(() -> new ServiceException(ResultCode.USER_NOT_EXIST));
     }
 
     /**
@@ -189,7 +190,22 @@ public class UserManager {
      * @return user
      */
     public UserDO getUserByNameAndPassword(String username, String notEncryptedPassword) {
-        String password = Md5Util.getMd5(notEncryptedPassword);
-        return userMapper.getUserByNameAndPassword(username, password);
+        UserDO user = userMapper.getUserByName(username);
+        if (user == null) {
+            return null;
+        }
+
+        boolean matches = PasswordUtils.matches(notEncryptedPassword, user.getPassword());
+        if (!matches) {
+            return null;
+        }
+
+        if (PasswordUtils.needsUpgrade(user.getPassword())) {
+            String passwordHash = PasswordUtils.encode(notEncryptedPassword);
+            userMapper.updateUser(UserDTO.ofPasswordHashUpdate(user.getId(), passwordHash));
+            user.setPassword(passwordHash);
+        }
+
+        return user;
     }
 }
